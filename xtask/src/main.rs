@@ -18,6 +18,7 @@ fn main() {
         docker::image::remove(image);
     }
     let arguments: std::collections::BTreeMap<String, String> = [
+        ("CACHE_BUSTER", time::unix()),
         ("DOMAIN", git::domain()),
         ("DEVELOPER", git::developer()),
         ("PRODUCT", git::product()),

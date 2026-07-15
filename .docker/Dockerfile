@@ -11,6 +11,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 WORKDIR /root/
 ARG TIMEZONE
 RUN cp $TIMEZONE /etc/localtime
+ARG CACHE_BUSTER
+RUN echo $CACHE_BUSTER
 ARG DOMAIN
 ARG DEVELOPER
 ARG PRODUCT
