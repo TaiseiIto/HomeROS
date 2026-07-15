@@ -1,8 +1,20 @@
 pub fn get_stdout(command: &str) -> String {
+    String::from_utf8(new(command).output().unwrap().stdout).unwrap()
+}
+
+pub fn run(command: &str) {
+    new(command)
+        .stdout(std::process::Stdio::inherit())
+        .stderr(std::process::Stdio::inherit())
+        .status()
+        .unwrap();
+}
+
+fn new(command: &str) -> std::process::Command {
     let mut args: std::str::SplitAsciiWhitespace = command.split_ascii_whitespace();
     let mut command: std::process::Command = std::process::Command::new(args.next().unwrap());
     for arg in args {
         command.arg(arg);
     }
-    String::from_utf8(command.output().unwrap().stdout).unwrap()
+    command
 }
