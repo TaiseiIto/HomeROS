@@ -1,3 +1,5 @@
+use crate::command;
+
 pub fn name() -> String {
     url()
         .as_str()
@@ -11,12 +13,5 @@ pub fn name() -> String {
 }
 
 fn url() -> String {
-    String::from_utf8(
-        std::process::Command::new("git")
-            .args(["remote", "get-url", "origin"])
-            .output()
-            .unwrap()
-            .stdout,
-    )
-    .unwrap()
+    command::get_stdout("git remote get-url origin")
 }
