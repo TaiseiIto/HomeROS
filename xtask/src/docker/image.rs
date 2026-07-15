@@ -1,11 +1,21 @@
 use crate::command;
 
-pub fn build(image: &str, dockerfile: &std::path::Path) {
+pub fn build(
+    image: &str,
+    dockerfile: &std::path::Path,
+    arguments: std::collections::BTreeMap<String, String>,
+) {
     assert!(!exists(image));
+    let arguments: Vec<String> = arguments
+        .iter()
+        .map(|(key, value)| format!("--build-arg {}={}", key, value))
+        .collect();
+    let arguments: String = arguments.join(" ");
     command::run(&format!(
-        "docker build --tag {} {}",
+        "docker build --tag {} {} {}",
         image,
-        dockerfile.parent().unwrap().to_str().unwrap()
+        dockerfile.parent().unwrap().to_str().unwrap(),
+        arguments
     ));
 }
 

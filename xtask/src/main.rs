@@ -1,6 +1,7 @@
 mod command;
 mod docker;
 mod git;
+mod time;
 
 fn main() {
     let name: String = git::name().to_lowercase();
@@ -16,7 +17,10 @@ fn main() {
     if docker::image::exists(image) {
         docker::image::remove(image);
     }
-    docker::image::build(image, dockerfile);
+    let mut arguments: std::collections::BTreeMap<String, String> =
+        std::collections::BTreeMap::<String, String>::new();
+    arguments.insert("TIMEZONE".to_string(), time::zone());
+    docker::image::build(image, dockerfile, arguments);
     docker::container::create(image, container);
     docker::container::start(container);
     docker::container::attach(container);
