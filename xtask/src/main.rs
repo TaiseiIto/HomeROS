@@ -7,9 +7,17 @@ fn main() {
     let container: &str = &name;
     let image: &str = &name;
     let dockerfile: &std::path::Path = std::path::Path::new(".docker/Dockerfile");
-    docker::container::stop(container);
-    docker::container::remove(container);
-    docker::image::remove(image);
+    if docker::container::runs(container) {
+        docker::container::stop(container);
+    }
+    if docker::container::exists(container) {
+        docker::container::remove(container);
+    }
+    if docker::image::exists(image) {
+        docker::image::remove(image);
+    }
     docker::image::build(image, dockerfile);
     docker::container::create(image, container);
+    docker::container::start(container);
+    docker::container::attach(container);
 }
