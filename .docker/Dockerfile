@@ -11,3 +11,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 WORKDIR /root/
 ARG TIMEZONE
 RUN cp $TIMEZONE /etc/localtime
+ARG DOMAIN
+ARG DEVELOPER
+ARG PRODUCT
+RUN git clone https://$DOMAIN/$DEVELOPER/$PRODUCT.git
+WORKDIR $PRODUCT

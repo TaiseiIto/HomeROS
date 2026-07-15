@@ -4,7 +4,7 @@ mod git;
 mod time;
 
 fn main() {
-    let name: String = git::name().to_lowercase();
+    let name: String = git::product().to_lowercase();
     let container: &str = &name;
     let image: &str = &name;
     let dockerfile: &std::path::Path = std::path::Path::new(".docker/Dockerfile");
@@ -19,6 +19,9 @@ fn main() {
     }
     let mut arguments: std::collections::BTreeMap<String, String> =
         std::collections::BTreeMap::<String, String>::new();
+    arguments.insert("DOMAIN".to_string(), git::domain());
+    arguments.insert("DEVELOPER".to_string(), git::developer());
+    arguments.insert("PRODUCT".to_string(), git::product());
     arguments.insert("TIMEZONE".to_string(), time::zone());
     docker::image::build(image, dockerfile, arguments);
     docker::container::create(image, container);
