@@ -1,5 +1,9 @@
 use crate::command;
 
+pub fn branch() -> String {
+    command::get_stdout("git branch --show-current")
+}
+
 pub fn developer() -> String {
     extract("/:", 1)
 }

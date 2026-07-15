@@ -22,6 +22,7 @@ fn main() {
     arguments.insert("DOMAIN".to_string(), git::domain());
     arguments.insert("DEVELOPER".to_string(), git::developer());
     arguments.insert("PRODUCT".to_string(), git::product());
+    arguments.insert("BRANCH".to_string(), git::branch());
     arguments.insert("TIMEZONE".to_string(), time::zone());
     docker::image::build(image, dockerfile, arguments);
     docker::container::create(image, container);
