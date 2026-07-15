@@ -4,7 +4,7 @@ pub fn name() -> String {
     url()
         .as_str()
         .split('/')
-        .last()
+        .next_back()
         .unwrap()
         .split('.')
         .next()

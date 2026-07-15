@@ -1,73 +1,38 @@
+use crate::command;
+
 pub fn create(image: &str, container: &str) {
     if !exists(container) {
-        std::process::Command::new("docker")
-            .args([
-                "create",
-                "--interactive",
-                "--tty",
-                "--name",
-                container,
-                image,
-                "/bin/bash",
-            ])
-            .stdout(std::process::Stdio::inherit())
-            .stderr(std::process::Stdio::inherit())
-            .status()
-            .unwrap();
+        command::run(&format!(
+            "docker create --interactive --tty --name {} {} /bin/bash",
+            container, image
+        ));
     }
 }
 
 pub fn remove(container: &str) {
     if exists(container) {
-        std::process::Command::new("docker")
-            .args(["rm", container])
-            .stdout(std::process::Stdio::inherit())
-            .stderr(std::process::Stdio::inherit())
-            .status()
-            .unwrap();
+        command::run(&format!("docker rm {}", container));
     }
 }
 
 pub fn stop(container: &str) {
     if runs(container) {
-        std::process::Command::new("docker")
-            .args(["stop", container])
-            .stdout(std::process::Stdio::inherit())
-            .stderr(std::process::Stdio::inherit())
-            .status()
-            .unwrap();
+        command::run(&format!("docker stop {}", container));
     }
 }
 
 fn exists(container: &str) -> bool {
-    std::process::Command::new("docker")
-        .args([
-            "ps",
-            "--all",
-            "--format",
-            "{{.Names}}",
-            "--filter",
-            &format!("name=^{}$", container),
-        ])
-        .output()
-        .unwrap()
-        .stdout
-        .len()
-        != 0
+    !command::get_stdout(&format!(
+        "docker ps --all --format {{{{.Names}}}} --filter name=^{}$",
+        container
+    ))
+    .is_empty()
 }
 
 fn runs(container: &str) -> bool {
-    std::process::Command::new("docker")
-        .args([
-            "ps",
-            "--format",
-            "{{.Names}}",
-            "--filter",
-            &format!("name=^{}$", container),
-        ])
-        .output()
-        .unwrap()
-        .stdout
-        .len()
-        != 0
+    !command::get_stdout(&format!(
+        "docker ps --format {{{{.Names}}}} --filter name=^{}$",
+        container
+    ))
+    .is_empty()
 }

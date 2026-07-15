@@ -17,10 +17,9 @@ pub fn remove(image: &str) {
 }
 
 fn exists(image: &str) -> bool {
-    command::get_stdout(&format!(
+    !command::get_stdout(&format!(
         "docker images --format {{{{.Repository}}}} {}",
         image
     ))
-    .len()
-        != 0
+    .is_empty()
 }
