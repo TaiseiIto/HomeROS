@@ -17,13 +17,16 @@ fn main() {
     if docker::image::exists(image) {
         docker::image::remove(image);
     }
-    let mut arguments: std::collections::BTreeMap<String, String> =
-        std::collections::BTreeMap::<String, String>::new();
-    arguments.insert("DOMAIN".to_string(), git::domain());
-    arguments.insert("DEVELOPER".to_string(), git::developer());
-    arguments.insert("PRODUCT".to_string(), git::product());
-    arguments.insert("BRANCH".to_string(), git::branch());
-    arguments.insert("TIMEZONE".to_string(), time::zone());
+    let arguments: std::collections::BTreeMap<String, String> = [
+        ("DOMAIN", git::domain()),
+        ("DEVELOPER", git::developer()),
+        ("PRODUCT", git::product()),
+        ("BRANCH", git::branch()),
+        ("TIMEZONE", time::zone()),
+    ]
+    .into_iter()
+    .map(|(key, value)| (key.to_string(), value))
+    .collect();
     docker::image::build(image, dockerfile, arguments);
     docker::container::create(image, container);
     docker::container::start(container);
