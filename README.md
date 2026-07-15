@@ -14,5 +14,13 @@ And run the commands below.
 ```
 /somewhere$ git clone https://github.com/TaiseiIto/HomeROS.git
 /somewhere$ cd HomeROS
-/somewhere/HomeROS$ cargo run -p xtask
+/somewhere/HomeROS$ cargo enter
+~/HomeROS#
 ```
+
+## Lint
+
+```
+~/HomeROS# cargo lint
+```
+
