@@ -18,3 +18,5 @@ RUN git clone https://$DOMAIN/$DEVELOPER/$PRODUCT.git
 WORKDIR $PRODUCT
 ARG BRANCH
 RUN git checkout $BRANCH
+RUN cat .tmux/conf >> ../.tmux.conf
+RUN cat .vim/rc >> ../.vimrc
