@@ -1,8 +1,5 @@
 use {
-    clap::{
-        Parser,
-        Subcommand,
-    },
+    clap::{Parser, Subcommand},
     xtask::environment,
 };
 
@@ -26,6 +23,6 @@ fn main() {
         Command::Rebuild => {
             environment::remove();
             environment::build();
-        },
+        }
     }
 }
