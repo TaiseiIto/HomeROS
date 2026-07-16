@@ -1,8 +1,4 @@
-mod command;
-mod docker;
-mod environment;
-mod git;
-mod time;
+use xtask::environment;
 
 fn main() {
     environment::remove();
