@@ -1,3 +1,5 @@
 [alias]
-enter = "run -p xtask"
+benv = "run --package xtask -- build"
+denv = "run --package xtask -- delete"
+renv = "run --package xtask -- rebuild"
 lint = "clippy --workspace --all-targets --all-features -- -D warnings"

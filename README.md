@@ -14,11 +14,33 @@ And run the commands below.
 ```
 /somewhere$ git clone https://github.com/TaiseiIto/HomeROS.git
 /somewhere$ cd HomeROS
-/somewhere/HomeROS$ cargo enter
+/somewhere/HomeROS$ cargo benv
 ~/HomeROS#
 ```
 
-## Lint
+## Cargo commands
+
+### Build development environment
+
+```
+/somewhere/HomeROS$ cargo benv
+```
+
+This command builds development environment as a docker container and enter the container.
+
+### Deleve development environment
+
+```
+/somewhere/HomeROS$ cargo denv
+```
+
+### Rebuild development environment
+
+```
+/somewhere/HomeROS$ cargo renv
+```
+
+### Lint
 
 ```
 ~/HomeROS# cargo lint
