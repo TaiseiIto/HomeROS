@@ -40,6 +40,14 @@ This command builds development environment as a docker container and enter the 
 /somewhere/HomeROS$ cargo renv
 ```
 
+### Privilege 
+
+```
+/somewhere/HomeROS$ cargo penv --gpg-key /path/to/gpgkey --ssh-key /path/to/sshkey
+```
+
+If you have push permission to this repository, this command make you able to push commits in the development environment.
+
 ### Lint
 
 ```

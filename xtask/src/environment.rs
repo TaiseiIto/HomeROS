@@ -1,9 +1,36 @@
 use crate::{docker, git, time};
 
-pub fn build() {
+pub fn attach() {
+    build();
+    let container: String = container();
+    assert!(docker::container::exists(&container));
+    assert!(docker::container::runs(&container));
+    docker::container::attach(&container);
+}
+
+pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
+    build();
+}
+
+pub fn remove() {
+    let image: String = image();
+    let container: String = container();
+    if docker::container::runs(&container) {
+        docker::container::stop(&container);
+    }
+    if docker::container::exists(&container) {
+        docker::container::remove(&container);
+    }
+    if docker::image::exists(&image) {
+        docker::image::remove(&image);
+    }
+}
+
+fn build() {
     let image: String = image();
     let container: String = container();
     let dockerfile: std::path::PathBuf = dockerfile();
+    assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
         ("CACHE_BUSTER", time::unix()),
         ("DOMAIN", git::domain()),
@@ -23,21 +50,6 @@ pub fn build() {
     }
     if !docker::container::runs(&container) {
         docker::container::start(&container);
-    }
-    docker::container::attach(&container);
-}
-
-pub fn remove() {
-    let image: String = image();
-    let container: String = container();
-    if docker::container::runs(&container) {
-        docker::container::stop(&container);
-    }
-    if docker::container::exists(&container) {
-        docker::container::remove(&container);
-    }
-    if docker::image::exists(&image) {
-        docker::image::remove(&image);
     }
 }
 
