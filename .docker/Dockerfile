@@ -1,5 +1,6 @@
 FROM ubuntu:26.04
 ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-arm
