@@ -82,7 +82,7 @@ fn image() -> String {
 fn ssh_key_destination() -> std::path::PathBuf {
     let mut path: std::path::PathBuf = home_directory();
     path.push(".ssh");
-    path.push(&git::domain());
+    path.push(git::domain());
     path.push("key");
     path
 }

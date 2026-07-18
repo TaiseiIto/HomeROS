@@ -9,8 +9,15 @@ pub fn attach(container: &str) {
 pub fn copy(source: &std::path::Path, container: &str, destination: &std::path::Path) {
     assert!(exists(container));
     assert!(runs(container));
-    destination.parent().map(|destination_directory| make_directory(container, destination_directory));
-    command::run(&format!("docker cp {} {}:{}", source.to_str().unwrap(), container, destination.to_str().unwrap()));
+    if let Some(destination_directory) = destination.parent() {
+        make_directory(container, destination_directory);
+    }
+    command::run(&format!(
+        "docker cp {} {}:{}",
+        source.to_str().unwrap(),
+        container,
+        destination.to_str().unwrap()
+    ));
 }
 
 pub fn create(image: &str, container: &str) {
@@ -68,10 +75,5 @@ fn make_directory(container: &str, directory: &std::path::Path) {
 fn get_stdout(container: &str, command: &str) -> String {
     assert!(exists(container));
     assert!(runs(container));
-    command::get_stdout(&format!(
-        "docker exec {} {}",
-        container,
-        command
-    ))
+    command::get_stdout(&format!("docker exec {} {}", container, command))
 }
-
