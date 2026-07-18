@@ -11,8 +11,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
 RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 WORKDIR /root/
-RUN mkdir .github
-RUN mkdir .ssh
 ARG TIMEZONE
 RUN cp $TIMEZONE /etc/localtime
 ARG CACHE_BUSTER

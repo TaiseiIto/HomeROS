@@ -8,6 +8,8 @@ pub fn attach(container: &str) {
 
 pub fn copy(source: &std::path::Path, container: &str, destination: &std::path::Path) {
     assert!(exists(container));
+    assert!(runs(container));
+    destination.parent().map(|destination_directory| make_directory(container, destination_directory));
     command::run(&format!("docker cp {} {}:{}", source.to_str().unwrap(), container, destination.to_str().unwrap()));
 }
 
@@ -57,6 +59,10 @@ pub fn stop(container: &str) {
     assert!(exists(container));
     assert!(runs(container));
     command::run(&format!("docker stop {}", container));
+}
+
+fn make_directory(container: &str, directory: &std::path::Path) {
+    get_stdout(container, &format!("mkdir {}", directory.to_str().unwrap()));
 }
 
 fn get_stdout(container: &str, command: &str) -> String {
