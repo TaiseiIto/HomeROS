@@ -3,4 +3,4 @@ pre-commit:
     lint:
       run: cargo lint
     format:
-      run: cargo fmt
+      run: cargo fmt --check
