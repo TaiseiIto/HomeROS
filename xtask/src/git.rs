@@ -12,6 +12,10 @@ pub fn domain() -> String {
     extract("/:@", 2)
 }
 
+pub fn email() -> String {
+    command::get_stdout("git config user.email")
+}
+
 pub fn product() -> String {
     extract("./", 1)
 }
