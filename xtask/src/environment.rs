@@ -1,4 +1,5 @@
 use crate::{docker, git, time};
+use indoc::indoc;
 
 pub fn attach() {
     build();
@@ -41,12 +42,12 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         &container,
         &ssh_config(),
         &format!(
-            r#"
-    Host {}
-        HostName {}
-        IdentityFile {}
-        User git
-    "#,
+            indoc! {r#"
+                Host {}
+                    HostName {}
+                    IdentityFile {}
+                    User git
+        "#},
             git::domain(),
             git::domain(),
             ssh_key_destination().to_str().unwrap()
@@ -126,9 +127,7 @@ fn signing_key(gpg_key: &std::path::Path) -> String {
     assert!(!signing_key.is_empty());
     std::fs::read_to_string(signing_key)
         .unwrap()
-        .lines()
-        .next()
-        .unwrap()
+        .trim_end()
         .to_string()
 }
 

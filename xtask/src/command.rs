@@ -1,7 +1,7 @@
 pub fn get_stdout(command: &str) -> String {
     String::from_utf8(new(command).output().unwrap().stdout)
         .unwrap()
-        .trim_end_matches('\n')
+        .trim_end()
         .to_string()
 }
 
