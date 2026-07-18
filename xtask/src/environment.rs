@@ -12,7 +12,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     assert!(gpg_key.exists());
     assert!(gpg_key.is_dir());
     assert!(ssh_key.exists());
-    assert!(gpg_key.is_file());
+    assert!(ssh_key.is_file());
     build();
     let container: String = container();
     docker::container::copy(gpg_key, &container, &gpg_key_destination());
@@ -22,17 +22,36 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         format!("chmod 600 {}", ssh_key_destination().to_str().unwrap()),
         format!("git config --global user.name {}", git::developer()),
         format!("git config --global user.email {}", git::email()),
-        format!("git config --global user.signingkey {}", signing_key(gpg_key)),
-        format!("git remote set-url origin git@{}:{}/{}.git", git::domain(), git::developer(), git::product())
+        format!(
+            "git config --global user.signingkey {}",
+            signing_key(gpg_key)
+        ),
+        format!(
+            "git remote set-url origin git@{}:{}/{}.git",
+            git::domain(),
+            git::developer(),
+            git::product()
+        ),
     ]
-        .into_iter()
-        .map(|command| docker::container::execute(&container, &command));
-    docker::container::write(&container, &ssh_config(), &format!(r#"
+    .into_iter()
+    .for_each(|command| {
+        docker::container::execute(&container, &command);
+    });
+    docker::container::write(
+        &container,
+        &ssh_config(),
+        &format!(
+            r#"
     Host {}
         HostName {}
         IdentityFile {}
         User git
-    "#, git::domain(), git::domain(), ssh_key_destination()));
+    "#,
+            git::domain(),
+            git::domain(),
+            ssh_key_destination().to_str().unwrap()
+        ),
+    );
 }
 
 pub fn remove() {
@@ -105,7 +124,12 @@ fn signing_key(gpg_key: &std::path::Path) -> String {
     assert!(signing_key.exists());
     assert!(signing_key.is_file());
     assert!(!signing_key.is_empty());
-    std::fs::read_to_string(signing_key).unwrap().lines().next().unwrap()
+    std::fs::read_to_string(signing_key)
+        .unwrap()
+        .lines()
+        .next()
+        .unwrap()
+        .to_string()
 }
 
 fn ssh() -> std::path::PathBuf {

@@ -1,4 +1,5 @@
 use crate::command;
+use std::io::Write;
 
 pub fn attach(container: &str) {
     assert!(exists(container));
@@ -75,8 +76,8 @@ pub fn stop(container: &str) {
 }
 
 pub fn write(container: &str, destination: &std::path::Path, data: &str) {
-    let temporary: tempfile::NamedTempFile = tempfile::NamedTempFile::new().unwrap();
-    write!(temporary, data);
+    let mut temporary: tempfile::NamedTempFile = tempfile::NamedTempFile::new().unwrap();
+    write!(temporary, "{}", data).unwrap();
     copy(temporary.path(), container, destination);
 }
 
