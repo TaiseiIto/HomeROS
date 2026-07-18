@@ -43,6 +43,17 @@ pub fn exists(container: &str) -> bool {
     .is_empty()
 }
 
+pub fn groups(container: &str) -> Vec<String> {
+    assert!(exists(container));
+    assert!(runs(container));
+    let mut groups: Vec<String> = execute(container, "groups")
+        .split_whitespace()
+        .map(|group| group.to_string())
+        .collect();
+    groups.sort();
+    groups
+}
+
 pub fn home_directory(container: &str) -> std::path::PathBuf {
     assert!(exists(container));
     assert!(runs(container));
@@ -73,6 +84,12 @@ pub fn stop(container: &str) {
     assert!(exists(container));
     assert!(runs(container));
     command::run(&format!("docker stop {}", container));
+}
+
+pub fn user(container: &str) -> String {
+    assert!(exists(container));
+    assert!(runs(container));
+    execute(container, "whoami")
 }
 
 pub fn write(container: &str, destination: &std::path::Path, data: &str) {

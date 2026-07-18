@@ -18,9 +18,36 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     let container: String = container();
     docker::container::copy(gpg_key, &container, &gpg_key_destination());
     docker::container::copy(ssh_key, &container, &ssh_key_destination());
+    docker::container::write(
+        &container,
+        &ssh_config(),
+        &format!(
+            indoc! {r#"
+                Host {}
+                    HostName {}
+                    IdentityFile {}
+                    User git
+        "#},
+            git::domain(),
+            git::domain(),
+            ssh_key_destination().to_str().unwrap()
+        ),
+    );
     [
+        format!(
+            "chown -R {}:{} {}",
+            docker::container::user(&container),
+            docker::container::groups(&container).pop().unwrap(),
+            gpg_key_destination().to_str().unwrap()
+        ),
         format!("chmod -R 600 {}", gpg_key_destination().to_str().unwrap()),
-        format!("chmod 600 {}", ssh_key_destination().to_str().unwrap()),
+        format!(
+            "chown -R {}:{} {}",
+            docker::container::user(&container),
+            docker::container::groups(&container).pop().unwrap(),
+            ssh().to_str().unwrap()
+        ),
+        format!("chmod -R 600 {}", ssh().to_str().unwrap()),
         format!("git config --global user.name {}", git::developer()),
         format!("git config --global user.email {}", git::email()),
         format!(
@@ -38,21 +65,6 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     .for_each(|command| {
         docker::container::execute(&container, &command);
     });
-    docker::container::write(
-        &container,
-        &ssh_config(),
-        &format!(
-            indoc! {r#"
-                Host {}
-                    HostName {}
-                    IdentityFile {}
-                    User git
-        "#},
-            git::domain(),
-            git::domain(),
-            ssh_key_destination().to_str().unwrap()
-        ),
-    );
 }
 
 pub fn remove() {
