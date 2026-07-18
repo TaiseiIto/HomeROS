@@ -34,6 +34,19 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         ),
     );
     [
+        format!("git config --global user.name {}", git::developer()),
+        format!("git config --global user.email {}", git::email()),
+        "git config --global commit.gpgsign true".to_string(),
+        format!(
+            "git config --global user.signingkey {}",
+            signing_key(gpg_key)
+        ),
+        format!(
+            "git remote set-url origin git@{}:{}/{}.git",
+            git::domain(),
+            git::developer(),
+            git::product()
+        ),
         format!(
             "chown -R {}:{} {}",
             docker::container::user(&container),
@@ -48,18 +61,6 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
             ssh().to_str().unwrap()
         ),
         format!("chmod -R 600 {}", ssh().to_str().unwrap()),
-        format!("git config --global user.name {}", git::developer()),
-        format!("git config --global user.email {}", git::email()),
-        format!(
-            "git config --global user.signingkey {}",
-            signing_key(gpg_key)
-        ),
-        format!(
-            "git remote set-url origin git@{}:{}/{}.git",
-            git::domain(),
-            git::developer(),
-            git::product()
-        ),
     ]
     .into_iter()
     .for_each(|command| {

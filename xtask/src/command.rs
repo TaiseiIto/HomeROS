@@ -6,11 +6,13 @@ pub fn get_stdout(command: &str) -> String {
 }
 
 pub fn run(command: &str) {
-    new(command)
+    let success: bool = new(command)
         .stdout(std::process::Stdio::inherit())
         .stderr(std::process::Stdio::inherit())
         .status()
-        .unwrap();
+        .unwrap()
+        .success();
+    assert!(success);
 }
 
 fn new(command: &str) -> std::process::Command {
