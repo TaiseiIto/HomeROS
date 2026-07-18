@@ -67,8 +67,10 @@ pub fn remove(id_file: &std::path::Path) {
 }
 
 pub fn runs(id_file: &std::path::Path) -> bool {
-    assert!(exists(id_file));
-    command::get_stdout(&format!("docker inspect -f {{{{.State.Running}}}} {}", read_id(id_file))) == "true"
+    exists(id_file) && command::get_stdout(&format!(
+        "docker inspect -f {{{{.State.Running}}}} {}",
+        read_id(id_file)
+    )) == "true"
 }
 
 pub fn start(id_file: &std::path::Path) {
@@ -104,4 +106,3 @@ fn read_id(id_file: &std::path::Path) -> String {
     assert!(id_file.is_file());
     std::fs::read_to_string(id_file).unwrap()
 }
-
