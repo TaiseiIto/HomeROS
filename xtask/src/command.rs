@@ -1,5 +1,5 @@
 pub fn get_stdout(command: &str) -> String {
-    String::from_utf8(new(command).output().unwrap().stdout).unwrap()
+    String::from_utf8(new(command).output().unwrap().stdout).unwrap().trim_end_matches('\n').to_string()
 }
 
 pub fn run(command: &str) {
