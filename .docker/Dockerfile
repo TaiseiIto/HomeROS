@@ -10,6 +10,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y tmux
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
 RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN git config --global alias.graph 'log --graph --date-order -C -M --pretty=format:"<%h> %ad [%an] %Cgreen%d%Creset %s" --all --date=short'
 WORKDIR /root/
 RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
 ARG TIMEZONE
