@@ -10,6 +10,9 @@ pub fn attach() {
 
 pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     build();
+    let container: String = container();
+    docker::container::copy(gpg_key, &container, &gpg_key_destination());
+    docker::container::copy(ssh_key, &container, &ssh_key_destination());
 }
 
 pub fn remove() {
@@ -57,10 +60,28 @@ fn container() -> String {
     git::product().to_lowercase()
 }
 
+fn dockerfile() -> std::path::PathBuf {
+    std::path::PathBuf::from(".docker/Dockerfile")
+}
+
+fn gpg_key_destination() -> std::path::PathBuf {
+    let mut path: std::path::PathBuf = home_directory();
+    path.push(".gnupg");
+    path
+}
+
+fn home_directory() -> std::path::PathBuf {
+    build();
+    docker::container::home_directory(&container())
+}
+
 fn image() -> String {
     git::product().to_lowercase()
 }
 
-fn dockerfile() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/Dockerfile")
+fn ssh_key_destination() -> std::path::PathBuf {
+    let mut path: std::path::PathBuf = home_directory();
+    path.push(".github");
+    path.push("key");
+    path
 }

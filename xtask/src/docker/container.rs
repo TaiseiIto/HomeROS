@@ -6,6 +6,11 @@ pub fn attach(container: &str) {
     command::run(&format!("docker attach {}", container));
 }
 
+pub fn copy(source: &std::path::Path, container: &str, destination: &std::path::Path) {
+    assert!(exists(container));
+    command::run(&format!("docker cp {} {}:{}", source.to_str().unwrap(), container, destination.to_str().unwrap()));
+}
+
 pub fn create(image: &str, container: &str) {
     assert!(!exists(container));
     command::run(&format!(
@@ -20,6 +25,12 @@ pub fn exists(container: &str) -> bool {
         container
     ))
     .is_empty()
+}
+
+pub fn home_directory(container: &str) -> std::path::PathBuf {
+    assert!(exists(container));
+    assert!(runs(container));
+    get_stdout(container, "printenv HOME").into()
 }
 
 pub fn remove(container: &str) {
@@ -47,3 +58,14 @@ pub fn stop(container: &str) {
     assert!(runs(container));
     command::run(&format!("docker stop {}", container));
 }
+
+fn get_stdout(container: &str, command: &str) -> String {
+    assert!(exists(container));
+    assert!(runs(container));
+    command::get_stdout(&format!(
+        "docker exec {} {}",
+        container,
+        command
+    ))
+}
+
