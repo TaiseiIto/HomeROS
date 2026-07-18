@@ -3,6 +3,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | bash
+RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-arm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-misc
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-x86
@@ -24,5 +26,6 @@ RUN git clone https://$DOMAIN/$DEVELOPER/$PRODUCT.git
 WORKDIR $PRODUCT
 ARG BRANCH
 RUN git checkout $BRANCH
+RUN lefthook install
 RUN cat .tmux/conf >> ../.tmux.conf
 RUN cat .vim/rc >> ../.vimrc
