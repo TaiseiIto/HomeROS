@@ -1,53 +1,52 @@
 use crate::command;
 use std::io::Write;
 
-pub fn attach(container: &str) {
-    assert!(exists(container));
-    assert!(runs(container));
-    command::run(&format!("docker attach {}", container));
+pub fn attach(id_file: &std::path::Path) {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    command::run(&format!("docker attach {}", read_id(id_file)));
 }
 
-pub fn copy(source: &std::path::Path, container: &str, destination: &std::path::Path) {
-    assert!(exists(container));
-    assert!(runs(container));
+pub fn copy(source: &std::path::Path, id_file: &std::path::Path, destination: &std::path::Path) {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
     if let Some(destination_directory) = destination.parent() {
-        make_directory(container, destination_directory);
+        make_directory(id_file, destination_directory);
     }
     command::run(&format!(
         "docker cp {} {}:{}",
         source.to_str().unwrap(),
-        container,
+        read_id(id_file),
         destination.to_str().unwrap()
     ));
 }
 
-pub fn create(image: &std::path::Path, container: &str) {
-    assert!(!exists(container));
-    command::run(&format!(
-        "docker create --interactive --tty --name {} {} /bin/bash",
-        container,
+pub fn create(image: &std::path::Path, id_file: &std::path::Path) {
+    assert!(!exists(id_file));
+    let id_file_id: String = command::get_stdout(&format!(
+        "docker create --interactive --tty {} /bin/bash",
         super::image::read_id(image)
     ));
+    std::fs::write(id_file, id_file_id).unwrap();
 }
 
-pub fn execute(container: &str, command: &str) -> String {
-    assert!(exists(container));
-    assert!(runs(container));
-    command::get_stdout(&format!("docker exec {} {}", container, command))
+pub fn execute(id_file: &std::path::Path, command: &str) -> String {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    command::get_stdout(&format!("docker exec {} {}", read_id(id_file), command))
 }
 
-pub fn exists(container: &str) -> bool {
-    !command::get_stdout(&format!(
-        "docker ps --all --format {{{{.Names}}}} --filter name=^{}$",
-        container
-    ))
-    .is_empty()
+pub fn exists(id_file: &std::path::Path) -> bool {
+    id_file.exists() && id_file.is_file() && {
+        let my_id: String = read_id(id_file);
+        command::test(&format!("docker inspect {}", my_id))
+    }
 }
 
-pub fn groups(container: &str) -> Vec<String> {
-    assert!(exists(container));
-    assert!(runs(container));
-    let mut groups: Vec<String> = execute(container, "groups")
+pub fn groups(id_file: &std::path::Path) -> Vec<String> {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    let mut groups: Vec<String> = execute(id_file, "groups")
         .split_whitespace()
         .map(|group| group.to_string())
         .collect();
@@ -55,50 +54,54 @@ pub fn groups(container: &str) -> Vec<String> {
     groups
 }
 
-pub fn home_directory(container: &str) -> std::path::PathBuf {
-    assert!(exists(container));
-    assert!(runs(container));
-    execute(container, "printenv HOME").into()
+pub fn home_directory(id_file: &std::path::Path) -> std::path::PathBuf {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    execute(id_file, "printenv HOME").into()
 }
 
-pub fn remove(container: &str) {
-    assert!(exists(container));
-    assert!(!runs(container));
-    command::run(&format!("docker rm {}", container));
+pub fn remove(id_file: &std::path::Path) {
+    assert!(exists(id_file));
+    assert!(!runs(id_file));
+    command::run(&format!("docker rm {}", read_id(id_file)));
 }
 
-pub fn runs(container: &str) -> bool {
-    !command::get_stdout(&format!(
-        "docker ps --format {{{{.Names}}}} --filter name=^{}$",
-        container
-    ))
-    .is_empty()
+pub fn runs(id_file: &std::path::Path) -> bool {
+    assert!(exists(id_file));
+    command::get_stdout(&format!("docker inspect -f {{{{.State.Running}}}} {}", read_id(id_file))) == "true"
 }
 
-pub fn start(container: &str) {
-    assert!(exists(container));
-    assert!(!runs(container));
-    command::run(&format!("docker start {}", container));
+pub fn start(id_file: &std::path::Path) {
+    assert!(exists(id_file));
+    assert!(!runs(id_file));
+    command::run(&format!("docker start {}", read_id(id_file)));
 }
 
-pub fn stop(container: &str) {
-    assert!(exists(container));
-    assert!(runs(container));
-    command::run(&format!("docker stop {}", container));
+pub fn stop(id_file: &std::path::Path) {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    command::run(&format!("docker stop {}", read_id(id_file)));
 }
 
-pub fn user(container: &str) -> String {
-    assert!(exists(container));
-    assert!(runs(container));
-    execute(container, "whoami")
+pub fn user(id_file: &std::path::Path) -> String {
+    assert!(exists(id_file));
+    assert!(runs(id_file));
+    execute(id_file, "whoami")
 }
 
-pub fn write(container: &str, destination: &std::path::Path, data: &str) {
+pub fn write(id_file: &std::path::Path, destination: &std::path::Path, data: &str) {
     let mut temporary: tempfile::NamedTempFile = tempfile::NamedTempFile::new().unwrap();
     write!(temporary, "{}", data).unwrap();
-    copy(temporary.path(), container, destination);
+    copy(temporary.path(), id_file, destination);
 }
 
-fn make_directory(container: &str, directory: &std::path::Path) {
-    execute(container, &format!("mkdir {}", directory.to_str().unwrap()));
+fn make_directory(id_file: &std::path::Path, directory: &std::path::Path) {
+    execute(id_file, &format!("mkdir {}", directory.to_str().unwrap()));
 }
+
+fn read_id(id_file: &std::path::Path) -> String {
+    assert!(id_file.exists());
+    assert!(id_file.is_file());
+    std::fs::read_to_string(id_file).unwrap()
+}
+

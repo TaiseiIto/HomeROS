@@ -3,7 +3,7 @@ use indoc::indoc;
 
 pub fn attach() {
     build();
-    let container: String = container();
+    let container: std::path::PathBuf = container();
     assert!(docker::container::exists(&container));
     assert!(docker::container::runs(&container));
     docker::container::attach(&container);
@@ -15,7 +15,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     assert!(ssh_key.exists());
     assert!(ssh_key.is_file());
     build();
-    let container: String = container();
+    let container: std::path::PathBuf = container();
     docker::container::copy(gpg_key, &container, &gpg_key_destination());
     docker::container::copy(ssh_key, &container, &ssh_key_destination());
     docker::container::write(
@@ -70,7 +70,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
 
 pub fn remove() {
     let image: std::path::PathBuf = image();
-    let container: String = container();
+    let container: std::path::PathBuf = container();
     if docker::container::runs(&container) {
         docker::container::stop(&container);
     }
@@ -84,7 +84,7 @@ pub fn remove() {
 
 fn build() {
     let image: std::path::PathBuf = image();
-    let container: String = container();
+    let container: std::path::PathBuf = container();
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
@@ -109,8 +109,8 @@ fn build() {
     }
 }
 
-fn container() -> String {
-    git::product().to_lowercase()
+fn container() -> std::path::PathBuf {
+    std::path::PathBuf::from(".docker/container.id")
 }
 
 fn dockerfile() -> std::path::PathBuf {
