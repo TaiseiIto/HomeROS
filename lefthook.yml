@@ -1,0 +1,6 @@
+pre-commit:
+  commands:
+    lint:
+      run: cargo lint
+    format:
+      run: cargo fmt --check
