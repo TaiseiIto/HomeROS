@@ -15,6 +15,15 @@ pub fn run(command: &str) {
     assert!(success);
 }
 
+pub fn test(command: &str) -> bool {
+    new(command)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .unwrap()
+        .success()
+}
+
 fn new(command: &str) -> std::process::Command {
     let mut args: std::str::SplitAsciiWhitespace = command.split_ascii_whitespace();
     let mut command: std::process::Command = std::process::Command::new(args.next().unwrap());

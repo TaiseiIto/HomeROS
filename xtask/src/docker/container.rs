@@ -25,7 +25,8 @@ pub fn create(image: &std::path::Path, container: &str) {
     assert!(!exists(container));
     command::run(&format!(
         "docker create --interactive --tty --name {} {} /bin/bash",
-        container, super::image::read_id(image)
+        container,
+        super::image::read_id(image)
     ));
 }
 

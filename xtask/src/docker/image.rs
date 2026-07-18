@@ -22,9 +22,7 @@ pub fn build(
 pub fn exists(id_file: &std::path::Path) -> bool {
     id_file.exists() && id_file.is_file() && {
         let my_id: String = read_id(id_file);
-        command::get_stdout("docker images --no-trunc --format {{{{.ID}}}}")
-            .lines()
-            .any(|id| id == my_id)
+        command::test(&format!("docker image inspect {}", my_id))
     }
 }
 
@@ -38,4 +36,3 @@ pub fn remove(id_file: &std::path::Path) {
     assert!(exists(id_file));
     command::run(&format!("docker image rm {}", read_id(id_file)));
 }
-
