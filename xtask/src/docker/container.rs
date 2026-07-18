@@ -21,11 +21,11 @@ pub fn copy(source: &std::path::Path, container: &str, destination: &std::path::
     ));
 }
 
-pub fn create(image: &str, container: &str) {
+pub fn create(image: &std::path::Path, container: &str) {
     assert!(!exists(container));
     command::run(&format!(
         "docker create --interactive --tty --name {} {} /bin/bash",
-        container, image
+        container, super::image::read_id(image)
     ));
 }
 

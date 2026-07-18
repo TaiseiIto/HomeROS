@@ -69,7 +69,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
 }
 
 pub fn remove() {
-    let image: String = image();
+    let image: std::path::PathBuf = image();
     let container: String = container();
     if docker::container::runs(&container) {
         docker::container::stop(&container);
@@ -83,7 +83,7 @@ pub fn remove() {
 }
 
 fn build() {
-    let image: String = image();
+    let image: std::path::PathBuf = image();
     let container: String = container();
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
@@ -128,8 +128,8 @@ fn home_directory() -> std::path::PathBuf {
     docker::container::home_directory(&container())
 }
 
-fn image() -> String {
-    git::product().to_lowercase()
+fn image() -> std::path::PathBuf {
+    std::path::PathBuf::from(".docker/image.id")
 }
 
 fn signing_key(gpg_key: &std::path::Path) -> String {
