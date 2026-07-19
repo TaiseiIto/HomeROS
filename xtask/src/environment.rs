@@ -2,10 +2,10 @@ use crate::{docker, git, time};
 
 pub fn attach() {
     build();
-    let container: std::path::PathBuf = container();
-    assert!(docker::container::exists(&container));
-    assert!(docker::container::runs(&container));
-    docker::container::attach(&container);
+    let container: docker::Container = container();
+    assert!(container.exists());
+    assert!(container.runs());
+    container.attach();
 }
 
 pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
@@ -14,11 +14,10 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     assert!(ssh_key.exists());
     assert!(ssh_key.is_file());
     build();
-    let container: std::path::PathBuf = container();
-    docker::container::copy(gpg_key, &container, &gpg_key_destination());
-    docker::container::copy(ssh_key, &container, &ssh_key_destination());
-    docker::container::write(
-        &container,
+    let container: docker::Container = container();
+    container.copy(gpg_key, &gpg_key_destination());
+    container.copy(ssh_key, &ssh_key_destination());
+    container.write(
         &ssh_config(),
         &format!(
             "Host {}\n\tHostName {}\n\tIdentityFile {}\n\tUser git",
@@ -43,33 +42,33 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         ),
         format!(
             "chown -R {}:{} {}",
-            docker::container::user(&container),
-            docker::container::groups(&container).pop().unwrap(),
+            container.user(),
+            container.groups().pop().unwrap(),
             gpg_key_destination().to_str().unwrap()
         ),
         format!("chmod -R 600 {}", gpg_key_destination().to_str().unwrap()),
         format!(
             "chown -R {}:{} {}",
-            docker::container::user(&container),
-            docker::container::groups(&container).pop().unwrap(),
+            container.user(),
+            container.groups().pop().unwrap(),
             ssh().to_str().unwrap()
         ),
         format!("chmod -R 600 {}", ssh().to_str().unwrap()),
     ]
     .into_iter()
     .for_each(|command| {
-        docker::container::execute(&container, &command);
+        container.execute(&command);
     });
 }
 
 pub fn remove() {
     let image: docker::Image = image();
-    let container: std::path::PathBuf = container();
-    if docker::container::runs(&container) {
-        docker::container::stop(&container);
+    let container: docker::Container = container();
+    if container.runs() {
+        container.stop();
     }
-    if docker::container::exists(&container) {
-        docker::container::remove(&container);
+    if container.exists() {
+        container.remove();
     }
     if image.exists() {
         image.remove();
@@ -78,7 +77,7 @@ pub fn remove() {
 
 fn build() {
     let image: docker::Image = image();
-    let container: std::path::PathBuf = container();
+    let container: docker::Container = container();
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
@@ -94,16 +93,16 @@ fn build() {
     if !image.exists() {
         image.build(&dockerfile, arguments);
     }
-    if !docker::container::exists(&container) {
-        docker::container::create(&image, &container);
+    if !container.exists() {
+        container.create(&image);
     }
-    if !docker::container::runs(&container) {
-        docker::container::start(&container);
+    if !container.runs() {
+        container.start();
     }
 }
 
-fn container() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/container.id")
+fn container() -> docker::Container {
+    ".docker/container.id".into()
 }
 
 fn dockerfile() -> std::path::PathBuf {
@@ -118,7 +117,7 @@ fn gpg_key_destination() -> std::path::PathBuf {
 
 fn home_directory() -> std::path::PathBuf {
     build();
-    docker::container::home_directory(&container())
+    container().home_directory()
 }
 
 fn image() -> docker::Image {
