@@ -1,18 +1,16 @@
 use {crate::command, std::io::Write};
 
 pub struct Container {
-    id_file: std::path::PathBuf,
+    id: String,
 }
 
 impl Container {
     pub fn attach(&self) {
-        assert!(self.exists());
         assert!(self.runs());
-        command::run(&format!("docker attach {}", self.read_id()));
+        command::run(&format!("docker attach {}", self.id));
     }
 
     pub fn copy(&self, source: &std::path::Path, destination: &std::path::Path) {
-        assert!(self.exists());
         assert!(self.runs());
         if let Some(destination_directory) = destination.parent() {
             self.make_directory(destination_directory);
@@ -20,35 +18,26 @@ impl Container {
         command::run(&format!(
             "docker cp {} {}:{}",
             source.to_str().unwrap(),
-            self.read_id(),
+            self.id,
             destination.to_str().unwrap()
         ));
     }
 
-    pub fn create(&self, image: &Image) {
-        assert!(!self.exists());
+    pub fn create(image: &Image, id_file: &std::path::Path) -> Self {
         let id: String = command::get_stdout(&format!(
             "docker create --interactive --tty {} /bin/bash",
             image.id()
         ));
-        std::fs::write(&self.id_file, id).unwrap();
+        std::fs::write(id_file, &id).unwrap();
+        Self { id }
     }
 
     pub fn execute(&self, command: &str) -> String {
-        assert!(self.exists());
         assert!(self.runs());
-        command::get_stdout(&format!("docker exec {} {}", self.read_id(), command))
-    }
-
-    pub fn exists(&self) -> bool {
-        self.id_file.exists() && self.id_file.is_file() && {
-            let my_id: String = self.read_id();
-            command::test(&format!("docker inspect {}", my_id))
-        }
+        command::get_stdout(&format!("docker exec {} {}", self.id, command))
     }
 
     pub fn groups(&self) -> Vec<String> {
-        assert!(self.exists());
         assert!(self.runs());
         let mut groups: Vec<String> = self
             .execute("groups")
@@ -60,39 +49,33 @@ impl Container {
     }
 
     pub fn home_directory(&self) -> std::path::PathBuf {
-        assert!(self.exists());
         assert!(self.runs());
         self.execute("printenv HOME").into()
     }
 
-    pub fn remove(&self) {
-        assert!(self.exists());
+    pub fn remove(self) {
         assert!(!self.runs());
-        command::run(&format!("docker rm {}", self.read_id()));
+        command::run(&format!("docker rm {}", self.id));
     }
 
     pub fn runs(&self) -> bool {
-        self.exists()
-            && command::get_stdout(&format!(
-                "docker inspect -f {{{{.State.Running}}}} {}",
-                self.read_id()
-            )) == "true"
+        command::get_stdout(&format!(
+            "docker inspect -f {{{{.State.Running}}}} {}",
+            self.id
+        )) == "true"
     }
 
     pub fn start(&self) {
-        assert!(self.exists());
         assert!(!self.runs());
-        command::run(&format!("docker start {}", self.read_id()));
+        command::run(&format!("docker start {}", self.id));
     }
 
     pub fn stop(&self) {
-        assert!(self.exists());
         assert!(self.runs());
-        command::run(&format!("docker stop {}", self.read_id()));
+        command::run(&format!("docker stop {}", self.id));
     }
 
     pub fn user(&self) -> String {
-        assert!(self.exists());
         assert!(self.runs());
         self.execute("whoami")
     }
@@ -106,19 +89,18 @@ impl Container {
     fn make_directory(&self, directory: &std::path::Path) {
         self.execute(&format!("mkdir {}", directory.to_str().unwrap()));
     }
-
-    fn read_id(&self) -> String {
-        let Self { id_file } = self;
-        assert!(id_file.exists());
-        assert!(id_file.is_file());
-        std::fs::read_to_string(id_file).unwrap()
-    }
 }
 
-impl From<&str> for Container {
-    fn from(id_file: &str) -> Self {
-        let id_file: std::path::PathBuf = std::path::PathBuf::from(id_file);
-        Self { id_file }
+impl TryFrom<&str> for Container {
+    type Error = ();
+
+    fn try_from(id: &str) -> Result<Self, Self::Error> {
+        if command::test(&format!("docker inspect {}", id)) {
+            let id: String = id.to_string();
+            Ok(Self { id })
+        } else {
+            Err(())
+        }
     }
 }
 

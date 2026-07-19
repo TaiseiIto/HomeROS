@@ -1,9 +1,7 @@
 use crate::{docker, git, time};
 
 pub fn attach() {
-    build();
-    let container: docker::Container = container();
-    assert!(container.exists());
+    let container: docker::Container = build();
     assert!(container.runs());
     container.attach();
 }
@@ -13,8 +11,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     assert!(gpg_key.is_dir());
     assert!(ssh_key.exists());
     assert!(ssh_key.is_file());
-    build();
-    let container: docker::Container = container();
+    let container: docker::Container = build();
     container.copy(gpg_key, &gpg_key_destination());
     container.copy(ssh_key, &ssh_key_destination());
     container.write(
@@ -62,20 +59,20 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
 }
 
 pub fn remove() {
-    let container: docker::Container = container();
-    if container.runs() {
-        container.stop();
-    }
-    if container.exists() {
+    if let Some(container) = container() {
+        if container.runs() {
+            container.stop();
+        }
         container.remove();
+        std::fs::remove_file(container_id_file()).unwrap();
     }
     if let Some(image) = image() {
         image.remove();
-        std::fs::remove_file(image_id_path()).unwrap();
+        std::fs::remove_file(image_id_file()).unwrap();
     }
 }
 
-fn build() {
+fn build() -> docker::Container {
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
@@ -89,18 +86,23 @@ fn build() {
     .map(|(key, value)| (key.to_string(), value))
     .collect();
     let image: docker::Image =
-        image().unwrap_or_else(|| docker::Image::build(&dockerfile, &arguments, &image_id_path()));
-    let container: docker::Container = container();
-    if !container.exists() {
-        container.create(&image);
-    }
+        image().unwrap_or_else(|| docker::Image::build(&dockerfile, &arguments, &image_id_file()));
+    let container: docker::Container =
+        container().unwrap_or_else(|| docker::Container::create(&image, &container_id_file()));
     if !container.runs() {
         container.start();
     }
+    container
 }
 
-fn container() -> docker::Container {
-    ".docker/container.id".into()
+fn container() -> Option<docker::Container> {
+    std::fs::read_to_string(container_id_file())
+        .ok()
+        .and_then(|id| id.as_str().try_into().ok())
+}
+
+fn container_id_file() -> std::path::PathBuf {
+    std::path::PathBuf::from(".docker/container.id")
 }
 
 fn dockerfile() -> std::path::PathBuf {
@@ -114,17 +116,16 @@ fn gpg_key_destination() -> std::path::PathBuf {
 }
 
 fn home_directory() -> std::path::PathBuf {
-    build();
-    container().home_directory()
+    build().home_directory()
 }
 
 fn image() -> Option<docker::Image> {
-    std::fs::read_to_string(image_id_path())
+    std::fs::read_to_string(image_id_file())
         .ok()
         .and_then(|id| id.as_str().try_into().ok())
 }
 
-fn image_id_path() -> std::path::PathBuf {
+fn image_id_file() -> std::path::PathBuf {
     std::path::PathBuf::from(".docker/image.id")
 }
 
