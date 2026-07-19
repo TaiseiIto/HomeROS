@@ -137,7 +137,6 @@ fn signing_key(gpg_key: &std::path::Path) -> String {
     signing_key.push("signingkey.txt");
     assert!(signing_key.exists());
     assert!(signing_key.is_file());
-    assert!(!signing_key.is_empty());
     std::fs::read_to_string(signing_key)
         .unwrap()
         .trim_end()
