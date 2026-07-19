@@ -62,7 +62,6 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
 }
 
 pub fn remove() {
-    let image: docker::Image = image();
     let container: docker::Container = container();
     if container.runs() {
         container.stop();
@@ -70,14 +69,13 @@ pub fn remove() {
     if container.exists() {
         container.remove();
     }
-    if image.exists() {
+    if let Some(image) = image() {
         image.remove();
+        std::fs::remove_file(image_id_path()).unwrap();
     }
 }
 
 fn build() {
-    let image: docker::Image = image();
-    let container: docker::Container = container();
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
@@ -90,9 +88,9 @@ fn build() {
     .into_iter()
     .map(|(key, value)| (key.to_string(), value))
     .collect();
-    if !image.exists() {
-        image.build(&dockerfile, arguments);
-    }
+    let image: docker::Image =
+        image().unwrap_or_else(|| docker::Image::build(&dockerfile, &arguments, &image_id_path()));
+    let container: docker::Container = container();
     if !container.exists() {
         container.create(&image);
     }
@@ -120,8 +118,14 @@ fn home_directory() -> std::path::PathBuf {
     container().home_directory()
 }
 
-fn image() -> docker::Image {
-    ".docker/image.id".into()
+fn image() -> Option<docker::Image> {
+    std::fs::read_to_string(image_id_path())
+        .ok()
+        .and_then(|id| id.as_str().try_into().ok())
+}
+
+fn image_id_path() -> std::path::PathBuf {
+    std::path::PathBuf::from(".docker/image.id")
 }
 
 fn signing_key(gpg_key: &std::path::Path) -> String {

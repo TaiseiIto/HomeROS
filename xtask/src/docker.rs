@@ -29,7 +29,7 @@ impl Container {
         assert!(!self.exists());
         let id: String = command::get_stdout(&format!(
             "docker create --interactive --tty {} /bin/bash",
-            image.read_id()
+            image.id()
         ));
         std::fs::write(&self.id_file, id).unwrap();
     }
@@ -123,16 +123,15 @@ impl From<&str> for Container {
 }
 
 pub struct Image {
-    id_file: std::path::PathBuf,
+    id: String,
 }
 
 impl Image {
     pub fn build(
-        &self,
         dockerfile: &std::path::Path,
-        arguments: std::collections::BTreeMap<String, String>,
-    ) {
-        assert!(!self.exists());
+        arguments: &std::collections::BTreeMap<String, String>,
+        id_file: &std::path::Path,
+    ) -> Self {
         let arguments: Vec<String> = arguments
             .iter()
             .map(|(key, value)| format!("--build-arg {}={}", key, value))
@@ -140,35 +139,32 @@ impl Image {
         let arguments: String = arguments.join(" ");
         command::run(&format!(
             "docker build --iidfile {} {} {}",
-            self.id_file.to_str().unwrap(),
+            id_file.to_str().unwrap(),
             dockerfile.parent().unwrap().to_str().unwrap(),
             arguments
         ));
+        let id: String = std::fs::read_to_string(id_file).unwrap();
+        Self { id }
     }
 
-    pub fn exists(&self) -> bool {
-        self.id_file.exists() && self.id_file.is_file() && {
-            let my_id: String = self.read_id();
-            command::test(&format!("docker image inspect {}", my_id))
-        }
+    pub fn id(&self) -> &str {
+        &self.id
     }
 
-    pub fn read_id(&self) -> String {
-        let Self { id_file } = self;
-        assert!(id_file.exists());
-        assert!(id_file.is_file());
-        std::fs::read_to_string(id_file).unwrap()
-    }
-
-    pub fn remove(&self) {
-        assert!(self.exists());
-        command::run(&format!("docker image rm {}", self.read_id()));
+    pub fn remove(self) {
+        command::run(&format!("docker image rm {}", self.id));
     }
 }
 
-impl From<&str> for Image {
-    fn from(id_file: &str) -> Self {
-        let id_file: std::path::PathBuf = std::path::PathBuf::from(id_file);
-        Self { id_file }
+impl TryFrom<&str> for Image {
+    type Error = ();
+
+    fn try_from(id: &str) -> Result<Self, Self::Error> {
+        if command::test(&format!("docker image inspect {}", id)) {
+            let id: String = id.to_string();
+            Ok(Self { id })
+        } else {
+            Err(())
+        }
     }
 }
