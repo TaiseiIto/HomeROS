@@ -1,5 +1,5 @@
-use crate::command;
 use std::io::Write;
+use {super::Image, crate::command};
 
 pub fn attach(id_file: &std::path::Path) {
     assert!(exists(id_file));
@@ -21,11 +21,11 @@ pub fn copy(source: &std::path::Path, id_file: &std::path::Path, destination: &s
     ));
 }
 
-pub fn create(image: &std::path::Path, id_file: &std::path::Path) {
+pub fn create(image: &Image, id_file: &std::path::Path) {
     assert!(!exists(id_file));
     let id_file_id: String = command::get_stdout(&format!(
         "docker create --interactive --tty {} /bin/bash",
-        super::image::read_id(image)
+        image.read_id()
     ));
     std::fs::write(id_file, id_file_id).unwrap();
 }

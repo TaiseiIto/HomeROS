@@ -63,7 +63,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
 }
 
 pub fn remove() {
-    let image: std::path::PathBuf = image();
+    let image: docker::Image = image();
     let container: std::path::PathBuf = container();
     if docker::container::runs(&container) {
         docker::container::stop(&container);
@@ -71,13 +71,13 @@ pub fn remove() {
     if docker::container::exists(&container) {
         docker::container::remove(&container);
     }
-    if docker::image::exists(&image) {
-        docker::image::remove(&image);
+    if image.exists() {
+        image.remove();
     }
 }
 
 fn build() {
-    let image: std::path::PathBuf = image();
+    let image: docker::Image = image();
     let container: std::path::PathBuf = container();
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
@@ -91,8 +91,8 @@ fn build() {
     .into_iter()
     .map(|(key, value)| (key.to_string(), value))
     .collect();
-    if !docker::image::exists(&image) {
-        docker::image::build(&image, &dockerfile, arguments);
+    if !image.exists() {
+        image.build(&dockerfile, arguments);
     }
     if !docker::container::exists(&container) {
         docker::container::create(&image, &container);
@@ -121,8 +121,8 @@ fn home_directory() -> std::path::PathBuf {
     docker::container::home_directory(&container())
 }
 
-fn image() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/image.id")
+fn image() -> docker::Image {
+    ".docker/image.id".into()
 }
 
 fn signing_key(gpg_key: &std::path::Path) -> String {
