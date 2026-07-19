@@ -12,16 +12,16 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y tmux
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
 RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-none
 RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-uefi
 RUN . $HOME/.cargo/env && rustup target add riscv64gc-unknown-none-elf
+RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-none
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-uefi
 RUN git config --global alias.graph 'log --graph --date-order -C -M --pretty=format:"<%h> %ad [%an] %Cgreen%d%Creset %s" --all --date=short'
 WORKDIR /root/
 RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
 ARG TIMEZONE
 RUN cp $TIMEZONE /etc/localtime
-ARG CACHE_BUSTER
-RUN echo $CACHE_BUSTER
 ARG DOMAIN
 ARG DEVELOPER
 ARG PRODUCT
@@ -30,5 +30,5 @@ WORKDIR $PRODUCT
 ARG BRANCH
 RUN git checkout $BRANCH
 RUN lefthook install
-RUN cat .docker/.tmux/conf >> ../.tmux.conf
-RUN cat .docker/.vim/rc >> ../.vimrc
+RUN ln -s .docker/.tmux/conf ../.tmux.conf
+RUN ln -s .docker/.vim/rc ../.vimrc

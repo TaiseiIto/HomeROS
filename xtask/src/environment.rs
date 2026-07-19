@@ -82,7 +82,6 @@ fn build() {
     let dockerfile: std::path::PathBuf = dockerfile();
     assert!(dockerfile.exists());
     let arguments: std::collections::BTreeMap<String, String> = [
-        ("CACHE_BUSTER", time::unix()),
         ("DOMAIN", git::domain()),
         ("DEVELOPER", git::developer()),
         ("PRODUCT", git::product()),
