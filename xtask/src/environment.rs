@@ -1,5 +1,4 @@
 use crate::{docker, git, time};
-use indoc::indoc;
 
 pub fn attach() {
     build();
@@ -22,12 +21,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         &container,
         &ssh_config(),
         &format!(
-            indoc! {r#"
-                Host {}
-                    HostName {}
-                    IdentityFile {}
-                    User git
-        "#},
+            "Host {}\n\tHostName {}\n\tIdentityFile {}\n\tUser git",
             git::domain(),
             git::domain(),
             ssh_key_destination().to_str().unwrap()
