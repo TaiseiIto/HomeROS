@@ -28,6 +28,7 @@ enum Command {
 
 impl From<std::env::Args> for Command {
     fn from(mut args: std::env::Args) -> Self {
+        args.next();
         match args.next().unwrap().as_str() {
             "build" => Self::Build,
             "delete" => Self::Delete,
