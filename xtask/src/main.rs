@@ -38,7 +38,7 @@ impl From<std::env::Args> for Command {
                     match arg.as_str() {
                         "--gpg-key" => gpg_key = Some(args.next().unwrap().into()),
                         "--ssh-key" => ssh_key = Some(args.next().unwrap().into()),
-                        _ => unreachable!(),
+                        arg => panic!("arg = {}", arg),
                     }
                 }
                 let gpg_key: std::path::PathBuf = gpg_key.unwrap();
@@ -46,7 +46,7 @@ impl From<std::env::Args> for Command {
                 Self::Privilege { gpg_key, ssh_key }
             }
             "rebuild" => Self::Rebuild,
-            _ => unreachable!(),
+            arg => panic!("arg = {}", arg),
         }
     }
 }
