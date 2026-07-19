@@ -2,21 +2,44 @@ use xtask::environment;
 
 fn main() {
     match std::env::args().into() {
-        Command::Build => {
+        Command::Build => unimplemented!(),
+        Command::Environment(Environment::Build) => {
             environment::attach();
         }
-        Command::Delete => environment::remove(),
-        Command::Privilege { gpg_key, ssh_key } => {
+        Command::Environment(Environment::Delete) => environment::remove(),
+        Command::Environment(Environment::Privilege { gpg_key, ssh_key }) => {
             environment::privilege(&gpg_key, &ssh_key);
         }
-        Command::Rebuild => {
+        Command::Environment(Environment::Rebuild) => {
             environment::remove();
             environment::attach();
         }
+        Command::Lint => unimplemented!(),
+        Command::Run => unimplemented!(),
     }
 }
 
 enum Command {
+    Build,
+    Environment(Environment),
+    Lint,
+    Run,
+}
+
+impl From<std::env::Args> for Command {
+    fn from(mut args: std::env::Args) -> Self {
+        args.next();
+        match args.next().unwrap().as_str() {
+            "build" => Self::Build,
+            "environment" => Self::Environment(args.into()),
+            "lint" => Self::Lint,
+            "run" => Self::Run,
+            arg => panic!("arg = {}", arg),
+        }
+    }
+}
+
+enum Environment {
     Build,
     Delete,
     Privilege {
@@ -26,13 +49,12 @@ enum Command {
     Rebuild,
 }
 
-impl From<std::env::Args> for Command {
+impl From<std::env::Args> for Environment {
     fn from(mut args: std::env::Args) -> Self {
-        args.next();
-        match args.next().unwrap().as_str() {
-            "build" => Self::Build,
-            "delete" => Self::Delete,
-            "privilege" => {
+        match args.next().as_deref() {
+            None => Self::Build,
+            Some("delete") => Self::Delete,
+            Some("privilege") => {
                 let mut gpg_key: Option<std::path::PathBuf> = None;
                 let mut ssh_key: Option<std::path::PathBuf> = None;
                 while let Some(arg) = args.next() {
@@ -46,8 +68,8 @@ impl From<std::env::Args> for Command {
                 let ssh_key: std::path::PathBuf = ssh_key.unwrap();
                 Self::Privilege { gpg_key, ssh_key }
             }
-            "rebuild" => Self::Rebuild,
-            arg => panic!("arg = {}", arg),
+            Some("rebuild") => Self::Rebuild,
+            Some(arg) => panic!("arg = {}", arg),
         }
     }
 }
