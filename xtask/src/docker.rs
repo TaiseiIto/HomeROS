@@ -81,10 +81,12 @@ impl Container {
     }
 
     pub fn write(&self, destination: &std::path::Path, data: &[u8]) {
-        assert!(!self.runs());
+        if !self.runs() {
+            self.start();
+        }
         command::give_stdin(
             &format!(
-                "docker exec {} 'cat > {}'",
+                "docker exec --interactive {} bash -c 'cat > {}'",
                 self.id,
                 destination.to_str().unwrap()
             ),

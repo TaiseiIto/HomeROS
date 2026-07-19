@@ -36,7 +36,40 @@ pub fn test(command: &str) -> bool {
 }
 
 fn new(command: &str) -> std::process::Command {
-    let mut args: std::str::SplitAsciiWhitespace = command.split_ascii_whitespace();
+    let (mut args, arg, _, _): (Vec<String>, String, bool, bool) = command.chars().fold(
+        (Vec::new(), String::new(), false, false),
+        |(mut args, mut arg, in_quotation, in_double_quotation), character| match (
+            character,
+            in_quotation,
+            in_double_quotation,
+        ) {
+            ('\'', false, false) => (args, arg, true, false),
+            ('\'', true, false) => (args, arg, false, false),
+            ('\'', _, true) => unreachable!(),
+            ('"', false, false) => (args, arg, false, true),
+            ('"', false, true) => (args, arg, false, false),
+            ('"', true, _) => unreachable!(),
+            (' ', false, false) | ('\t', false, false) => {
+                args.push(arg);
+                (args, String::new(), false, false)
+            }
+            (character, false, false) => {
+                arg.push(character);
+                (args, arg, false, false)
+            }
+            (character, true, false) => {
+                arg.push(character);
+                (args, arg, true, false)
+            }
+            (character, false, true) => {
+                arg.push(character);
+                (args, arg, false, true)
+            }
+            (_, true, true) => unreachable!(),
+        },
+    );
+    args.push(arg);
+    let mut args = args.into_iter();
     let mut command: std::process::Command = std::process::Command::new(args.next().unwrap());
     for arg in args {
         command.arg(arg);
