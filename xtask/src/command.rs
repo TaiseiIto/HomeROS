@@ -1,8 +1,19 @@
+use std::io::Write;
+
 pub fn get_stdout(command: &str) -> String {
     String::from_utf8(new(command).output().unwrap().stdout)
         .unwrap()
         .trim_end()
         .to_string()
+}
+
+pub fn give_stdin(command: &str, stdin: &[u8]) {
+    let mut process: std::process::Child = new(command)
+        .stdin(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    process.stdin.take().unwrap().write_all(stdin).unwrap();
+    process.wait().unwrap();
 }
 
 pub fn run(command: &str) {

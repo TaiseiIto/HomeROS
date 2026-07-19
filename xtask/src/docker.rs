@@ -1,4 +1,4 @@
-use {crate::command, std::io::Write};
+use crate::command;
 
 pub struct Container {
     id: String,
@@ -80,10 +80,16 @@ impl Container {
         self.execute("whoami")
     }
 
-    pub fn write(&self, destination: &std::path::Path, data: &str) {
-        let mut temporary: tempfile::NamedTempFile = tempfile::NamedTempFile::new().unwrap();
-        write!(temporary, "{}", data).unwrap();
-        self.copy(temporary.path(), destination);
+    pub fn write(&self, destination: &std::path::Path, data: &[u8]) {
+        assert!(!self.runs());
+        command::give_stdin(
+            &format!(
+                "docker exec {} 'cat > {}'",
+                self.id,
+                destination.to_str().unwrap()
+            ),
+            data,
+        );
     }
 
     fn make_directory(&self, directory: &std::path::Path) {

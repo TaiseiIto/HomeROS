@@ -21,7 +21,8 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
             git::domain(),
             git::domain(),
             ssh_key_destination().to_str().unwrap()
-        ),
+        )
+        .into_bytes(),
     );
     [
         format!("git config --global user.name {}", git::developer()),
