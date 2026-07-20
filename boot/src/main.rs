@@ -25,5 +25,9 @@ fn main() {
 
 #[panic_handler]
 fn panic(_panic: &core::panic::PanicInfo) -> ! {
-    loop {}
+    loop {
+        unsafe {
+            arch::wait_for_interrupt();
+        }
+    }
 }
