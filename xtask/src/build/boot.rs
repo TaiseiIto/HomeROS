@@ -6,7 +6,7 @@ pub fn aarch64() {
 
 pub fn riscv64() {
     command::run(
-        "RUSTFLAGS=\"-C link-arg=boot/firmaware/open_sbi/link.ld\" cargo build --package boot --target riscv64-unknown-elf",
+        "RUSTFLAGS=\"-C link-arg=boot/firmware/open_sbi/link.ld\" cargo build --package boot --target riscv64gc-unknown-none-elf",
     );
 }
 

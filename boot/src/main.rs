@@ -2,11 +2,14 @@
 #![no_std]
 
 #[cfg(target_arch = "riscv64")]
-#[link_section = ".text.main"]
-#[naked]
+use core::arch::naked_asm;
+
+#[cfg(target_arch = "riscv64")]
+#[unsafe(link_section = ".text._start")]
+#[unsafe(naked)]
 #[unsafe(no_mangle)]
 unsafe extern "C" fn _start() -> ! {
-    asm!("la sp, _stack_top", "j main", options(noreturn));
+    naked_asm!("la sp, _stack_top", "j main");
 }
 
 #[cfg(firmware = "uefi")]
