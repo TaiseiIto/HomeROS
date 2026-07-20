@@ -1,4 +1,4 @@
-use xtask::environment;
+use xtask::{environment, lint};
 
 fn main() {
     match std::env::args().into() {
@@ -14,7 +14,10 @@ fn main() {
             environment::remove();
             environment::attach();
         }
-        Command::Lint => unimplemented!(),
+        Command::Lint => {
+            lint::boot();
+            lint::xtask();
+        }
         Command::Run => unimplemented!(),
     }
 }

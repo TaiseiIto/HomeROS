@@ -1,8 +1,6 @@
 pre-commit:
   commands:
-    lint-boot:
-      run: cargo clippy -p boot --target x86_64-unknown-uefi --all-features -- -D warnings
-    lint-xtask:
-      run: cargo clippy -p xtask --all-features -- -D warnings
+    lint:
+      run: cargo xtask lint
     format:
       run: cargo fmt --check
