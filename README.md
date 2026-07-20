@@ -25,6 +25,14 @@ And run the commands below.
 /somewhere/HomeROS$ cargo xtask build
 ```
 
+### Disassemble
+
+```
+/somewhere/HomeROS$ cargo xtask disassemble boot aarch64
+/somewhere/HomeROS$ cargo xtask disassemble boot riscv64
+/somewhere/HomeROS$ cargo xtask disassemble boot x64
+```
+
 ### Build development environment
 
 ```

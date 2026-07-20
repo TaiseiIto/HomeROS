@@ -1,12 +1,61 @@
 use crate::{docker, git, time};
 
-pub fn attach() {
+pub enum Command {
+    Build,
+    Delete,
+    Privilege {
+        gpg_key: std::path::PathBuf,
+        ssh_key: std::path::PathBuf,
+    },
+    Rebuild,
+}
+
+impl Command {
+    pub fn run(self) {
+        match self {
+            Self::Build => attach(),
+            Self::Delete => remove(),
+            Self::Privilege { gpg_key, ssh_key } => privilege(&gpg_key, &ssh_key),
+            Self::Rebuild => {
+                remove();
+                attach();
+            }
+        }
+    }
+}
+
+impl From<std::env::Args> for Command {
+    fn from(mut args: std::env::Args) -> Self {
+        match args.next().as_deref() {
+            None => Self::Build,
+            Some("delete") => Self::Delete,
+            Some("privilege") => {
+                let mut gpg_key: Option<std::path::PathBuf> = None;
+                let mut ssh_key: Option<std::path::PathBuf> = None;
+                while let Some(arg) = args.next() {
+                    match arg.as_str() {
+                        "--gpg-key" => gpg_key = Some(args.next().unwrap().into()),
+                        "--ssh-key" => ssh_key = Some(args.next().unwrap().into()),
+                        arg => panic!("arg = {}", arg),
+                    }
+                }
+                let gpg_key: std::path::PathBuf = gpg_key.unwrap();
+                let ssh_key: std::path::PathBuf = ssh_key.unwrap();
+                Self::Privilege { gpg_key, ssh_key }
+            }
+            Some("rebuild") => Self::Rebuild,
+            Some(arg) => panic!("arg = {}", arg),
+        }
+    }
+}
+
+fn attach() {
     let container: docker::Container = build();
     assert!(container.runs());
     container.attach();
 }
 
-pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
+fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     assert!(gpg_key.exists());
     assert!(gpg_key.is_dir());
     assert!(ssh_key.exists());
@@ -59,7 +108,7 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
     });
 }
 
-pub fn remove() {
+fn remove() {
     if let Some(container) = container() {
         if container.runs() {
             container.stop();

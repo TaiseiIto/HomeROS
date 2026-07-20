@@ -3,7 +3,7 @@ use crate::command;
 pub fn all() {
     aarch64();
     riscv64();
-    x86_64();
+    x64();
 }
 
 fn aarch64() {
@@ -16,6 +16,6 @@ fn riscv64() {
     );
 }
 
-fn x86_64() {
+fn x64() {
     command::run("cargo build --package boot --target x86_64-unknown-uefi");
 }
