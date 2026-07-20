@@ -69,10 +69,28 @@ fn new(command: &str) -> std::process::Command {
         },
     );
     args.push(arg);
-    let mut args = args.into_iter();
-    let mut command: std::process::Command = std::process::Command::new(args.next().unwrap());
-    for arg in args {
-        command.arg(arg);
-    }
+    let (envs, command, args): (
+        std::collections::BTreeMap<String, String>,
+        Option<std::process::Command>,
+        Vec<String>,
+    ) = args.into_iter().fold(
+        (std::collections::BTreeMap::new(), None, Vec::new()),
+        |(mut envs, command, mut args), arg| match command {
+            None => match arg.split_once('=') {
+                None => (envs, Some(std::process::Command::new(arg)), args),
+                Some((key, value)) => {
+                    envs.insert(key.to_string(), value.to_string());
+                    (envs, command, args)
+                }
+            },
+            Some(command) => {
+                args.push(arg);
+                (envs, Some(command), args)
+            }
+        },
+    );
+    let mut command: std::process::Command = command.unwrap();
+    command.envs(envs);
+    command.args(args);
     command
 }
