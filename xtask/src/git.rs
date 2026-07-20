@@ -1,5 +1,9 @@
 use crate::command;
 
+pub fn add_rust_sources() {
+    command::run("git add *.rs");
+}
+
 pub fn branch() -> String {
     command::get_stdout("git branch --show-current")
 }

@@ -1,6 +1,4 @@
 pre-commit:
   commands:
-    lint:
-      run: cargo xtask lint
-    format:
-      run: cargo fmt --check
+    lint-and-format:
+      run: cargo xtask precommit

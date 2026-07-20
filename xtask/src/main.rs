@@ -1,4 +1,4 @@
-use xtask::{build, environment, lint};
+use xtask::{build, environment, format, git, lint};
 
 fn main() {
     match std::env::args().into() {
@@ -17,8 +17,12 @@ fn main() {
             environment::attach();
         }
         Command::Lint => {
-            lint::boot();
-            lint::xtask();
+            lint::all();
+        }
+        Command::PreCommit => {
+            lint::all();
+            format::all();
+            git::add_rust_sources();
         }
         Command::Run => unimplemented!(),
     }
@@ -28,6 +32,7 @@ enum Command {
     Build,
     Environment(Environment),
     Lint,
+    PreCommit,
     Run,
 }
 
@@ -38,6 +43,7 @@ impl From<std::env::Args> for Command {
             "build" => Self::Build,
             "environment" => Self::Environment(args.into()),
             "lint" => Self::Lint,
+            "precommit" => Self::PreCommit,
             "run" => Self::Run,
             arg => panic!("arg = {}", arg),
         }

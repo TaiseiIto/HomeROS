@@ -2,6 +2,7 @@ pub mod build;
 mod command;
 mod docker;
 pub mod environment;
-mod git;
+pub mod format;
+pub mod git;
 pub mod lint;
 mod time;
