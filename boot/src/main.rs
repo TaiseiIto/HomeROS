@@ -9,7 +9,7 @@ use core::arch::naked_asm;
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
 unsafe extern "C" fn _start() -> ! {
-    naked_asm!("la sp, _stack_top", "j main");
+    naked_asm!("la sp, _stack_bottom", "j main");
 }
 
 #[cfg(firmware = "uefi")]
