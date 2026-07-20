@@ -1,12 +1,11 @@
 FROM ubuntu:26.04
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get upgrade -y && apt-get install -y binutils-aarch64-linux-gnu
-RUN apt-get update && apt-get upgrade -y && apt-get install -y binutils-riscv64-linux-gnu
 RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | bash
 RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
+RUN apt-get update && apt-get upgrade -y && apt-get install -y llvm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-arm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-misc
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-x86
