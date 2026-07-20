@@ -1,10 +1,12 @@
 #![no_main]
 #![no_std]
 
-#[cfg(firmware = "open_sbi")]
-#[no_mangle]
-pub extern "C" fn open_sbi_main() {
-    main();
+#[cfg(target_arch = "riscv64")]
+#[link_section = ".text.main"]
+#[naked]
+#[unsafe(no_mangle)]
+unsafe extern "C" fn _start() -> ! {
+    asm!("la sp, _stack_top", "j main", options(noreturn));
 }
 
 #[cfg(firmware = "uefi")]
@@ -13,6 +15,7 @@ fn efi_main() {
     main();
 }
 
+#[unsafe(no_mangle)]
 fn main() {
     unimplemented!();
 }
