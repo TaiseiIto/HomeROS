@@ -1,3 +1,4 @@
+pub mod build;
 mod command;
 mod docker;
 pub mod environment;

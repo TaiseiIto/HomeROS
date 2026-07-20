@@ -1,8 +1,10 @@
-use xtask::{environment, lint};
+use xtask::{build, environment, lint};
 
 fn main() {
     match std::env::args().into() {
-        Command::Build => unimplemented!(),
+        Command::Build => {
+            build::all();
+        }
         Command::Environment(Environment::Build) => {
             environment::attach();
         }
