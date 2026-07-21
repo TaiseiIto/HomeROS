@@ -1,6 +1,8 @@
 #![no_main]
 #![no_std]
 
+use {arch::wait_for_interrupt, core::panic::PanicInfo};
+
 #[cfg(target_arch = "riscv64")]
 use core::arch::naked_asm;
 
@@ -24,10 +26,10 @@ fn main() {
 }
 
 #[panic_handler]
-fn panic(_panic: &core::panic::PanicInfo) -> ! {
+fn panic(_panic: &PanicInfo) -> ! {
     loop {
         unsafe {
-            arch::wait_for_interrupt();
+            wait_for_interrupt();
         }
     }
 }

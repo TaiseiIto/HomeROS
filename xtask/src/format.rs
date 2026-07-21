@@ -1,5 +1,5 @@
-use crate::command;
+use crate::command::run;
 
 pub fn all() {
-    command::run("cargo fmt");
+    run("cargo fmt");
 }

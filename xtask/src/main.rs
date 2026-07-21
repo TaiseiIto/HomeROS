@@ -1,6 +1,6 @@
-use xtask::Command;
+use {std::env::args, xtask::Command};
 
 fn main() {
-    let command: Command = std::env::args().into();
+    let command: Command = args().into();
     command.run();
 }

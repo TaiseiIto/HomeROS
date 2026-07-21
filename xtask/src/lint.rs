@@ -1,4 +1,4 @@
-use crate::command;
+use crate::command::run;
 
 mod boot;
 
@@ -8,5 +8,5 @@ pub fn all() {
 }
 
 fn xtask() {
-    command::run("cargo clippy --package xtask --all-features -- -D warnings")
+    run("cargo clippy --package xtask --all-features -- -D warnings")
 }

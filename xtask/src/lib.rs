@@ -1,3 +1,5 @@
+use std::env::{Args, args};
+
 pub mod build;
 mod command;
 pub mod disassemble;
@@ -19,7 +21,7 @@ pub enum Command {
 
 impl Command {
     pub fn run(self) {
-        match std::env::args().into() {
+        match args().into() {
             Self::Build => build::all(),
             Self::Disassemble(disassemble) => disassemble.run(),
             Self::Environment(environment) => environment.run(),
@@ -34,8 +36,8 @@ impl Command {
     }
 }
 
-impl From<std::env::Args> for Command {
-    fn from(mut args: std::env::Args) -> Self {
+impl From<Args> for Command {
+    fn from(mut args: Args) -> Self {
         args.next();
         match args.next().unwrap().as_str() {
             "build" => Self::Build,

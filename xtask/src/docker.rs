@@ -1,4 +1,11 @@
-use crate::command;
+use {
+    crate::command::{get_stdout, give_stdin, run, test},
+    std::{
+        collections::BTreeMap,
+        fs::{read_to_string, write},
+        path::{Path, PathBuf},
+    },
+};
 
 pub struct Container {
     id: String,
@@ -7,15 +14,15 @@ pub struct Container {
 impl Container {
     pub fn attach(&self) {
         assert!(self.runs());
-        command::run(&format!("docker attach {}", self.id));
+        run(&format!("docker attach {}", self.id));
     }
 
-    pub fn copy(&self, source: &std::path::Path, destination: &std::path::Path) {
+    pub fn copy(&self, source: &Path, destination: &Path) {
         assert!(self.runs());
         if let Some(destination_directory) = destination.parent() {
             self.make_directory(destination_directory);
         }
-        command::run(&format!(
+        run(&format!(
             "docker cp {} {}:{}",
             source.to_str().unwrap(),
             self.id,
@@ -23,18 +30,18 @@ impl Container {
         ));
     }
 
-    pub fn create(image: &Image, id_file: &std::path::Path) -> Self {
-        let id: String = command::get_stdout(&format!(
+    pub fn create(image: &Image, id_file: &Path) -> Self {
+        let id: String = get_stdout(&format!(
             "docker create --interactive --tty {} /bin/bash",
             image.id()
         ));
-        std::fs::write(id_file, &id).unwrap();
+        write(id_file, &id).unwrap();
         Self { id }
     }
 
     pub fn execute(&self, command: &str) -> String {
         assert!(self.runs());
-        command::get_stdout(&format!("docker exec {} {}", self.id, command))
+        get_stdout(&format!("docker exec {} {}", self.id, command))
     }
 
     pub fn groups(&self) -> Vec<String> {
@@ -48,18 +55,18 @@ impl Container {
         groups
     }
 
-    pub fn home_directory(&self) -> std::path::PathBuf {
+    pub fn home_directory(&self) -> PathBuf {
         assert!(self.runs());
         self.execute("printenv HOME").into()
     }
 
     pub fn remove(self) {
         assert!(!self.runs());
-        command::run(&format!("docker rm {}", self.id));
+        run(&format!("docker rm {}", self.id));
     }
 
     pub fn runs(&self) -> bool {
-        command::get_stdout(&format!(
+        get_stdout(&format!(
             "docker inspect -f {{{{.State.Running}}}} {}",
             self.id
         )) == "true"
@@ -67,12 +74,12 @@ impl Container {
 
     pub fn start(&self) {
         assert!(!self.runs());
-        command::run(&format!("docker start {}", self.id));
+        run(&format!("docker start {}", self.id));
     }
 
     pub fn stop(&self) {
         assert!(self.runs());
-        command::run(&format!("docker stop {}", self.id));
+        run(&format!("docker stop {}", self.id));
     }
 
     pub fn user(&self) -> String {
@@ -80,11 +87,11 @@ impl Container {
         self.execute("whoami")
     }
 
-    pub fn write(&self, destination: &std::path::Path, data: &[u8]) {
+    pub fn write(&self, destination: &Path, data: &[u8]) {
         if !self.runs() {
             self.start();
         }
-        command::give_stdin(
+        give_stdin(
             &format!(
                 "docker exec --interactive {} bash -c 'cat > {}'",
                 self.id,
@@ -94,7 +101,7 @@ impl Container {
         );
     }
 
-    fn make_directory(&self, directory: &std::path::Path) {
+    fn make_directory(&self, directory: &Path) {
         self.execute(&format!("mkdir {}", directory.to_str().unwrap()));
     }
 }
@@ -103,7 +110,7 @@ impl TryFrom<&str> for Container {
     type Error = ();
 
     fn try_from(id: &str) -> Result<Self, Self::Error> {
-        if command::test(&format!("docker inspect {}", id)) {
+        if test(&format!("docker inspect {}", id)) {
             let id: String = id.to_string();
             Ok(Self { id })
         } else {
@@ -117,23 +124,19 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn build(
-        dockerfile: &std::path::Path,
-        arguments: &std::collections::BTreeMap<String, String>,
-        id_file: &std::path::Path,
-    ) -> Self {
+    pub fn build(dockerfile: &Path, arguments: &BTreeMap<String, String>, id_file: &Path) -> Self {
         let arguments: Vec<String> = arguments
             .iter()
             .map(|(key, value)| format!("--build-arg {}={}", key, value))
             .collect();
         let arguments: String = arguments.join(" ");
-        command::run(&format!(
+        run(&format!(
             "docker build --iidfile {} {} {}",
             id_file.to_str().unwrap(),
             dockerfile.parent().unwrap().to_str().unwrap(),
             arguments
         ));
-        let id: String = std::fs::read_to_string(id_file).unwrap();
+        let id: String = read_to_string(id_file).unwrap();
         Self { id }
     }
 
@@ -142,7 +145,7 @@ impl Image {
     }
 
     pub fn remove(self) {
-        command::run(&format!("docker image rm {}", self.id));
+        run(&format!("docker image rm {}", self.id));
     }
 }
 
@@ -150,7 +153,7 @@ impl TryFrom<&str> for Image {
     type Error = ();
 
     fn try_from(id: &str) -> Result<Self, Self::Error> {
-        if command::test(&format!("docker image inspect {}", id)) {
+        if test(&format!("docker image inspect {}", id)) {
             let id: String = id.to_string();
             Ok(Self { id })
         } else {

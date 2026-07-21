@@ -1,4 +1,4 @@
-use crate::command;
+use {crate::command::run, std::env::Args};
 
 pub struct Command {
     package: Package,
@@ -7,7 +7,7 @@ pub struct Command {
 
 impl Command {
     pub fn run(self) {
-        command::run(&format!(
+        run(&format!(
             "llvm-objdump -d target/{}/debug/{}",
             self.target(),
             self.package()
@@ -33,8 +33,8 @@ impl Command {
     }
 }
 
-impl From<std::env::Args> for Command {
-    fn from(mut args: std::env::Args) -> Self {
+impl From<Args> for Command {
+    fn from(mut args: Args) -> Self {
         let package: Package = args.next().unwrap().as_str().into();
         let target: Target = args.next().unwrap().as_str().into();
         Self { package, target }

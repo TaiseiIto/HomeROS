@@ -1,4 +1,4 @@
-use crate::command;
+use crate::command::run;
 
 pub fn all() {
     let package: &str = "boot";
@@ -9,7 +9,7 @@ pub fn all() {
 
 fn aarch64(package: &str) {
     let target: &str = "aarch64-unknown-uefi";
-    command::run(&format!(
+    run(&format!(
         "cargo build --package {} --target {}",
         package, target
     ));
@@ -17,7 +17,7 @@ fn aarch64(package: &str) {
 
 fn riscv64(package: &str) {
     let target: &str = "riscv64gc-unknown-none-elf";
-    command::run(&format!(
+    run(&format!(
         "RUSTFLAGS=\"-C link-arg=boot/firmware/open_sbi/link.ld\" cargo build --package {} --target {}",
         package, target
     ));
@@ -25,7 +25,7 @@ fn riscv64(package: &str) {
 
 fn x64(package: &str) {
     let target: &str = "x86_64-unknown-uefi";
-    command::run(&format!(
+    run(&format!(
         "cargo build --package {} --target {}",
         package, target
     ));
