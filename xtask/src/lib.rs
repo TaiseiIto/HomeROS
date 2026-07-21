@@ -23,7 +23,10 @@ impl Command {
     pub fn run(self) {
         match args().into() {
             Self::Build => build::all(),
-            Self::Disassemble(disassemble) => disassemble.run(),
+            Self::Disassemble(disassemble) => {
+                build::all();
+                disassemble.run();
+            }
             Self::Environment(environment) => environment.run(),
             Self::Lint => lint::all(),
             Self::PreCommit => {

@@ -1,21 +1,32 @@
 use crate::command::run;
 
 pub fn all() {
-    aarch64();
-    riscv64();
-    x64();
+    let package: &str = "boot";
+    aarch64(package);
+    riscv64(package);
+    x64(package);
 }
 
-fn aarch64() {
-    run("cargo clippy --package boot --target aarch64-unknown-uefi");
+fn aarch64(package: &str) {
+    let target: &str = "aarch64-unknown-uefi";
+    run(&format!(
+        "cargo clippy --package {} --target {}",
+        package, target
+    ));
 }
 
-fn riscv64() {
-    run(
-        "RUSTFLAGS=\"-C link-arg=boot/firmware/open_sbi/link.ld\" cargo clippy --package boot --target riscv64gc-unknown-none-elf",
-    );
+fn riscv64(package: &str) {
+    let target: &str = "riscv64gc-unknown-none-elf";
+    run(&format!(
+        "RUSTFLAGS=\"-C link-arg=boot/firmware/open_sbi/link.ld\" cargo clippy --package {} --target {}",
+        package, target
+    ));
 }
 
-fn x64() {
-    run("cargo clippy --package boot --target x86_64-unknown-uefi");
+fn x64(package: &str) {
+    let target: &str = "x86_64-unknown-uefi";
+    run(&format!(
+        "cargo clippy --package {} --target {}",
+        package, target
+    ));
 }
