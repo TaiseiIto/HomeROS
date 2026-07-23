@@ -72,7 +72,7 @@ pub fn build_in_container() {
 pub fn run_in_container(command: run::Command) {
     let container: Container = build();
     assert!(container.runs());
-    container.execute_interactive(&format!("cargo xtask run {}", command));
+    container.execute_in_terminal(&format!("cargo xtask run {}", command));
 }
 
 fn attach() {

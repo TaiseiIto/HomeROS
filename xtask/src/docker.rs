@@ -31,7 +31,7 @@ impl Container {
         run(&format!("docker exec {} bash -cl '{}'", self.id, command));
     }
 
-    pub fn execute_interactive(&self, command: &str) {
+    pub fn execute_in_terminal(&self, command: &str) {
         assert!(self.runs());
         run(&format!(
             "docker exec --interactive --tty {} bash -cl '{}'",
