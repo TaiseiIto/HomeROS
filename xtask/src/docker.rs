@@ -107,7 +107,7 @@ impl Container {
     }
 
     fn make_directory(&self, directory: &Path) {
-        self.execute(&format!("mkdir {}", directory.to_str().unwrap()));
+        self.execute(&format!("mkdir -p {}", directory.to_str().unwrap()));
     }
 }
 
