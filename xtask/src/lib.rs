@@ -41,7 +41,13 @@ impl Command {
                 format::all();
                 git::add_rust_sources();
             }
-            Self::Run(command) => command.run(),
+            Self::Run(command) => {
+                if docker::is_installed() {
+                    environment::run_in_container(command);
+                } else {
+                    command.run();
+                }
+            }
         }
     }
 }

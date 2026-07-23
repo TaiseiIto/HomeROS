@@ -17,19 +17,6 @@ impl Container {
         run(&format!("docker attach {}", self.id));
     }
 
-    pub fn import(&self, source: &Path, destination: &Path) {
-        assert!(self.runs());
-        if let Some(destination_directory) = destination.parent() {
-            self.make_directory(destination_directory);
-        }
-        run(&format!(
-            "docker cp {} {}:{}",
-            source.to_str().unwrap(),
-            self.id,
-            destination.to_str().unwrap()
-        ));
-    }
-
     pub fn create(image: &Image, id_file: &Path) -> Self {
         let id: String = get_stdout(&format!(
             "docker create --interactive --tty {} /bin/bash",
@@ -42,6 +29,14 @@ impl Container {
     pub fn execute(&self, command: &str) {
         assert!(self.runs());
         run(&format!("docker exec {} bash -cl '{}'", self.id, command));
+    }
+
+    pub fn execute_interactive(&self, command: &str) {
+        assert!(self.runs());
+        run(&format!(
+            "docker exec --interactive {} bash -cl '{}'",
+            self.id, command
+        ));
     }
 
     pub fn export(&self, source: &Path, destination: &Path) {
@@ -78,6 +73,19 @@ impl Container {
     pub fn home_directory(&self) -> PathBuf {
         assert!(self.runs());
         self.get_stdout("printenv HOME").into()
+    }
+
+    pub fn import(&self, source: &Path, destination: &Path) {
+        assert!(self.runs());
+        if let Some(destination_directory) = destination.parent() {
+            self.make_directory(destination_directory);
+        }
+        run(&format!(
+            "docker cp {} {}:{}",
+            source.to_str().unwrap(),
+            self.id,
+            destination.to_str().unwrap()
+        ));
     }
 
     pub fn remove(self) {

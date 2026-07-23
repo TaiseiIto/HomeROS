@@ -23,6 +23,13 @@ impl Command {
     }
 }
 
+impl Display for Command {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let Self { arch } = self;
+        write!(formatter, "{}", arch)
+    }
+}
+
 impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
         let arch: Arch = args.next().unwrap().as_str().into();

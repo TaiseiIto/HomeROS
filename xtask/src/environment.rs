@@ -3,6 +3,7 @@ use {
         build::destination,
         docker::{Container, Image},
         git::{branch, developer, domain, email, product},
+        run,
         time::zone,
     },
     std::{
@@ -66,6 +67,12 @@ pub fn build_in_container() {
     assert!(container.runs());
     container.execute("cargo xtask build");
     container.export(&source, &destination);
+}
+
+pub fn run_in_container(command: run::Command) {
+    let container: Container = build();
+    assert!(container.runs());
+    container.execute_interactive(&format!("cargo xtask run {}", command));
 }
 
 fn attach() {
