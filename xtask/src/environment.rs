@@ -58,6 +58,12 @@ impl From<Args> for Command {
     }
 }
 
+pub fn execute(command: &str) {
+    let container: Container = build();
+    assert!(container.runs());
+    container.execute(command);
+}
+
 fn attach() {
     let container: Container = build();
     assert!(container.runs());

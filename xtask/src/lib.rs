@@ -22,7 +22,13 @@ pub enum Command {
 impl Command {
     pub fn run(self) {
         match args().into() {
-            Self::Build => build::all(),
+            Self::Build => {
+                if docker::is_installed() {
+                    environment::execute("cargo xtask build");
+                } else {
+                    build::all()
+                }
+            }
             Self::Disassemble(disassemble) => {
                 build::all();
                 disassemble.run();

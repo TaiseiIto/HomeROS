@@ -39,7 +39,12 @@ impl Container {
         Self { id }
     }
 
-    pub fn execute(&self, command: &str) -> String {
+    pub fn execute(&self, command: &str) {
+        assert!(self.runs());
+        run(&format!("docker exec {} bash -cl '{}'", self.id, command));
+    }
+
+    pub fn get_stdout(&self, command: &str) -> String {
         assert!(self.runs());
         get_stdout(&format!("docker exec {} {}", self.id, command))
     }
@@ -47,7 +52,7 @@ impl Container {
     pub fn groups(&self) -> Vec<String> {
         assert!(self.runs());
         let mut groups: Vec<String> = self
-            .execute("groups")
+            .get_stdout("groups")
             .split_whitespace()
             .map(|group| group.to_string())
             .collect();
@@ -57,7 +62,7 @@ impl Container {
 
     pub fn home_directory(&self) -> PathBuf {
         assert!(self.runs());
-        self.execute("printenv HOME").into()
+        self.get_stdout("printenv HOME").into()
     }
 
     pub fn remove(self) {
@@ -84,7 +89,7 @@ impl Container {
 
     pub fn user(&self) -> String {
         assert!(self.runs());
-        self.execute("whoami")
+        self.get_stdout("whoami")
     }
 
     pub fn write(&self, destination: &Path, data: &[u8]) {
@@ -160,4 +165,8 @@ impl TryFrom<&str> for Image {
             Err(())
         }
     }
+}
+
+pub fn is_installed() -> bool {
+    test("which docker")
 }
