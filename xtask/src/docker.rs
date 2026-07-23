@@ -107,6 +107,13 @@ impl Container {
         self.get_stdout("whoami")
     }
 
+    pub fn working_directory(&self) -> PathBuf {
+        PathBuf::from(get_stdout(&format!(
+            "docker inspect {} --format '{{{{.Config.WorkingDir}}}}'",
+            self.id
+        )))
+    }
+
     pub fn write(&self, destination: &Path, data: &[u8]) {
         if !self.runs() {
             self.start();

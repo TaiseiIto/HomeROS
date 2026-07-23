@@ -61,10 +61,11 @@ impl From<Args> for Command {
 
 pub fn build_in_container() {
     let container: Container = build();
+    let source: PathBuf = container.working_directory().join(destination());
     let destination: PathBuf = destination();
     assert!(container.runs());
     container.execute("cargo xtask build");
-    container.export(&destination, &destination);
+    container.export(&source, &destination);
 }
 
 fn attach() {
