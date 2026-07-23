@@ -17,7 +17,7 @@ impl Container {
         run(&format!("docker attach {}", self.id));
     }
 
-    pub fn copy(&self, source: &Path, destination: &Path) {
+    pub fn import(&self, source: &Path, destination: &Path) {
         assert!(self.runs());
         if let Some(destination_directory) = destination.parent() {
             self.make_directory(destination_directory);
@@ -42,6 +42,21 @@ impl Container {
     pub fn execute(&self, command: &str) {
         assert!(self.runs());
         run(&format!("docker exec {} bash -cl '{}'", self.id, command));
+    }
+
+    pub fn export(&self, source: &Path, destination: &Path) {
+        if let Some(destination_directory) = destination.parent() {
+            run(&format!(
+                "mkdir -p {}",
+                destination_directory.to_str().unwrap()
+            ));
+        }
+        run(&format!(
+            "docker cp {}:{} {}",
+            self.id,
+            source.to_str().unwrap(),
+            destination.to_str().unwrap()
+        ));
     }
 
     pub fn get_stdout(&self, command: &str) -> String {

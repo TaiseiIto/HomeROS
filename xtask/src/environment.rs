@@ -1,5 +1,6 @@
 use {
     crate::{
+        build::destination,
         docker::{Container, Image},
         git::{branch, developer, domain, email, product},
         time::zone,
@@ -58,10 +59,12 @@ impl From<Args> for Command {
     }
 }
 
-pub fn execute(command: &str) {
+pub fn build_in_container() {
     let container: Container = build();
+    let destination: PathBuf = destination();
     assert!(container.runs());
-    container.execute(command);
+    container.execute("cargo xtask build");
+    container.export(&destination, &destination);
 }
 
 fn attach() {
@@ -76,8 +79,8 @@ fn privilege(gpg_key: &Path, ssh_key: &Path) {
     assert!(ssh_key.exists());
     assert!(ssh_key.is_file());
     let container: Container = build();
-    container.copy(gpg_key, &gpg_key_destination());
-    container.copy(ssh_key, &ssh_key_destination());
+    container.import(gpg_key, &gpg_key_destination());
+    container.import(ssh_key, &ssh_key_destination());
     container.write(
         &ssh_config(),
         &format!(

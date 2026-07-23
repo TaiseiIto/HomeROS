@@ -25,7 +25,7 @@ impl Command {
         match args().into() {
             Self::Build => {
                 if docker::is_installed() {
-                    environment::execute("cargo xtask build");
+                    environment::build_in_container();
                 } else {
                     build::all()
                 }
