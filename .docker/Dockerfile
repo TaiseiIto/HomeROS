@@ -7,7 +7,7 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.
 RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
 RUN apt-get update && apt-get upgrade -y && apt-get install -y llvm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-arm
-RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-misc
+RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-riscv
 RUN apt-get update && apt-get upgrade -y && apt-get install -y qemu-system-x86
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tmux
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
