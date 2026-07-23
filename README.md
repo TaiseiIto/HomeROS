@@ -25,6 +25,14 @@ And run the commands below.
 /somewhere/HomeROS$ cargo xtask build
 ```
 
+### Run HomeROS on QEMU
+
+```
+/somewhere/HomeROS$ cargo xtask run aarch64
+/somewhere/HomeROS$ cargo xtask run riscv64
+/somewhere/HomeROS$ cargo xtask run x64
+```
+
 ### Disassemble
 
 ```

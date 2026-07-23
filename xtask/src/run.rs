@@ -1,4 +1,11 @@
-use {crate::command::run, std::env::Args};
+use {
+    crate::command::run,
+    std::{
+        env::Args,
+        fmt::{Display, Formatter, Result},
+        path::PathBuf,
+    },
+};
 
 pub struct Command {
     arch: Arch,
@@ -7,21 +14,18 @@ pub struct Command {
 impl Command {
     pub fn run(self) {
         let Self { arch } = self;
-        let qemu: &str = arch.qemu();
-        run(qemu);
+        let source: PathBuf = PathBuf::from(".docker/.tmux/run");
+        run(&format!(
+            "QEMU_ARCH={} tmux new-session ; source-file {}",
+            arch,
+            source.to_str().unwrap()
+        ));
     }
 }
 
 impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
-        let mut arch: Option<Arch> = None;
-        while let Some(arg) = args.next() {
-            match arg.as_str() {
-                "--arch" => arch = Some(args.next().unwrap().as_str().into()),
-                arg => panic!("arg = {}", arg),
-            }
-        }
-        let arch: Arch = arch.unwrap();
+        let arch: Arch = args.next().unwrap().as_str().into();
         Self { arch }
     }
 }
@@ -32,13 +36,10 @@ enum Arch {
     X64,
 }
 
-impl Arch {
-    fn qemu(&self) -> &str {
-        match self {
-            Self::Aarch64 => "qemu-system-aarch64",
-            Self::RiscV64 => "qemu-system-riscv64",
-            Self::X64 => "qemu-system-x86_64",
-        }
+impl Display for Arch {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let string: String = self.into();
+        write!(formatter, "{}", string)
     }
 }
 
@@ -50,5 +51,16 @@ impl From<&str> for Arch {
             "x64" => Self::X64,
             _ => unimplemented!(),
         }
+    }
+}
+
+impl From<&Arch> for String {
+    fn from(arch: &Arch) -> String {
+        match arch {
+            Arch::Aarch64 => "aarch64",
+            Arch::RiscV64 => "riscv64",
+            Arch::X64 => "x64",
+        }
+        .to_string()
     }
 }
