@@ -8,6 +8,7 @@ pub mod environment;
 pub mod format;
 pub mod git;
 pub mod lint;
+pub mod run;
 mod time;
 
 pub enum Command {
@@ -16,7 +17,7 @@ pub enum Command {
     Environment(environment::Command),
     Lint,
     PreCommit,
-    Run,
+    Run(run::Command),
 }
 
 impl Command {
@@ -29,18 +30,18 @@ impl Command {
                     build::all()
                 }
             }
-            Self::Disassemble(disassemble) => {
+            Self::Disassemble(command) => {
                 build::all();
-                disassemble.run();
+                command.run();
             }
-            Self::Environment(environment) => environment.run(),
+            Self::Environment(command) => command.run(),
             Self::Lint => lint::all(),
             Self::PreCommit => {
                 lint::all();
                 format::all();
                 git::add_rust_sources();
             }
-            Self::Run => unimplemented!(),
+            Self::Run(command) => command.run(),
         }
     }
 }
@@ -54,7 +55,7 @@ impl From<Args> for Command {
             "environment" => Self::Environment(args.into()),
             "lint" => Self::Lint,
             "precommit" => Self::PreCommit,
-            "run" => Self::Run,
+            "run" => Self::Run(args.into()),
             arg => panic!("arg = {}", arg),
         }
     }
