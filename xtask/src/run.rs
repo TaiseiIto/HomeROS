@@ -14,7 +14,7 @@ pub struct Command {
 impl Command {
     pub fn run(self) {
         let Self { arch } = self;
-        let source: PathBuf = PathBuf::from(".docker/.tmux/run");
+        let source: PathBuf = PathBuf::from(".docker/tmux/run");
         run(&format!(
             "QEMU_ARCH={} tmux new-session ; source-file {}",
             arch,

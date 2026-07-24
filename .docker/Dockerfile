@@ -31,5 +31,5 @@ WORKDIR $PRODUCT
 ARG BRANCH
 RUN git checkout $BRANCH
 RUN lefthook install
-RUN ln -s $(realpath .docker/.tmux/conf) ../.tmux.conf
-RUN ln -s $(realpath .docker/.vim/rc) ../.vimrc
+RUN ln -s $(realpath .docker/tmux/conf) ../.tmux.conf
+RUN ln -s $(realpath .docker/vim/rc) ../.vimrc
