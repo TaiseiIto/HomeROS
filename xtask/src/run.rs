@@ -37,7 +37,7 @@ impl From<Args> for Command {
     }
 }
 
-enum Arch {
+pub enum Arch {
     Aarch64,
     RiscV64,
     X64,

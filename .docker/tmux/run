@@ -1,7 +1,4 @@
 source-file ~/.tmux.conf
 split-window -hc '#{pane_current_path}'
-send-key -t 0 'cd ../..' C-m
-send-key -t 0 'echo $QEMU_ARCH' C-m
-send-key -t 1 'cd ../..' C-m
-send-key -t 1 'echo hello world' C-m
+send-key -t 0 'cargo xtask qemu $QEMU_ARCH' C-m
 select-pane -t 1
