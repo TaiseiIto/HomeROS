@@ -191,8 +191,8 @@ impl Image {
     }
 
     fn exposed_ports(&self) -> BTreeSet<u16> {
-        get_stdout(&format!("docker image inspect {} --format='{{{{range $port, $_ := .Config.ExposedPorts}}}}{{{{$port}}}}{{{{\"\\n\"}}}}{{{{end}}}}'", self.id))
-            .lines()
+        get_stdout(&format!("docker image inspect {} --format='{{{{range $port, $_ := .Config.ExposedPorts}}}}{{{{$port}}}} {{{{end}}}}'", self.id))
+            .split_ascii_whitespace()
             .filter_map(|line| line.split_once('/').and_then(|(port, _)| port.parse().ok()))
             .collect()
     }
