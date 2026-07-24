@@ -21,6 +21,8 @@ RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-uefi
 RUN git config --global alias.graph 'log --graph --date-order -C -M --pretty=format:"<%h> %ad [%an] %Cgreen%d%Creset %s" --all --date=short'
 WORKDIR /root/
 RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
+ENV VNC_PORT=5900
+EXPOSE $VNC_PORT
 ARG TIMEZONE
 RUN cp $TIMEZONE /etc/localtime
 ARG DOMAIN
