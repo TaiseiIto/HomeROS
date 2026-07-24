@@ -1,7 +1,7 @@
 use {
     crate::command::{get_stdout, give_stdin, run, test},
     std::{
-        collections::BTreeMap,
+        collections::{BTreeMap, BTreeSet},
         fs::{read_to_string, write},
         path::{Path, PathBuf},
     },
@@ -18,8 +18,15 @@ impl Container {
     }
 
     pub fn create(image: &Image, id_file: &Path) -> Self {
+        let exposed_ports: Vec<String> = image
+            .exposed_ports()
+            .into_iter()
+            .map(|port| format!("--publish {}:{}", port, port))
+            .collect();
+        let exposed_ports: String = exposed_ports.join(" ");
         let id: String = get_stdout(&format!(
-            "docker create --interactive --tty {} /bin/bash",
+            "docker create --interactive --tty {} {} /bin/bash",
+            exposed_ports,
             image.id()
         ));
         write(id_file, &id).unwrap();
@@ -181,6 +188,13 @@ impl Image {
 
     pub fn remove(self) {
         run(&format!("docker image rm {}", self.id));
+    }
+
+    fn exposed_ports(&self) -> BTreeSet<u16> {
+        get_stdout(&format!("docker image inspect {} --format='{{{{range $port, $_ := .Config.ExposedPorts}}}}{{{{$port}}}}{{{{\"\\n\"}}}}{{{{end}}}}'", self.id))
+            .lines()
+            .filter_map(|line| line.split_once('/').and_then(|(port, _)| port.parse().ok()))
+            .collect()
     }
 }
 
