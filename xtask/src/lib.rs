@@ -1,15 +1,15 @@
 use std::env::{Args, args};
 
-pub mod build;
+mod build;
 mod command;
-pub mod disassemble;
+mod disassemble;
 mod docker;
-pub mod environment;
-pub mod format;
-pub mod git;
-pub mod lint;
-pub mod qemu;
-pub mod run;
+mod environment;
+mod format;
+mod git;
+mod lint;
+mod qemu;
+mod run;
 mod time;
 
 pub use {build::build, format::format, lint::lint};
