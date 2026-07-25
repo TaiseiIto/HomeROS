@@ -45,7 +45,7 @@ pub enum Arch {
 
 impl Display for Arch {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let string: String = self.into();
+        let string: &str = self.into();
         write!(formatter, "{}", string)
     }
 }
@@ -61,13 +61,12 @@ impl From<&str> for Arch {
     }
 }
 
-impl From<&Arch> for String {
-    fn from(arch: &Arch) -> String {
+impl From<&Arch> for &str {
+    fn from(arch: &Arch) -> Self {
         match arch {
             Arch::Aarch64 => "aarch64",
             Arch::RiscV64 => "riscv64",
             Arch::X64 => "x64",
         }
-        .to_string()
     }
 }

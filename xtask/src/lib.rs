@@ -1,6 +1,5 @@
 use std::env::{Args, args};
 
-mod build;
 mod command;
 mod disassemble;
 mod docker;
@@ -8,11 +7,12 @@ mod environment;
 mod format;
 mod git;
 mod lint;
+mod product;
 mod qemu;
 mod run;
 mod time;
 
-pub use {build::build, format::format, lint::lint};
+pub use {format::format, lint::lint};
 
 pub enum Command {
     Build,
@@ -31,11 +31,11 @@ impl Command {
                 if docker::is_installed() {
                     environment::build_in_container();
                 } else {
-                    build()
+                    product::build()
                 }
             }
             Self::Disassemble(command) => {
-                build();
+                product::build();
                 command.run();
             }
             Self::Environment(command) => command.run(),

@@ -37,7 +37,7 @@ pub fn test(command: &str) -> bool {
 }
 
 fn new(command: &str) -> Command {
-    let (mut args, arg, _, _): (Vec<String>, String, bool, bool) = command.chars().fold(
+    let (mut args, arg, _, _): (Vec<String>, String, bool, bool) = command.trim().chars().fold(
         (Vec::new(), String::new(), false, false),
         |(mut args, mut arg, in_quotation, in_double_quotation), character| match (
             character,

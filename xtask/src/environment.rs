@@ -1,8 +1,8 @@
 use {
     crate::{
-        build::destination,
         docker::{Container, Image},
         git::{branch, developer, domain, email, product},
+        product::destination,
         run,
         time::zone,
     },
@@ -47,7 +47,7 @@ impl From<Args> for Command {
                     match arg.as_str() {
                         "--gpg-key" => gpg_key = Some(args.next().unwrap().into()),
                         "--ssh-key" => ssh_key = Some(args.next().unwrap().into()),
-                        arg => panic!("arg = {}", arg),
+                        arg => unreachable!("arg = {}", arg),
                     }
                 }
                 let gpg_key: PathBuf = gpg_key.unwrap();
@@ -55,7 +55,7 @@ impl From<Args> for Command {
                 Self::Privilege { gpg_key, ssh_key }
             }
             Some("rebuild") => Self::Rebuild,
-            Some(arg) => panic!("arg = {}", arg),
+            Some(arg) => unimplemented!("arg = {}", arg),
         }
     }
 }

@@ -1,9 +1,7 @@
-use crate::command::run;
-
-mod boot;
+use crate::{command::run, product};
 
 pub fn lint() {
-    boot::lint();
+    product::lint();
     xtask();
 }
 
