@@ -12,7 +12,7 @@ mod qemu;
 mod run;
 mod time;
 
-pub use {format::format, lint::lint};
+pub use {docker::in_container, format::format, lint::lint};
 
 pub enum Command {
     Build,
@@ -28,10 +28,10 @@ impl Command {
     pub fn run(self) {
         match args().into() {
             Self::Build => {
-                if docker::is_installed() {
-                    environment::build_in_container();
-                } else {
+                if in_container() {
                     product::build()
+                } else {
+                    environment::build_in_container();
                 }
             }
             Self::Disassemble(command) => {
@@ -47,11 +47,11 @@ impl Command {
             }
             Self::Qemu(command) => command.run(),
             Self::Run(command) => {
-                if docker::is_installed() {
-                    environment::run_in_container(command);
-                } else {
+                if in_container() {
                     product::build();
                     command.run();
+                } else {
+                    environment::run_in_container(command);
                 }
             }
         }

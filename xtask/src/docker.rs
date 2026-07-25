@@ -211,6 +211,6 @@ impl TryFrom<&str> for Image {
     }
 }
 
-pub fn is_installed() -> bool {
-    test("which docker")
+pub fn in_container() -> bool {
+    test("systemd-detect-virt --container --quiet")
 }
