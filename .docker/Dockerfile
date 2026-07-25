@@ -28,8 +28,8 @@ RUN git clone --branch edk2-stable202605 --depth 1 --recursive --shallow-submodu
 WORKDIR edk2
 ENV GCC_AARCH64_PREFIX=aarch64-linux-gnu-
 RUN make -C BaseTools
-RUN source edksetup.sh && build -a AARCH64 -t GCC -p ArmVirtPkg/ArmVirtQemu.dsc
-RUN source edksetup.sh && build -a X64 -t GCC -p OvmfPkg/OvmfPkgX64.dsc
+RUN . ./edksetup.sh && build -a AARCH64 -t GCC -p ArmVirtPkg/ArmVirtQemu.dsc
+RUN . ./edksetup.sh && build -a X64 -t GCC -p OvmfPkg/OvmfPkgX64.dsc
 WORKDIR ..
 RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
 ENV VNC_PORT=5900
