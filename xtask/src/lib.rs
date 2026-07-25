@@ -8,9 +8,9 @@ mod format;
 mod git;
 mod lint;
 mod product;
-mod qemu;
 mod run;
 mod time;
+mod tmux;
 
 pub use {docker::in_container, format::format, lint::lint};
 
@@ -20,7 +20,6 @@ pub enum Command {
     Environment(environment::Command),
     Lint,
     PreCommit,
-    Qemu(qemu::Command),
     Run(run::Command),
 }
 
@@ -46,7 +45,6 @@ impl Command {
                 format();
                 git::add_rust_sources();
             }
-            Self::Qemu(command) => command.run(),
             Self::Run(command) => {
                 if in_container() {
                     product::build();
@@ -68,7 +66,6 @@ impl From<Args> for Command {
             "environment" => Self::Environment(args.into()),
             "lint" => Self::Lint,
             "precommit" => Self::PreCommit,
-            "qemu" => Self::Qemu(args.into()),
             "run" => Self::Run(args.into()),
             arg => panic!("arg = {}", arg),
         }

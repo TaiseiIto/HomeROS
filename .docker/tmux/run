@@ -1,4 +1,4 @@
 source-file ~/.tmux.conf
 split-window -hc '#{pane_current_path}'
-send-key -t 0 'cargo xtask qemu $QEMU_ARCH' C-m
+send-key -t 0 'cargo xtask run $QEMU_ARCH' C-m
 select-pane -t 1
