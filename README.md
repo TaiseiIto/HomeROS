@@ -36,9 +36,9 @@ And run the commands below.
 ### Disassemble
 
 ```
-/somewhere/HomeROS$ cargo xtask disassemble boot aarch64
-/somewhere/HomeROS$ cargo xtask disassemble boot riscv64
-/somewhere/HomeROS$ cargo xtask disassemble boot x64
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch aarch64
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch riscv64
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch x64
 ```
 
 ### Build development environment

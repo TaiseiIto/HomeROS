@@ -31,9 +31,8 @@ pub struct Binary {
 impl Binary {
     pub fn disassemble(&self) {
         run(&format!(
-            "llvm-objdump -d target/{}/debug/{}",
-            self.target(),
-            self.package
+            "llvm-objdump -d {}",
+            self.destination().to_str().unwrap()
         ));
     }
 
