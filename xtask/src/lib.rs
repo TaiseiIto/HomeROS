@@ -50,6 +50,7 @@ impl Command {
                 if docker::is_installed() {
                     environment::run_in_container(command);
                 } else {
+                    product::build();
                     command.run();
                 }
             }
