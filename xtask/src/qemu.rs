@@ -5,8 +5,29 @@ pub struct Command {
 }
 
 impl Command {
+    const COM1: &str = "-serial file:com1.log";
+    const COM2: &str = "-chardev stdio,id=com2,mux=on,logfile=com2.log -serial chardev:com2";
+    const LOG: &str = "-d int,cpu_reset -D qemu.log";
+    const MEMORY: &str = "-m 1G";
+    const REBOOT: &str = "--no-reboot";
+    const VNC: &str = "-vnc :0";
+
     pub fn run(self) {
-        run(&format!("{} {} -vnc :0", self.qemu(), self.machine()));
+        run(&self.command());
+    }
+
+    fn command(&self) -> String {
+        [
+            self.qemu(),
+            self.machine(),
+            Self::COM1,
+            Self::COM2,
+            Self::LOG,
+            Self::MEMORY,
+            Self::REBOOT,
+            Self::VNC,
+        ]
+        .join(" ")
     }
 
     fn machine(&self) -> &str {
