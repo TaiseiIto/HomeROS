@@ -47,7 +47,6 @@ impl Command {
             }
             Self::Run(command) => {
                 if in_container() {
-                    product::build();
                     command.run();
                 } else {
                     environment::run_in_container(command);

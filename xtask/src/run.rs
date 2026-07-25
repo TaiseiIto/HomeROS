@@ -1,5 +1,10 @@
 use {
-    crate::{command::run, git::product, product::Arch, tmux},
+    crate::{
+        command::run,
+        git::product,
+        product::{Arch, build},
+        tmux,
+    },
     std::{
         env::Args,
         fmt::{Display, Formatter, Result},
@@ -32,6 +37,7 @@ impl Command {
     }
 
     fn run_outside_tmux(self) {
+        build();
         let Self { arch } = self;
         let source: PathBuf = PathBuf::from(".docker/tmux/run");
         run(&format!(
