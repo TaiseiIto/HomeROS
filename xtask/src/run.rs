@@ -32,21 +32,6 @@ impl Command {
         }
     }
 
-    fn run_inside_tmux(self) {
-        run(&self.command());
-    }
-
-    fn run_outside_tmux(self) {
-        build();
-        let Self { arch } = self;
-        let source: PathBuf = PathBuf::from(".docker/tmux/run");
-        run(&format!(
-            "QEMU_ARCH={} tmux new-session ; source-file {}",
-            arch,
-            source.to_str().unwrap()
-        ));
-    }
-
     fn command(&self) -> String {
         [
             self.qemu(),
@@ -104,6 +89,21 @@ impl Command {
             Arch::RiscV64 => "qemu-system-riscv64",
             Arch::X64 => "qemu-system-x86_64",
         }
+    }
+
+    fn run_inside_tmux(self) {
+        run(&self.command());
+    }
+
+    fn run_outside_tmux(self) {
+        build();
+        let Self { arch } = self;
+        let source: PathBuf = PathBuf::from(".docker/tmux/run");
+        run(&format!(
+            "QEMU_ARCH={} tmux new-session ; source-file {}",
+            arch,
+            source.to_str().unwrap()
+        ));
     }
 }
 
