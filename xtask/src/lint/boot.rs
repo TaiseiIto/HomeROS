@@ -1,6 +1,6 @@
 use crate::command::run;
 
-pub fn all() {
+pub fn lint() {
     let package: &str = "boot";
     aarch64(package);
     riscv64(package);

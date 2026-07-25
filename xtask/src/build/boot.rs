@@ -3,7 +3,7 @@ use {
     std::path::{Path, PathBuf},
 };
 
-pub fn all(destination: &Path) {
+pub fn build(destination: &Path) {
     let package: &str = "boot";
     aarch64(package, destination);
     riscv64(package, destination);

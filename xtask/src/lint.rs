@@ -2,8 +2,8 @@ use crate::command::run;
 
 mod boot;
 
-pub fn all() {
-    boot::all();
+pub fn lint() {
+    boot::lint();
     xtask();
 }
 

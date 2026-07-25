@@ -12,6 +12,8 @@ pub mod qemu;
 pub mod run;
 mod time;
 
+pub use {build::build, format::format, lint::lint};
+
 pub enum Command {
     Build,
     Disassemble(disassemble::Command),
@@ -29,18 +31,18 @@ impl Command {
                 if docker::is_installed() {
                     environment::build_in_container();
                 } else {
-                    build::all()
+                    build()
                 }
             }
             Self::Disassemble(command) => {
-                build::all();
+                build();
                 command.run();
             }
             Self::Environment(command) => command.run(),
-            Self::Lint => lint::all(),
+            Self::Lint => lint(),
             Self::PreCommit => {
-                lint::all();
-                format::all();
+                lint();
+                format();
                 git::add_rust_sources();
             }
             Self::Qemu(command) => command.run(),
