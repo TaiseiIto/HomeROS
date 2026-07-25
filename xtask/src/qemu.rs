@@ -20,6 +20,7 @@ impl Command {
         [
             self.qemu(),
             self.machine(),
+            self.firmware(),
             Self::COM1,
             Self::COM2,
             Self::LOG,
@@ -30,11 +31,24 @@ impl Command {
         .join(" ")
     }
 
+    fn firmware(&self) -> &str {
+        let Self { arch } = self;
+        match arch {
+            Arch::Aarch64 => {
+                "-drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd,format=raw,if=pflash,readonly=on"
+            }
+            Arch::RiscV64 => "",
+            Arch::X64 => {
+                "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC5/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC5/FV/OVMF_VARS.fd,format=raw,if=pflash,readonly=on"
+            }
+        }
+    }
+
     fn machine(&self) -> &str {
         let Self { arch } = self;
         match arch {
             Arch::Aarch64 => "-machine virt",
-            Arch::RiscV64 => "",
+            Arch::RiscV64 => "-machine virt",
             Arch::X64 => "",
         }
     }
