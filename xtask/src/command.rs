@@ -51,7 +51,9 @@ fn new(command: &str) -> Command {
             ('"', false, true) => (args, arg, false, false),
             ('"', true, _) => unreachable!(),
             (' ', false, false) | ('\t', false, false) => {
-                args.push(arg);
+                if !arg.is_empty() {
+                    args.push(arg);
+                }
                 (args, String::new(), false, false)
             }
             (character, false, false) => {
