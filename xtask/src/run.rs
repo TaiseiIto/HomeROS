@@ -1,5 +1,5 @@
 use {
-    crate::command::run,
+    crate::{command::run, product::Arch},
     std::{
         env::Args,
         fmt::{Display, Formatter, Result},
@@ -34,39 +34,5 @@ impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
         let arch: Arch = args.next().unwrap().as_str().into();
         Self { arch }
-    }
-}
-
-pub enum Arch {
-    Aarch64,
-    RiscV64,
-    X64,
-}
-
-impl Display for Arch {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let string: &str = self.into();
-        write!(formatter, "{}", string)
-    }
-}
-
-impl From<&str> for Arch {
-    fn from(arch: &str) -> Self {
-        match arch {
-            "aarch64" => Self::Aarch64,
-            "riscv64" => Self::RiscV64,
-            "x64" => Self::X64,
-            _ => unimplemented!(),
-        }
-    }
-}
-
-impl From<&Arch> for &str {
-    fn from(arch: &Arch) -> Self {
-        match arch {
-            Arch::Aarch64 => "aarch64",
-            Arch::RiscV64 => "riscv64",
-            Arch::X64 => "x64",
-        }
     }
 }

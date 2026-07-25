@@ -55,9 +55,8 @@ impl Binary {
     }
 
     fn destination(&self) -> PathBuf {
-        let mut destination: PathBuf = destination();
-        destination.push(format!("{}", self.arch));
         let Self { arch, package } = self;
+        let destination: PathBuf = arch.destination();
         let disk_relative_path: &str = match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "efi/boot/bootaa64.efi",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
@@ -139,13 +138,19 @@ impl From<Args> for Binary {
 }
 
 #[derive(Clone)]
-enum Arch {
+pub enum Arch {
     Aarch64,
     RiscV64,
     X64,
 }
 
 impl Arch {
+    pub fn destination(&self) -> PathBuf {
+        let mut destination: PathBuf = destination();
+        destination.push(format!("{}", self));
+        destination
+    }
+
     fn domain() -> Vec<Self> {
         [Self::Aarch64, Self::RiscV64, Self::X64]
             .into_iter()

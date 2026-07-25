@@ -1,4 +1,7 @@
-use {super::run::Arch, crate::command::run, std::env::Args};
+use {
+    crate::{command::run, git::product, product::Arch},
+    std::env::Args,
+};
 
 pub struct Command {
     arch: Arch,
@@ -21,6 +24,7 @@ impl Command {
             self.qemu(),
             self.machine(),
             self.firmware(),
+            &self.drive(),
             Self::COM1,
             Self::COM2,
             Self::LOG,
@@ -29,6 +33,19 @@ impl Command {
             Self::VNC,
         ]
         .join(" ")
+    }
+
+    fn drive(&self) -> String {
+        let Self { arch } = self;
+        match arch {
+            Arch::RiscV64 => unimplemented!(),
+            Arch::Aarch64 | Arch::X64 => format!(
+                "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
+                arch.destination().to_str().unwrap(),
+                product(),
+                product()
+            ),
+        }
     }
 
     fn firmware(&self) -> &str {
@@ -47,8 +64,7 @@ impl Command {
     fn machine(&self) -> &str {
         let Self { arch } = self;
         match arch {
-            Arch::Aarch64 => "-machine virt",
-            Arch::RiscV64 => "-machine virt",
+            Arch::Aarch64 | Arch::RiscV64 => "-machine virt",
             Arch::X64 => "",
         }
     }
