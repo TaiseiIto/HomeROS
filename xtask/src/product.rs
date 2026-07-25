@@ -3,7 +3,7 @@ use {
     std::{
         env::Args,
         fmt::{Display, Formatter, Result},
-        path::PathBuf,
+        path::{Path, PathBuf},
     },
 };
 
@@ -14,7 +14,7 @@ pub fn build() {
 }
 
 pub fn destination() -> PathBuf {
-    PathBuf::from("target")
+    Path::new("target").join(product())
 }
 
 pub fn lint() {
@@ -57,7 +57,6 @@ impl Binary {
 
     fn destination(&self) -> PathBuf {
         let mut destination: PathBuf = destination();
-        destination.push(product());
         destination.push(format!("{}", self.arch));
         let Self { arch, package } = self;
         let disk_relative_path: &str = match (arch, package) {
