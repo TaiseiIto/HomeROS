@@ -21,7 +21,7 @@ pub fn email() -> String {
 }
 
 pub fn product() -> String {
-    extract("./", 1)
+    extract("/", 0).split('.').next().unwrap().to_string()
 }
 
 fn extract(delimiters: &str, backward_index: usize) -> String {
