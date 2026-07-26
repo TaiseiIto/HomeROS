@@ -35,6 +35,7 @@ impl Command {
     fn command(&self) -> String {
         [
             self.qemu(),
+            self.cpu(),
             self.machine(),
             self.firmware(),
             &self.drive(),
@@ -46,6 +47,14 @@ impl Command {
             Self::VNC,
         ]
         .join(" ")
+    }
+
+    fn cpu(&self) -> &str {
+        let Self { arch } = self;
+        match arch {
+            Arch::Aarch64 => "-cpu max",
+            _ => "",
+        }
     }
 
     fn drive(&self) -> String {
@@ -98,9 +107,7 @@ impl Command {
     }
 
     fn run_inside_tmux(self) {
-        let command: String = self.command();
-        println!("command = {}", command);
-        run(&command);
+        run(&self.command());
     }
 
     fn run_outside_tmux(self) {
