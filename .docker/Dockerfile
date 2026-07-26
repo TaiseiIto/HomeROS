@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y llvm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y nasm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y ninja-build
 RUN apt-get update && apt-get upgrade -y && apt-get install -y python3-venv
+RUN apt-get update && apt-get upgrade -y && apt-get install -y systemd
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tmux
 RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
 RUN apt-get update && apt-get upgrade -y && apt-get install -y uuid-dev
