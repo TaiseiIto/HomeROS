@@ -58,9 +58,9 @@ impl Binary {
         let Self { arch, package } = self;
         let destination: PathBuf = arch.destination();
         let disk_relative_path: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "efi/boot/bootaa64.efi",
+            (Arch::Aarch64, Package::Boot) => "EFI/BOOT/BOOTAA64.efi",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
-            (Arch::X64, Package::Boot) => "efi/boot/bootx64.efi",
+            (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.efi",
         };
         destination.as_path().join(disk_relative_path)
     }
