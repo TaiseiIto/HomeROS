@@ -95,6 +95,10 @@ impl Binary {
         }
     }
 
+    fn new(arch: Arch, package: Package) -> Self {
+        Self { arch, package }
+    }
+
     fn source(&self) -> PathBuf {
         PathBuf::from(&format!("target/{}/debug/{}", self.target(), self.name()))
     }
@@ -131,9 +135,7 @@ impl From<Args> for Binary {
                 arg => unreachable!("arg = {}", arg),
             }
         }
-        let arch: Arch = arch.unwrap();
-        let package: Package = package.unwrap();
-        Self { arch, package }
+        Self::new(arch.unwrap(), package.unwrap())
     }
 }
 
@@ -145,6 +147,10 @@ pub enum Arch {
 }
 
 impl Arch {
+    pub fn boot_destination(&self) -> PathBuf {
+        Binary::new(self.clone(), Package::Boot).destination()
+    }
+
     pub fn destination(&self) -> PathBuf {
         let mut destination: PathBuf = destination();
         destination.push(format!("{}", self));

@@ -32,9 +32,18 @@ impl Command {
         }
     }
 
+    fn boot(&self) -> String {
+        let Self { arch } = self;
+        match arch {
+            Arch::RiscV64 => format!("-kernel {}", arch.boot_destination().to_str().unwrap()),
+            _ => String::new(),
+        }
+    }
+
     fn command(&self) -> String {
         [
             self.qemu(),
+            &self.boot(),
             self.cpu(),
             self.display(),
             &self.drive(),
@@ -75,7 +84,10 @@ impl Command {
                 product(),
                 product()
             ),
-            Arch::RiscV64 => unimplemented!(),
+            Arch::RiscV64 => format!(
+                "-drive format=raw,file=fat:rw:{}",
+                arch.destination().to_str().unwrap(),
+            ),
             Arch::X64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
                 arch.destination().to_str().unwrap(),
@@ -91,7 +103,7 @@ impl Command {
             Arch::Aarch64 => {
                 "-drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd,format=raw,if=pflash"
             }
-            Arch::RiscV64 => "",
+            Arch::RiscV64 => "-bios default",
             Arch::X64 => {
                 "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash"
             }
