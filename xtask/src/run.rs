@@ -36,9 +36,10 @@ impl Command {
         [
             self.qemu(),
             self.cpu(),
-            self.machine(),
-            self.firmware(),
+            self.display(),
             &self.drive(),
+            self.firmware(),
+            self.machine(),
             Self::COM1,
             Self::COM2,
             Self::LOG,
@@ -53,6 +54,14 @@ impl Command {
         let Self { arch } = self;
         match arch {
             Arch::Aarch64 => "-cpu max",
+            _ => "",
+        }
+    }
+
+    fn display(&self) -> &str {
+        let Self { arch } = self;
+        match arch {
+            Arch::Aarch64 => "-device ramfb",
             _ => "",
         }
     }
