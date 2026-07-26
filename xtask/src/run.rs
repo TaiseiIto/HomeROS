@@ -70,8 +70,8 @@ impl Command {
     fn display(&self) -> &str {
         let Self { arch } = self;
         match arch {
-            Arch::Aarch64 => "-device ramfb",
-            _ => "",
+            Arch::Aarch64 | Arch::RiscV64 => "-device ramfb",
+            Arch::X64 => "",
         }
     }
 
