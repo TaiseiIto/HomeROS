@@ -80,11 +80,11 @@ impl Command {
         let Self { arch } = self;
         match arch {
             Arch::Aarch64 => {
-                "-drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd,format=raw,if=pflash,readonly=on"
+                "-drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd,format=raw,if=pflash"
             }
             Arch::RiscV64 => "",
             Arch::X64 => {
-                "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash,readonly=on"
+                "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash"
             }
         }
     }
