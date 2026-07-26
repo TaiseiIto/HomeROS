@@ -1,7 +1,11 @@
-use crate::command;
+use crate::command::{get_stdout, run};
+
+pub fn add_rust_sources() {
+    run("git add *.rs");
+}
 
 pub fn branch() -> String {
-    command::get_stdout("git branch --show-current")
+    get_stdout("git branch --show-current")
 }
 
 pub fn developer() -> String {
@@ -13,11 +17,11 @@ pub fn domain() -> String {
 }
 
 pub fn email() -> String {
-    command::get_stdout("git config user.email")
+    get_stdout("git config user.email")
 }
 
 pub fn product() -> String {
-    extract("./", 1)
+    extract("/", 0).split('.').next().unwrap().to_string()
 }
 
 fn extract(delimiters: &str, backward_index: usize) -> String {
@@ -32,5 +36,5 @@ fn extract(delimiters: &str, backward_index: usize) -> String {
 }
 
 fn url() -> String {
-    command::get_stdout("git remote get-url origin")
+    get_stdout("git remote get-url origin")
 }

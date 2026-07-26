@@ -1,41 +1,107 @@
-use crate::{docker, git, time};
-use indoc::indoc;
+use {
+    crate::{
+        docker::{Container, Image},
+        git::{branch, developer, domain, email, product},
+        product::destination,
+        run,
+        time::zone,
+    },
+    std::{
+        collections::BTreeMap,
+        env::Args,
+        fs::{read_to_string, remove_file},
+        path::{Path, PathBuf},
+    },
+};
 
-pub fn attach() {
-    build();
-    let container: std::path::PathBuf = container();
-    assert!(docker::container::exists(&container));
-    assert!(docker::container::runs(&container));
-    docker::container::attach(&container);
+pub enum Command {
+    Build,
+    Delete,
+    Privilege { gpg_key: PathBuf, ssh_key: PathBuf },
+    Rebuild,
 }
 
-pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
+impl Command {
+    pub fn run(self) {
+        match self {
+            Self::Build => attach(),
+            Self::Delete => remove(),
+            Self::Privilege { gpg_key, ssh_key } => privilege(&gpg_key, &ssh_key),
+            Self::Rebuild => {
+                remove();
+                attach();
+            }
+        }
+    }
+}
+
+impl From<Args> for Command {
+    fn from(mut args: Args) -> Self {
+        match args.next().as_deref() {
+            None => Self::Build,
+            Some("delete") => Self::Delete,
+            Some("privilege") => {
+                let mut gpg_key: Option<PathBuf> = None;
+                let mut ssh_key: Option<PathBuf> = None;
+                while let Some(arg) = args.next() {
+                    match arg.as_str() {
+                        "--gpg-key" => gpg_key = Some(args.next().unwrap().into()),
+                        "--ssh-key" => ssh_key = Some(args.next().unwrap().into()),
+                        arg => unreachable!("arg = {}", arg),
+                    }
+                }
+                let gpg_key: PathBuf = gpg_key.unwrap();
+                let ssh_key: PathBuf = ssh_key.unwrap();
+                Self::Privilege { gpg_key, ssh_key }
+            }
+            Some("rebuild") => Self::Rebuild,
+            Some(arg) => unimplemented!("arg = {}", arg),
+        }
+    }
+}
+
+pub fn build_in_container() {
+    let container: Container = build();
+    let source: PathBuf = container.working_directory().join(destination());
+    let destination: PathBuf = destination();
+    assert!(container.runs());
+    container.execute("cargo xtask build");
+    container.export(&source, &destination);
+}
+
+pub fn run_in_container(command: run::Command) {
+    let container: Container = build();
+    assert!(container.runs());
+    container.execute_in_terminal(&format!("cargo xtask run {}", command));
+}
+
+fn attach() {
+    let container: Container = build();
+    assert!(container.runs());
+    container.attach();
+}
+
+fn privilege(gpg_key: &Path, ssh_key: &Path) {
     assert!(gpg_key.exists());
     assert!(gpg_key.is_dir());
     assert!(ssh_key.exists());
     assert!(ssh_key.is_file());
-    build();
-    let container: std::path::PathBuf = container();
-    docker::container::copy(gpg_key, &container, &gpg_key_destination());
-    docker::container::copy(ssh_key, &container, &ssh_key_destination());
-    docker::container::write(
-        &container,
+    let container: Container = build();
+    container.import(gpg_key, &gpg_key_destination());
+    container.import(ssh_key, &ssh_key_destination());
+    container.write(
         &ssh_config(),
         &format!(
-            indoc! {r#"
-                Host {}
-                    HostName {}
-                    IdentityFile {}
-                    User git
-        "#},
-            git::domain(),
-            git::domain(),
+            "Host {}\n\tHostName {}\n\tIdentityFile {}\n\tUser git",
+            domain(),
+            domain(),
             ssh_key_destination().to_str().unwrap()
-        ),
+        )
+        .into_bytes(),
     );
     [
-        format!("git config --global user.name {}", git::developer()),
-        format!("git config --global user.email {}", git::email()),
+        format!("git config --global user.name {}", developer()),
+        format!("git config --global user.email {}", email()),
         "git config --global commit.gpgsign true".to_string(),
         format!(
             "git config --global user.signingkey {}",
@@ -43,122 +109,125 @@ pub fn privilege(gpg_key: &std::path::Path, ssh_key: &std::path::Path) {
         ),
         format!(
             "git remote set-url origin git@{}:{}/{}.git",
-            git::domain(),
-            git::developer(),
-            git::product()
+            domain(),
+            developer(),
+            product()
         ),
         format!(
             "chown -R {}:{} {}",
-            docker::container::user(&container),
-            docker::container::groups(&container).pop().unwrap(),
+            container.user(),
+            container.groups().pop().unwrap(),
             gpg_key_destination().to_str().unwrap()
         ),
         format!("chmod -R 600 {}", gpg_key_destination().to_str().unwrap()),
         format!(
             "chown -R {}:{} {}",
-            docker::container::user(&container),
-            docker::container::groups(&container).pop().unwrap(),
+            container.user(),
+            container.groups().pop().unwrap(),
             ssh().to_str().unwrap()
         ),
         format!("chmod -R 600 {}", ssh().to_str().unwrap()),
     ]
     .into_iter()
     .for_each(|command| {
-        docker::container::execute(&container, &command);
+        container.execute(&command);
     });
 }
 
-pub fn remove() {
-    let image: std::path::PathBuf = image();
-    let container: std::path::PathBuf = container();
-    if docker::container::runs(&container) {
-        docker::container::stop(&container);
+fn remove() {
+    if let Some(container) = container() {
+        if container.runs() {
+            container.stop();
+        }
+        container.remove();
+        remove_file(container_id_file()).unwrap();
     }
-    if docker::container::exists(&container) {
-        docker::container::remove(&container);
-    }
-    if docker::image::exists(&image) {
-        docker::image::remove(&image);
+    if let Some(image) = image() {
+        image.remove();
+        remove_file(image_id_file()).unwrap();
     }
 }
 
-fn build() {
-    let image: std::path::PathBuf = image();
-    let container: std::path::PathBuf = container();
-    let dockerfile: std::path::PathBuf = dockerfile();
+fn build() -> Container {
+    let dockerfile: PathBuf = dockerfile();
     assert!(dockerfile.exists());
-    let arguments: std::collections::BTreeMap<String, String> = [
-        ("CACHE_BUSTER", time::unix()),
-        ("DOMAIN", git::domain()),
-        ("DEVELOPER", git::developer()),
-        ("PRODUCT", git::product()),
-        ("BRANCH", git::branch()),
-        ("TIMEZONE", time::zone()),
+    let arguments: BTreeMap<String, String> = [
+        ("DOMAIN", domain()),
+        ("DEVELOPER", developer()),
+        ("PRODUCT", product()),
+        ("BRANCH", branch()),
+        ("TIMEZONE", zone()),
     ]
     .into_iter()
     .map(|(key, value)| (key.to_string(), value))
     .collect();
-    if !docker::image::exists(&image) {
-        docker::image::build(&image, &dockerfile, arguments);
+    let image: Image =
+        image().unwrap_or_else(|| Image::build(&dockerfile, &arguments, &image_id_file()));
+    let container: Container =
+        container().unwrap_or_else(|| Container::create(&image, &container_id_file()));
+    if !container.runs() {
+        container.start();
     }
-    if !docker::container::exists(&container) {
-        docker::container::create(&image, &container);
-    }
-    if !docker::container::runs(&container) {
-        docker::container::start(&container);
-    }
+    container
 }
 
-fn container() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/container.id")
+fn container() -> Option<Container> {
+    read_to_string(container_id_file())
+        .ok()
+        .and_then(|id| id.as_str().try_into().ok())
 }
 
-fn dockerfile() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/Dockerfile")
+fn container_id_file() -> PathBuf {
+    PathBuf::from(".docker/container.id")
 }
 
-fn gpg_key_destination() -> std::path::PathBuf {
-    let mut gpg_key_destination: std::path::PathBuf = home_directory();
+fn dockerfile() -> PathBuf {
+    PathBuf::from(".docker/Dockerfile")
+}
+
+fn gpg_key_destination() -> PathBuf {
+    let mut gpg_key_destination: PathBuf = home_directory();
     gpg_key_destination.push(".gnupg");
     gpg_key_destination
 }
 
-fn home_directory() -> std::path::PathBuf {
-    build();
-    docker::container::home_directory(&container())
+fn home_directory() -> PathBuf {
+    build().home_directory()
 }
 
-fn image() -> std::path::PathBuf {
-    std::path::PathBuf::from(".docker/image.id")
+fn image() -> Option<Image> {
+    read_to_string(image_id_file())
+        .ok()
+        .and_then(|id| id.as_str().try_into().ok())
 }
 
-fn signing_key(gpg_key: &std::path::Path) -> String {
-    let mut signing_key: std::path::PathBuf = gpg_key.to_path_buf();
+fn image_id_file() -> PathBuf {
+    PathBuf::from(".docker/image.id")
+}
+
+fn signing_key(gpg_key: &Path) -> String {
+    let mut signing_key: PathBuf = gpg_key.to_path_buf();
     signing_key.push("signingkey.txt");
     assert!(signing_key.exists());
     assert!(signing_key.is_file());
-    assert!(!signing_key.is_empty());
-    std::fs::read_to_string(signing_key)
-        .unwrap()
-        .trim_end()
-        .to_string()
+    read_to_string(signing_key).unwrap().trim_end().to_string()
 }
 
-fn ssh() -> std::path::PathBuf {
-    let mut ssh: std::path::PathBuf = home_directory();
+fn ssh() -> PathBuf {
+    let mut ssh: PathBuf = home_directory();
     ssh.push(".ssh");
     ssh
 }
 
-fn ssh_config() -> std::path::PathBuf {
-    let mut ssh_config: std::path::PathBuf = ssh();
+fn ssh_config() -> PathBuf {
+    let mut ssh_config: PathBuf = ssh();
     ssh_config.push("config");
     ssh_config
 }
 
-fn ssh_key_destination() -> std::path::PathBuf {
-    let mut ssh_key_destination: std::path::PathBuf = ssh();
-    ssh_key_destination.push(git::domain());
+fn ssh_key_destination() -> PathBuf {
+    let mut ssh_key_destination: PathBuf = ssh();
+    ssh_key_destination.push(domain());
     ssh_key_destination.push("key");
     ssh_key_destination
 }

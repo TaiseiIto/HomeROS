@@ -14,43 +14,69 @@ And run the commands below.
 ```
 /somewhere$ git clone https://github.com/TaiseiIto/HomeROS.git
 /somewhere$ cd HomeROS
-/somewhere/HomeROS$ cargo benv
-~/HomeROS#
+/somewhere/HomeROS$ cargo xtask run
 ```
 
 ## Cargo commands
 
+### Build HomeROS
+
+```
+/somewhere/HomeROS$ cargo xtask build
+```
+
+### Run HomeROS on QEMU
+
+```
+/somewhere/HomeROS$ cargo xtask run aarch64
+/somewhere/HomeROS$ cargo xtask run riscv64
+/somewhere/HomeROS$ cargo xtask run x64
+```
+
+### Disassemble
+
+```
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch aarch64
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch riscv64
+/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch x64
+```
+
 ### Build development environment
 
 ```
-/somewhere/HomeROS$ cargo benv
+/somewhere/HomeROS$ cargo xtask environment
 ```
 
 This command builds development environment as a docker container and enter the container.
 
-### Deleve development environment
+### Delete development environment
 
 ```
-/somewhere/HomeROS$ cargo denv
+/somewhere/HomeROS$ cargo xtask environment delete
 ```
 
 ### Rebuild development environment
 
 ```
-/somewhere/HomeROS$ cargo renv
+/somewhere/HomeROS$ cargo xtask environment rebuild
 ```
 
-### Privilege 
-
-```
-/somewhere/HomeROS$ cargo penv --gpg-key /path/to/gpgkey --ssh-key /path/to/sshkey
-```
+### Privilege development environment
 
 If you have push permission to this repository, this command make you able to push commits in the development environment.
+
+```
+/somewhere/HomeROS$ cargo xtask environment privilege --gpg-key /path/to/gpgkey --ssh-key /path/to/sshkey
+```
 
 ### Lint
 
 ```
-~/HomeROS# cargo lint
+/somewhere/HomeROS$ cargo xtask lint
 ```
 
+### Run HomeROS
+
+```
+/somewhere/HomeROS$ cargo xtask run
+```

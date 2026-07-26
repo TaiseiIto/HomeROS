@@ -1,9 +1,7 @@
 [workspace]
-members = ["xtask"]
-
-[package]
-name = "homeros"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
+members = [
+	"arch",
+	"boot",
+	"xtask"
+]
+resolver = "3"
