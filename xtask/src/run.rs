@@ -51,8 +51,14 @@ impl Command {
     fn drive(&self) -> String {
         let Self { arch } = self;
         match arch {
+            Arch::Aarch64 => format!(
+                "-drive file=fat:rw:{},format=raw,id={},if=none -device virtio-blk-device,drive={},bootindex=1",
+                arch.destination().to_str().unwrap(),
+                product(),
+                product()
+            ),
             Arch::RiscV64 => unimplemented!(),
-            Arch::Aarch64 | Arch::X64 => format!(
+            Arch::X64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
                 arch.destination().to_str().unwrap(),
                 product(),
@@ -92,7 +98,9 @@ impl Command {
     }
 
     fn run_inside_tmux(self) {
-        run(&self.command());
+        let command: String = self.command();
+        println!("command = {}", command);
+        run(&command);
     }
 
     fn run_outside_tmux(self) {
