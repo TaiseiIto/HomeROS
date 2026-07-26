@@ -60,7 +60,7 @@ EXPOSE $VNC_PORT
 
 # Set timezone
 ARG TIMEZONE
-RUN cp $TIMEZONE /etc/localtime
+RUN ln -fs $TIMEZONE /etc/localtime
 
 # Clone this repository
 ARG DOMAIN
