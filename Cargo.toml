@@ -2,6 +2,7 @@
 members = [
 	"arch",
 	"boot",
+	"firmware",
 	"xtask"
 ]
 resolver = "3"
