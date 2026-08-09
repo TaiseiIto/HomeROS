@@ -4,7 +4,6 @@ mod runtime;
 mod simple;
 pub mod system;
 mod table;
-mod text;
 
 /// # References
 /// * [CHAR16](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)
