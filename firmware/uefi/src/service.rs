@@ -16,4 +16,6 @@ pub struct Runtime {
     set_virtual_address_map: memory::address::Set,
     convert_pointer: memory::address::Get,
     get_variable: variable::Get,
+    get_next_variable_name: variable::Next,
+    set_variable: variable::Set,
 }
