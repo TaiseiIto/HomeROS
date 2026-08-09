@@ -1,5 +1,7 @@
 use crate::{Char16, Status, simple};
 
+pub mod set;
+
 /// # References
 /// * [EFI_TEXT_QUERY_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-querymode)
 pub type QueryMode = extern "efiapi" fn(
@@ -12,10 +14,6 @@ pub type QueryMode = extern "efiapi" fn(
 /// # References
 /// * [EFI_TEXT_RESET](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-reset)
 pub type Reset = extern "efiapi" fn(*const simple::text::output::Protocol, bool) -> Status;
-
-/// # References
-/// * [EFI_TEXT_SET_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-setmode)
-pub type SetMode = extern "efiapi" fn(*const simple::text::output::Protocol, usize) -> Status;
 
 /// # References
 /// * [EFI_TEXT_STRING](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-outputstring)

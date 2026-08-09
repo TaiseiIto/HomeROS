@@ -8,5 +8,5 @@ pub struct Protocol {
     output_string: text::String,
     test_string: text::TestString,
     query_mode: text::QueryMode,
-    set_mode: text::SetMode,
+    set_mode: text::set::Mode,
 }
