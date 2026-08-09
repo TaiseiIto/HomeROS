@@ -6,4 +6,7 @@ use crate::text;
 pub struct Protocol {
     reset: text::Reset,
     output_string: text::String,
+    test_string: text::TestString,
+    query_mode: text::QueryMode,
+    set_mode: text::SetMode,
 }
