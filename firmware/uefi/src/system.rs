@@ -7,6 +7,8 @@ pub struct Table {
     hdr: Header,
     firmware_vendor: *const Char16,
     firmware_revision: u32,
-    console_handle: Handle,
+    console_in_handle: Handle,
     con_in: *const simple::text::input::Protocol,
+    console_out_handle: Handle,
+    con_out: *const simple::text::output::Protocol,
 }
