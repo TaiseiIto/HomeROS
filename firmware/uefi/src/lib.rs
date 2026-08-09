@@ -1,6 +1,5 @@
 #![no_std]
 
-mod input;
 mod runtime;
 mod simple;
 pub mod system;
