@@ -8,21 +8,7 @@ mod time;
 pub struct Runtime {
     hdr: table::Header,
     get_time: time::Get,
-}
-
-/// # References
-/// * [EFI_TIME](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#gettime)
-#[repr(C)]
-pub struct Time {
-    year: u16,
-    month: u8,
-    day: u8,
-    hour: u8,
-    minute: u8,
-    second: u8,
-    pad1: u8,
-    nanosecond: u32,
-    timezone: i16,
-    dailight: u8,
-    pad2: u8,
+    set_time: time::Set,
+    get_wakeup_time: time::GetWakeup,
+    set_wakeup_time: time::SetWakeup,
 }
