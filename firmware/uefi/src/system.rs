@@ -1,4 +1,4 @@
-use super::{Char16, Handle, simple, table::Header};
+use crate::{Char16, Handle, simple, table::Header};
 
 /// # References
 /// * [EFI_SYSTEM_TABLE](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#id6)
