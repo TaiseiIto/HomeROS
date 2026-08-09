@@ -1,6 +1,6 @@
 #![no_std]
 
-mod runtime;
+mod service;
 mod simple;
 pub mod system;
 mod table;

@@ -1,4 +1,4 @@
-use crate::{Char16, Handle, runtime, simple, table};
+use crate::{Char16, Handle, service, simple, table};
 
 /// # References
 /// * [EFI_SYSTEM_TABLE](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#id6)
@@ -13,5 +13,5 @@ pub struct Table {
     con_out: *const simple::text::output::Protocol,
     standard_error_handle: Handle,
     std_err: *const simple::text::output::Protocol,
-    runtime_services: *const runtime::Services,
+    runtime_services: *const service::Runtime,
 }
