@@ -3,6 +3,14 @@ use crate::{Char16, Status, simple};
 pub mod set;
 
 /// # References
+/// * [EFI_TEXT_CLEAR_SCREEN](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-clearscreen)
+pub type ClearScreen = extern "efiapi" fn(*const simple::text::output::Protocol) -> Status;
+
+/// # References
+/// * [EFI_TEXT_ENABLE_CURSOR](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-enablecursor)
+pub type EnableCursor = extern "efiapi" fn(*const simple::text::output::Protocol, bool) -> Status;
+
+/// # References
 /// * [EFI_TEXT_QUERY_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-querymode)
 pub type QueryMode = extern "efiapi" fn(
     *const simple::text::output::Protocol,
