@@ -2,6 +2,7 @@ use crate::table;
 
 mod memory;
 mod time;
+mod variable;
 
 /// # References
 /// * [EFI_RUNTIME_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-runtime-services)
@@ -14,4 +15,5 @@ pub struct Runtime {
     set_wakeup_time: time::SetWakeup,
     set_virtual_address_map: memory::address::Set,
     convert_pointer: memory::address::Get,
+    get_variable: variable::Get,
 }

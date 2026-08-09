@@ -6,6 +6,16 @@ pub mod system;
 mod table;
 
 /// # References
+/// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
+#[repr(C)]
+pub struct Guid {
+    data1: u32,
+    data2: u16,
+    data3: u16,
+    data4: [u8; 8],
+}
+
+/// # References
 /// * [CHAR16](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)
 pub type Char16 = u16;
 
