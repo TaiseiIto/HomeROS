@@ -1,3 +1,5 @@
+#![no_std]
+
 mod input;
 mod simple;
 pub mod system;

@@ -17,6 +17,13 @@ dependencies = [
 [[package]]
 name = "firmware"
 version = "0.1.0"
+dependencies = [
+ "uefi",
+]
+
+[[package]]
+name = "uefi"
+version = "0.1.0"
 
 [[package]]
 name = "xtask"

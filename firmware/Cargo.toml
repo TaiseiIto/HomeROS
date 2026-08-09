@@ -3,3 +3,6 @@ name = "firmware"
 version = "0.1.0"
 edition = "2024"
 build = "build.rs"
+
+[target.'cfg(any(target_arch = "aarch64", target_arch = "x86_64"))'.dependencies]
+uefi = { path = "uefi"}
