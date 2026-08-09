@@ -11,4 +11,6 @@ pub struct Table {
     con_in: *const simple::text::input::Protocol,
     console_out_handle: Handle,
     con_out: *const simple::text::output::Protocol,
+    standard_error_handle: Handle,
+    std_err: *const simple::text::output::Protocol,
 }
