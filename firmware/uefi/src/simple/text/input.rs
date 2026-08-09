@@ -5,4 +5,5 @@ use crate::input;
 #[repr(C)]
 pub struct Protocol {
     reset: input::Reset,
+    read_key_stroke: input::ReadKey,
 }
