@@ -5,4 +5,5 @@ use crate::text;
 #[repr(C)]
 pub struct Protocol {
     reset: text::Reset,
+    output_string: text::String,
 }
