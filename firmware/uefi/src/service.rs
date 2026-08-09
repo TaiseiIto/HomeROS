@@ -1,5 +1,6 @@
 use crate::table;
 
+mod memory;
 mod time;
 
 /// # References
@@ -11,4 +12,6 @@ pub struct Runtime {
     set_time: time::Set,
     get_wakeup_time: time::GetWakeup,
     set_wakeup_time: time::SetWakeup,
+    set_virtual_address_map: memory::address::Set,
+    convert_pointer: memory::address::Get,
 }
