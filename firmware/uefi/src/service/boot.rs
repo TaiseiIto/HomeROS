@@ -1,5 +1,6 @@
 mod configuration;
 mod event;
+mod image;
 pub mod memory;
 mod protocol;
 mod task;
@@ -34,4 +35,6 @@ pub struct Table {
     locate_handle: protocol::LocateHandle,
     locate_device_path: protocol::LocateDevicePath,
     install_configuration: configuration::Install,
+    load_image: image::Load,
+    start_image: image::Start,
 }
