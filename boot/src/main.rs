@@ -31,7 +31,7 @@ fn main(
     #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
 ) {
     unsafe {
-        firmware::initialize_global(
+        firmware::Global::initialize(
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]
