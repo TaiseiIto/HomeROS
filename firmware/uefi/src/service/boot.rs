@@ -4,7 +4,7 @@ mod protocol;
 mod task;
 mod timer;
 
-use crate::table;
+use crate::{Void, table};
 
 /// References
 /// * [EFI_BOOT_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-boot-services)
@@ -25,4 +25,8 @@ pub struct Table {
     close_event: event::Close,
     check_event: event::Check,
     install_protocol: protocol::Install,
+    reinstall_protocol: protocol::Reinstall,
+    uninstall_protocol: protocol::Uninstall,
+    handle_protocol: protocol::Handle,
+    reserved: *const Void,
 }
