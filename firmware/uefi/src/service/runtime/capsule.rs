@@ -1,5 +1,5 @@
 use {
-    super::{ResetType, memory},
+    super::{super::boot::memory::address::Physical, ResetType},
     crate::{Guid, Status},
 };
 
@@ -10,8 +10,7 @@ pub type QueryCapabilities =
 
 /// # References
 /// * [UpdateCapsule](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#updatecapsule)
-pub type Update =
-    extern "efiapi" fn(*const *const Header, usize, memory::address::Physical) -> Status;
+pub type Update = extern "efiapi" fn(*const *const Header, usize, Physical) -> Status;
 
 /// # References
 /// * [EFI_CAPSULE_HEADER](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#updatecapsule)

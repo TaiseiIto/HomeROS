@@ -1,5 +1,5 @@
+mod address;
 mod capsule;
-mod memory;
 mod time;
 mod variable;
 
@@ -24,8 +24,8 @@ pub struct Table {
     set_time: time::Set,
     get_wakeup_time: time::GetWakeup,
     set_wakeup_time: time::SetWakeup,
-    set_virtual_address_map: memory::address::Set,
-    convert_pointer: memory::address::Get,
+    set_virtual_address_map: address::Set,
+    convert_pointer: address::Get,
     get_variable: variable::Get,
     get_next_variable_name: variable::Next,
     set_variable: variable::Set,

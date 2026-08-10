@@ -1,3 +1,4 @@
+pub mod memory;
 mod task;
 
 use crate::table;
