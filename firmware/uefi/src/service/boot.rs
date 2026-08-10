@@ -49,6 +49,11 @@ pub struct Table {
     open_protocol: protocol::Open,
     close_protocol: protocol::Close,
     open_protocol_information: protocol::OpenInformation,
+    protocols_per_handle: protocol::PerHandle,
+    locate_handle_buffer: protocol::LocateHandleBuffer,
+    locate_protocol: protocol::Locate,
+    install_multiple_protocol: protocol::multiple::Install,
+    uninstall_multiple_protocol: protocol::multiple::Uninstall,
 }
 
 /// References

@@ -1,3 +1,5 @@
+pub mod multiple;
+
 use crate::{Event, Guid, Status, Void, protocol::DevicePath};
 
 /// References
@@ -40,6 +42,10 @@ pub type Install =
     extern "efiapi" fn(*const crate::Handle, *const Guid, Type, *const Void) -> Status;
 
 /// References
+/// * [LocateProtocol](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locateprotocol)
+pub type Locate = extern "efiapi" fn(*const Guid, *const Void, *mut *const Void) -> Status;
+
+/// References
 /// * [LocalteDevicePath](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatedevicepath)
 pub type LocateDevicePath =
     extern "efiapi" fn(*const Guid, *mut *const DevicePath, *mut crate::Handle) -> Status;
@@ -55,6 +61,16 @@ pub type LocateHandle = extern "efiapi" fn(
 ) -> Status;
 
 /// References
+/// * [LocateHandleBuffer](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatehandlebuffer)
+pub type LocateHandleBuffer = extern "efiapi" fn(
+    LocateSearchType,
+    *const Guid,
+    *const Void,
+    *mut usize,
+    *mut *const crate::Handle,
+) -> Status;
+
+/// References
 /// * [OpenProtocol](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-openprotocol)
 pub type Open =
     extern "efiapi" fn(Handle, *const Guid, *mut *const Void, Handle, Handle, u32) -> Status;
@@ -63,6 +79,10 @@ pub type Open =
 /// * [OpenProtocolInformation](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-openprotocolinformation)
 pub type OpenInformation =
     extern "efiapi" fn(Handle, *const Guid, *mut *const OpenInformationEntry, *mut usize) -> Status;
+
+/// References
+/// * [ProtocolsPerHandle](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-protocolsperhandle)
+pub type PerHandle = extern "efiapi" fn(Handle, *mut *const *const Guid, *mut usize) -> Status;
 
 /// References
 /// * [RegisterProtocolNotify](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-registerprotocolnotify)
