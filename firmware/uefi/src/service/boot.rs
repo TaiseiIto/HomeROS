@@ -29,4 +29,7 @@ pub struct Table {
     uninstall_protocol: protocol::Uninstall,
     handle_protocol: protocol::Handle,
     reserved: *const Void,
+    register_protocol_notify: protocol::RegisterNotify,
+    locate_handle: protocol::LocateHandle,
+    locate_device_path: protocol::LocateDevicePath,
 }

@@ -1,4 +1,13 @@
-use crate::{Guid, Status, Void};
+use crate::{Event, Guid, Status, Void, protocol::DevicePath};
+
+/// References
+/// * [EFI_LOCATE_SEARCH_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatehandle)
+#[repr(C)]
+pub enum LocateSearchType {
+    AllHandles,
+    ByRegisterNotify,
+    ByProtocol,
+}
 
 /// References
 /// * [EFI_INTERFACE_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
@@ -15,6 +24,25 @@ pub type Handle = extern "efiapi" fn(crate::Handle, *const Guid, *mut *const Voi
 /// * [InstallProtocolInterface](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
 pub type Install =
     extern "efiapi" fn(*const crate::Handle, *const Guid, Type, *const Void) -> Status;
+
+/// References
+/// * [LocalteDevicePath](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatedevicepath)
+pub type LocateDevicePath =
+    extern "efiapi" fn(*const Guid, *mut *const DevicePath, *mut crate::Handle) -> Status;
+
+/// References
+/// * [LocateHandle](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatehandle)
+pub type LocateHandle = extern "efiapi" fn(
+    LocateSearchType,
+    *const Guid,
+    *const Void,
+    *mut usize,
+    *mut crate::Handle,
+) -> Status;
+
+/// References
+/// * [RegisterProtocolNotify](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-registerprotocolnotify)
+pub type RegisterNotify = extern "efiapi" fn(*const Guid, Event, *mut *const Void) -> Status;
 
 /// References
 /// * [ReinstallProtocolInterface](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-reinstallprotocolinterface)
