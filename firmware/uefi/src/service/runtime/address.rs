@@ -1,5 +1,5 @@
 use {
-    super::super::boot::memory::Descriptor,
+    super::super::boot::memory::map::Descriptor,
     crate::{Status, Void},
 };
 

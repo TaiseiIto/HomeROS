@@ -12,4 +12,5 @@ pub struct Table {
     restore_tpl: task::Restore,
     allocate_pages: memory::page::Allocate,
     free_pages: memory::page::Free,
+    get_memory_map: memory::map::Get,
 }
