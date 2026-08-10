@@ -1,4 +1,5 @@
 mod configuration;
+mod controller;
 mod event;
 mod image;
 pub mod memory;
@@ -43,6 +44,8 @@ pub struct Table {
     get_next_monotonic_count: GetNextMonotonicCount,
     stall: Stall,
     set_watchdog_timer: SetWatchdogTimer,
+    connect_controller: controller::Connect,
+    disconnect_controller: controller::Disconnect,
 }
 
 /// References
