@@ -32,7 +32,7 @@ pub type ResetSystem = extern "efiapi" fn(ResetType, Status, usize, *const Void)
 /// # References
 /// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
 #[repr(C)]
-enum ResetType {
+pub enum ResetType {
     Cold,
     Warm,
     Shutdown,
