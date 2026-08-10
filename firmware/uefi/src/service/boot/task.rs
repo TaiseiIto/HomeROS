@@ -1,7 +1,7 @@
 use crate::Status;
 
 /// References
-/// * [EFI_RAISE_TPL](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-raisetpl)
+/// * [EFI_TPL](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-raisetpl)
 pub type Priority = usize;
 
 /// References

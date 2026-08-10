@@ -17,21 +17,21 @@ pub enum AllocateType {
 /// * [EFI_MEMORY_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-allocatepages)
 #[repr(C)]
 pub enum Type {
-    ReservedMemoryType,
+    Reserved,
     LoaderCode,
     LoaderData,
     BootServicesCode,
     BootServicesData,
     RuntimeServicesCode,
     RuntimeServicesData,
-    ConventionalMemory,
-    UnusableMemory,
-    ACPIReclaimMemory,
+    Conventional,
+    Unusable,
+    ACPIReclaim,
     ACPIMemoryNVS,
     MemoryMappedIO,
     MemoryMappedIOPortSpace,
     PalCode,
-    PersistentMemory,
-    UnacceptedMemoryType,
-    MaxMemoryType,
+    Persistent,
+    Unaccepted,
+    Max,
 }

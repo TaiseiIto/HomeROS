@@ -1,3 +1,4 @@
+mod event;
 pub mod memory;
 mod task;
 
@@ -15,4 +16,5 @@ pub struct Table {
     get_memory_map: memory::map::Get,
     allocate_pool: memory::pool::Allocate,
     free_pool: memory::pool::Free,
+    create_event: event::Create,
 }

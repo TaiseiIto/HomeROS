@@ -21,6 +21,7 @@ pub type Char16 = u16;
 
 /// # References
 /// * [EFI_EVENT](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)
+/// * [EFI_EVENT](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-createevent)
 pub type Event = *const Void;
 
 /// # References
