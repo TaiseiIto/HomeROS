@@ -37,4 +37,7 @@ pub struct Table {
     install_configuration: configuration::Install,
     load_image: image::Load,
     start_image: image::Start,
+    exit: image::Exit,
+    unload_image: image::Unload,
+    exit_services: image::ExitServices,
 }
