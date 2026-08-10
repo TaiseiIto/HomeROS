@@ -1,3 +1,5 @@
+mod task;
+
 use crate::table;
 
 /// References
@@ -5,4 +7,6 @@ use crate::table;
 #[repr(C)]
 pub struct Table {
     hdr: table::Header,
+    raise_tpl: task::Raise,
+    restore_tpl: task::Restore,
 }
