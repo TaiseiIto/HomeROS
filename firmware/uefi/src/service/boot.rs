@@ -1,5 +1,6 @@
 mod event;
 pub mod memory;
+mod protocol;
 mod task;
 mod timer;
 
@@ -23,4 +24,5 @@ pub struct Table {
     signal_event: event::Signal,
     close_event: event::Close,
     check_event: event::Check,
+    install_protocol: protocol::Install,
 }

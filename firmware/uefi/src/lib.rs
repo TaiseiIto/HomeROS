@@ -26,6 +26,7 @@ pub type Event = *const Void;
 
 /// # References
 /// * [EFI_HANDLE](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)
+/// * [EFI_HANDLE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
 pub type Handle = *const Void;
 
 /// # References
