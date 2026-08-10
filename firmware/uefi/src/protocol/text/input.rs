@@ -1,7 +1,13 @@
-use {
-    super::Input,
-    crate::{Char16, Status},
-};
+use crate::{Char16, Event, Status};
+
+/// # References
+/// * [EFI_SIMPLE_TEXT_INPUT_PROTOCOL](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol)
+#[repr(C)]
+pub struct Functions {
+    reset: Reset,
+    read_key_stroke: ReadKey,
+    wait_for_key: Event,
+}
 
 /// References
 /// * [EFI_INPUT_KEY](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-readkeystroke)
@@ -13,8 +19,8 @@ pub struct Key {
 
 /// References
 /// * [EFI_INPUT_READ_KEY](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-readkeystroke)
-pub type ReadKey = extern "efiapi" fn(*const Input, *mut Key) -> Status;
+pub type ReadKey = extern "efiapi" fn(*const Functions, *mut Key) -> Status;
 
 /// References
 /// * [EFI_INPUT_RESET](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-reset)
-pub type Reset = extern "efiapi" fn(*const Input, bool) -> Status;
+pub type Reset = extern "efiapi" fn(*const Functions, bool) -> Status;

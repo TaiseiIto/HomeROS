@@ -1,6 +1,6 @@
 use crate::{
     Char16, Handle,
-    protocol::text::{Input, Output},
+    protocol::text::{input, output},
     service::{boot, runtime},
     table::Header,
 };
@@ -13,11 +13,11 @@ pub struct Table {
     firmware_vendor: *const Char16,
     firmware_revision: u32,
     console_in_handle: Handle,
-    con_in: *const Input,
+    con_in: *const input::Functions,
     console_out_handle: Handle,
-    con_out: *const Output,
+    con_out: *const output::Functions,
     standard_error_handle: Handle,
-    std_err: *const Output,
+    std_err: *const output::Functions,
     runtime_services: *const runtime::Table,
     boot_services: *const boot::Table,
 }
