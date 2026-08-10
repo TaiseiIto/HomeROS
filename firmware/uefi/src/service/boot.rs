@@ -1,6 +1,7 @@
 mod event;
 pub mod memory;
 mod task;
+mod timer;
 
 use crate::table;
 
@@ -17,4 +18,5 @@ pub struct Table {
     allocate_pool: memory::pool::Allocate,
     free_pool: memory::pool::Free,
     create_event: event::Create,
+    set_timer: timer::Set,
 }
