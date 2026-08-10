@@ -1,6 +1,7 @@
 pub mod address;
 pub mod map;
 pub mod page;
+pub mod pool;
 
 /// References
 /// * [EFI_ALLOCATE_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-allocatepages)

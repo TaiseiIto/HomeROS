@@ -13,4 +13,6 @@ pub struct Table {
     allocate_pages: memory::page::Allocate,
     free_pages: memory::page::Free,
     get_memory_map: memory::map::Get,
+    allocate_pool: memory::pool::Allocate,
+    free_pool: memory::pool::Free,
 }
