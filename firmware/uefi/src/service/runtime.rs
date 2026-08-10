@@ -1,11 +1,7 @@
 use {
     super::{memory, time, variable},
-    crate::{Status, table},
+    crate::{Status, Void, table},
 };
-
-/// # References
-/// * [GetNextHighMonotonicCount](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#getnexthighmonotoniccount)
-pub type GetNextHighMonotonicCount = extern "efiapi" fn(*mut u32) -> Status;
 
 /// # References
 /// * [EFI_RUNTIME_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-runtime-services)
@@ -22,4 +18,23 @@ pub struct Runtime {
     get_next_variable_name: variable::Next,
     set_variable: variable::Set,
     get_next_high_monotonic_count: GetNextHighMonotonicCount,
+    reset_system: ResetSystem,
+}
+
+/// # References
+/// * [GetNextHighMonotonicCount](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#getnexthighmonotoniccount)
+pub type GetNextHighMonotonicCount = extern "efiapi" fn(*mut u32) -> Status;
+
+/// # References
+/// * [ResetSystem](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
+pub type ResetSystem = extern "efiapi" fn(ResetType, Status, usize, *const Void) -> Status;
+
+/// # References
+/// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
+#[repr(C)]
+enum ResetType {
+    Cold,
+    Warm,
+    Shutdown,
+    PlatformSpecific,
 }
