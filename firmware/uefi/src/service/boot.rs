@@ -10,4 +10,5 @@ pub struct Table {
     hdr: table::Header,
     raise_tpl: task::Raise,
     restore_tpl: task::Restore,
+    allocate_pages: memory::page::Allocate,
 }
