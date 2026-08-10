@@ -1,7 +1,9 @@
-use {
-    super::{capsule, memory, time, variable},
-    crate::{Status, Void, table},
-};
+mod capsule;
+mod memory;
+mod time;
+mod variable;
+
+use crate::{Status, Void, table};
 
 /// # References
 /// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)

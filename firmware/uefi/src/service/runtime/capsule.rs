@@ -1,12 +1,12 @@
 use {
-    super::{memory, runtime},
+    super::{ResetType, memory},
     crate::{Guid, Status},
 };
 
 /// # References
 /// * [QueryCapsuleCapabilities](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#querycapsulecapabilities)
 pub type QueryCapabilities =
-    extern "efiapi" fn(*const *const Header, usize, *mut u64, *mut runtime::ResetType) -> Status;
+    extern "efiapi" fn(*const *const Header, usize, *mut u64, *mut ResetType) -> Status;
 
 /// # References
 /// * [UpdateCapsule](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#updatecapsule)
