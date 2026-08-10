@@ -14,4 +14,5 @@ pub struct Table {
     standard_error_handle: Handle,
     std_err: *const protocol::text::Output,
     runtime_services: *const service::runtime::Table,
+    boot_services: *const service::boot::Table,
 }
