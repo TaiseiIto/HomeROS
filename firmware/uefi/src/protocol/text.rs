@@ -1,7 +1,7 @@
-use crate::Event;
-
 mod input;
 mod output;
+
+use crate::Event;
 
 /// # References
 /// * [EFI_SIMPLE_TEXT_INPUT_PROTOCOL](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol)

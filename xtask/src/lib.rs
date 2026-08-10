@@ -1,5 +1,3 @@
-use std::env::{Args, args};
-
 mod command;
 mod disassemble;
 mod docker;
@@ -11,6 +9,8 @@ mod product;
 mod run;
 mod time;
 mod tmux;
+
+use std::env::{Args, args};
 
 pub use {docker::in_container, format::format, lint::lint};
 

@@ -4,6 +4,18 @@ use {
 };
 
 /// # References
+/// * [SIMPLE_TEXT_OUTPUT_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol)
+#[repr(C)]
+pub struct Mode {
+    max_mode: i32,
+    mode: i32,
+    attribute: i32,
+    cusor_column: i32,
+    cursor_row: i32,
+    cursor_visible: bool,
+}
+
+/// # References
 /// * [EFI_TEXT_CLEAR_SCREEN](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-clearscreen)
 pub type ClearScreen = extern "efiapi" fn(*const Output) -> Status;
 
@@ -37,15 +49,3 @@ pub type String = extern "efiapi" fn(*const Output, *const Char16) -> Status;
 /// # References
 /// * [EFI_TEST_TEST_STRING](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-teststring)
 pub type TestString = extern "efiapi" fn(*const Output, *const Char16) -> Status;
-
-/// # References
-/// * [SIMPLE_TEXT_OUTPUT_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol)
-#[repr(C)]
-pub struct Mode {
-    max_mode: i32,
-    mode: i32,
-    attribute: i32,
-    cusor_column: i32,
-    cursor_row: i32,
-    cursor_visible: bool,
-}

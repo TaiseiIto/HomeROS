@@ -4,6 +4,17 @@ use {
 };
 
 /// # References
+/// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
+#[allow(dead_code)]
+#[repr(C)]
+pub enum ResetType {
+    Cold,
+    Warm,
+    Shutdown,
+    PlatformSpecific,
+}
+
+/// # References
 /// * [EFI_RUNTIME_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-runtime-services)
 #[repr(C)]
 pub struct Runtime {
@@ -28,14 +39,3 @@ pub type GetNextHighMonotonicCount = extern "efiapi" fn(*mut u32) -> Status;
 /// # References
 /// * [ResetSystem](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
 pub type ResetSystem = extern "efiapi" fn(ResetType, Status, usize, *const Void) -> Status;
-
-/// # References
-/// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
-#[allow(dead_code)]
-#[repr(C)]
-pub enum ResetType {
-    Cold,
-    Warm,
-    Shutdown,
-    PlatformSpecific,
-}
