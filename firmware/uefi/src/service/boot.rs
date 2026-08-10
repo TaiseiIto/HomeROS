@@ -54,7 +54,12 @@ pub struct Table {
     locate_protocol: protocol::Locate,
     install_multiple_protocol: protocol::multiple::Install,
     uninstall_multiple_protocol: protocol::multiple::Uninstall,
+    calculate_crc32: CalculateCrc32,
 }
+
+/// References
+/// * [CalculateCrc32](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-calculatecrc32)
+pub type CalculateCrc32 = extern "efiapi" fn(*const Void, usize, *mut u32) -> Status;
 
 /// References
 /// * [GetNextMonotonicCount](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getnextmonotoniccount)
