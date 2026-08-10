@@ -46,6 +46,9 @@ pub struct Table {
     set_watchdog_timer: SetWatchdogTimer,
     connect_controller: controller::Connect,
     disconnect_controller: controller::Disconnect,
+    open_protocol: protocol::Open,
+    close_protocol: protocol::Close,
+    open_protocol_information: protocol::OpenInformation,
 }
 
 /// References

@@ -10,11 +10,25 @@ pub enum LocateSearchType {
 }
 
 /// References
+/// * [EFI_OPEN_PROTOCOL_INFORMATION_ENTRY](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-openprotocolinformation)
+#[repr(C)]
+pub struct OpenInformationEntry {
+    agent: Handle,
+    controller: Handle,
+    attributes: u32,
+    count: u32,
+}
+
+/// References
 /// * [EFI_INTERFACE_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
 #[repr(C)]
 pub enum Type {
     Native,
 }
+
+/// References
+/// * [CloseProtocol](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-closeprotocol)
+pub type Close = extern "efiapi" fn(Handle, *const Guid, Handle, Handle) -> Status;
 
 /// References
 /// * [HandleProtocol](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-handleprotocol)
@@ -39,6 +53,16 @@ pub type LocateHandle = extern "efiapi" fn(
     *mut usize,
     *mut crate::Handle,
 ) -> Status;
+
+/// References
+/// * [OpenProtocol](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-openprotocol)
+pub type Open =
+    extern "efiapi" fn(Handle, *const Guid, *mut *const Void, Handle, Handle, u32) -> Status;
+
+/// References
+/// * [OpenProtocolInformation](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-openprotocolinformation)
+pub type OpenInformation =
+    extern "efiapi" fn(Handle, *const Guid, *mut *const OpenInformationEntry, *mut usize) -> Status;
 
 /// References
 /// * [RegisterProtocolNotify](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-registerprotocolnotify)
