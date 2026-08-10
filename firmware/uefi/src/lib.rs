@@ -1,5 +1,6 @@
 #![no_std]
 
+mod configuration;
 mod protocol;
 mod service;
 pub mod system;

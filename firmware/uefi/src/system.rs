@@ -1,5 +1,5 @@
 use crate::{
-    Char16, Handle,
+    Char16, Handle, configuration,
     protocol::text::{input, output},
     service::{boot, runtime},
     table::Header,
@@ -20,4 +20,6 @@ pub struct Table {
     std_err: *const output::Functions,
     runtime_services: *const runtime::Table,
     boot_services: *const boot::Table,
+    number_of_table_entries: usize,
+    configuration_table: *const configuration::Table,
 }
