@@ -1,3 +1,4 @@
+mod configuration;
 mod event;
 pub mod memory;
 mod protocol;
@@ -32,4 +33,5 @@ pub struct Table {
     register_protocol_notify: protocol::RegisterNotify,
     locate_handle: protocol::LocateHandle,
     locate_device_path: protocol::LocateDevicePath,
+    install_configuration: configuration::Install,
 }
