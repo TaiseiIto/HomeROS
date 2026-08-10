@@ -1,6 +1,5 @@
+mod capsule;
 mod memory;
-mod runtime;
+pub mod runtime;
 mod time;
 mod variable;
-
-pub use runtime::Runtime;

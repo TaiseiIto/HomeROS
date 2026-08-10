@@ -1,11 +1,10 @@
 use {
-    super::{memory, time, variable},
+    super::{capsule, memory, time, variable},
     crate::{Status, Void, table},
 };
 
 /// # References
 /// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
-#[allow(dead_code)]
 #[repr(C)]
 pub enum ResetType {
     Cold,
@@ -17,7 +16,7 @@ pub enum ResetType {
 /// # References
 /// * [EFI_RUNTIME_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-runtime-services)
 #[repr(C)]
-pub struct Runtime {
+pub struct Table {
     hdr: table::Header,
     get_time: time::Get,
     set_time: time::Set,
@@ -30,6 +29,8 @@ pub struct Runtime {
     set_variable: variable::Set,
     get_next_high_monotonic_count: GetNextHighMonotonicCount,
     reset_system: ResetSystem,
+    update_capsule: capsule::Update,
+    query_capsule_capabilities: capsule::QueryCapabilities,
 }
 
 /// # References

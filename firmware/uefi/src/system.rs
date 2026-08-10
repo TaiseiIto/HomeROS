@@ -13,5 +13,5 @@ pub struct Table {
     con_out: *const protocol::text::Output,
     standard_error_handle: Handle,
     std_err: *const protocol::text::Output,
-    runtime_services: *const service::Runtime,
+    runtime_services: *const service::runtime::Table,
 }
