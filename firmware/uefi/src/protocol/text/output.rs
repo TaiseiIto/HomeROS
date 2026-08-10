@@ -2,6 +2,7 @@ use crate::{Char16, Status};
 
 /// # References
 /// * [EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol)
+#[derive(Debug)]
 #[repr(C)]
 pub struct Functions {
     reset: Reset,

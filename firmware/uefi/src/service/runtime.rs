@@ -7,6 +7,7 @@ use crate::{Status, Void, table};
 
 /// # References
 /// * [EFI_RESET_TYPE](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
+#[derive(Debug)]
 #[repr(C)]
 pub enum ResetType {
     Cold,

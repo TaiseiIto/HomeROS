@@ -4,7 +4,7 @@
 use {arch::wait_for_interrupt, core::panic::PanicInfo};
 
 #[cfg(firmware = "uefi")]
-use firmware::uefi::{Handle, system::Table};
+use firmware::uefi;
 
 #[cfg(target_arch = "riscv64")]
 use core::arch::naked_asm;
@@ -21,12 +21,23 @@ unsafe extern "C" fn _start() -> ! {
 /// * [EFI_IMAGE_ENTRY_POINT](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-image-entry-point)
 #[cfg(firmware = "uefi")]
 #[unsafe(no_mangle)]
-fn efi_main(_image_handle: Handle, _system_table: *const Table) {
-    main();
+extern "efiapi" fn efi_main(image_handle: uefi::HandleMut, system_table: *mut uefi::system::Table) {
+    main(image_handle, system_table);
 }
 
 #[unsafe(no_mangle)]
-fn main() {
+fn main(
+    #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
+    #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
+) {
+    unsafe {
+        firmware::initialize_global(
+            #[cfg(firmware = "uefi")]
+            image_handle,
+            #[cfg(firmware = "uefi")]
+            system_table,
+        );
+    }
     unimplemented!();
 }
 
