@@ -16,6 +16,19 @@ pub struct Functions {
     mode: *const Mode,
 }
 
+impl Functions {
+    pub fn write_string(&self, string: &str) {
+        for character in string.encode_utf16() {
+            self.write_character(character);
+        }
+    }
+
+    fn write_character(&self, character: Char16) {
+        let string: [Char16; 2] = [character, 0x0000];
+        (self.output_string)(self as *const Self, string.as_slice().as_ptr());
+    }
+}
+
 /// # References
 /// * [SIMPLE_TEXT_OUTPUT_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol)
 #[repr(C)]

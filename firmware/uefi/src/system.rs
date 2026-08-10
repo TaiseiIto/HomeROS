@@ -23,3 +23,9 @@ pub struct Table {
     number_of_table_entries: usize,
     configuration_table: *const configuration::Table,
 }
+
+impl Table {
+    pub fn write_string(&self, string: &str) {
+        unsafe { &*self.con_out }.write_string(string);
+    }
+}
