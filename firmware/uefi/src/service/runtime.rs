@@ -31,6 +31,7 @@ pub struct Table {
     reset_system: ResetSystem,
     update_capsule: capsule::Update,
     query_capsule_capabilities: capsule::QueryCapabilities,
+    query_variable_info: variable::QueryInfo,
 }
 
 /// # References
