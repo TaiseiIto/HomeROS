@@ -55,6 +55,9 @@ pub struct Table {
     install_multiple_protocol: protocol::multiple::Install,
     uninstall_multiple_protocol: protocol::multiple::Uninstall,
     calculate_crc32: CalculateCrc32,
+    copy_mem: memory::Copy,
+    set_mem: memory::Set,
+    create_event_ex: event::CreateEx,
 }
 
 /// References

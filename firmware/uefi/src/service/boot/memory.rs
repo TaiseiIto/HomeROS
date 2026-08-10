@@ -3,6 +3,8 @@ pub mod map;
 pub mod page;
 pub mod pool;
 
+use crate::{Status, Void};
+
 /// References
 /// * [EFI_ALLOCATE_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-allocatepages)
 #[repr(C)]
@@ -35,3 +37,11 @@ pub enum Type {
     Unaccepted,
     Max,
 }
+
+/// References
+/// * [CopyMem](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-copymem)
+pub type Copy = extern "efiapi" fn(*mut Void, *const Void, usize) -> Status;
+
+/// References
+/// * [SetMem](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-setmem)
+pub type Set = extern "efiapi" fn(*mut Void, usize, u8) -> Status;

@@ -1,6 +1,6 @@
 use {
     super::task::Priority,
-    crate::{Event, Status, Void},
+    crate::{Event, Guid, Status, Void},
 };
 
 /// References
@@ -14,6 +14,11 @@ pub type Close = extern "efiapi" fn(Event) -> Status;
 /// References
 /// * [CreateEvent](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-createevent)
 pub type Create = extern "efiapi" fn(u32, Priority, Notify, *const Void, *mut Event) -> Status;
+
+/// References
+/// * [CreateEventEx](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-createeventex)
+pub type CreateEx =
+    extern "efiapi" fn(u32, Priority, Notify, *const Void, *const Guid, *mut Event) -> Status;
 
 /// References
 /// * [EFI_EVENT_NOTIFY](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-createevent)
