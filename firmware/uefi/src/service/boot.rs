@@ -19,4 +19,8 @@ pub struct Table {
     free_pool: memory::pool::Free,
     create_event: event::Create,
     set_timer: timer::Set,
+    wait_for_event: event::Wait,
+    signal_event: event::Signal,
+    close_event: event::Close,
+    check_event: event::Check,
 }
