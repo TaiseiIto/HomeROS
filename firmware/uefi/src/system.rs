@@ -1,18 +1,23 @@
-use crate::{Char16, Handle, protocol, service, table};
+use crate::{
+    Char16, Handle,
+    protocol::text::{Input, Output},
+    service::{boot, runtime},
+    table::Header,
+};
 
 /// # References
 /// * [EFI_SYSTEM_TABLE](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#id6)
 #[repr(C)]
 pub struct Table {
-    hdr: table::Header,
+    hdr: Header,
     firmware_vendor: *const Char16,
     firmware_revision: u32,
     console_in_handle: Handle,
-    con_in: *const protocol::text::Input,
+    con_in: *const Input,
     console_out_handle: Handle,
-    con_out: *const protocol::text::Output,
+    con_out: *const Output,
     standard_error_handle: Handle,
-    std_err: *const protocol::text::Output,
-    runtime_services: *const service::runtime::Table,
-    boot_services: *const service::boot::Table,
+    std_err: *const Output,
+    runtime_services: *const runtime::Table,
+    boot_services: *const boot::Table,
 }
