@@ -45,9 +45,9 @@ RUN git clone --branch edk2-stable202605 --depth 1 --recursive --shallow-submodu
 WORKDIR edk2
 ENV GCC_AARCH64_PREFIX=aarch64-linux-gnu-
 RUN make -C BaseTools
-RUN . ./edksetup.sh && build -a AARCH64 -t GCC -p ArmVirtPkg/ArmVirtQemu.dsc
+RUN . ./edksetup.sh && build -a AARCH64 -b DEBUG -p ArmVirtPkg/ArmVirtQemu.dsc -t GCC
 RUN truncate -s 64M Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd
-RUN . ./edksetup.sh && build -a X64 -t GCC -p OvmfPkg/OvmfPkgX64.dsc
+RUN . ./edksetup.sh && build -a X64 -b DEBUG -p OvmfPkg/OvmfPkgX64.dsc -t GCC
 WORKDIR ..
 
 # Install Lefthook
