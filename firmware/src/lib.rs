@@ -1,6 +1,20 @@
 #![no_std]
 
-use core::cell::OnceCell;
+use core::{
+    cell::OnceCell,
+    fmt::{Arguments, Result, Write},
+};
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::global().write_format(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    ($fmt:expr) => ($crate::print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => ($crate::print!(concat!($fmt, "\n"), $($arg)*));
+}
 
 #[cfg(firmware = "uefi")]
 pub use uefi;
@@ -12,7 +26,8 @@ pub fn global() -> &'static Global {
 }
 
 /// # TODO
-/// Prepare spin once.
+/// This is not thread safe actualty.
+/// Make it thread safe.
 pub struct SyncOnceCell<T>(OnceCell<T>);
 
 unsafe impl<T> Sync for SyncOnceCell<T> {}
@@ -46,8 +61,25 @@ impl Global {
         GLOBAL.0.set(self).unwrap();
     }
 
-    pub fn write(&self, string: &str) {
+    pub fn write_format(&self, arguments: Arguments) {
+        self.writer().write_fmt(arguments).unwrap();
+    }
+
+    fn writer(&self) -> Writer<'_> {
+        Writer(self)
+    }
+
+    fn write_string(&self, string: &str) {
         #[cfg(firmware = "uefi")]
         self.system_table.write(string)
+    }
+}
+
+pub struct Writer<'a>(&'a Global);
+
+impl Write for Writer<'_> {
+    fn write_str(&mut self, string: &str) -> Result {
+        self.0.write_string(string);
+        Ok(())
     }
 }
