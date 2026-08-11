@@ -21,6 +21,7 @@ unsafe extern "C" fn _start() -> ! {
 #[unsafe(no_mangle)]
 fn initialize_global() {
     main(unsafe { firmware::Global::new() });
+    unreachable!();
 }
 
 /// # References
@@ -32,7 +33,7 @@ extern "efiapi" fn efi_main(
     system_table: *mut uefi::system::Table,
 ) -> uefi::Status {
     main(unsafe { firmware::Global::new(image_handle, system_table) });
-    uefi::SUCCESS
+    unreachable!();
 }
 
 fn main(global: firmware::Global) {
@@ -50,4 +51,5 @@ fn panic(panic: &PanicInfo) -> ! {
             wait_for_interrupt();
         }
     }
+    unreachable!();
 }
