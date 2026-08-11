@@ -19,6 +19,8 @@ pub struct Command {
 impl Command {
     const COM1: &str = "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1";
     const COM2: &str = "-serial file:com2.log";
+    const DEBUG: &str =
+        "-chardev file,id=debug,path=debug.log -device isa-debugcon,iobase=0x402,chardev=debug";
     const LOG: &str = "-d int,cpu_reset -D qemu.log";
     const MEMORY: &str = "-m 1G";
     const REBOOT: &str = "--no-reboot";
@@ -51,6 +53,7 @@ impl Command {
             self.machine(),
             Self::COM1,
             Self::COM2,
+            Self::DEBUG,
             Self::LOG,
             Self::MEMORY,
             Self::REBOOT,
