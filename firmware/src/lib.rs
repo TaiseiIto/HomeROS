@@ -7,6 +7,10 @@ pub use uefi;
 
 static GLOBAL: SyncOnceCell<Global> = SyncOnceCell(OnceCell::new());
 
+pub fn global() -> &'static Global {
+    unsafe { GLOBAL.0.get().unwrap() }
+}
+
 /// # TODO
 /// Prepare spin once.
 pub struct SyncOnceCell<T>(OnceCell<T>);
@@ -39,8 +43,6 @@ impl Global {
     /// # Safety
     /// This function dereferences `image_handle` and `system_table`.
     pub unsafe fn set(self) {
-        unsafe {
-            GLOBAL.0.set(self).unwrap();
-        }
+        GLOBAL.0.set(self).unwrap();
     }
 }
