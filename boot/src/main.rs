@@ -39,12 +39,12 @@ fn main(global: firmware::Global) {
     unsafe {
         global.set();
     }
-    firmware::println!("Hello, World!");
     unimplemented!();
 }
 
 #[panic_handler]
-fn panic(_panic: &PanicInfo) -> ! {
+fn panic(panic: &PanicInfo) -> ! {
+    firmware::println!("{}", panic);
     loop {
         unsafe {
             wait_for_interrupt();
