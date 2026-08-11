@@ -24,26 +24,7 @@ pub struct Global {
 impl Global {
     /// # Safety
     /// This function dereferences `image_handle` and `system_table`.
-    pub unsafe fn initialize(
-        #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
-        #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
-    ) {
-        unsafe {
-            GLOBAL
-                .0
-                .set(Global::new(
-                    #[cfg(firmware = "uefi")]
-                    image_handle,
-                    #[cfg(firmware = "uefi")]
-                    system_table,
-                ))
-                .unwrap();
-        }
-    }
-
-    /// # Safety
-    /// This function dereferences `image_handle` and `system_table`.
-    unsafe fn new(
+    pub unsafe fn new(
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
@@ -52,6 +33,14 @@ impl Global {
             image_handle,
             #[cfg(firmware = "uefi")]
             system_table: unsafe { &mut *system_table },
+        }
+    }
+
+    /// # Safety
+    /// This function dereferences `image_handle` and `system_table`.
+    pub unsafe fn set(self) {
+        unsafe {
+            GLOBAL.0.set(self).unwrap();
         }
     }
 }

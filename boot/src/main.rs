@@ -14,7 +14,13 @@ use core::arch::naked_asm;
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
 unsafe extern "C" fn _start() -> ! {
-    naked_asm!("la sp, _stack_bottom", "j main");
+    naked_asm!("la sp, _stack_bottom", "j initialize_global");
+}
+
+#[cfg(target_arch = "riscv64")]
+#[unsafe(no_mangle)]
+fn initialize_global() {
+    main(unsafe { firmware::Global::new() });
 }
 
 /// # References
@@ -22,21 +28,12 @@ unsafe extern "C" fn _start() -> ! {
 #[cfg(firmware = "uefi")]
 #[unsafe(no_mangle)]
 extern "efiapi" fn efi_main(image_handle: uefi::HandleMut, system_table: *mut uefi::system::Table) {
-    main(image_handle, system_table);
+    main(unsafe { firmware::Global::new(image_handle, system_table) });
 }
 
-#[unsafe(no_mangle)]
-fn main(
-    #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
-    #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
-) {
+fn main(global: firmware::Global) {
     unsafe {
-        firmware::Global::initialize(
-            #[cfg(firmware = "uefi")]
-            image_handle,
-            #[cfg(firmware = "uefi")]
-            system_table,
-        );
+        global.set();
     }
     unimplemented!();
 }
