@@ -18,7 +18,7 @@ pub struct Command {
 
 impl Command {
     const COM1: &str = "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1";
-    const COM2: &str = "-serial file:com2.log";
+    const DEBUG: &str = "debug.log";
     const LOG: &str = "-d int,cpu_reset -D qemu.log";
     const MEMORY: &str = "-m 1G";
     const REBOOT: &str = "--no-reboot";
@@ -44,20 +44,28 @@ impl Command {
         [
             self.qemu(),
             &self.boot(),
+            Self::COM1,
+            self.com2(),
             self.cpu(),
-            self.debug(),
+            &self.debug(),
             self.display(),
             &self.drive(),
             self.firmware(),
-            self.machine(),
-            Self::COM1,
-            Self::COM2,
             Self::LOG,
+            self.machine(),
             Self::MEMORY,
             Self::REBOOT,
             Self::VNC,
         ]
         .join(" ")
+    }
+
+    fn com2(&self) -> &str {
+        let Self { arch } = self;
+        match arch {
+            Arch::X64 => "-serial file:com2.log",
+            _ => "",
+        }
     }
 
     fn cpu(&self) -> &str {
@@ -68,13 +76,15 @@ impl Command {
         }
     }
 
-    fn debug(&self) -> &str {
+    fn debug(&self) -> String {
         let Self { arch } = self;
         match arch {
-            Arch::X64 => {
-                "-chardev file,id=debug,path=debug.log -device isa-debugcon,iobase=0x402,chardev=debug"
-            }
-            _ => "",
+            Arch::Aarch64 => format!("-serial file:{}", Self::DEBUG),
+            Arch::X64 => format!(
+                "-chardev file,id=debug,path={} -device isa-debugcon,iobase=0x402,chardev=debug",
+                Self::DEBUG
+            ),
+            _ => String::new(),
         }
     }
 
