@@ -17,8 +17,8 @@ pub struct Command {
 }
 
 impl Command {
-    const COM1: &str = "-serial file:com1.log";
-    const COM2: &str = "-chardev stdio,id=com2,mux=on,logfile=com2.log -serial chardev:com2";
+    const COM1: &str = "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1";
+    const COM2: &str = "-serial file:com2.log";
     const LOG: &str = "-d int,cpu_reset -D qemu.log";
     const MEMORY: &str = "-m 1G";
     const REBOOT: &str = "--no-reboot";
