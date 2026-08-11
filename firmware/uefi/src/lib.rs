@@ -7,6 +7,10 @@ pub mod system;
 mod table;
 
 /// # References
+/// * [Status Codes](https://uefi.org/specs/UEFI/2.11/Apx_D_Status_Codes.html)
+pub const SUCCESS: Status = 0;
+
+/// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
 #[repr(C)]
 pub struct Guid {

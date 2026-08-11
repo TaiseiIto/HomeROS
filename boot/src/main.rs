@@ -27,8 +27,12 @@ fn initialize_global() {
 /// * [EFI_IMAGE_ENTRY_POINT](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-image-entry-point)
 #[cfg(firmware = "uefi")]
 #[unsafe(no_mangle)]
-extern "efiapi" fn efi_main(image_handle: uefi::HandleMut, system_table: *mut uefi::system::Table) {
+extern "efiapi" fn efi_main(
+    image_handle: uefi::HandleMut,
+    system_table: *mut uefi::system::Table,
+) -> uefi::Status {
     main(unsafe { firmware::Global::new(image_handle, system_table) });
+    uefi::SUCCESS
 }
 
 fn main(global: firmware::Global) {
