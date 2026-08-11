@@ -63,16 +63,20 @@ pub struct Table {
 
 /// References
 /// * [CalculateCrc32](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-calculatecrc32)
+#[must_use]
 pub type CalculateCrc32 = extern "efiapi" fn(*const Void, usize, *mut u32) -> Status;
 
 /// References
 /// * [GetNextMonotonicCount](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getnextmonotoniccount)
+#[must_use]
 pub type GetNextMonotonicCount = extern "efiapi" fn(*mut u64) -> Status;
 
 /// References
 /// * [SetWatchdogTimer](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-setwatchdogtimer)
+#[must_use]
 pub type SetWatchdogTimer = extern "efiapi" fn(usize, u64, usize, *const Char16) -> Status;
 
 /// References
 /// * [Stall](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-stall)
+#[must_use]
 pub type Stall = extern "efiapi" fn(usize) -> Status;

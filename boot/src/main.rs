@@ -27,6 +27,7 @@ fn initialize_global() {
 /// # References
 /// * [EFI_IMAGE_ENTRY_POINT](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-image-entry-point)
 #[cfg(firmware = "uefi")]
+#[must_use]
 #[unsafe(no_mangle)]
 extern "efiapi" fn efi_main(
     image_handle: uefi::HandleMut,

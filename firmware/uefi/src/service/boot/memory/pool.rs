@@ -5,8 +5,10 @@ use {
 
 /// References
 /// * [AllocatePool](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-allocatepool)
+#[must_use]
 pub type Allocate = extern "efiapi" fn(Type, usize, *mut *mut Void) -> Status;
 
 /// References
 /// * [FreePool](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-freepool)
+#[must_use]
 pub type Free = extern "efiapi" fn(*const Void) -> Status;

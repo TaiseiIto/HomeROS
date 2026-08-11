@@ -40,8 +40,10 @@ pub enum Type {
 
 /// References
 /// * [CopyMem](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-copymem)
+#[must_use]
 pub type Copy = extern "efiapi" fn(*mut Void, *const Void, usize) -> Status;
 
 /// References
 /// * [SetMem](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-setmem)
+#[must_use]
 pub type Set = extern "efiapi" fn(*mut Void, usize, u8) -> Status;

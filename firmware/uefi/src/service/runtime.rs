@@ -39,8 +39,10 @@ pub struct Table {
 
 /// # References
 /// * [GetNextHighMonotonicCount](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#getnexthighmonotoniccount)
+#[must_use]
 pub type GetNextHighMonotonicCount = extern "efiapi" fn(*mut u32) -> Status;
 
 /// # References
 /// * [ResetSystem](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#resetsystem)
+#[must_use]
 pub type ResetSystem = extern "efiapi" fn(ResetType, Status, usize, *const Void) -> Status;

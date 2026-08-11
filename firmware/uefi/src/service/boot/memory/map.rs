@@ -16,5 +16,6 @@ pub struct Descriptor {
 
 /// Refeernces
 /// * [GetMemoryMap](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
+#[must_use]
 pub type Get =
     extern "efiapi" fn(*mut usize, *mut Descriptor, *mut usize, *mut usize, *mut u32) -> Status;
