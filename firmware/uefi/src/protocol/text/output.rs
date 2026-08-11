@@ -20,6 +20,9 @@ pub struct Functions {
 impl Functions {
     pub fn write_string(&self, string: &str) {
         for character in string.encode_utf16() {
+            if character == '\n' as Char16 {
+                self.write_character('\r' as Char16);
+            }
             self.write_character(character);
         }
     }
