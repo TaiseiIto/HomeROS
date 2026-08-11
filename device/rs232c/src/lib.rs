@@ -18,6 +18,6 @@ fn write_byte(byte: u8) {
         #[cfg(target_arch = "riscv64")]
         asm!("sb {byte}, ({address})", byte = in(reg) byte, address = in(reg) 0x10000000);
         #[cfg(target_arch = "x86_64")]
-        asm!("out {port:x}, {byte}", port = in(reg) 0x03f8, byte = in(reg_byte) byte);
+        asm!("out dx, al", in("dx") 0x03f8, in("al") byte);
     }
 }
