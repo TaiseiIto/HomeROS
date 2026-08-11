@@ -12,6 +12,7 @@ version = "0.1.0"
 dependencies = [
  "arch",
  "firmware",
+ "rs232c",
 ]
 
 [[package]]
@@ -20,6 +21,10 @@ version = "0.1.0"
 dependencies = [
  "uefi",
 ]
+
+[[package]]
+name = "rs232c"
+version = "0.1.0"
 
 [[package]]
 name = "uefi"

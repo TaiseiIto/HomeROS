@@ -31,6 +31,7 @@ extern "efiapi" fn efi_main(
     image_handle: uefi::HandleMut,
     system_table: *mut uefi::system::Table,
 ) -> uefi::Status {
+    rs232c::write_string("Hello, World!");
     main(unsafe { firmware::Global::new(image_handle, system_table) });
     uefi::SUCCESS
 }
