@@ -28,20 +28,16 @@ pub struct Time {
 
 /// # References
 /// * [GetTime](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#gettime)
-#[must_use]
 pub type Get = extern "efiapi" fn(*mut Time, *mut Capabilities) -> Status;
 
 /// # References
 /// * [GetWakeupTime](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#getwakeuptime)
-#[must_use]
 pub type GetWakeup = extern "efiapi" fn(*mut bool, *mut bool, *mut Time) -> Status;
 
 /// # References
 /// * [SetTime](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#settime)
-#[must_use]
 pub type Set = extern "efiapi" fn(*const Time) -> Status;
 
 /// # References
 /// * [SetWakeupTime](https://uefi.org/specs/UEFI/2.11/08_Services_Runtime_Services.html#setwakeuptime)
-#[must_use]
 pub type SetWakeup = extern "efiapi" fn(bool, *const Time) -> Status;

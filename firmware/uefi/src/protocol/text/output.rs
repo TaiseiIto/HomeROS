@@ -1,4 +1,4 @@
-use crate::{Char16, SUCCESS, Status};
+use crate::{Char16, Status};
 
 /// # References
 /// * [EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol)
@@ -29,10 +29,7 @@ impl Functions {
 
     fn write_character(&self, character: Char16) {
         let string: [Char16; 2] = [character, 0x0000];
-        assert_eq!(
-            (self.output_string)(self as *const Self, string.as_slice().as_ptr()),
-            SUCCESS
-        );
+        (self.output_string)(self as *const Self, string.as_slice().as_ptr()).assert();
     }
 }
 
@@ -50,44 +47,35 @@ pub struct Mode {
 
 /// # References
 /// * [EFI_TEXT_CLEAR_SCREEN](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-clearscreen)
-#[must_use]
 pub type ClearScreen = extern "efiapi" fn(*const Functions) -> Status;
 
 /// # References
 /// * [EFI_TEXT_ENABLE_CURSOR](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-enablecursor)
-#[must_use]
 pub type EnableCursor = extern "efiapi" fn(*const Functions, bool) -> Status;
 
 /// # References
 /// * [EFI_TEXT_QUERY_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-querymode)
-#[must_use]
 pub type QueryMode = extern "efiapi" fn(*const Functions, usize, *mut usize, *mut usize) -> Status;
 
 /// # References
 /// * [EFI_TEXT_RESET](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-reset)
-#[must_use]
 pub type Reset = extern "efiapi" fn(*const Functions, bool) -> Status;
 
 /// # References
 /// * [EFI_TEXT_SET_ATTRIBUTE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-setattribute)
-#[must_use]
 pub type SetAttribute = extern "efiapi" fn(*const Functions, usize) -> Status;
 
 /// # References
 /// * [EFI_TEXT_SET_CURSOR_POSITION](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-setcursorposition)
-#[must_use]
 pub type SetCursorPosition = extern "efiapi" fn(*const Functions, usize, usize) -> Status;
 
 /// # References
 /// * [EFI_TEXT_SET_MODE](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-setmode)
-#[must_use]
 pub type SetMode = extern "efiapi" fn(*const Functions, usize) -> Status;
 /// # References
 /// * [EFI_TEXT_STRING](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-outputstring)
-#[must_use]
 pub type String = extern "efiapi" fn(*const Functions, *const Char16) -> Status;
 
 /// # References
 /// * [EFI_TEST_TEST_STRING](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-output-protocol-teststring)
-#[must_use]
 pub type TestString = extern "efiapi" fn(*const Functions, *const Char16) -> Status;

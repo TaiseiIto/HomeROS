@@ -2,7 +2,6 @@ use crate::{Event, Status};
 
 /// References
 /// * [SetTimer](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-settimer)
-#[must_use]
 pub type Set = extern "efiapi" fn(Event, Delay, u64) -> Status;
 
 /// References

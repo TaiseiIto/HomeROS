@@ -20,10 +20,8 @@ pub struct Key {
 
 /// References
 /// * [EFI_INPUT_READ_KEY](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-readkeystroke)
-#[must_use]
 pub type ReadKey = extern "efiapi" fn(*const Functions, *mut Key) -> Status;
 
 /// References
 /// * [EFI_INPUT_RESET](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-reset)
-#[must_use]
 pub type Reset = extern "efiapi" fn(*const Functions, bool) -> Status;
