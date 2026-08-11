@@ -35,6 +35,7 @@ fn main(global: firmware::Global) {
     unsafe {
         global.set();
     }
+    firmware::global().write("Hello, World!");
     unimplemented!();
 }
 

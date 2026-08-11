@@ -26,7 +26,7 @@ pub struct Table {
 }
 
 impl Table {
-    pub fn write_string(&self, string: &str) {
+    pub fn write(&self, string: &str) {
         unsafe { &*self.con_out }.write_string(string);
     }
 }

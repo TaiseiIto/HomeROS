@@ -8,7 +8,7 @@ pub use uefi;
 static GLOBAL: SyncOnceCell<Global> = SyncOnceCell(OnceCell::new());
 
 pub fn global() -> &'static Global {
-    unsafe { GLOBAL.0.get().unwrap() }
+    GLOBAL.0.get().unwrap()
 }
 
 /// # TODO
@@ -44,5 +44,10 @@ impl Global {
     /// This function dereferences `image_handle` and `system_table`.
     pub unsafe fn set(self) {
         GLOBAL.0.set(self).unwrap();
+    }
+
+    pub fn write(&self, string: &str) {
+        #[cfg(firmware = "uefi")]
+        self.system_table.write(string)
     }
 }
