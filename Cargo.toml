@@ -2,7 +2,9 @@
 members = [
 	"arch",
 	"boot",
+	"device/rs232c",
 	"firmware",
+	"firmware/uefi",
 	"xtask"
 ]
 resolver = "3"

@@ -14,7 +14,7 @@ pub fn write_string(string: &str) {
 fn write_byte(byte: u8) {
     unsafe {
         #[cfg(target_arch = "aarch64")]
-        asm!("strb {byte}, [{address}]", byte = in(reg) byte, address = in(reg) 0x09000000);
+        asm!("strb {byte:w}, [{address:x}]", byte = in(reg) byte, address = in(reg) 0x09000000);
         #[cfg(target_arch = "riscv64")]
         asm!("sb {byte}, ({address})", byte = in(reg) byte, address = in(reg) 0x10000000);
         #[cfg(target_arch = "x86_64")]
