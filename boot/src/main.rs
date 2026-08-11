@@ -52,5 +52,4 @@ fn panic(panic: &PanicInfo) -> ! {
             wait_for_interrupt();
         }
     }
-    unreachable!();
 }
