@@ -13,12 +13,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: aarch64
-          path: target/HomeROS/aarch64
+          path: target/aarch64
       - uses: actions/upload-artifact@v4
         with:
           name: riscv64
-          path: target/HomeROS/riscv64
+          path: target/riscv64
       - uses: actions/upload-artifact@v4
         with:
           name: x64
-          path: target/HomeROS/x64
+          path: target/x64

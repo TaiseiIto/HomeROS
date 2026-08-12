@@ -1,9 +1,9 @@
 use {
-    crate::{command::run, git::product},
+    crate::command::run,
     std::{
         env::Args,
         fmt::{Display, Formatter, Result},
-        path::{Path, PathBuf},
+        path::PathBuf,
     },
 };
 
@@ -14,7 +14,7 @@ pub fn build() {
 }
 
 pub fn destination() -> PathBuf {
-    Path::new("target").join(product())
+    PathBuf::from("target")
 }
 
 pub fn lint() {
