@@ -1,4 +1,4 @@
 [package]
-name = "open_sbi"
+name = "sbi"
 version = "0.1.0"
 edition = "2024"

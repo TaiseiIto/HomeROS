@@ -9,6 +9,6 @@ rs232c = { path = "../device/rs232c" }
 [target.'cfg(target_arch = "aarch64")'.dependencies]
 tfa = { path = "tfa" }
 [target.'cfg(target_arch = "riscv64")'.dependencies]
-open_sbi = { path = "open_sbi" }
+sbi = { path = "sbi" }
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 uefi = { path = "uefi" }

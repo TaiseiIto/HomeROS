@@ -72,7 +72,7 @@ impl Global {
     fn write_string(&self, string: &str) {
         #[cfg(firmware = "tfa")]
         rs232c::write_string(string);
-        #[cfg(firmware = "open_sbi")]
+        #[cfg(firmware = "sbi")]
         rs232c::write_string(string);
         #[cfg(firmware = "uefi")]
         self.system_table.write(string);

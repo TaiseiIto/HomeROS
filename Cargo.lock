@@ -18,14 +18,14 @@ dependencies = [
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "open_sbi",
+ "sbi",
  "rs232c",
  "tfa",
  "uefi",
 ]
 
 [[package]]
-name = "open_sbi"
+name = "sbi"
 version = "0.1.0"
 
 [[package]]
