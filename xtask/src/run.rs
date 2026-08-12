@@ -134,7 +134,7 @@ impl Command {
     fn machine(&self) -> &str {
         let Self { arch } = self;
         match arch {
-            Arch::Aarch64 | Arch::RiscV64 => "-machine virt",
+            Arch::Aarch64 | Arch::RiscV64 => "-machine virt,secure=on",
             Arch::X64 => "",
         }
     }
