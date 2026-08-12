@@ -32,7 +32,7 @@ impl Binary {
     pub fn disassemble(&self) {
         run(&format!(
             "llvm-objdump -d {}",
-            self.destination().to_str().unwrap()
+            self.source().to_str().unwrap()
         ));
     }
 
