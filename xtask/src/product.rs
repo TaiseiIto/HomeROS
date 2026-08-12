@@ -47,8 +47,14 @@ impl Binary {
             "mkdir -p {}",
             self.destination().parent().unwrap().to_str().unwrap()
         ));
+        let Self { arch, package } = self;
+        let copy: &str = match (arch, package) {
+            (Arch::Aarch64, Package::Boot) => "llvm-objcopy -O binary",
+            _ => "cp",
+        };
         run(&format!(
-            "cp {} {}",
+            "{} {} {}",
+            copy,
             self.source().to_str().unwrap(),
             self.destination().to_str().unwrap()
         ));
