@@ -58,7 +58,7 @@ impl Binary {
         let Self { arch, package } = self;
         let destination: PathBuf = arch.destination();
         let disk_relative_path: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "EFI/BOOT/BOOTAA64.EFI",
+            (Arch::Aarch64, Package::Boot) => "bl33.bin",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
             (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.EFI",
         };
@@ -89,7 +89,7 @@ impl Binary {
     fn name(&self) -> &str {
         let Self { arch, package } = self;
         match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "boot.efi",
+            (Arch::Aarch64, Package::Boot) => "boot",
             (Arch::RiscV64, Package::Boot) => "boot",
             (Arch::X64, Package::Boot) => "boot.efi",
         }
@@ -106,7 +106,7 @@ impl Binary {
     fn target(&self) -> &str {
         let Self { arch, package } = self;
         match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "aarch64-unknown-uefi",
+            (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none",
             (Arch::RiscV64, Package::Boot) => "riscv64gc-unknown-none-elf",
             (Arch::X64, Package::Boot) => "x86_64-unknown-uefi",
         }
@@ -115,10 +115,8 @@ impl Binary {
     fn vars(&self) -> &str {
         let Self { arch, package } = self;
         match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "",
-            (Arch::RiscV64, Package::Boot) => {
-                "RUSTFLAGS=\"-C link-arg=boot/firmware/open_sbi/link.ld\""
-            }
+            (Arch::Aarch64, Package::Boot) => "RUSTFLAGS=\"-C link-arg=boot/link/aarch64.ld\"",
+            (Arch::RiscV64, Package::Boot) => "RUSTFLAGS=\"-C link-arg=boot/link/riscv64.ld\"",
             (Arch::X64, Package::Boot) => "",
         }
     }

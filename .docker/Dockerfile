@@ -22,7 +22,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-none
-RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-uefi
 RUN . $HOME/.cargo/env && rustup target add riscv64gc-unknown-none-elf
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-none
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-uefi
@@ -40,17 +39,17 @@ RUN make
 RUN make install
 WORKDIR ..
 
-# Install TF-A
-RUN git clone --branch v2.15.0 --depth 1 --recursive --shallow-submodules --single-branch https://github.com/ARM-software/arm-trusted-firmware.git
-WORKDIR arm-trusted-firmware
-RUN make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu DEBUG=1
-WORKDIR ..
-
 # Install EDK2
 RUN git clone --branch edk2-stable202605 --depth 1 --recursive --shallow-submodules --single-branch https://github.com/tianocore/edk2.git
 WORKDIR edk2
 RUN make -C BaseTools
 RUN . ./edksetup.sh && build -a X64 -b DEBUG -p OvmfPkg/OvmfPkgX64.dsc -t GCC
+WORKDIR ..
+
+# Install TF-A
+RUN git clone --branch v2.15.0 --depth 1 --recursive --shallow-submodules --single-branch https://github.com/ARM-software/arm-trusted-firmware.git
+WORKDIR arm-trusted-firmware
+RUN make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu DEBUG=1
 WORKDIR ..
 
 # Install Lefthook
