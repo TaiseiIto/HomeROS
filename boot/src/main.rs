@@ -15,12 +15,16 @@ use core::arch::naked_asm;
 #[unsafe(no_mangle)]
 unsafe extern "C" fn _start() -> ! {
     #[cfg(target_arch = "aarch64")]
-    naked_asm!("wfi", "b _start");
+    naked_asm!(
+        "ldr x9, =_stack_bottom",
+        "mov sp, x9",
+        "bl initialize_global"
+    );
     #[cfg(target_arch = "riscv64")]
     naked_asm!("la sp, _stack_bottom", "j initialize_global");
 }
 
-#[cfg(target_arch = "riscv64")]
+#[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
 #[unsafe(no_mangle)]
 fn initialize_global() {
     main(unsafe { firmware::Global::new() });
