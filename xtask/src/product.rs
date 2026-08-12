@@ -56,13 +56,13 @@ impl Binary {
                     tfa::bl33().to_str().unwrap()
                 ));
                 run(&format!(
-                    "make -C {} PLAT=qemu DEBUG=1 BL33={} fip",
+                    "make -C {} PLAT=qemu DEBUG=1 BL33={} qemu_fw.rom",
                     tfa::top().to_str().unwrap(),
                     tfa::bl33().to_str().unwrap()
                 ));
                 run(&format!(
                     "cp {} {}",
-                    tfa::fip().to_str().unwrap(),
+                    tfa::rom().to_str().unwrap(),
                     self.destination().to_str().unwrap()
                 ));
             }
@@ -80,7 +80,7 @@ impl Binary {
         let Self { arch, package } = self;
         let destination: PathBuf = arch.destination();
         let disk_relative_path: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "fip.bin",
+            (Arch::Aarch64, Package::Boot) => "qemu_fw.rom",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
             (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.EFI",
         };

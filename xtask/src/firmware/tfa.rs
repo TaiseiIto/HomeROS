@@ -4,8 +4,8 @@ pub fn bl33() -> PathBuf {
     product().join("bl33.bin")
 }
 
-pub fn fip() -> PathBuf {
-    product().join("fip.bin")
+pub fn rom() -> PathBuf {
+    product().join("qemu_fw.rom")
 }
 
 pub fn top() -> PathBuf {
