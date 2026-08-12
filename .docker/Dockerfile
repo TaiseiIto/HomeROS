@@ -51,6 +51,7 @@ WORKDIR ..
 RUN git clone --branch v2.15.0 --depth 1 --recursive --shallow-submodules --single-branch https://github.com/ARM-software/arm-trusted-firmware.git
 WORKDIR arm-trusted-firmware
 RUN make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu DEBUG=1
+RUN make PLAT=qemu DEBUG=1 fiptool
 WORKDIR ..
 
 # Install Lefthook
