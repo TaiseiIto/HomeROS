@@ -1,11 +1,13 @@
 #![no_std]
 
+pub mod console;
+
 use core::arch::asm;
 
 /// # References
 /// * [sbiret](https://docs.riscv.org/reference/sbi/v3.0/binary-encoding.html)
 #[derive(Debug)]
-pub enum Error {
+enum Error {
     Failed,
     NotSupported,
     InvalidParam,
@@ -49,7 +51,7 @@ impl TryFrom<isize> for Error {
 
 /// # References
 /// * [ECALL](https://docs.riscv.org/reference/sbi/v3.0/binary-encoding.html)
-pub fn ecall(fid: i32, eid: i32, arguments: [usize; 6]) -> Result<usize, Error> {
+fn ecall(fid: i32, eid: i32, arguments: [usize; 6]) -> Result<usize, Error> {
     let [mut a0, mut a1, a2, a3, a4, a5]: [usize; 6] = arguments;
     unsafe {
         asm!(
