@@ -50,7 +50,7 @@ impl Command {
             &self.debug(),
             self.display(),
             &self.drive(),
-            self.firmware(),
+            &self.firmware(),
             Self::LOG,
             self.machine(),
             Self::MEMORY,
@@ -118,15 +118,15 @@ impl Command {
         }
     }
 
-    fn firmware(&self) -> &str {
+    fn firmware(&self) -> String {
         let Self { arch } = self;
         match arch {
             Arch::Aarch64 => {
-                "-drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_EFI.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/ArmVirtQemu-AArch64/DEBUG_GCC/FV/QEMU_VARS.fd,format=raw,if=pflash"
+                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination().to_str().unwrap())
             }
-            Arch::RiscV64 => "-bios default",
+            Arch::RiscV64 => "-bios default".to_string(),
             Arch::X64 => {
-                "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash"
+                "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash".to_string()
             }
         }
     }
