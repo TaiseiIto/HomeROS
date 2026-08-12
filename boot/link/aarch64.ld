@@ -17,7 +17,7 @@ SECTIONS {
 	}
 	. = ALIGN(4K);
 	_stack_top = .;
-	. += 0x1000;
+	. += 0x10000;
 	_stack_bottom = .;
 	/DISCARD/ : {
 		*(.comment)
