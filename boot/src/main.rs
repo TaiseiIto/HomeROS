@@ -18,7 +18,7 @@ unsafe extern "C" fn _start() -> ! {
     naked_asm!(
         "ldr x9, =_stack_bottom",
         "mov sp, x9",
-        "bl initialize_global"
+        "b initialize_global"
     );
     #[cfg(target_arch = "riscv64")]
     naked_asm!("la sp, _stack_bottom", "j initialize_global");
