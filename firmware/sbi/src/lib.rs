@@ -4,30 +4,66 @@ use core::arch::asm;
 
 /// # References
 /// * [sbiret](https://docs.riscv.org/reference/sbi/v3.0/binary-encoding.html)
-pub struct Ret {
-    error: usize,
-    value: usize,
+#[derive(Debug)]
+pub enum Error {
+    Failed,
+    NotSupported,
+    InvalidParam,
+    Denied,
+    InvalidAddress,
+    AlreadyAvailable,
+    AlreadyStarted,
+    AlreadyStopped,
+    NoShmem,
+    InvalidState,
+    BadRange,
+    Timeout,
+    Io,
+    DeniedLocked,
+}
+
+impl TryFrom<isize> for Error {
+    type Error = ();
+
+    fn try_from(result: isize) -> Result<Self, Self::Error> {
+        match result {
+            0 => Err(()),
+            -1 => Ok(Self::Failed),
+            -2 => Ok(Self::NotSupported),
+            -3 => Ok(Self::InvalidParam),
+            -4 => Ok(Self::Denied),
+            -5 => Ok(Self::InvalidAddress),
+            -6 => Ok(Self::AlreadyAvailable),
+            -7 => Ok(Self::AlreadyStarted),
+            -8 => Ok(Self::AlreadyStopped),
+            -9 => Ok(Self::NoShmem),
+            -10 => Ok(Self::InvalidState),
+            -11 => Ok(Self::BadRange),
+            -12 => Ok(Self::Timeout),
+            -13 => Ok(Self::Io),
+            -14 => Ok(Self::DeniedLocked),
+            _ => unreachable!(),
+        }
+    }
 }
 
 /// # References
 /// * [ECALL](https://docs.riscv.org/reference/sbi/v3.0/binary-encoding.html)
 pub fn ecall(
-    fid: usize,
-    eid: usize,
-    a0: usize,
-    a1: usize,
+    fid: i32,
+    eid: i32,
+    mut a0: usize,
+    mut a1: usize,
     a2: usize,
     a3: usize,
     a4: usize,
     a5: usize,
-) -> Ret {
-    let mut error: usize = a0;
-    let mut value: usize = a1;
+) -> Result<usize, Error> {
     unsafe {
         asm!(
             "ecall",
-            inout("a0") error,
-            inout("a1") value,
+            inout("a0") a0,
+            inout("a1") a1,
             in("a2") a2,
             in("a3") a3,
             in("a4") a4,
@@ -36,5 +72,24 @@ pub fn ecall(
             in("a7") eid,
         );
     }
-    Ret { error, value }
+    let error: Result<Error, ()> = A0Error::a0(a0).error().try_into();
+    match error {
+        Ok(error) => Err(error),
+        Err(()) => Ok(a1),
+    }
+}
+
+union A0Error {
+    a0: usize,
+    error: isize,
+}
+
+impl A0Error {
+    fn a0(a0: usize) -> Self {
+        Self { a0 }
+    }
+
+    fn error(self) -> isize {
+        unsafe { self.error }
+    }
 }
