@@ -7,4 +7,3 @@ build = "../firmware/build.rs"
 [dependencies]
 arch = { path = "../arch" }
 firmware = { path = "../firmware" }
-rs232c = { path = "../device/rs232c" }
