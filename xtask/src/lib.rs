@@ -2,6 +2,7 @@ mod command;
 mod disassemble;
 mod docker;
 mod environment;
+mod firmware;
 mod format;
 mod git;
 mod lint;

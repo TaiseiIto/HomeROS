@@ -1,5 +1,5 @@
 use {
-    crate::command::run,
+    crate::{command::run, firmware::tfa},
     std::{
         env::Args,
         fmt::{Display, Formatter, Result},
@@ -48,23 +48,39 @@ impl Binary {
             self.destination().parent().unwrap().to_str().unwrap()
         ));
         let Self { arch, package } = self;
-        let copy: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "llvm-objcopy -O binary",
-            _ => "cp",
-        };
-        run(&format!(
-            "{} {} {}",
-            copy,
-            self.source().to_str().unwrap(),
-            self.destination().to_str().unwrap()
-        ));
+        match (arch, package) {
+            (Arch::Aarch64, Package::Boot) => {
+                run(&format!(
+                    "llvm-objcopy -O binary {} {}",
+                    self.source().to_str().unwrap(),
+                    tfa::bl33().to_str().unwrap()
+                ));
+                run(&format!(
+                    "make -C {} PLAT=qemu DEBUG=1 BL33={} fip",
+                    tfa::top().to_str().unwrap(),
+                    tfa::bl33().to_str().unwrap()
+                ));
+                run(&format!(
+                    "cp {} {}",
+                    tfa::fip().to_str().unwrap(),
+                    self.destination().to_str().unwrap()
+                ));
+            }
+            _ => {
+                run(&format!(
+                    "cp {} {}",
+                    self.source().to_str().unwrap(),
+                    self.destination().to_str().unwrap()
+                ));
+            }
+        }
     }
 
     fn destination(&self) -> PathBuf {
         let Self { arch, package } = self;
         let destination: PathBuf = arch.destination();
         let disk_relative_path: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "bl33.bin",
+            (Arch::Aarch64, Package::Boot) => "fip.bin",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
             (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.EFI",
         };
