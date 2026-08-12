@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 
+[target.'cfg(target_arch = "aarch64")'.dependencies]
+tfa = { path = "tfa" }
 [target.'cfg(target_arch = "riscv64")'.dependencies]
 open_sbi = { path = "open_sbi" }
-[target.'cfg(any(target_arch = "aarch64", target_arch = "x86_64"))'.dependencies]
+[target.'cfg(target_arch = "x86_64")'.dependencies]
 uefi = { path = "uefi" }

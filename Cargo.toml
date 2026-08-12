@@ -5,6 +5,7 @@ members = [
 	"device/rs232c",
 	"firmware",
 	"firmware/open_sbi",
+	"firmware/tfa",
 	"firmware/uefi",
 	"xtask"
 ]
