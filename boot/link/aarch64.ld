@@ -19,4 +19,9 @@ SECTIONS {
 	_stack_top = .;
 	. += 0x1000;
 	_stack_bottom = .;
+	/DISCARD/ : {
+		*(.comment)
+		*(.debug*)
+		*(.eh_frame*)
+	}
 }
