@@ -20,6 +20,7 @@ name = "firmware"
 version = "0.1.0"
 dependencies = [
  "open_sbi",
+ "rs232c",
  "tfa",
  "uefi",
 ]
