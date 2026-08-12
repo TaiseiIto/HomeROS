@@ -9,6 +9,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 RUN apt-get update && apt-get upgrade -y && apt-get install -y iasl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libglib2.0-dev
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libpixman-1-dev
+RUN apt-get update && apt-get upgrade -y && apt-get install -y libssl-dev
 RUN apt-get update && apt-get upgrade -y && apt-get install -y llvm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y nasm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y ninja-build
