@@ -2,16 +2,10 @@
 
 use core::arch::asm;
 
-pub fn write_string(string: &str) {
-    for byte in string.bytes() {
-        write_byte(byte);
-    }
-}
-
 /// # TODO
 /// This is an ad hoc implementation working on only QEMU.
 /// Implement RS232C completely.
-fn write_byte(byte: u8) {
+pub fn write_byte(byte: u8) {
     unsafe {
         #[cfg(target_arch = "aarch64")]
         asm!("strb {byte:w}, [{address:x}]", byte = in(reg) byte, address = in(reg) 0x09000000);

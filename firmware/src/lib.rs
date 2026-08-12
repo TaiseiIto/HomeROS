@@ -69,11 +69,19 @@ impl Global {
         Writer(self)
     }
 
-    fn write_string(&self, string: &str) {
-        #[cfg(firmware = "tfa")]
-        rs232c::write_string(string);
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    fn write_byte(&self, byte: u8) {
         #[cfg(firmware = "sbi")]
-        rs232c::write_string(string);
+        sbi::console::putchar(byte);
+        #[cfg(firmware = "tfa")]
+        rs232c::write_byte(byte);
+    }
+
+    fn write_string(&self, string: &str) {
+        #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+        for byte in string.bytes() {
+            self.write_byte(byte);
+        }
         #[cfg(firmware = "uefi")]
         self.system_table.write(string);
     }
