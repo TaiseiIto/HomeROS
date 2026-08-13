@@ -25,6 +25,24 @@ struct Element {
 }
 
 impl Element {
+    fn length(&self) -> Option<proc_macro2::TokenStream> {
+        let bits: u8 = self.bits;
+        self.length_ident().map(|ident| {
+            quote! {
+                const #ident: u8 = #bits;
+            }
+        })
+    }
+
+    fn length_ident(&self) -> Option<Ident> {
+        self.ident.as_ref().map(|ident| {
+            Ident::new(
+                &format!("{}_LENGTH", ident.to_string().to_uppercase()),
+                ident.span(),
+            )
+        })
+    }
+
     fn type2bits(ty: Type) -> u8 {
         match ty {
             Type::Array(TypeArray {
@@ -99,18 +117,32 @@ impl Structure {
         self.elements.iter().map(|element| element.bits).sum()
     }
 
-    fn structure(&self) -> proc_macro2::TokenStream {
-        let true_type: Ident = self.true_type();
+    fn implement(&self) -> proc_macro2::TokenStream {
+        let ident: &Ident = &self.ident;
+        let length: Vec<proc_macro2::TokenStream> = self
+            .elements
+            .iter()
+            .filter_map(|element| element.length())
+            .collect();
+        quote! {
+            impl #ident {
+                #(#length)*
+            }
+        }
+    }
+
+    fn inner_type(&self) -> Ident {
+        Ident::new(&format!("u{}", self.bits()), self.ident.span())
+    }
+
+    fn true_type(&self) -> proc_macro2::TokenStream {
+        let inner_type: Ident = self.inner_type();
         let Self {
             vis,
             ident,
             elements: _,
         } = self;
-        quote! {#vis struct #ident(#true_type);}
-    }
-
-    fn true_type(&self) -> Ident {
-        Ident::new(&format!("u{}", self.bits()), self.ident.span())
+        quote! {#vis struct #ident(#inner_type);}
     }
 }
 
@@ -140,9 +172,11 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for proc_macro2::TokenStream {
     fn from(structure: Structure) -> Self {
-        let structure: proc_macro2::TokenStream = structure.structure();
+        let true_type: proc_macro2::TokenStream = structure.true_type();
+        let implement: proc_macro2::TokenStream = structure.implement();
         quote! {
-            #structure
+            #true_type
+            #implement
         }
     }
 }
