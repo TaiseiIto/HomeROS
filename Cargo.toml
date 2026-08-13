@@ -1,6 +1,7 @@
 [workspace]
 members = [
 	"arch",
+	"bitfield",
 	"boot",
 	"device/rs232c",
 	"firmware",
