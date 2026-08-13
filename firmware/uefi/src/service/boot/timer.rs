@@ -1,10 +1,10 @@
 use crate::{Event, Status};
 
-/// References
+/// # References
 /// * [SetTimer](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-settimer)
 pub type Set = extern "efiapi" fn(Event, Delay, u64) -> Status;
 
-/// References
+/// # References
 /// * [EFI_TIMER_DELAY](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-settimer)
 #[repr(C)]
 pub enum Delay {

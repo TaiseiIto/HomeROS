@@ -1,9 +1,9 @@
 use crate::{Handle, Status};
 
-/// References
+/// # References
 /// * [InstallMultipleProtocolInterfaces](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installmultipleprotocolinterfaces)
 pub type Install = extern "efiapi" fn(*mut Handle, ...) -> Status;
 
-/// References
+/// # References
 /// * [UninstallMultipleProtocolInterfaces]()
 pub type Uninstall = extern "efiapi" fn(Handle, ...) -> Status;

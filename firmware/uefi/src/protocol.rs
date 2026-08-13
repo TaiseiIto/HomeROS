@@ -1,6 +1,6 @@
 pub mod text;
 
-/// References
+/// # References
 /// * [EFI_DEVICE_PATH_PROTOCOL](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-device-path-protocol)
 #[repr(C)]
 pub struct DevicePath {

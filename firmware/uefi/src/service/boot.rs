@@ -9,7 +9,7 @@ mod timer;
 
 use crate::{Char16, Status, Void, table};
 
-/// References
+/// # References
 /// * [EFI_BOOT_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-boot-services)
 #[derive(Debug)]
 #[repr(C)]
@@ -61,18 +61,18 @@ pub struct Table {
     create_event_ex: event::CreateEx,
 }
 
-/// References
+/// # References
 /// * [CalculateCrc32](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-calculatecrc32)
 pub type CalculateCrc32 = extern "efiapi" fn(*const Void, usize, *mut u32) -> Status;
 
-/// References
+/// # References
 /// * [GetNextMonotonicCount](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getnextmonotoniccount)
 pub type GetNextMonotonicCount = extern "efiapi" fn(*mut u64) -> Status;
 
-/// References
+/// # References
 /// * [SetWatchdogTimer](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-setwatchdogtimer)
 pub type SetWatchdogTimer = extern "efiapi" fn(usize, u64, usize, *const Char16) -> Status;
 
-/// References
+/// # References
 /// * [Stall](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-stall)
 pub type Stall = extern "efiapi" fn(usize) -> Status;
