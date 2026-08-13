@@ -7,7 +7,7 @@ name = "arch"
 version = "0.1.0"
 
 [[package]]
-name = "bit"
+name = "bitfield"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
