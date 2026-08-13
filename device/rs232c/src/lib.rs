@@ -2,6 +2,7 @@
 
 pub mod fifo;
 pub mod interrupt;
+pub mod line;
 
 use core::arch::asm;
 
