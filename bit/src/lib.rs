@@ -124,6 +124,27 @@ impl From<Field> for Element {
     }
 }
 
+struct ElementOffset<'a> {
+    element: &'a Element,
+    offset: u8,
+}
+
+impl<'a> From<&'a Structure> for Vec<ElementOffset<'a>> {
+    fn from(structure: &'a Structure) -> Self {
+        structure
+            .elements
+            .iter()
+            .fold(
+                (Vec::<ElementOffset<'a>>::new(), 0),
+                |(mut element_offsets, offset), element| {
+                    element_offsets.push(ElementOffset { element, offset });
+                    (element_offsets, offset + element.bits)
+                },
+            )
+            .0
+    }
+}
+
 struct Structure {
     vis: Visibility,
     ident: Ident,
@@ -156,18 +177,11 @@ impl Structure {
     }
 
     fn offsets(&self) -> Vec<proc_macro2::TokenStream> {
-        self.elements
-            .iter()
-            .fold(
-                (Vec::<proc_macro2::TokenStream>::new(), 0),
-                |(mut offsets, accumulator), element| {
-                    if let Some(offset_function) = element.offset(accumulator) {
-                        offsets.push(offset_function);
-                    }
-                    (offsets, accumulator + element.bits)
-                },
-            )
-            .0
+        let element_offsets: Vec<ElementOffset> = self.into();
+        element_offsets
+            .into_iter()
+            .filter_map(|ElementOffset { element, offset }| element.offset(offset))
+            .collect()
     }
 
     fn true_type(&self) -> proc_macro2::TokenStream {
