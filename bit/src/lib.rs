@@ -61,7 +61,6 @@ impl Element {
         })
         .zip(self.function_ident("mask_remake"))
         .map(|(bit_remake, mask_remake)| {
-            let inner_type: Ident = structure.inner_type();
             let (argument_type, argument_value): (
                 proc_macro2::TokenStream,
                 proc_macro2::TokenStream,
@@ -84,8 +83,7 @@ impl Element {
             };
             quote! {
                 pub fn #bit_remake(self, argument: #argument_type) -> Self {
-                    let value: #inner_type = #argument_value;
-                    self.#mask_remake(value)
+                    self.#mask_remake(#argument_value)
                 }
             }
         })
