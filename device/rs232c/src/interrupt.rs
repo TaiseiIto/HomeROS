@@ -1,7 +1,7 @@
 /// # References
 /// * [Interrupt Enable Register](https://www.lookrs232.com/rs232/ier.htm)
 #[bit::field]
-pub struct Enable {
+struct Enable {
     received_data_available: bool,
     transmitter_holding_register_empty: bool,
     receiver_line_status: bool,
@@ -14,11 +14,29 @@ pub struct Enable {
 /// # References
 /// * [Interrupt Identification Register](https://www.lookrs232.com/rs232/iir.htm)
 #[bit::field]
-pub struct Identification {
+struct Identification {
     pending: bool,
     status: [bool; 2],
     timeout: bool,
     reserved: bool,
     fifo_64byte: bool,
     fifo: [bool; 2],
+}
+
+enum Status {
+    Modem,
+    Transmitted,
+    Received,
+    ReceiverLine,
+}
+
+impl From<&Identification> for Status {
+    fn from(identification: &Identification) -> Self {
+        match identification.status_bits_read() {
+            [false, false] => Self::Modem,
+            [false, true] => Self::Received,
+            [true, false] => Self::Transmitted,
+            [true, true] => Self::ReceiverLine,
+        }
+    }
 }
