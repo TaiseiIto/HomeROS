@@ -14,7 +14,9 @@ pub fn field(
     structure: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let item_struct: ItemStruct = parse_macro_input!(structure as ItemStruct);
-    quote! {}.into()
+    let structure: Structure = item_struct.into();
+    let token_stream: proc_macro2::TokenStream = structure.into();
+    token_stream.into()
 }
 
 struct Element {
@@ -113,5 +115,11 @@ impl From<ItemStruct> for Structure {
         } else {
             panic!();
         }
+    }
+}
+
+impl From<Structure> for proc_macro2::TokenStream {
+    fn from(structure: Structure) -> Self {
+        quote! {}
     }
 }
