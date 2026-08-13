@@ -94,6 +94,26 @@ struct Structure {
     elements: Vec<Element>,
 }
 
+impl Structure {
+    fn bits(&self) -> u8 {
+        self.elements.iter().map(|element| element.bits).sum()
+    }
+
+    fn structure(&self) -> proc_macro2::TokenStream {
+        let true_type: Ident = self.true_type();
+        let Self {
+            vis,
+            ident,
+            elements: _,
+        } = self;
+        quote! {#vis struct #ident(#true_type);}
+    }
+
+    fn true_type(&self) -> Ident {
+        Ident::new(&format!("u{}", self.bits()), self.ident.span())
+    }
+}
+
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
@@ -120,6 +140,9 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for proc_macro2::TokenStream {
     fn from(structure: Structure) -> Self {
-        quote! {}
+        let structure: proc_macro2::TokenStream = structure.structure();
+        quote! {
+            #structure
+        }
     }
 }
