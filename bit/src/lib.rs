@@ -84,13 +84,13 @@ impl Element {
             })
     }
 
-    fn mask_function(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("mask")
+    fn mask_read(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("mask_read")
             .zip(self.const_ident("MASK"))
-            .map(|(mask_function, mask_const)| {
+            .map(|(mask_read, mask_const)| {
                 let inner_type: Ident = structure.inner_type();
                 quote! {
-                    pub fn #mask_function(&self) -> #inner_type {
+                    pub fn #mask_read(&self) -> #inner_type {
                         self.0 & Self::#mask_const
                     }
                 }
@@ -204,13 +204,13 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
         let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
-        let mask_functions: Vec<proc_macro2::TokenStream> = self.mask_functions();
+        let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
                 #(#lengths)*
                 #(#mask_consts)*
-                #(#mask_functions)*
+                #(#mask_reads)*
                 #(#offsets)*
             }
         }
@@ -235,10 +235,10 @@ impl Structure {
             .collect()
     }
 
-    fn mask_functions(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_reads(&self) -> Vec<proc_macro2::TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.mask_function(self))
+            .filter_map(|element| element.mask_read(self))
             .collect()
     }
 
