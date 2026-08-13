@@ -23,6 +23,31 @@ struct Element {
 }
 
 impl Element {
+    fn bits_read(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("bits_read").map(|bits_read| {
+            let bits: u8 = self.bits;
+            let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
+                if bits == 1 {
+                    (quote! { bool }, quote! {self.0 & (1 << #offset) != 0})
+                } else {
+                    let bools: Vec<proc_macro2::TokenStream> = (0..self.bits)
+                        .map(|bit| {
+                            let shift: u8 = offset + bit;
+                            quote! {
+                                self.0 & (1 << #shift) != 0
+                            }
+                        })
+                        .collect();
+                    (quote! { [bool; #bits] }, quote! {[#(#bools),*]})
+                };
+            quote! {
+                pub fn #bits_read(&self) -> #return_type {
+                    #return_value
+                }
+            }
+        })
+    }
+
     fn const_ident(&self, suffix: &str) -> Option<Ident> {
         self.ident.as_ref().map(|ident| {
             Ident::new(
@@ -200,14 +225,24 @@ impl Structure {
         self.elements.iter().map(|element| element.bits).sum()
     }
 
+    fn bits_reads(&self) -> Vec<proc_macro2::TokenStream> {
+        let element_offsets: Vec<ElementOffset> = self.into();
+        element_offsets
+            .into_iter()
+            .filter_map(|ElementOffset { element, offset }| element.bits_read(self, offset))
+            .collect()
+    }
+
     fn implement(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
+        let bits_reads: Vec<proc_macro2::TokenStream> = self.bits_reads();
         let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
         let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
         let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
+                #(#bits_reads)*
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#mask_reads)*
