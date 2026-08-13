@@ -1,6 +1,6 @@
 /// References
 /// * [Interrupt Enable Register](https://www.lookrs232.com/rs232/ier.htm)
-#[bit::field(u8)]
+#[bit::field]
 pub struct Enable {
     received_data_available: bool,
     transmitter_holding_register_empty: bool,
