@@ -26,10 +26,10 @@ impl Element {
     fn type2bits(ty: Type) -> u8 {
         match ty {
             Type::Array(TypeArray {
-                attrs,
-                bracket_token,
+                attrs: _,
+                bracket_token: _,
                 elem,
-                semi_token,
+                semi_token: _,
                 len,
             }) => {
                 let unit: u8 = Self::type2bits(*elem);
@@ -45,11 +45,11 @@ impl Element {
                 len * unit
             }
             Type::Path(TypePath {
-                attrs,
-                qself,
+                attrs: _,
+                qself: _,
                 path:
                     Path {
-                        leading_colon,
+                        leading_colon: _,
                         segments,
                     },
             }) => {
@@ -68,13 +68,13 @@ impl Element {
 impl From<Field> for Element {
     fn from(field: Field) -> Self {
         if let Field {
-            attrs,
-            vis,
-            modifiers,
+            attrs: _,
+            vis: _,
+            modifiers: _,
             ident: Some(ident),
-            colon_token,
+            colon_token: _,
             ty,
-            default,
+            default: _,
         } = field
         {
             let ident: Option<Ident> = (ident != "reserved").then_some(ident);
@@ -95,13 +95,13 @@ struct Structure {
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
-            attrs,
+            attrs: _,
             vis,
-            struct_token,
+            struct_token: _,
             ident,
-            generics,
+            generics: _,
             fields: Fields::Named(FieldsNamed { brace_token, named }),
-            semi_token,
+            semi_token: _,
         } = item_struct
         {
             let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
