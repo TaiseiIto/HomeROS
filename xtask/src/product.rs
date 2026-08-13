@@ -128,7 +128,7 @@ impl Binary {
     fn target(&self) -> &str {
         let Self { arch, package } = self;
         match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none",
+            (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none-softfloat",
             (Arch::RiscV64, Package::Boot) => "riscv64gc-unknown-none-elf",
             (Arch::X64, Package::Boot) => "x86_64-unknown-uefi",
         }

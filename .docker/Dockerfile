@@ -22,7 +22,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-none
+RUN . $HOME/.cargo/env && rustup target add aarch64-unknown-none-softfloat
 RUN . $HOME/.cargo/env && rustup target add riscv64gc-unknown-none-elf
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-none
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-uefi
