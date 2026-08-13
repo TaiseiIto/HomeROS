@@ -23,38 +23,42 @@ struct Element {
 }
 
 impl Element {
+    fn const_ident(&self, suffix: &str) -> Option<Ident> {
+        self.ident.as_ref().map(|ident| {
+            Ident::new(
+                &format!("{}_{}", ident.to_string().to_uppercase(), suffix),
+                ident.span(),
+            )
+        })
+    }
+
     fn length(&self) -> Option<proc_macro2::TokenStream> {
         let bits: u8 = self.bits;
-        self.length_ident().map(|ident| {
+        self.const_ident("LENGTH").map(|ident| {
             quote! {
                 const #ident: u8 = #bits;
             }
         })
     }
 
-    fn length_ident(&self) -> Option<Ident> {
-        self.ident.as_ref().map(|ident| {
-            Ident::new(
-                &format!("{}_LENGTH", ident.to_string().to_uppercase()),
-                ident.span(),
-            )
-        })
+    fn mask(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+        self.const_ident("MASK")
+            .map(|ident| match structure.bits() {
+                8 => {
+                    let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #ident: u8 = #mask;
+                    }
+                }
+                _ => panic!(),
+            })
     }
 
     fn offset(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.offset_ident().map(|ident| {
+        self.const_ident("OFFSET").map(|ident| {
             quote! {
                 const #ident: u8 = #offset;
             }
-        })
-    }
-
-    fn offset_ident(&self) -> Option<Ident> {
-        self.ident.as_ref().map(|ident| {
-            Ident::new(
-                &format!("{}_OFFSET", ident.to_string().to_uppercase()),
-                ident.span(),
-            )
         })
     }
 
@@ -158,15 +162,17 @@ impl Structure {
 
     fn implement(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
-        let length: Vec<proc_macro2::TokenStream> = self
+        let lengths: Vec<proc_macro2::TokenStream> = self
             .elements
             .iter()
             .filter_map(|element| element.length())
             .collect();
+        let masks: Vec<proc_macro2::TokenStream> = self.masks();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
-                #(#length)*
+                #(#lengths)*
+                #(#masks)*
                 #(#offsets)*
             }
         }
@@ -174,6 +180,14 @@ impl Structure {
 
     fn inner_type(&self) -> Ident {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
+    }
+
+    fn masks(&self) -> Vec<proc_macro2::TokenStream> {
+        let element_offsets: Vec<ElementOffset> = self.into();
+        element_offsets
+            .into_iter()
+            .filter_map(|ElementOffset { element, offset }| element.mask(self, offset))
+            .collect()
     }
 
     fn offsets(&self) -> Vec<proc_macro2::TokenStream> {
