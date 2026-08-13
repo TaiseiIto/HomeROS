@@ -23,7 +23,7 @@ struct Element {
 }
 
 impl Element {
-    fn bits_read(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn bits_read(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
         self.function_ident("bits_read").map(|bits_read| {
             let bits: u8 = self.bits;
             let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
@@ -276,7 +276,7 @@ impl Structure {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bits_read(self, offset))
+            .filter_map(|ElementOffset { element, offset }| element.bits_read(offset))
             .collect()
     }
 
