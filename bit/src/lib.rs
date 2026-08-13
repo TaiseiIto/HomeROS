@@ -41,6 +41,23 @@ impl Element {
         })
     }
 
+    fn offset(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
+        self.offset_ident().map(|ident| {
+            quote! {
+                const #ident: u8 = #offset;
+            }
+        })
+    }
+
+    fn offset_ident(&self) -> Option<Ident> {
+        self.ident.as_ref().map(|ident| {
+            Ident::new(
+                &format!("{}_OFFSET", ident.to_string().to_uppercase()),
+                ident.span(),
+            )
+        })
+    }
+
     fn type2bits(ty: Type) -> u8 {
         match ty {
             Type::Array(TypeArray {
@@ -125,15 +142,32 @@ impl Structure {
             .iter()
             .filter_map(|element| element.length())
             .collect();
+        let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
                 #(#length)*
+                #(#offsets)*
             }
         }
     }
 
     fn inner_type(&self) -> Ident {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
+    }
+
+    fn offsets(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .fold(
+                (Vec::<proc_macro2::TokenStream>::new(), 0),
+                |(mut offsets, accumulator), element| {
+                    if let Some(offset_function) = element.offset(accumulator) {
+                        offsets.push(offset_function);
+                    }
+                    (offsets, accumulator + element.bits)
+                },
+            )
+            .0
     }
 
     fn true_type(&self) -> proc_macro2::TokenStream {
