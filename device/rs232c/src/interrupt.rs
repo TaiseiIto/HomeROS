@@ -20,7 +20,8 @@ struct Identification {
     timeout: bool,
     reserved: bool,
     fifo_64byte: bool,
-    fifo: [bool; 2],
+    fifo_usable: bool,
+    fifo_enabled: bool,
 }
 
 enum Status {
@@ -34,8 +35,8 @@ impl From<&Identification> for Status {
     fn from(identification: &Identification) -> Self {
         match identification.status_bit_read() {
             [false, false] => Self::Modem,
-            [false, true] => Self::Received,
             [true, false] => Self::Transmitted,
+            [false, true] => Self::Received,
             [true, true] => Self::ReceiverLine,
         }
     }
