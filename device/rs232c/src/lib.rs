@@ -1,8 +1,8 @@
 #![no_std]
 
-pub mod fifo;
-pub mod interrupt;
-pub mod line;
+mod fifo;
+mod interrupt;
+mod line;
 
 use core::arch::asm;
 
