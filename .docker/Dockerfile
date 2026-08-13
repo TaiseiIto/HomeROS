@@ -27,12 +27,8 @@ RUN . $HOME/.cargo/env && rustup target add riscv64gc-unknown-none-elf
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-none
 RUN . $HOME/.cargo/env && rustup target add x86_64-unknown-uefi
 
-# Git settings
-RUN git config --global alias.graph 'log --graph --date-order -C -M --pretty=format:"<%h> %ad [%an] %Cgreen%d%Creset %s" --all --date=short'
-WORKDIR /root/
-RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
-
 # Install QEMU
+WORKDIR /root/
 RUN git clone --branch v11.0.0 --depth 1 --recursive --shallow-submodules --single-branch https://gitlab.com/qemu-project/qemu.git
 WORKDIR qemu
 RUN ./configure --target-list=aarch64-softmmu,riscv64-softmmu,x86_64-softmmu CFLAGS="-O0 -g -fno-inline" CXXFLAGS="-O0 -g -fno-inline"
@@ -54,9 +50,9 @@ RUN make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu DEBUG=1
 RUN make PLAT=qemu DEBUG=1 fiptool
 WORKDIR ..
 
-# Install Lefthook
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | bash
-RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
+# Git settings
+RUN git config --global alias.graph 'log --graph --date-order -C -M --pretty=format:"<%h> %ad [%an] %Cgreen%d%Creset %s" --all --date=short'
+RUN echo 'export GPG_TTY=$(tty)' >> .bashrc
 
 # Set VNC port
 ENV VNC_PORT=5900
@@ -75,7 +71,9 @@ WORKDIR $PRODUCT
 ARG BRANCH
 RUN git checkout $BRANCH
 
-# Enable Lefthook
+# Install Lefthook
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | bash
+RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
 RUN lefthook install
 
 # Development environment settings
