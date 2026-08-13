@@ -35,7 +35,7 @@ impl Element {
     fn function_ident(&self, suffix: &str) -> Option<Ident> {
         self.ident
             .as_ref()
-            .map(|ident| Ident::new(&format!("{}_{}", ident.to_string(), suffix), ident.span()))
+            .map(|ident| Ident::new(&format!("{}_{}", ident, suffix), ident.span()))
     }
 
     fn length(&self) -> Option<proc_macro2::TokenStream> {
@@ -181,13 +181,10 @@ impl<'a> From<&'a Structure> for Vec<ElementOffset<'a>> {
         structure
             .elements
             .iter()
-            .fold(
-                (Vec::<ElementOffset<'a>>::new(), 0),
-                |(mut element_offsets, offset), element| {
-                    element_offsets.push(ElementOffset { element, offset });
-                    (element_offsets, offset + element.bits)
-                },
-            )
+            .fold((Vec::new(), 0), |(mut element_offsets, offset), element| {
+                element_offsets.push(ElementOffset { element, offset });
+                (element_offsets, offset + element.bits)
+            })
             .0
     }
 }
