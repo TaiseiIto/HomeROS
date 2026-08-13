@@ -30,6 +30,7 @@ impl Element {
                 if bits == 1 {
                     (quote! { bool }, quote! { self.0 & (1 << #offset) != 0 })
                 } else {
+                    let bits_usize: usize = bits as usize;
                     let bools: Vec<proc_macro2::TokenStream> = (0..bits)
                         .map(|bit| {
                             let shift: u8 = offset + bit;
@@ -38,8 +39,7 @@ impl Element {
                             }
                         })
                         .collect();
-                    let bits: usize = bits as usize;
-                    (quote! { [bool; #bits] }, quote! { [#(#bools),*] })
+                    (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
                 };
             quote! {
                 pub fn #bits_read(&self) -> #return_type {
@@ -64,16 +64,16 @@ impl Element {
                         quote! { if argument { 1 << #offset } else { 0 } },
                     )
                 } else {
+                    let bits_usize: usize = bits as usize;
                     let values: Vec<proc_macro2::TokenStream> = (0..bits)
                         .map(|bit| {
                             let shift: u8 = offset + bit;
                             quote! {
-                                if argument[#bit] { 1 << #shift } else { 0 }
+                                if argument[#bits_usize] { 1 << #shift } else { 0 }
                             }
                         })
                         .collect();
-                    let bits: usize = bits as usize;
-                    (quote! { [bool; #bits] }, quote! { #(#values)|* })
+                    (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
                 };
                 quote! {
                     pub fn #bits_remake(self, argument: #argument_type) -> Self {
