@@ -32,7 +32,7 @@ enum Status {
 
 impl From<&Identification> for Status {
     fn from(identification: &Identification) -> Self {
-        match identification.status_bits_read() {
+        match identification.status_bit_read() {
             [false, false] => Self::Modem,
             [false, true] => Self::Received,
             [true, false] => Self::Transmitted,

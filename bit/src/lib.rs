@@ -23,8 +23,8 @@ struct Element {
 }
 
 impl Element {
-    fn bits_read(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("bits_read").map(|bits_read| {
+    fn bit_read(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("bit_read").map(|bit_read| {
             let bits: u8 = self.bits;
             let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
                 if bits == 1 {
@@ -42,17 +42,17 @@ impl Element {
                     (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
                 };
             quote! {
-                pub fn #bits_read(&self) -> #return_type {
+                pub fn #bit_read(&self) -> #return_type {
                     #return_value
                 }
             }
         })
     }
 
-    fn bits_remake(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("bits_remake")
+    fn bit_remake(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("bit_remake")
             .zip(self.function_ident("mask_remake"))
-            .map(|(bits_remake, mask_remake)| {
+            .map(|(bit_remake, mask_remake)| {
                 let inner_type: Ident = structure.inner_type();
                 let bits: u8 = self.bits;
                 let (argument_type, argument_value): (
@@ -76,7 +76,7 @@ impl Element {
                     (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
                 };
                 quote! {
-                    pub fn #bits_remake(self, argument: #argument_type) -> Self {
+                    pub fn #bit_remake(self, argument: #argument_type) -> Self {
                         let value: #inner_type = #argument_value;
                         self.#mask_remake(value)
                     }
@@ -274,26 +274,26 @@ impl Structure {
         self.elements.iter().map(|element| element.bits).sum()
     }
 
-    fn bits_reads(&self) -> Vec<proc_macro2::TokenStream> {
+    fn bit_reads(&self) -> Vec<proc_macro2::TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bits_read(offset))
+            .filter_map(|ElementOffset { element, offset }| element.bit_read(offset))
             .collect()
     }
 
-    fn bits_remakes(&self) -> Vec<proc_macro2::TokenStream> {
+    fn bit_remakes(&self) -> Vec<proc_macro2::TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bits_remake(self, offset))
+            .filter_map(|ElementOffset { element, offset }| element.bit_remake(self, offset))
             .collect()
     }
 
     fn implement(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
-        let bits_reads: Vec<proc_macro2::TokenStream> = self.bits_reads();
-        let bits_remakes: Vec<proc_macro2::TokenStream> = self.bits_remakes();
+        let bit_reads: Vec<proc_macro2::TokenStream> = self.bit_reads();
+        let bit_remakes: Vec<proc_macro2::TokenStream> = self.bit_remakes();
         let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
         let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
         let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
@@ -301,8 +301,8 @@ impl Structure {
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
-                #(#bits_reads)*
-                #(#bits_remakes)*
+                #(#bit_reads)*
+                #(#bit_remakes)*
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#mask_reads)*
