@@ -1,10 +1,8 @@
 use {
     quote::quote,
     syn::{
-        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, LitInt, Path,
-        PathSegment, Type, TypeArray, TypePath, Visibility,
-        parse::{Parse, ParseStream, Result},
-        parse_macro_input,
+        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path, PathSegment, Type,
+        TypeArray, TypePath, Visibility, parse_macro_input,
     },
 };
 
@@ -54,7 +52,7 @@ impl Element {
             }) => {
                 let unit: u8 = Self::type2bits(*elem);
                 let len: u8 = if let Expr::Lit(ExprLit {
-                    attrs,
+                    attrs: _,
                     lit: Lit::Int(lit_int),
                 }) = len
                 {
@@ -76,7 +74,10 @@ impl Element {
                 let mut segments = segments.iter();
                 let segment: &PathSegment = segments.next().unwrap();
                 assert!(segments.next().is_none());
-                let PathSegment { ident, arguments } = segment;
+                let PathSegment {
+                    ident,
+                    arguments: _,
+                } = segment;
                 assert!(ident == "bool");
                 1
             }
@@ -154,7 +155,11 @@ impl From<ItemStruct> for Structure {
             struct_token: _,
             ident,
             generics: _,
-            fields: Fields::Named(FieldsNamed { brace_token, named }),
+            fields:
+                Fields::Named(FieldsNamed {
+                    brace_token: _,
+                    named,
+                }),
             semi_token: _,
         } = item_struct
         {
