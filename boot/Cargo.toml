@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 build = "../firmware/build.rs"
 
-[dependencies]
-arch = { path = "../arch" }
-firmware = { path = "../firmware" }
+[dependencies.arch]
+path = "../arch"
+[dependencies.firmware]
+path = "../firmware"
