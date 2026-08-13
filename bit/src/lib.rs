@@ -38,6 +38,7 @@ impl Element {
                             }
                         })
                         .collect();
+                    let bits: usize = bits as usize;
                     (quote! { [bool; #bits] }, quote! { [#(#bools),*] })
                 };
             quote! {
@@ -71,6 +72,7 @@ impl Element {
                             }
                         })
                         .collect();
+                    let bits: usize = bits as usize;
                     (quote! { [bool; #bits] }, quote! { #(#values)|* })
                 };
                 quote! {
