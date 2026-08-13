@@ -8,6 +8,5 @@ pub struct Enable {
     modem_status: bool,
     sleep_mode: bool,
     low_power_mode: bool,
-    reserved: bool,
-    reserved: bool,
+    reserved: [bool; 2],
 }
