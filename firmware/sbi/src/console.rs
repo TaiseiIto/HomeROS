@@ -1,4 +1,4 @@
-use crate::{Error, ecall};
+use crate::ecall;
 
 /// # References
 /// * [Console Putchar](https://docs.riscv.org/reference/sbi/v3.0/ext-legacy.html#5-1-2-extension-console-putchar-eid-0x01)
