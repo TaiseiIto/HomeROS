@@ -7,7 +7,7 @@ name = "arch"
 version = "0.1.0"
 
 [[package]]
-name = "bitfield"
+name = "bit"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
@@ -54,6 +54,9 @@ dependencies = [
 [[package]]
 name = "rs232c"
 version = "0.1.0"
+dependencies = [
+ "bit",
+]
 
 [[package]]
 name = "sbi"
