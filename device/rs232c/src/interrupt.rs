@@ -1,4 +1,4 @@
-/// References
+/// # References
 /// * [Interrupt Enable Register](https://www.lookrs232.com/rs232/ier.htm)
 #[bit::field]
 pub struct Enable {
@@ -9,4 +9,16 @@ pub struct Enable {
     sleep_mode: bool,
     low_power_mode: bool,
     reserved: [bool; 2],
+}
+
+/// # References
+/// * [Interrupt Identification Register](https://www.lookrs232.com/rs232/iir.htm)
+#[bit::field]
+pub struct Identification {
+    pending: bool,
+    status: [bool; 2],
+    timeout: bool,
+    reserved: bool,
+    fifo_64byte: bool,
+    fifo: [bool; 2],
 }
