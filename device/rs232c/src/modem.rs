@@ -9,3 +9,19 @@ struct Control {
     autoflow_control: bool,
     reserved: [bool; 2],
 }
+
+/// # References
+/// * [Modem Status Register](https://www2.denshi.numazu-ct.ac.jp/staff/FreeBSD/2.2.2R/handbook/handbook118.html)
+/// * [Modem Status Register](https://www.gowinsemi.com/upload/database_doc/2072/document/626a18f79b6dc.pdf)
+/// * [Modem Status Register](https://docs.amd.com/api/khub/documents/9fEQkSYc6HI76WBKkRyBLg/content)
+#[bit::field]
+struct Status {
+    delta_clear_to_send: bool,
+    delda_data_set_ready: bool,
+    trailing_edge_ring_indicator: bool,
+    delta_data_carrier_detect: bool,
+    clear_to_send: bool,
+    data_set_ready: bool,
+    ring_indicator: bool,
+    data_carrier_detect: bool,
+}
