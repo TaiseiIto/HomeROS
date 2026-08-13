@@ -41,7 +41,7 @@ impl Element {
         })
     }
 
-    fn mask(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn mask_const(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
         self.const_ident("MASK")
             .map(|ident| match structure.bits() {
                 8 => {
@@ -167,12 +167,12 @@ impl Structure {
             .iter()
             .filter_map(|element| element.length())
             .collect();
-        let masks: Vec<proc_macro2::TokenStream> = self.masks();
+        let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
                 #(#lengths)*
-                #(#masks)*
+                #(#mask_consts)*
                 #(#offsets)*
             }
         }
@@ -182,11 +182,11 @@ impl Structure {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
     }
 
-    fn masks(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_consts(&self) -> Vec<proc_macro2::TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.mask(self, offset))
+            .filter_map(|ElementOffset { element, offset }| element.mask_const(self, offset))
             .collect()
     }
 
