@@ -28,7 +28,7 @@ impl Element {
             let bits: u8 = self.bits;
             let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
                 if bits == 1 {
-                    (quote! { bool }, quote! {self.0 & (1 << #offset) != 0})
+                    (quote! { bool }, quote! { self.0 & (1 << #offset) != 0 })
                 } else {
                     let bools: Vec<proc_macro2::TokenStream> = (0..self.bits)
                         .map(|bit| {
@@ -38,7 +38,7 @@ impl Element {
                             }
                         })
                         .collect();
-                    (quote! { [bool; #bits] }, quote! {[#(#bools),*]})
+                    (quote! { [bool; #bits] }, quote! { [#(#bools),*] })
                 };
             quote! {
                 pub fn #bits_read(&self) -> #return_type {
@@ -117,6 +117,19 @@ impl Element {
                 quote! {
                     pub fn #mask_read(&self) -> #inner_type {
                         self.0 & Self::#mask_const
+                    }
+                }
+            })
+    }
+
+    fn mask_remake(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("mask_remake")
+            .zip(self.const_ident("MASK"))
+            .map(|(mask_remake, mask_const)| {
+                let inner_type: Ident = structure.inner_type();
+                quote! {
+                    pub fn #mask_remake(self, value: #inner_type) -> Self {
+                        Self((self.0 & !Self::#mask_const) | (value & Self::#mask_const))
                     }
                 }
             })
@@ -239,6 +252,7 @@ impl Structure {
         let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
         let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
         let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
+        let mask_remake: Vec<proc_macro2::TokenStream> = self.mask_remakes();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
@@ -246,6 +260,7 @@ impl Structure {
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#mask_reads)*
+                #(#mask_remake)*
                 #(#offsets)*
             }
         }
@@ -274,6 +289,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.mask_read(self))
+            .collect()
+    }
+
+    fn mask_remakes(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.mask_remake(self))
             .collect()
     }
 
