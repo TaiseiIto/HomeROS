@@ -120,7 +120,7 @@ impl Element {
                     lit: Lit::Int(lit_int),
                 }) = len
                 {
-                    lit_int.base10_parse::<u8>().unwrap()
+                    lit_int.base10_parse().unwrap()
                 } else {
                     panic!();
                 };
