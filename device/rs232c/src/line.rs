@@ -12,7 +12,7 @@ struct Control {
 
 impl Control {
     fn word_length(&self) -> u8 {
-        match self.word_length_bit_read() {
+        match self.word_length_bits_read() {
             [false, false] => 5,
             [true, false] => 6,
             [false, true] => 7,
@@ -32,7 +32,7 @@ impl From<&Control> for Option<Parity> {
     fn from(control: &Control) -> Self {
         control
             .parity_enable_bit_read()
-            .then(|| match control.parity_type_bit_read() {
+            .then(|| match control.parity_type_bits_read() {
                 [false, false] => Parity::Odd,
                 [true, false] => Parity::Even,
                 [false, true] => Parity::High,

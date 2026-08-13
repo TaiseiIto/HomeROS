@@ -13,7 +13,7 @@ struct Control {
 
 impl Control {
     fn interrupt_trigger_bytes(&self) -> u8 {
-        match self.interrupt_trigger_level_bit_read() {
+        match self.interrupt_trigger_level_bits_read() {
             [false, false] => 1,
             [true, false] => 4,
             [false, true] => 8,

@@ -24,10 +24,13 @@ struct Element {
 
 impl Element {
     fn bit_read(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("bit_read").map(|bit_read| {
-            let bits: u8 = self.bits;
-            let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
-                if bits == 1 {
+        let bits: u8 = self.bits;
+        self.function_ident(if bits == 1 { "bit_read" } else { "bits_read" })
+            .map(|bit_read| {
+                let (return_type, return_value): (
+                    proc_macro2::TokenStream,
+                    proc_macro2::TokenStream,
+                ) = if bits == 1 {
                     (quote! { bool }, quote! { self.0 & (1 << #offset) != 0 })
                 } else {
                     let bits_usize: usize = bits as usize;
@@ -41,47 +44,51 @@ impl Element {
                         .collect();
                     (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
                 };
-            quote! {
-                pub fn #bit_read(&self) -> #return_type {
-                    #return_value
-                }
-            }
-        })
-    }
-
-    fn bit_remake(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("bit_remake")
-            .zip(self.function_ident("mask_remake"))
-            .map(|(bit_remake, mask_remake)| {
-                let inner_type: Ident = structure.inner_type();
-                let bits: u8 = self.bits;
-                let (argument_type, argument_value): (
-                    proc_macro2::TokenStream,
-                    proc_macro2::TokenStream,
-                ) = if bits == 1 {
-                    (
-                        quote! { bool },
-                        quote! { if argument { 1 << #offset } else { 0 } },
-                    )
-                } else {
-                    let bits_usize: usize = bits as usize;
-                    let values: Vec<proc_macro2::TokenStream> = (0..bits)
-                        .map(|bit| {
-                            let shift: u8 = offset + bit;
-                            quote! {
-                                if argument[#bits_usize] { 1 << #shift } else { 0 }
-                            }
-                        })
-                        .collect();
-                    (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
-                };
                 quote! {
-                    pub fn #bit_remake(self, argument: #argument_type) -> Self {
-                        let value: #inner_type = #argument_value;
-                        self.#mask_remake(value)
+                    pub fn #bit_read(&self) -> #return_type {
+                        #return_value
                     }
                 }
             })
+    }
+
+    fn bit_remake(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+        let bits: u8 = self.bits;
+        self.function_ident(if bits == 1 {
+            "bit_remake"
+        } else {
+            "bits_remake"
+        })
+        .zip(self.function_ident("mask_remake"))
+        .map(|(bit_remake, mask_remake)| {
+            let inner_type: Ident = structure.inner_type();
+            let (argument_type, argument_value): (
+                proc_macro2::TokenStream,
+                proc_macro2::TokenStream,
+            ) = if bits == 1 {
+                (
+                    quote! { bool },
+                    quote! { if argument { 1 << #offset } else { 0 } },
+                )
+            } else {
+                let bits_usize: usize = bits as usize;
+                let values: Vec<proc_macro2::TokenStream> = (0..bits)
+                    .map(|bit| {
+                        let shift: u8 = offset + bit;
+                        quote! {
+                            if argument[#bits_usize] { 1 << #shift } else { 0 }
+                        }
+                    })
+                    .collect();
+                (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
+            };
+            quote! {
+                pub fn #bit_remake(self, argument: #argument_type) -> Self {
+                    let value: #inner_type = #argument_value;
+                    self.#mask_remake(value)
+                }
+            }
+        })
     }
 
     fn const_ident(&self, suffix: &str) -> Option<Ident> {
