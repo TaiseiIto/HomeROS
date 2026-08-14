@@ -23,30 +23,36 @@ struct Element {
 }
 
 impl Element {
-    fn bit_read(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn bit_read(&self) -> Option<proc_macro2::TokenStream> {
         let bits: u8 = self.bits;
-        self.bit_read_ident().map(|bit_read| {
-            let (return_type, return_value): (proc_macro2::TokenStream, proc_macro2::TokenStream) =
-                if bits == 1 {
-                    (quote! { bool }, quote! { self.0 & (1 << #offset) != 0 })
+        self.bit_read_ident()
+            .zip(self.offset_ident())
+            .map(|(bit_read, offset)| {
+                let (return_type, return_value): (
+                    proc_macro2::TokenStream,
+                    proc_macro2::TokenStream,
+                ) = if bits == 1 {
+                    (
+                        quote! { bool },
+                        quote! { self.0 & (1 << Self::#offset) != 0 },
+                    )
                 } else {
                     let bits_usize: usize = bits as usize;
                     let bools: Vec<proc_macro2::TokenStream> = (0..bits)
                         .map(|bit| {
-                            let shift: u8 = offset + bit;
                             quote! {
-                                self.0 & (1 << #shift) != 0
+                                self.0 & (1 << (#bit + Self::#offset)) != 0
                             }
                         })
                         .collect();
                     (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
                 };
-            quote! {
-                pub fn #bit_read(&self) -> #return_type {
-                    #return_value
+                quote! {
+                    pub fn #bit_read(&self) -> #return_type {
+                        #return_value
+                    }
                 }
-            }
-        })
+            })
     }
 
     fn bit_read_ident(&self) -> Option<Ident> {
@@ -332,10 +338,9 @@ impl Structure {
     }
 
     fn bit_reads(&self) -> Vec<proc_macro2::TokenStream> {
-        let element_offsets: Vec<ElementOffset> = self.into();
-        element_offsets
-            .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bit_read(offset))
+        self.elements
+            .iter()
+            .filter_map(|element| element.bit_read())
             .collect()
     }
 
