@@ -310,8 +310,15 @@ impl Element {
                     ident,
                     arguments: _,
                 } = segment;
-                assert!(ident == "bool");
-                1
+                match ident.to_string().as_str() {
+                    "bool" => 1,
+                    "u8" => 8,
+                    "u16" => 16,
+                    "u32" => 32,
+                    "u64" => 64,
+                    "u128" => 128,
+                    _ => panic!(),
+                }
             }
             _ => panic!(),
         }
