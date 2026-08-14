@@ -354,6 +354,38 @@ impl Element {
             .then(|| self.function_ident("uint_read"))
             .flatten()
     }
+
+    fn uint_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        let bits: u8 = self.bits;
+        self.uint_update_ident().zip(self.shift_update_ident()).map(
+            |(uint_update, shift_update)| {
+                let argument_type: Ident = Ident::new(
+                    match bits {
+                        8 => "u8",
+                        16 => "u16",
+                        32 => "u32",
+                        64 => "u64",
+                        128 => "u128",
+                        _ => panic!(),
+                    },
+                    uint_update.span(),
+                );
+                let inner_type: Ident = structure.inner_type();
+                quote! {
+                    pub fn #uint_update(self, argument: #argument_type) -> Self {
+                        self.#shift_update(argument as #inner_type)
+                    }
+                }
+            },
+        )
+    }
+
+    fn uint_update_ident(&self) -> Option<Ident> {
+        let bits: u8 = self.bits;
+        (bits.is_power_of_two() && (8..=128).contains(&bits))
+            .then(|| self.function_ident("uint_update"))
+            .flatten()
+    }
 }
 
 impl From<Field> for Element {
@@ -462,6 +494,7 @@ impl Structure {
         let shift_reads: Vec<proc_macro2::TokenStream> = self.shift_reads();
         let shift_updates: Vec<proc_macro2::TokenStream> = self.shift_updates();
         let uint_reads: Vec<proc_macro2::TokenStream> = self.uint_reads();
+        let uint_updates: Vec<proc_macro2::TokenStream> = self.uint_updates();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -474,6 +507,7 @@ impl Structure {
                 #(#shift_reads)*
                 #(#shift_updates)*
                 #(#uint_reads)*
+                #(#uint_updates)*
             }
         }
     }
@@ -537,6 +571,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.uint_read())
+            .collect()
+    }
+
+    fn uint_updates(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.uint_update(self))
             .collect()
     }
 
