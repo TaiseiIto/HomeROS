@@ -601,7 +601,7 @@ impl Structure {
 
     fn volatile_read(&self) -> proc_macro2::TokenStream {
         quote! {
-            pub fn volatile_read(&self) -> Self {
+            pub unsafe fn volatile_read(&self) -> Self {
                 unsafe {
                     core::ptr::read_volatile(self as *const Self)
                 }
