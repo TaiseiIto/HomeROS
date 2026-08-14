@@ -6,7 +6,7 @@ struct Control {
     clear_receive: bool,
     clear_transmit: bool,
     dma: bool,
-    reserved: bool,
+    __: bool,
     enable_64byte: bool,
     interrupt_trigger_level: [bool; 2],
 }

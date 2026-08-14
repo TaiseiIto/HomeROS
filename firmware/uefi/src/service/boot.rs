@@ -32,7 +32,7 @@ pub struct Table {
     reinstall_protocol: protocol::Reinstall,
     uninstall_protocol: protocol::Uninstall,
     handle_protocol: protocol::Handle,
-    reserved: *const Void,
+    __: *const Void,
     register_protocol_notify: protocol::RegisterNotify,
     locate_handle: protocol::LocateHandle,
     locate_device_path: protocol::LocateDevicePath,

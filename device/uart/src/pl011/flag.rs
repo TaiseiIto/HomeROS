@@ -11,5 +11,5 @@ pub struct Register {
     receive_fifo_full: bool,
     transmit_fifo_empty: bool,
     ring_indicator: bool,
-    reserved: [bool; 23],
+    __: [bool; 23],
 }

@@ -8,7 +8,7 @@ struct Enable {
     modem_status: bool,
     sleep_mode: bool,
     low_power_mode: bool,
-    reserved: [bool; 2],
+    __: [bool; 2],
 }
 
 /// # References
@@ -18,7 +18,7 @@ struct Identification {
     pending: bool,
     status: [bool; 2],
     timeout: bool,
-    reserved: bool,
+    __: bool,
     fifo_64byte: bool,
     fifo_usable: bool,
     fifo_enabled: bool,

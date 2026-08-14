@@ -6,5 +6,5 @@ pub struct Register {
     parity_error: bool,
     break_error: bool,
     overrun_error: bool,
-    reserved: [bool; 28],
+    __: [bool; 28],
 }

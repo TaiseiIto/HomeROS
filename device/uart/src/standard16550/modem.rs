@@ -7,7 +7,7 @@ struct Control {
     aux_output: [bool; 2],
     loopback_mode: bool,
     autoflow_control: bool,
-    reserved: [bool; 2],
+    __: [bool; 2],
 }
 
 /// # References

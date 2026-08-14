@@ -400,7 +400,7 @@ impl From<Field> for Element {
             default: _,
         } = field
         {
-            let ident: Option<Ident> = (ident != "reserved").then_some(ident);
+            let ident: Option<Ident> = (ident != "__").then_some(ident);
             let bits: u8 = Self::type2bits(ty);
             Self { ident, bits }
         } else {
