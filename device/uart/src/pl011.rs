@@ -1,6 +1,7 @@
 mod baud_rate;
 mod control;
 mod data;
+mod dma_control;
 mod flag;
 mod interrupt;
 mod irda_low_power_counter;
@@ -27,4 +28,6 @@ pub struct Registers {
     raw_interrupt_status: interrupt::Register,
     masked_interrupt_status: interrupt::Register,
     interupt_clear: interrupt::Register,
+    dma_control: dma_control::Register,
+    reserved2: [u8; 0xf94],
 }
