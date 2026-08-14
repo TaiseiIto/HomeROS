@@ -48,7 +48,7 @@ impl Element {
                     (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
                 };
                 quote! {
-                    pub fn #bit_read(&self) -> #return_type {
+                    pub fn #bit_read(self) -> #return_type {
                         #return_value
                     }
                 }
@@ -185,7 +185,7 @@ impl Element {
             .map(|(mask_read, mask_const)| {
                 let inner_type: Ident = structure.inner_type();
                 quote! {
-                    pub fn #mask_read(&self) -> #inner_type {
+                    pub fn #mask_read(self) -> #inner_type {
                         self.0 & Self::#mask_const
                     }
                 }
@@ -238,7 +238,7 @@ impl Element {
         .map(|(shift_read, mask_read, offset)| {
             let inner_type: Ident = structure.inner_type();
             quote! {
-                pub fn #shift_read(&self) -> #inner_type {
+                pub fn #shift_read(self) -> #inner_type {
                     self.#mask_read() >> Self::#offset
                 }
             }
