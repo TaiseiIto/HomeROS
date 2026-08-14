@@ -382,6 +382,20 @@ impl Structure {
             .collect()
     }
 
+    fn debug(&self) -> proc_macro2::TokenStream {
+        let ident: &Ident = &self.ident;
+        let ident_string: String = ident.to_string();
+        quote! {
+            impl core::fmt::Debug for #ident {
+                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    formatter
+                        .debug_struct(#ident_string)
+                        .finish()
+                }
+            }
+        }
+    }
+
     fn implement(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
         let bit_reads: Vec<proc_macro2::TokenStream> = self.bit_reads();
@@ -506,9 +520,11 @@ impl From<Structure> for proc_macro2::TokenStream {
     fn from(structure: Structure) -> Self {
         let true_type: proc_macro2::TokenStream = structure.true_type();
         let implement: proc_macro2::TokenStream = structure.implement();
+        let debug: proc_macro2::TokenStream = structure.debug();
         quote! {
             #true_type
             #implement
+            #debug
         }
     }
 }
