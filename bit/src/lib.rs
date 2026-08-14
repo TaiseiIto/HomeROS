@@ -63,37 +63,43 @@ impl Element {
         })
     }
 
-    fn bit_update(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
-        let bits: u8 = self.bits;
-        self.bit_update_ident()
-            .zip(self.mask_update_ident())
-            .map(|(bit_update, mask_update)| {
-                let (argument_type, argument_value): (
-                    proc_macro2::TokenStream,
-                    proc_macro2::TokenStream,
-                ) = if bits == 1 {
-                    (
-                        quote! { bool },
-                        quote! { if argument { 1 << #offset } else { 0 } },
-                    )
-                } else {
-                    let bits_usize: usize = bits as usize;
-                    let values: Vec<proc_macro2::TokenStream> = (0..bits)
-                        .map(|bit| {
-                            let shift: u8 = offset + bit;
-                            quote! {
-                                if argument[#bits_usize] { 1 << #shift } else { 0 }
-                            }
-                        })
-                        .collect();
-                    (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
-                };
-                quote! {
-                    pub fn #bit_update(self, argument: #argument_type) -> Self {
-                        self.#mask_update(#argument_value)
-                    }
+    fn bit_update(&self) -> Option<proc_macro2::TokenStream> {
+        if let (Some(bit_update), Some(mask_update), Some(offset)) = (
+            self.bit_update_ident(),
+            self.mask_update_ident(),
+            self.offset_ident(),
+        ) {
+            Some((bit_update, mask_update, offset))
+        } else {
+            None
+        }
+        .map(|(bit_update, mask_update, offset)| {
+            let bits: u8 = self.bits;
+            let (argument_type, argument_value): (
+                proc_macro2::TokenStream,
+                proc_macro2::TokenStream,
+            ) = if bits == 1 {
+                (
+                    quote! { bool },
+                    quote! { if argument { 1 << Self::#offset } else { 0 } },
+                )
+            } else {
+                let bits_usize: usize = bits as usize;
+                let values: Vec<proc_macro2::TokenStream> = (0..bits)
+                    .map(|bit| {
+                        quote! {
+                            if argument[#bits_usize] { 1 << (#bit + Self::#offset) } else { 0 }
+                        }
+                    })
+                    .collect();
+                (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
+            };
+            quote! {
+                pub fn #bit_update(self, argument: #argument_type) -> Self {
+                    self.#mask_update(#argument_value)
                 }
-            })
+            }
+        })
     }
 
     fn bit_update_ident(&self) -> Option<Ident> {
@@ -345,10 +351,9 @@ impl Structure {
     }
 
     fn bit_updates(&self) -> Vec<proc_macro2::TokenStream> {
-        let element_offsets: Vec<ElementOffset> = self.into();
-        element_offsets
-            .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bit_update(self, offset))
+        self.elements
+            .iter()
+            .filter_map(|element| element.bit_update())
             .collect()
     }
 
