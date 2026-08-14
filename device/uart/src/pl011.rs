@@ -1,5 +1,6 @@
 mod data;
 mod flag;
+mod irda_low_power_counter;
 mod receive_status;
 
 /// # References
@@ -9,6 +10,8 @@ mod receive_status;
 pub struct Registers {
     data: data::Register,
     receive_status: receive_status::Register,
-    __: [u32; 3],
+    reserved0: [u32; 4],
     flag: flag::Register,
+    reserved1: u32,
+    irda_low_power_counter: irda_low_power_counter::Register,
 }
