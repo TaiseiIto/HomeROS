@@ -15,9 +15,9 @@ mod receive_status;
 pub struct Registers {
     data: data::Register,
     receive_status: receive_status::Register,
-    reserved0: [u32; 4],
+    reserved0: [u8; 0x18 - 0x08],
     flag: flag::Register,
-    reserved1: u32,
+    reserved1: [u8; 0x20 - 0x1c],
     irda_low_power_counter: irda_low_power_counter::Register,
     integer_baud_rate: baud_rate::integer::Register,
     fractional_baud_rate: baud_rate::fractional::Register,
@@ -29,5 +29,5 @@ pub struct Registers {
     masked_interrupt_status: interrupt::Register,
     interupt_clear: interrupt::Register,
     dma_control: dma_control::Register,
-    reserved2: [u8; 0xf94],
+    reserved2: [u8; 0xfe0 - 0x4c],
 }
