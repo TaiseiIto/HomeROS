@@ -27,9 +27,9 @@ dependencies = [
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "uart",
  "sbi",
  "tfa",
+ "uart",
  "uefi",
 ]
 
@@ -52,13 +52,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "uart"
-version = "0.1.0"
-dependencies = [
- "bit",
-]
-
-[[package]]
 name = "sbi"
 version = "0.1.0"
 
@@ -76,6 +69,13 @@ dependencies = [
 [[package]]
 name = "tfa"
 version = "0.1.0"
+
+[[package]]
+name = "uart"
+version = "0.1.0"
+dependencies = [
+ "bit",
+]
 
 [[package]]
 name = "uefi"
