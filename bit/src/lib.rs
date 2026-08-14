@@ -202,8 +202,8 @@ impl Element {
             .map(|(mask_update, mask_const)| {
                 let inner_type: Ident = structure.inner_type();
                 quote! {
-                    pub fn #mask_update(self, value: #inner_type) -> Self {
-                        Self((self.0 & !Self::#mask_const) | (value & Self::#mask_const))
+                    pub fn #mask_update(self, argument: #inner_type) -> Self {
+                        Self((self.0 & !Self::#mask_const) | (argument & Self::#mask_const))
                     }
                 }
             })
@@ -262,8 +262,8 @@ impl Element {
         .map(|(shift_update, mask_update, offset)| {
             let inner_type: Ident = structure.inner_type();
             quote! {
-                pub fn #shift_update(self, value: #inner_type) -> Self {
-                    self.#mask_update(value << Self::#offset)
+                pub fn #shift_update(self, argument: #inner_type) -> Self {
+                    self.#mask_update(argument << Self::#offset)
                 }
             }
         })
