@@ -1,4 +1,5 @@
 mod data;
+mod flag;
 mod receive_status;
 
 /// # References
@@ -8,4 +9,6 @@ mod receive_status;
 pub struct Registers {
     data: data::Register,
     receive_status: receive_status::Register,
+    reserved: [u32; 3],
+    flag: flag::Register,
 }
