@@ -9,6 +9,6 @@ mod receive_status;
 pub struct Registers {
     data: data::Register,
     receive_status: receive_status::Register,
-    reserved: [u32; 3],
+    __: [u32; 3],
     flag: flag::Register,
 }
