@@ -184,6 +184,26 @@ impl Element {
         })
     }
 
+    fn shift_read(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        if let (Some(shift_read), Some(mask_read), Some(offset)) = (
+            self.function_ident("shift_read"),
+            self.function_ident("mask_read"),
+            self.const_ident("OFFSET"),
+        ) {
+            Some((shift_read, mask_read, offset))
+        } else {
+            None
+        }
+        .map(|(shift_read, mask_read, offset)| {
+            let inner_type: Ident = structure.inner_type();
+            quote! {
+                pub fn #shift_read(&self) -> #inner_type {
+                    self.#mask_read() >> Self::#offset
+                }
+            }
+        })
+    }
+
     fn type2bits(ty: Type) -> u8 {
         match ty {
             Type::Array(TypeArray {
@@ -304,6 +324,7 @@ impl Structure {
         let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
         let mask_update: Vec<proc_macro2::TokenStream> = self.mask_updates();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
+        let shift_reads: Vec<proc_macro2::TokenStream> = self.shift_reads();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -313,6 +334,7 @@ impl Structure {
                 #(#mask_reads)*
                 #(#mask_update)*
                 #(#offsets)*
+                #(#shift_reads)*
             }
         }
     }
@@ -355,6 +377,13 @@ impl Structure {
         element_offsets
             .into_iter()
             .filter_map(|ElementOffset { element, offset }| element.offset(offset))
+            .collect()
+    }
+
+    fn shift_reads(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.shift_read(self))
             .collect()
     }
 
