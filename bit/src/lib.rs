@@ -52,15 +52,15 @@ impl Element {
             })
     }
 
-    fn bit_remake(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn bit_update(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
         let bits: u8 = self.bits;
         self.function_ident(if bits == 1 {
-            "bit_remake"
+            "bit_update"
         } else {
-            "bits_remake"
+            "bits_update"
         })
-        .zip(self.function_ident("mask_remake"))
-        .map(|(bit_remake, mask_remake)| {
+        .zip(self.function_ident("mask_update"))
+        .map(|(bit_update, mask_update)| {
             let (argument_type, argument_value): (
                 proc_macro2::TokenStream,
                 proc_macro2::TokenStream,
@@ -82,8 +82,8 @@ impl Element {
                 (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
             };
             quote! {
-                pub fn #bit_remake(self, argument: #argument_type) -> Self {
-                    self.#mask_remake(#argument_value)
+                pub fn #bit_update(self, argument: #argument_type) -> Self {
+                    self.#mask_update(#argument_value)
                 }
             }
         })
@@ -163,13 +163,13 @@ impl Element {
             })
     }
 
-    fn mask_remake(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
-        self.function_ident("mask_remake")
+    fn mask_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        self.function_ident("mask_update")
             .zip(self.const_ident("MASK"))
-            .map(|(mask_remake, mask_const)| {
+            .map(|(mask_update, mask_const)| {
                 let inner_type: Ident = structure.inner_type();
                 quote! {
-                    pub fn #mask_remake(self, value: #inner_type) -> Self {
+                    pub fn #mask_update(self, value: #inner_type) -> Self {
                         Self((self.0 & !Self::#mask_const) | (value & Self::#mask_const))
                     }
                 }
@@ -287,31 +287,31 @@ impl Structure {
             .collect()
     }
 
-    fn bit_remakes(&self) -> Vec<proc_macro2::TokenStream> {
+    fn bit_updates(&self) -> Vec<proc_macro2::TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .filter_map(|ElementOffset { element, offset }| element.bit_remake(self, offset))
+            .filter_map(|ElementOffset { element, offset }| element.bit_update(self, offset))
             .collect()
     }
 
     fn implement(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
         let bit_reads: Vec<proc_macro2::TokenStream> = self.bit_reads();
-        let bit_remakes: Vec<proc_macro2::TokenStream> = self.bit_remakes();
+        let bit_updates: Vec<proc_macro2::TokenStream> = self.bit_updates();
         let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
         let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
         let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
-        let mask_remake: Vec<proc_macro2::TokenStream> = self.mask_remakes();
+        let mask_update: Vec<proc_macro2::TokenStream> = self.mask_updates();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         quote! {
             impl #ident {
                 #(#bit_reads)*
-                #(#bit_remakes)*
+                #(#bit_updates)*
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#mask_reads)*
-                #(#mask_remake)*
+                #(#mask_update)*
                 #(#offsets)*
             }
         }
@@ -343,10 +343,10 @@ impl Structure {
             .collect()
     }
 
-    fn mask_remakes(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_updates(&self) -> Vec<proc_macro2::TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.mask_remake(self))
+            .filter_map(|element| element.mask_update(self))
             .collect()
     }
 
