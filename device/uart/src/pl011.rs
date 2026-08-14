@@ -1,6 +1,11 @@
+mod control;
 mod data;
 mod flag;
+mod fractional_baud_rate;
+mod integer_baud_rate;
+mod interrupt_fifo_level;
 mod irda_low_power_counter;
+mod line_control;
 mod receive_status;
 
 /// # References
@@ -14,4 +19,9 @@ pub struct Registers {
     flag: flag::Register,
     reserved1: u32,
     irda_low_power_counter: irda_low_power_counter::Register,
+    integer_baud_rate: integer_baud_rate::Register,
+    fractional_baud_rate: fractional_baud_rate::Register,
+    line_control: line_control::Register,
+    control: control::Register,
+    interrupt_fifo_level: interrupt_fifo_level::Register,
 }
