@@ -503,7 +503,7 @@ impl Structure {
         } = self;
         quote! {
             #(#attrs)*
-            #[repr(packed)]
+            #[repr(transparent)]
             #vis struct #ident(#inner_type);
         }
     }

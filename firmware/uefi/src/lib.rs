@@ -20,7 +20,7 @@ pub struct Guid {
 /// * [EFI_STATUS](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)
 #[derive(Debug, Eq, PartialEq)]
 #[must_use]
-#[repr(C)]
+#[repr(transparent)]
 pub struct Status(usize);
 
 impl Status {
