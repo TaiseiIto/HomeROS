@@ -1,9 +1,9 @@
 #![no_std]
 
-mod fifo;
-mod interrupt;
-mod line;
-mod modem;
+#[cfg(uart = "pl011")]
+mod pl011;
+#[cfg(uart = "16550")]
+mod standard16550;
 
 use core::arch::asm;
 
