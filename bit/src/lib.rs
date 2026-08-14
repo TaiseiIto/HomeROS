@@ -323,6 +323,37 @@ impl Element {
             _ => panic!(),
         }
     }
+
+    fn uint_read(&self) -> Option<proc_macro2::TokenStream> {
+        let bits: u8 = self.bits;
+        self.uint_read_ident()
+            .zip(self.shift_read_ident())
+            .map(|(uint_read, shift_read)| {
+                let return_type: Ident = Ident::new(
+                    match bits {
+                        8 => "u8",
+                        16 => "u16",
+                        32 => "u32",
+                        64 => "u64",
+                        128 => "u128",
+                        _ => panic!(),
+                    },
+                    uint_read.span(),
+                );
+                quote! {
+                    pub fn #uint_read(self) -> #return_type {
+                        self.#shift_read() as #return_type
+                    }
+                }
+            })
+    }
+
+    fn uint_read_ident(&self) -> Option<Ident> {
+        let bits: u8 = self.bits;
+        (bits.is_power_of_two() && (8..=128).contains(&bits))
+            .then(|| self.function_ident("uint_read"))
+            .flatten()
+    }
 }
 
 impl From<Field> for Element {
@@ -430,6 +461,7 @@ impl Structure {
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         let shift_reads: Vec<proc_macro2::TokenStream> = self.shift_reads();
         let shift_updates: Vec<proc_macro2::TokenStream> = self.shift_updates();
+        let uint_reads: Vec<proc_macro2::TokenStream> = self.uint_reads();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -441,6 +473,7 @@ impl Structure {
                 #(#offsets)*
                 #(#shift_reads)*
                 #(#shift_updates)*
+                #(#uint_reads)*
             }
         }
     }
@@ -497,6 +530,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.shift_update(self))
+            .collect()
+    }
+
+    fn uint_reads(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.uint_read())
             .collect()
     }
 
