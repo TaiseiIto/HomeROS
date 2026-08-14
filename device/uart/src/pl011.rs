@@ -6,6 +6,7 @@ mod flag;
 mod interrupt;
 mod irda_low_power_counter;
 mod line_control;
+mod peripheral;
 mod receive_status;
 
 /// # References
@@ -30,4 +31,8 @@ pub struct Registers {
     interupt_clear: interrupt::Register,
     dma_control: dma_control::Register,
     reserved2: [u8; 0xfe0 - 0x4c],
+    peripheral_id0: peripheral::Id0,
+    peripheral_id1: peripheral::Id1,
+    peripheral_id2: peripheral::Id2,
+    peripheral_id3: peripheral::Id3,
 }
