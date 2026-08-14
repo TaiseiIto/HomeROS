@@ -1,8 +1,8 @@
 use {
     quote::quote,
     syn::{
-        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path, PathSegment, Type,
-        TypeArray, TypePath, Visibility, parse_macro_input,
+        Attribute, Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path,
+        PathSegment, Type, TypeArray, TypePath, Visibility, parse_macro_input,
     },
 };
 
@@ -358,6 +358,7 @@ impl<'a> From<&'a Structure> for Vec<ElementOffset<'a>> {
 }
 
 struct Structure {
+    attrs: Vec<Attribute>,
     vis: Visibility,
     ident: Ident,
     elements: Vec<Element>,
@@ -495,18 +496,23 @@ impl Structure {
     fn true_type(&self) -> proc_macro2::TokenStream {
         let inner_type: Ident = self.inner_type();
         let Self {
+            attrs,
             vis,
             ident,
             elements: _,
         } = self;
-        quote! {#vis struct #ident(#inner_type);}
+        quote! {
+            #(#attrs)*
+            #[repr(packed)]
+            #vis struct #ident(#inner_type);
+        }
     }
 }
 
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
-            attrs: _,
+            attrs,
             vis,
             struct_token: _,
             ident,
@@ -521,6 +527,7 @@ impl From<ItemStruct> for Structure {
         {
             let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
             Self {
+                attrs,
                 vis,
                 ident,
                 elements,
