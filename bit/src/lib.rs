@@ -127,9 +127,9 @@ impl Element {
 
     fn length(&self) -> Option<proc_macro2::TokenStream> {
         let bits: u8 = self.bits;
-        self.length_ident().map(|ident| {
+        self.length_ident().map(|length| {
             quote! {
-                const #ident: u8 = #bits;
+                const #length: u8 = #bits;
             }
         })
     }
@@ -139,39 +139,40 @@ impl Element {
     }
 
     fn mask_const(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.mask_const_ident().map(|ident| match structure.bits() {
-            8 => {
-                let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
-                quote! {
-                    const #ident: u8 = #mask;
+        self.mask_const_ident()
+            .map(|mask_const| match structure.bits() {
+                8 => {
+                    let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #mask_const: u8 = #mask;
+                    }
                 }
-            }
-            16 => {
-                let mask: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
-                quote! {
-                    const #ident: u16 = #mask;
+                16 => {
+                    let mask: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #mask_const: u16 = #mask;
+                    }
                 }
-            }
-            32 => {
-                let mask: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
-                quote! {
-                    const #ident: u32 = #mask;
+                32 => {
+                    let mask: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #mask_const: u32 = #mask;
+                    }
                 }
-            }
-            64 => {
-                let mask: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
-                quote! {
-                    const #ident: u64 = #mask;
+                64 => {
+                    let mask: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #mask_const: u64 = #mask;
+                    }
                 }
-            }
-            128 => {
-                let mask: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
-                quote! {
-                    const #ident: u128 = #mask;
+                128 => {
+                    let mask: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                    quote! {
+                        const #mask_const: u128 = #mask;
+                    }
                 }
-            }
-            _ => panic!(),
-        })
+                _ => panic!(),
+            })
     }
 
     fn mask_const_ident(&self) -> Option<Ident> {
@@ -213,9 +214,9 @@ impl Element {
     }
 
     fn offset(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
-        self.offset_ident().map(|ident| {
+        self.offset_ident().map(|offset_const| {
             quote! {
-                const #ident: u8 = #offset;
+                const #offset_const: u8 = #offset;
             }
         })
     }
@@ -246,6 +247,30 @@ impl Element {
 
     fn shift_read_ident(&self) -> Option<Ident> {
         self.function_ident("shift_read")
+    }
+
+    fn shift_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+        if let (Some(shift_update), Some(mask_update), Some(offset)) = (
+            self.shift_update_ident(),
+            self.mask_update_ident(),
+            self.offset_ident(),
+        ) {
+            Some((shift_update, mask_update, offset))
+        } else {
+            None
+        }
+        .map(|(shift_update, mask_update, offset)| {
+            let inner_type: Ident = structure.inner_type();
+            quote! {
+                pub fn #shift_update(self, value: #inner_type) -> Self {
+                    self.#mask_update(value << Self::#offset)
+                }
+            }
+        })
+    }
+
+    fn shift_update_ident(&self) -> Option<Ident> {
+        self.function_ident("shift_update")
     }
 
     fn type2bits(ty: Type) -> u8 {
@@ -367,6 +392,7 @@ impl Structure {
         let mask_update: Vec<proc_macro2::TokenStream> = self.mask_updates();
         let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
         let shift_reads: Vec<proc_macro2::TokenStream> = self.shift_reads();
+        let shift_updates: Vec<proc_macro2::TokenStream> = self.shift_updates();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -377,6 +403,7 @@ impl Structure {
                 #(#mask_update)*
                 #(#offsets)*
                 #(#shift_reads)*
+                #(#shift_updates)*
             }
         }
     }
@@ -426,6 +453,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.shift_read(self))
+            .collect()
+    }
+
+    fn shift_updates(&self) -> Vec<proc_macro2::TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.shift_update(self))
             .collect()
     }
 
