@@ -23,4 +23,5 @@ pub struct Registers {
     line_control: line_control::Register,
     control: control::Register,
     interrupt_fifo_level: interrupt::fifo_level::Register,
+    interrupt_mask: interrupt::mask::Register,
 }
