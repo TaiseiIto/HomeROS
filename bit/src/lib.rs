@@ -495,7 +495,8 @@ impl Structure {
         let shift_updates: Vec<proc_macro2::TokenStream> = self.shift_updates();
         let uint_reads: Vec<proc_macro2::TokenStream> = self.uint_reads();
         let uint_updates: Vec<proc_macro2::TokenStream> = self.uint_updates();
-        let volatile_read: proc_macro2::TokenStream = self.volatile_read();
+        let read_volatile: proc_macro2::TokenStream = self.read_volatile();
+        let write_volatile: proc_macro2::TokenStream = self.write_volatile();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -509,7 +510,8 @@ impl Structure {
                 #(#shift_updates)*
                 #(#uint_reads)*
                 #(#uint_updates)*
-                #volatile_read
+                #read_volatile
+                #write_volatile
             }
         }
     }
@@ -599,11 +601,21 @@ impl Structure {
         }
     }
 
-    fn volatile_read(&self) -> proc_macro2::TokenStream {
+    fn read_volatile(&self) -> proc_macro2::TokenStream {
         quote! {
-            pub unsafe fn volatile_read(&self) -> Self {
+            pub unsafe fn read_volatile(&self) -> Self {
                 unsafe {
                     core::ptr::read_volatile(self as *const Self)
+                }
+            }
+        }
+    }
+
+    fn write_volatile(&self) -> proc_macro2::TokenStream {
+        quote! {
+            pub unsafe fn write_volatile(&mut self, argument: Self) {
+                unsafe {
+                    core::ptr::write_volatile(self as *mut Self, argument);
                 }
             }
         }
