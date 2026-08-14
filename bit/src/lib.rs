@@ -503,6 +503,7 @@ impl Structure {
         } = self;
         quote! {
             #(#attrs)*
+            #[derive(Clone, Copy, Eq, PartialEq)]
             #[repr(transparent)]
             #vis struct #ident(#inner_type);
         }
