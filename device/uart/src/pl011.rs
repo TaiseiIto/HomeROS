@@ -7,6 +7,7 @@ mod interrupt;
 mod irda_low_power_counter;
 mod line_control;
 mod peripheral;
+mod prime_cell;
 mod receive_status;
 
 /// # References
@@ -35,4 +36,8 @@ pub struct Registers {
     peripheral_id1: peripheral::Id1,
     peripheral_id2: peripheral::Id2,
     peripheral_id3: peripheral::Id3,
+    prime_cell_id0: prime_cell::Id0,
+    prime_cell_id1: prime_cell::Id1,
+    prime_cell_id2: prime_cell::Id2,
+    prime_cell_id3: prime_cell::Id3,
 }
