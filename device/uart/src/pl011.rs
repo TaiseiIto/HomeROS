@@ -2,7 +2,7 @@ mod baud_rate;
 mod control;
 mod data;
 mod flag;
-mod interrupt_fifo_level;
+mod interrupt;
 mod irda_low_power_counter;
 mod line_control;
 mod receive_status;
@@ -22,5 +22,5 @@ pub struct Registers {
     fractional_baud_rate: baud_rate::fractional::Register,
     line_control: line_control::Register,
     control: control::Register,
-    interrupt_fifo_level: interrupt_fifo_level::Register,
+    interrupt_fifo_level: interrupt::fifo_level::Register,
 }
