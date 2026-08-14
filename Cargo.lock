@@ -27,7 +27,7 @@ dependencies = [
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "rs232c",
+ "uart",
  "sbi",
  "tfa",
  "uefi",
@@ -52,7 +52,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rs232c"
+name = "uart"
 version = "0.1.0"
 dependencies = [
  "bit",

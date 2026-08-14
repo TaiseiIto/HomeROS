@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 build = "build.rs"
 
-[dependencies.rs232c]
-path = "../device/rs232c"
+[dependencies.uart]
+path = "../device/uart"
 
 [target.'cfg(target_arch = "aarch64")'.dependencies.tfa]
 path = "tfa"

@@ -3,7 +3,7 @@ members = [
 	"arch",
 	"bit",
 	"boot",
-	"device/rs232c",
+	"device/uart",
 	"firmware",
 	"firmware/sbi",
 	"firmware/tfa",

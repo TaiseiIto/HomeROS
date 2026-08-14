@@ -74,7 +74,7 @@ impl Global {
         #[cfg(firmware = "sbi")]
         sbi::console::putchar(byte);
         #[cfg(firmware = "tfa")]
-        rs232c::write_byte(byte);
+        uart::write_byte(byte);
     }
 
     fn write_string(&self, string: &str) {
