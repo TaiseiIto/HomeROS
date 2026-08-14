@@ -385,11 +385,26 @@ impl Structure {
     fn debug(&self) -> proc_macro2::TokenStream {
         let ident: &Ident = &self.ident;
         let ident_string: String = ident.to_string();
+        let fields: Vec<proc_macro2::TokenStream> =
+            self.elements
+                .iter()
+                .filter_map(|element| {
+                    element.ident.clone().zip(element.shift_read_ident()).map(
+                        |(ident, shift_read)| {
+                            let ident_string: String = ident.to_string();
+                            quote! {
+                                field(#ident_string, &self.#shift_read())
+                            }
+                        },
+                    )
+                })
+                .collect();
         quote! {
             impl core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
+                        .#(#fields).*
                         .finish()
                 }
             }
