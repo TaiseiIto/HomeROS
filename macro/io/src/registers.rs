@@ -18,11 +18,29 @@ impl Structure {
             elements,
         } = self;
         let sizes: Vec<TokenStream> = self.sizes();
+        let offsets: Vec<TokenStream> = self.offsets();
         quote! {
             impl #ident {
                 #(#sizes)*
+                #(#offsets)*
             }
         }
+    }
+
+    fn offsets(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .zip(
+                self.elements
+                    .iter()
+                    .rev()
+                    .skip(1)
+                    .map(Some)
+                    .chain(core::iter::once(None))
+                    .rev(),
+            )
+            .map(|(element, previous_element)| element.offset(previous_element))
+            .collect()
     }
 
     fn sizes(&self) -> Vec<TokenStream> {
@@ -147,6 +165,28 @@ impl Element {
         } else {
             panic!();
         }
+    }
+
+    fn offset(&self, previous: Option<&Self>) -> TokenStream {
+        let offset: Ident = self.offset_ident();
+        let value: TokenStream = if let Some(previous) = previous {
+            let previous_offset: Ident = previous.offset_ident();
+            let previous_size: Ident = previous.size_ident();
+            quote! {
+                Self::#previous_offset + Self::#previous_size
+            }
+        } else {
+            quote! {
+                0
+            }
+        };
+        quote! {
+            const #offset: usize = #value;
+        }
+    }
+
+    fn offset_ident(&self) -> Ident {
+        self.const_ident("OFFSET")
     }
 
     fn size(&self) -> TokenStream {
