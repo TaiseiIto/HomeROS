@@ -10,6 +10,36 @@ pub struct Structure {
     elements: Vec<Element>,
 }
 
+impl Structure {
+    fn true_type(&self) -> TokenStream {
+        let Self {
+            vis,
+            ident,
+            elements,
+        } = self;
+        let elements: Vec<TokenStream> = elements
+            .iter()
+            .enumerate()
+            .map(|(index, element)| {
+                let ident: Ident = element
+                    .ident
+                    .clone()
+                    .unwrap_or(Ident::new(&format!("reserved{}", index), ident.span()));
+                let ty: &Type = &element.ty;
+                quote! {
+                    #ident: #ty
+                }
+            })
+            .collect();
+        quote! {
+            #[repr(packed)]
+            #vis struct #ident {
+                #(#elements),*
+            }
+        }
+    }
+}
+
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
@@ -40,7 +70,10 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
-        quote! {}
+        let true_type: TokenStream = structure.true_type();
+        quote! {
+            #true_type
+        }
     }
 }
 
