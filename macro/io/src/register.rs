@@ -106,13 +106,22 @@ impl Structure {
             .collect()
     }
 
+    fn pretty_bit_updates(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_bit_update(self))
+            .collect()
+    }
+
     fn pretty_implement(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
+        let pretty_bit_updates: Vec<TokenStream> = self.pretty_bit_updates();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
                 #(#pretty_bit_reads)*
+                #(#pretty_bit_updates)*
                 #unprettify
             }
         }
@@ -429,6 +438,44 @@ impl Element {
         (!self.reserved).then_some(self.function_ident("bit_read"))
     }
 
+    fn pretty_bit_update(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_bit_update_ident().map(|pretty_bit_update| {
+            let bits: usize = self.bits as usize;
+            let unpack: Vec<TokenStream> = structure
+                .elements
+                .iter()
+                .map(|element| {
+                    let ident: &Ident = &element.ident;
+                    if *ident == self.ident {
+                        quote! {
+                            #ident: _
+                        }
+                    } else {
+                        quote! {
+                            #ident
+                        }
+                    }
+                })
+                .collect();
+            let pack: Vec<Ident> = structure
+                .elements
+                .iter()
+                .map(|element| element.ident.clone())
+                .collect();
+            let ident: &Ident = &self.ident;
+            quote! {
+                pub fn #pretty_bit_update(self, #ident: [bool; #bits]) -> Self {
+                    let Self {#(#unpack),*} = self;
+                    Self {#(#pack),*}
+                }
+            }
+        })
+    }
+
+    fn pretty_bit_update_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("bit_update"))
+    }
+
     fn type2bits(ty: Type) -> u8 {
         match ty {
             Type::Array(TypeArray {
@@ -483,7 +530,7 @@ impl Element {
     fn unprettify(&self) -> Option<TokenStream> {
         let bit_update: Ident = self.bit_update_ident();
         let Self {
-            bits,
+            bits: _,
             ident,
             reserved,
         } = self;
