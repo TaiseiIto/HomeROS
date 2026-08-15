@@ -7,15 +7,6 @@ name = "arch"
 version = "0.1.0"
 
 [[package]]
-name = "bit"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "boot"
 version = "0.1.0"
 dependencies = [
@@ -31,6 +22,15 @@ dependencies = [
  "tfa",
  "uart",
  "uefi",
+]
+
+[[package]]
+name = "io"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -74,7 +74,7 @@ version = "0.1.0"
 name = "uart"
 version = "0.1.0"
 dependencies = [
- "bit",
+ "io",
 ]
 
 [[package]]

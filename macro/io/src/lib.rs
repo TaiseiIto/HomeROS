@@ -7,7 +7,7 @@ use {
 };
 
 #[proc_macro_attribute]
-pub fn field(
+pub fn register(
     _attributes: proc_macro::TokenStream,
     structure: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {

@@ -1,6 +1,6 @@
 /// # References
 /// * [Control Register](https://support.arm.com/documentation/ddi0183/g/programmers-model/register-descriptions/control-register--uartcr?lang=en)
-#[io::field]
+#[io::register]
 pub struct Register {
     uart_enable: bool,
     sir_enable: bool,

@@ -1,6 +1,6 @@
 /// # References
 /// * [Flag Register](https://support.arm.com/documentation/ddi0183/g/programmers-model/register-descriptions/flag-register--uartfr?lang=en)
-#[io::field]
+#[io::register]
 pub struct Register {
     clear_to_send: bool,
     data_set_ready: bool,

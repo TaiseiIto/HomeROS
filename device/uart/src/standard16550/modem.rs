@@ -1,6 +1,6 @@
 /// # References
 /// * [Modem Control Register](https://www.lookrs232.com/rs232/mcr.htm)
-#[io::field]
+#[io::register]
 struct Control {
     force_data_terminal_ready: bool,
     force_request_to_sent: bool,
@@ -14,7 +14,7 @@ struct Control {
 /// * [Modem Status Register](https://www2.denshi.numazu-ct.ac.jp/staff/FreeBSD/2.2.2R/handbook/handbook118.html)
 /// * [Modem Status Register](https://www.gowinsemi.com/upload/database_doc/2072/document/626a18f79b6dc.pdf)
 /// * [Modem Status Register](https://docs.amd.com/api/khub/documents/9fEQkSYc6HI76WBKkRyBLg/content)
-#[io::field]
+#[io::register]
 struct Status {
     delta_clear_to_send: bool,
     delda_data_set_ready: bool,

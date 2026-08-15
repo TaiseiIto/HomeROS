@@ -1,6 +1,6 @@
 /// # References
 /// * [Data Register](https://support.arm.com/documentation/ddi0183/g/programmers-model/register-descriptions/data-register--uartdr?lang=en)
-#[io::field]
+#[io::register]
 pub struct Register {
     data: u8,
     framing_error: bool,
