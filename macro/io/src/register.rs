@@ -127,6 +127,39 @@ impl Structure {
             .collect()
     }
 
+    fn pretty_debug(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_structure_string: String = pretty_structure.to_string();
+        let elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .filter_map(|element| {
+                element
+                    .pretty_bit_read_ident()
+                    .or(element
+                        .pretty_uint_read_ident_and_type()
+                        .map(|(ident, _)| ident))
+                    .or(element.pretty_shift_read_ident())
+                    .map(|read| {
+                        let ident_string: String = element.ident.to_string();
+                        quote! {
+                            field(#ident_string, &self.#read())
+                        }
+                    })
+            })
+            .collect();
+        quote! {
+            impl core::fmt::Debug for #pretty_structure {
+                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    formatter
+                        .debug_struct(#pretty_structure_string)
+                        .#(#elements).*
+                        .finish()
+                }
+            }
+        }
+    }
+
     fn pretty_implement(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
@@ -309,11 +342,13 @@ impl From<Structure> for TokenStream {
         let implement: TokenStream = structure.implement();
         let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_structure: TokenStream = structure.pretty_structure();
+        let pretty_debug: TokenStream = structure.pretty_debug();
         quote! {
             #true_type
             #implement
             #pretty_structure
             #pretty_implement
+            #pretty_debug
         }
     }
 }
