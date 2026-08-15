@@ -107,6 +107,26 @@ impl Structure {
             .collect()
     }
 
+    fn pretty_structure(&self) -> TokenStream {
+        let vis: &Visibility = &self.vis;
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .map(|element| element.pretty_element())
+            .collect();
+        quote! {
+            #vis struct #pretty_structure {
+                #(#elements),*
+            }
+        }
+    }
+
+    fn pretty_structure_ident(&self) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}Pretty", ident), ident.span())
+    }
+
     fn shift_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
@@ -205,9 +225,11 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let true_type: TokenStream = structure.true_type();
         let implement: TokenStream = structure.implement();
+        let pretty_structure: TokenStream = structure.pretty_structure();
         quote! {
             #true_type
             #implement
+            #pretty_structure
         }
     }
 }
@@ -423,6 +445,14 @@ impl Element {
 
     fn offset_ident(&self) -> Ident {
         self.const_ident("OFFSET")
+    }
+
+    fn pretty_element(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let bits: usize = self.bits as usize;
+        quote! {
+            #ident: [bool; #bits]
+        }
     }
 
     fn shift_read(&self, structure: &Structure) -> TokenStream {
