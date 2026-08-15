@@ -1,4 +1,5 @@
 use {
+    core::iter,
     proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{Field, Fields, FieldsNamed, Ident, ItemStruct, Type, Visibility},
@@ -36,7 +37,7 @@ impl Structure {
                     .rev()
                     .skip(1)
                     .map(Some)
-                    .chain(core::iter::once(None))
+                    .chain(iter::once(None))
                     .rev(),
             )
             .map(|(element, previous_element)| element.offset(previous_element))
