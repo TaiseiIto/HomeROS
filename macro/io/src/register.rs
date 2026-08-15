@@ -60,22 +60,6 @@ impl Structure {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
     }
 
-    fn prettify(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
-        let prettify_elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| element.prettify())
-            .collect();
-        quote! {
-            pub fn prettify(self) -> #pretty_structure {
-                #pretty_structure {
-                    #(#prettify_elements),*
-                }
-            }
-        }
-    }
-
     fn lengths(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
@@ -97,6 +81,22 @@ impl Structure {
             .into_iter()
             .map(|ElementOffset { element, offset }| element.offset(offset))
             .collect()
+    }
+
+    fn prettify(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let prettify_elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .map(|element| element.prettify())
+            .collect();
+        quote! {
+            pub fn prettify(self) -> #pretty_structure {
+                #pretty_structure {
+                    #(#prettify_elements),*
+                }
+            }
+        }
     }
 
     fn pretty_implement(&self) -> TokenStream {
@@ -274,14 +274,6 @@ impl Element {
         Ident::new(&format!("{}_{}", self.ident, suffix), self.ident.span())
     }
 
-    fn prettify(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let bit_read: Ident = self.bit_read_ident();
-        quote! {
-            #ident: self.#bit_read()
-        }
-    }
-
     fn length(&self) -> TokenStream {
         let bits: u8 = self.bits;
         let length: Ident = self.length_ident();
@@ -374,6 +366,14 @@ impl Element {
 
     fn offset_ident(&self) -> Ident {
         self.const_ident("OFFSET")
+    }
+
+    fn prettify(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let bit_read: Ident = self.bit_read_ident();
+        quote! {
+            #ident: self.#bit_read()
+        }
     }
 
     fn pretty(&self) -> TokenStream {
