@@ -1,6 +1,6 @@
 /// # References
 /// * [Interrupt Enable Register](https://www.lookrs232.com/rs232/ier.htm)
-#[bit::field]
+#[io::field]
 struct Enable {
     received_data_available: bool,
     transmitter_holding_register_empty: bool,
@@ -13,7 +13,7 @@ struct Enable {
 
 /// # References
 /// * [Interrupt Identification Register](https://www.lookrs232.com/rs232/iir.htm)
-#[bit::field]
+#[io::field]
 struct Identification {
     pending: bool,
     status: [bool; 2],

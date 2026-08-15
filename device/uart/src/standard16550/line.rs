@@ -1,6 +1,6 @@
 /// # References
 /// * [Line Control Register](https://www.lookrs232.com/rs232/lcr.htm)
-#[bit::field]
+#[io::field]
 struct Control {
     word_length: [bool; 2],
     stop_bit_length: bool,
@@ -43,7 +43,7 @@ impl From<&Control> for Option<Parity> {
 
 /// # References
 /// * [Line Status Register](https://www.lookrs232.com/rs232/lsr.htm)
-#[bit::field]
+#[io::field]
 struct Status {
     data_ready: bool,
     overrun_error: bool,

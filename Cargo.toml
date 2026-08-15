@@ -1,7 +1,7 @@
 [workspace]
 members = [
 	"arch",
-	"macro/bit",
+	"macro/io",
 	"boot",
 	"device/uart",
 	"firmware",

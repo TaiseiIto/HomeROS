@@ -1,6 +1,6 @@
 /// # References
 /// * [Line Control Register](https://support.arm.com/documentation/ddi0183/g/programmers-model/register-descriptions/line-control-register--uartlcr-h?lang=en)
-#[bit::field]
+#[io::field]
 pub struct Register {
     send_bread: bool,
     parity_enable: bool,

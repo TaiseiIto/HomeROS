@@ -1,6 +1,6 @@
 /// # References
 /// * [FIFO Control Register](https://www.lookrs232.com/rs232/fcr.htm)
-#[bit::field]
+#[io::field]
 struct Control {
     enable: bool,
     clear_receive: bool,
