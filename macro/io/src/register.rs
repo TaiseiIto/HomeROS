@@ -133,6 +133,7 @@ impl Structure {
         let pretty_bit_updates: Vec<TokenStream> = self.pretty_bit_updates();
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
         let pretty_bits_updates: Vec<TokenStream> = self.pretty_bits_updates();
+        let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
@@ -140,9 +141,17 @@ impl Structure {
                 #(#pretty_bit_updates)*
                 #(#pretty_bits_reads)*
                 #(#pretty_bits_updates)*
+                #(#pretty_shift_reads)*
                 #unprettify
             }
         }
+    }
+
+    fn pretty_shift_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_shift_read(self))
+            .collect()
     }
 
     fn pretty_structure(&self) -> TokenStream {
@@ -457,7 +466,6 @@ impl Element {
 
     fn pretty_bit_update(&self, structure: &Structure) -> Option<TokenStream> {
         self.pretty_bit_update_ident().map(|pretty_bits_update| {
-            let bits: usize = self.bits as usize;
             let unpack: Vec<TokenStream> = structure
                 .elements
                 .iter()
@@ -546,6 +554,38 @@ impl Element {
 
     fn pretty_bits_update_ident(&self) -> Option<Ident> {
         (!self.reserved).then_some(self.function_ident("bits_update"))
+    }
+
+    fn pretty_shift_read(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_shift_read_ident().map(|pretty_shift_read| {
+            let Self {
+                bits,
+                ident,
+                reserved: _,
+            } = self;
+            let return_type: Ident = structure.inner_type();
+            let bits: Vec<TokenStream> = (0..*bits)
+                .map(|bit| {
+                    let bit_usize: usize = bit as usize;
+                    quote! {
+                        (if self.#ident[#bit_usize] {
+                            1 << #bit
+                        } else {
+                            0
+                        })
+                    }
+                })
+                .collect();
+            quote! {
+                pub fn #pretty_shift_read(&self) -> #return_type {
+                    #(#bits)|*
+                }
+            }
+        })
+    }
+
+    fn pretty_shift_read_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("shift_read"))
     }
 
     fn type2bits(ty: Type) -> u8 {
