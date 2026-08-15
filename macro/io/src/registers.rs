@@ -17,10 +17,16 @@ impl Structure {
             ident,
             elements,
         } = self;
+        let sizes: Vec<TokenStream> = self.sizes();
         quote! {
             impl #ident {
+                #(#sizes)*
             }
         }
+    }
+
+    fn sizes(&self) -> Vec<TokenStream> {
+        self.elements.iter().map(|element| element.size()).collect()
     }
 
     fn true_type(&self) -> TokenStream {
@@ -100,6 +106,13 @@ struct Element {
 }
 
 impl Element {
+    fn const_ident(&self, suffix: &str) -> Ident {
+        Ident::new(
+            &format!("{}_{}", self.ident().to_string().to_uppercase(), suffix),
+            self.span,
+        )
+    }
+
     fn ident(&self) -> Ident {
         let Self {
             ident,
@@ -134,5 +147,17 @@ impl Element {
         } else {
             panic!();
         }
+    }
+
+    fn size(&self) -> TokenStream {
+        let size: Ident = self.size_ident();
+        let ty: &Type = &self.ty;
+        quote! {
+            const #size: usize = core::mem::size_of::<#ty>();
+        }
+    }
+
+    fn size_ident(&self) -> Ident {
+        self.const_ident("SIZE")
     }
 }
