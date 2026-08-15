@@ -267,7 +267,7 @@ impl Element {
             (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
         };
         quote! {
-            pub fn #bit_read(self) -> #return_type {
+            fn #bit_read(self) -> #return_type {
                 #return_value
             }
         }
@@ -303,7 +303,7 @@ impl Element {
             (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
         };
         quote! {
-            pub fn #bit_update(self, argument: #argument_type) -> Self {
+            fn #bit_update(self, argument: #argument_type) -> Self {
                 self.#mask_update(#argument_value)
             }
         }
@@ -332,7 +332,7 @@ impl Element {
         let bits: u8 = self.bits;
         let length: Ident = self.length_ident();
         quote! {
-            pub const #length: u8 = #bits;
+            const #length: u8 = #bits;
         }
     }
 
@@ -369,31 +369,31 @@ impl Element {
             8 => {
                 let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    pub const #mask_const: u8 = #mask;
+                    const #mask_const: u8 = #mask;
                 }
             }
             16 => {
                 let mask: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    pub const #mask_const: u16 = #mask;
+                    const #mask_const: u16 = #mask;
                 }
             }
             32 => {
                 let mask: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    pub const #mask_const: u32 = #mask;
+                    const #mask_const: u32 = #mask;
                 }
             }
             64 => {
                 let mask: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    pub const #mask_const: u64 = #mask;
+                    const #mask_const: u64 = #mask;
                 }
             }
             128 => {
                 let mask: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    pub const #mask_const: u128 = #mask;
+                    const #mask_const: u128 = #mask;
                 }
             }
             _ => panic!(),
@@ -409,7 +409,7 @@ impl Element {
         let mask_const: Ident = self.mask_const_ident();
         let inner_type: Ident = structure.inner_type();
         quote! {
-            pub fn #mask_read(self) -> #inner_type {
+            fn #mask_read(self) -> #inner_type {
                 self.0 & Self::#mask_const
             }
         }
@@ -424,7 +424,7 @@ impl Element {
         let mask_const: Ident = self.mask_const_ident();
         let inner_type: Ident = structure.inner_type();
         quote! {
-            pub fn #mask_update(self, argument: #inner_type) -> Self {
+            fn #mask_update(self, argument: #inner_type) -> Self {
                 Self((self.0 & !Self::#mask_const) | (argument & Self::#mask_const))
             }
         }
@@ -437,7 +437,7 @@ impl Element {
     fn offset(&self, offset: u8) -> TokenStream {
         let offset_const: Ident = self.offset_ident();
         quote! {
-            pub const #offset_const: u8 = #offset;
+            const #offset_const: u8 = #offset;
         }
     }
 
@@ -451,7 +451,7 @@ impl Element {
         let offset: Ident = self.offset_ident();
         let inner_type: Ident = structure.inner_type();
         quote! {
-            pub fn #shift_read(self) -> #inner_type {
+            fn #shift_read(self) -> #inner_type {
                 self.#mask_read() >> Self::#offset
             }
         }
@@ -467,7 +467,7 @@ impl Element {
         let offset: Ident = self.offset_ident();
         let inner_type: Ident = structure.inner_type();
         quote! {
-            pub fn #shift_update(self, argument: #inner_type) -> Self {
+            fn #shift_update(self, argument: #inner_type) -> Self {
                 self.#mask_update(argument << Self::#offset)
             }
         }
@@ -544,7 +544,7 @@ impl Element {
                 uint_read.span(),
             );
             quote! {
-                pub fn #uint_read(self) -> #return_type {
+                fn #uint_read(self) -> #return_type {
                     self.#shift_read() as #return_type
                 }
             }
@@ -574,7 +574,7 @@ impl Element {
             );
             let inner_type: Ident = structure.inner_type();
             quote! {
-                pub fn #uint_update(self, argument: #argument_type) -> Self {
+                fn #uint_update(self, argument: #argument_type) -> Self {
                     self.#shift_update(argument as #inner_type)
                 }
             }
