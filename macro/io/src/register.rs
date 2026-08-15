@@ -133,6 +133,7 @@ impl Structure {
         let pretty_bit_updates: Vec<TokenStream> = self.pretty_bit_updates();
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
         let pretty_bits_updates: Vec<TokenStream> = self.pretty_bits_updates();
+        let pretty_mask_reads: Vec<TokenStream> = self.pretty_mask_reads();
         let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let unprettify: TokenStream = self.unprettify();
@@ -142,11 +143,19 @@ impl Structure {
                 #(#pretty_bit_updates)*
                 #(#pretty_bits_reads)*
                 #(#pretty_bits_updates)*
+                #(#pretty_mask_reads)*
                 #(#pretty_shift_reads)*
                 #(#pretty_shift_updates)*
                 #unprettify
             }
         }
+    }
+
+    fn pretty_mask_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_mask_read(self))
+            .collect()
     }
 
     fn pretty_shift_reads(&self) -> Vec<TokenStream> {
@@ -563,6 +572,25 @@ impl Element {
 
     fn pretty_bits_update_ident(&self) -> Option<Ident> {
         (!self.reserved).then_some(self.function_ident("bits_update"))
+    }
+
+    fn pretty_mask_read(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_mask_read_ident()
+            .zip(self.pretty_shift_read_ident())
+            .map(|(pretty_mask_read, pretty_shift_read)| {
+                let return_type: Ident = structure.inner_type();
+                let structure: &Ident = &structure.ident;
+                let offset: Ident = self.offset_ident();
+                quote! {
+                    pub fn #pretty_mask_read(self) -> #return_type {
+                        self.#pretty_shift_read() << #structure::#offset
+                    }
+                }
+            })
+    }
+
+    fn pretty_mask_read_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("mask_read"))
     }
 
     fn pretty_shift_read(&self, structure: &Structure) -> Option<TokenStream> {
