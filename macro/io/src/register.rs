@@ -101,8 +101,10 @@ impl Structure {
 
     fn pretty_implement(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
+        let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
+                #unprettify
             }
         }
     }
@@ -135,8 +137,26 @@ impl Structure {
             elements: _,
         } = self;
         quote! {
+            #[derive(Default)]
             #[repr(transparent)]
             #vis struct #ident(#inner_type);
+        }
+    }
+
+    fn unprettify(&self) -> TokenStream {
+        let Self {
+            vis: _,
+            ident,
+            elements,
+        } = self;
+        let unprettifies: Vec<TokenStream> = elements
+            .iter()
+            .map(|element| element.unprettify())
+            .collect();
+        quote! {
+            pub fn unprettify(self) -> #ident {
+                #ident::default().#(#unprettifies).*
+            }
         }
     }
 
@@ -432,6 +452,14 @@ impl Element {
                 }
             }
             _ => panic!(),
+        }
+    }
+
+    fn unprettify(&self) -> TokenStream {
+        let bit_update: Ident = self.bit_update_ident();
+        let ident: &Ident = &self.ident;
+        quote! {
+            #bit_update(self.#ident)
         }
     }
 }
