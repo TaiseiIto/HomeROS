@@ -36,6 +36,7 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let bit_reads: Vec<TokenStream> = self.bit_reads();
         let bit_updates: Vec<TokenStream> = self.bit_updates();
+        let into_pretty: TokenStream = self.into_pretty();
         let lengths: Vec<TokenStream> = self.lengths();
         let mask_consts: Vec<TokenStream> = self.mask_consts();
         let offsets: Vec<TokenStream> = self.offsets();
@@ -45,6 +46,7 @@ impl Structure {
             impl #ident {
                 #(#bit_reads)*
                 #(#bit_updates)*
+                #into_pretty
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#offsets)*
@@ -56,6 +58,22 @@ impl Structure {
 
     fn inner_type(&self) -> Ident {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
+    }
+
+    fn into_pretty(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let into_pretty_elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .map(|element| element.into_pretty())
+            .collect();
+        quote! {
+            pub fn into_pretty(self) -> #pretty_structure {
+                #pretty_structure {
+                    #(#into_pretty_elements),*
+                }
+            }
+        }
     }
 
     fn lengths(&self) -> Vec<TokenStream> {
@@ -87,7 +105,7 @@ impl Structure {
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
-            .map(|element| element.pretty_element())
+            .map(|element| element.pretty())
             .collect();
         quote! {
             #vis struct #pretty_structure {
@@ -191,35 +209,23 @@ impl Element {
         let bits: u8 = self.bits;
         let bit_read: Ident = self.bit_read_ident();
         let offset: Ident = self.offset_ident();
-        let (return_type, return_value): (TokenStream, TokenStream) = if bits == 1 {
-            (
-                quote! { bool },
-                quote! { self.0 & (1 << Self::#offset) != 0 },
-            )
-        } else {
-            let bits_usize: usize = bits as usize;
-            let bools: Vec<TokenStream> = (0..bits)
-                .map(|bit| {
-                    quote! {
-                        self.0 & (1 << (#bit + Self::#offset)) != 0
-                    }
-                })
-                .collect();
-            (quote! { [bool; #bits_usize] }, quote! { [#(#bools),*] })
-        };
+        let bits_usize: usize = bits as usize;
+        let bools: Vec<TokenStream> = (0..bits)
+            .map(|bit| {
+                quote! {
+                    self.0 & (1 << (#bit + Self::#offset)) != 0
+                }
+            })
+            .collect();
         quote! {
-            fn #bit_read(&self) -> #return_type {
-                #return_value
+            fn #bit_read(&self) -> [bool; #bits_usize] {
+                [#(#bools),*]
             }
         }
     }
 
     fn bit_read_ident(&self) -> Ident {
-        self.function_ident(if self.bits == 1 {
-            "bit_read"
-        } else {
-            "bits_read"
-        })
+        self.function_ident("bit_read")
     }
 
     fn bit_update(&self) -> TokenStream {
@@ -227,35 +233,23 @@ impl Element {
         let mask_const: Ident = self.mask_const_ident();
         let offset: Ident = self.offset_ident();
         let bits: u8 = self.bits;
-        let (argument_type, argument_value): (TokenStream, TokenStream) = if bits == 1 {
-            (
-                quote! { bool },
-                quote! { if argument { 1 << Self::#offset } else { 0 } },
-            )
-        } else {
-            let bits_usize: usize = bits as usize;
-            let values: Vec<TokenStream> = (0..bits)
-                .map(|bit| {
-                    quote! {
-                        if argument[#bits_usize] { 1 << (#bit + Self::#offset) } else { 0 }
-                    }
-                })
-                .collect();
-            (quote! { [bool; #bits_usize] }, quote! { (#(#values)|*) })
-        };
+        let bits_usize: usize = bits as usize;
+        let values: Vec<TokenStream> = (0..bits)
+            .map(|bit| {
+                quote! {
+                    if argument[#bits_usize] { 1 << (#bit + Self::#offset) } else { 0 }
+                }
+            })
+            .collect();
         quote! {
-            fn #bit_update(self, argument: #argument_type) -> Self {
-                Self((self.0 & !Self::#mask_const) | (#argument_value & Self::#mask_const))
+            fn #bit_update(self, argument: [bool; #bits_usize]) -> Self {
+                Self((self.0 & !Self::#mask_const) | ((#(#values)|*) & Self::#mask_const))
             }
         }
     }
 
     fn bit_update_ident(&self) -> Ident {
-        self.function_ident(if self.bits == 1 {
-            "bit_update"
-        } else {
-            "bits_update"
-        })
+        self.function_ident("bit_update")
     }
 
     fn const_ident(&self, suffix: &str) -> Ident {
@@ -267,6 +261,14 @@ impl Element {
 
     fn function_ident(&self, suffix: &str) -> Ident {
         Ident::new(&format!("{}_{}", self.ident, suffix), self.ident.span())
+    }
+
+    fn into_pretty(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let bit_read: Ident = self.bit_read_ident();
+        quote! {
+            #ident: self.#bit_read()
+        }
     }
 
     fn length(&self) -> TokenStream {
@@ -363,7 +365,7 @@ impl Element {
         self.const_ident("OFFSET")
     }
 
-    fn pretty_element(&self) -> TokenStream {
+    fn pretty(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let bits: usize = self.bits as usize;
         quote! {
