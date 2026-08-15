@@ -215,6 +215,7 @@ impl From<Structure> for TokenStream {
 struct Element {
     bits: u8,
     ident: Ident,
+    reserved: bool,
 }
 
 impl Element {
@@ -323,13 +324,20 @@ impl Element {
             default: _,
         } = field
         {
-            let ident: Ident = if ident == "__" {
-                Ident::new(&format!("reserved{}", index), ident.span())
+            let (ident, reserved): (Ident, bool) = if ident == "__" {
+                (
+                    Ident::new(&format!("reserved{}", index), ident.span()),
+                    true,
+                )
             } else {
-                ident
+                (ident, false)
             };
             let bits: u8 = Self::type2bits(ty);
-            Self { ident, bits }
+            Self {
+                bits,
+                ident,
+                reserved,
+            }
         } else {
             panic!();
         }
