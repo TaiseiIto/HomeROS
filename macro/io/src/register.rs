@@ -134,6 +134,7 @@ impl Structure {
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
         let pretty_bits_updates: Vec<TokenStream> = self.pretty_bits_updates();
         let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
+        let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
@@ -142,6 +143,7 @@ impl Structure {
                 #(#pretty_bits_reads)*
                 #(#pretty_bits_updates)*
                 #(#pretty_shift_reads)*
+                #(#pretty_shift_updates)*
                 #unprettify
             }
         }
@@ -151,6 +153,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.pretty_shift_read(self))
+            .collect()
+    }
+
+    fn pretty_shift_updates(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_shift_update(self))
             .collect()
     }
 
@@ -565,11 +574,11 @@ impl Element {
             } = self;
             let return_type: Ident = structure.inner_type();
             let bits: Vec<TokenStream> = (0..*bits)
-                .map(|bit| {
-                    let bit_usize: usize = bit as usize;
+                .map(|shift| {
+                    let shift_usize: usize = shift as usize;
                     quote! {
-                        (if self.#ident[#bit_usize] {
-                            1 << #bit
+                        (if self.#ident[#shift_usize] {
+                            1 << #shift
                         } else {
                             0
                         })
@@ -586,6 +595,37 @@ impl Element {
 
     fn pretty_shift_read_ident(&self) -> Option<Ident> {
         (!self.reserved).then_some(self.function_ident("shift_read"))
+    }
+
+    fn pretty_shift_update(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_shift_update_ident()
+            .zip(self.pretty_bits_update_ident())
+            .map(|(pretty_shift_update, pretty_bits_update)| {
+                let Self {
+                    bits,
+                    ident,
+                    reserved: _,
+                } = self;
+                let argument_type: Ident = structure.inner_type();
+                let bits_usize: usize = *bits as usize;
+                let bools: Vec<TokenStream> = (0..bits_usize)
+                    .map(|shift| {
+                        quote! {
+                            #ident & (1 << #shift) != 0
+                        }
+                    })
+                    .collect();
+                quote! {
+                    pub fn #pretty_shift_update(self, #ident: #argument_type) -> Self {
+                        let argument: [bool; #bits_usize] = [#(#bools),*];
+                        self.#pretty_bits_update(argument)
+                    }
+                }
+            })
+    }
+
+    fn pretty_shift_update_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("shift_update"))
     }
 
     fn type2bits(ty: Type) -> u8 {
