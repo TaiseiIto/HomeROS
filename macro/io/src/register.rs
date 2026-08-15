@@ -236,8 +236,9 @@ impl Element {
         let bits_usize: usize = bits as usize;
         let values: Vec<TokenStream> = (0..bits)
             .map(|bit| {
+                let bit_usize: usize = bit as usize;
                 quote! {
-                    if argument[#bits_usize] { 1 << (#bit + Self::#offset) } else { 0 }
+                    if argument[#bit_usize] { 1 << (#bit + Self::#offset) } else { 0 }
                 }
             })
             .collect();
