@@ -23,21 +23,3 @@ struct Identification {
     fifo_usable: bool,
     fifo_enabled: bool,
 }
-
-enum Status {
-    Modem,
-    Transmitted,
-    Received,
-    ReceiverLine,
-}
-
-impl From<&Identification> for Status {
-    fn from(identification: &Identification) -> Self {
-        match identification.status_bits_read() {
-            [false, false] => Self::Modem,
-            [true, false] => Self::Transmitted,
-            [false, true] => Self::Received,
-            [true, true] => Self::ReceiverLine,
-        }
-    }
-}

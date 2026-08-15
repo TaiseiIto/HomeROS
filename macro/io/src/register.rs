@@ -43,7 +43,7 @@ impl Structure {
                         |(ident, shift_read)| {
                             let ident_string: String = ident.to_string();
                             quote! {
-                                field(#ident_string, &self.#shift_read())
+                                field(#ident_string, &unsafe { self.read_volatile() }.#shift_read())
                             }
                         },
                     )
@@ -172,7 +172,6 @@ impl Structure {
             elements: _,
         } = self;
         quote! {
-            #[derive(Clone, Copy, Eq, PartialEq)]
             #[repr(transparent)]
             #vis struct #ident(#inner_type);
         }
