@@ -33,7 +33,7 @@ impl Structure {
             .iter()
             .enumerate()
             .map(|(index, element)| {
-                let ident: Ident = element.ident(self);
+                let ident: Ident = element.ident();
                 let ty: &Type = &element.ty;
                 quote! {
                     #ident: #ty
@@ -95,15 +95,21 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Option<Ident>,
     index: usize,
+    span: Span,
     ty: Type,
 }
 
 impl Element {
-    fn ident(&self, structure: &Structure) -> Ident {
-        self.ident.clone().unwrap_or(Ident::new(
-            &format!("reserved{}", self.index),
-            structure.ident.span(),
-        ))
+    fn ident(&self) -> Ident {
+        let Self {
+            ident,
+            index,
+            span,
+            ty,
+        } = self;
+        ident
+            .clone()
+            .unwrap_or(Ident::new(&format!("reserved{}", index), *span))
     }
 
     fn new(index: usize, field: Field) -> Self {
@@ -117,8 +123,14 @@ impl Element {
             default: _,
         } = field
         {
+            let span: Span = ident.span();
             let ident: Option<Ident> = (ident != "__").then_some(ident);
-            Self { ident, index, ty }
+            Self {
+                ident,
+                index,
+                span,
+                ty,
+            }
         } else {
             panic!();
         }
