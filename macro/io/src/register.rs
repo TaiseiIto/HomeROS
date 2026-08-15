@@ -99,6 +99,14 @@ impl Structure {
             .collect()
     }
 
+    fn pretty_implement(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        quote! {
+            impl #pretty_structure {
+            }
+        }
+    }
+
     fn pretty_structure(&self) -> TokenStream {
         let vis: &Visibility = &self.vis;
         let pretty_structure: Ident = self.pretty_structure_ident();
@@ -189,11 +197,13 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let true_type: TokenStream = structure.true_type();
         let implement: TokenStream = structure.implement();
+        let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_structure: TokenStream = structure.pretty_structure();
         quote! {
             #true_type
             #implement
             #pretty_structure
+            #pretty_implement
         }
     }
 }
