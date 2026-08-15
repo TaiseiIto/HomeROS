@@ -369,7 +369,11 @@ impl Element {
             default: _,
         } = field
         {
-            let ident: Option<Ident> = (ident != "__").then_some(ident);
+            let ident: Option<Ident> = Some(if ident == "__" {
+                Ident::new(&format!("reserved{}", index), ident.span())
+            } else {
+                ident
+            });
             let bits: u8 = Self::type2bits(ty);
             Self { ident, bits }
         } else {
