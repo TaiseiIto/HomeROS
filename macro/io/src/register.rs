@@ -99,11 +99,20 @@ impl Structure {
         }
     }
 
+    fn pretty_bit_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_bit_read())
+            .collect()
+    }
+
     fn pretty_implement(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
+                #(#pretty_bit_reads)*
                 #unprettify
             }
         }
@@ -402,6 +411,22 @@ impl Element {
         quote! {
             #ident: [bool; #bits]
         }
+    }
+
+    fn pretty_bit_read(&self) -> Option<TokenStream> {
+        self.pretty_bit_read_ident().map(|pretty_bit_read| {
+            let ident: &Ident = &self.ident;
+            let bits: usize = self.bits as usize;
+            quote! {
+                pub fn #pretty_bit_read(&self) -> [bool; #bits] {
+                    self.#ident
+                }
+            }
+        })
+    }
+
+    fn pretty_bit_read_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("bit_read"))
     }
 
     fn type2bits(ty: Type) -> u8 {
