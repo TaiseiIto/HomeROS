@@ -151,7 +151,7 @@ impl Structure {
         } = self;
         let unprettifies: Vec<TokenStream> = elements
             .iter()
-            .map(|element| element.unprettify())
+            .filter_map(|element| element.unprettify())
             .collect();
         quote! {
             pub fn unprettify(self) -> #ident {
@@ -455,12 +455,16 @@ impl Element {
         }
     }
 
-    fn unprettify(&self) -> TokenStream {
+    fn unprettify(&self) -> Option<TokenStream> {
         let bit_update: Ident = self.bit_update_ident();
-        let ident: &Ident = &self.ident;
-        quote! {
+        let Self {
+            bits,
+            ident,
+            reserved,
+        } = self;
+        (!reserved).then_some(quote! {
             #bit_update(self.#ident)
-        }
+        })
     }
 }
 
