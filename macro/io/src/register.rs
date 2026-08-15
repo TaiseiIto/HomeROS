@@ -36,7 +36,7 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let bit_reads: Vec<TokenStream> = self.bit_reads();
         let bit_updates: Vec<TokenStream> = self.bit_updates();
-        let into_pretty: TokenStream = self.into_pretty();
+        let prettify: TokenStream = self.prettify();
         let lengths: Vec<TokenStream> = self.lengths();
         let mask_consts: Vec<TokenStream> = self.mask_consts();
         let offsets: Vec<TokenStream> = self.offsets();
@@ -46,7 +46,7 @@ impl Structure {
             impl #ident {
                 #(#bit_reads)*
                 #(#bit_updates)*
-                #into_pretty
+                #prettify
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#offsets)*
@@ -60,17 +60,17 @@ impl Structure {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
     }
 
-    fn into_pretty(&self) -> TokenStream {
+    fn prettify(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
-        let into_pretty_elements: Vec<TokenStream> = self
+        let prettify_elements: Vec<TokenStream> = self
             .elements
             .iter()
-            .map(|element| element.into_pretty())
+            .map(|element| element.prettify())
             .collect();
         quote! {
-            pub fn into_pretty(self) -> #pretty_structure {
+            pub fn prettify(self) -> #pretty_structure {
                 #pretty_structure {
-                    #(#into_pretty_elements),*
+                    #(#prettify_elements),*
                 }
             }
         }
@@ -274,7 +274,7 @@ impl Element {
         Ident::new(&format!("{}_{}", self.ident, suffix), self.ident.span())
     }
 
-    fn into_pretty(&self) -> TokenStream {
+    fn prettify(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let bit_read: Ident = self.bit_read_ident();
         quote! {
