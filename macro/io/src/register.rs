@@ -138,6 +138,7 @@ impl Structure {
         let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let pretty_uint_reads: Vec<TokenStream> = self.pretty_uint_reads();
+        let pretty_uint_updates: Vec<TokenStream> = self.pretty_uint_updates();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
@@ -150,6 +151,7 @@ impl Structure {
                 #(#pretty_shift_reads)*
                 #(#pretty_shift_updates)*
                 #(#pretty_uint_reads)*
+                #(#pretty_uint_updates)*
                 #unprettify
             }
         }
@@ -187,6 +189,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.pretty_uint_read())
+            .collect()
+    }
+
+    fn pretty_uint_updates(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_uint_update(self))
             .collect()
     }
 
@@ -715,8 +724,38 @@ impl Element {
         (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
             let return_type: String = format!("u{}", bits);
             (
-                self.function_ident(&format!("{}_read", &return_type)),
+                self.function_ident(&format!("{}_read", return_type)),
                 Ident::new(&return_type, ident.span()),
+            )
+        })
+    }
+
+    fn pretty_uint_update(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_uint_update_ident_and_type()
+            .zip(self.pretty_shift_update_ident())
+            .map(
+                |((pretty_uint_update, argument_type), pretty_shift_update)| {
+                    let inner_type: Ident = structure.inner_type();
+                    quote! {
+                        pub fn #pretty_uint_update(self, argument: #argument_type) -> Self {
+                            self.#pretty_shift_update(argument as #inner_type)
+                        }
+                    }
+                },
+            )
+    }
+
+    fn pretty_uint_update_ident_and_type(&self) -> Option<(Ident, Ident)> {
+        let Self {
+            bits,
+            ident,
+            reserved,
+        } = self;
+        (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
+            let argument_type: String = format!("u{}", bits);
+            (
+                self.function_ident(&format!("{}_update", argument_type)),
+                Ident::new(&argument_type, ident.span()),
             )
         })
     }
