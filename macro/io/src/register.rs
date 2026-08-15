@@ -40,7 +40,7 @@ impl Structure {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     unsafe {
                         self.read_volatile()
-                    }.prettify().fmt(formatter)
+                    }.fmt(formatter)
                 }
             }
         }
@@ -105,7 +105,7 @@ impl Structure {
             .map(|element| element.prettify())
             .collect();
         quote! {
-            pub fn prettify(self) -> #pretty_structure {
+            fn prettify(self) -> #pretty_structure {
                 #pretty_structure {
                     #(#prettify_elements),*
                 }
@@ -291,25 +291,28 @@ impl Structure {
             .filter_map(|element| element.unprettify())
             .collect();
         quote! {
-            pub fn unprettify(self) -> #ident {
+            fn unprettify(self) -> #ident {
                 #ident::default().#(#unprettifies).*
             }
         }
     }
 
     fn read_volatile(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
         quote! {
-            pub unsafe fn read_volatile(&self) -> Self {
+            pub unsafe fn read_volatile(&self) -> #pretty_structure {
                 unsafe {
                     core::ptr::read_volatile(self as *const Self)
-                }
+                }.prettify()
             }
         }
     }
 
     fn write_volatile(&self) -> TokenStream {
+        let pretty_structure: Ident = self.pretty_structure_ident();
         quote! {
-            pub unsafe fn write_volatile(&mut self, argument: Self) {
+            pub unsafe fn write_volatile(&mut self, argument: #pretty_structure) {
+                let argument: Self = argument.unprettify();
                 unsafe {
                     core::ptr::write_volatile(self as *mut Self, argument);
                 }
