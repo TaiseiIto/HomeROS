@@ -38,13 +38,7 @@ impl Structure {
         let bit_updates: Vec<TokenStream> = self.bit_updates();
         let lengths: Vec<TokenStream> = self.lengths();
         let mask_consts: Vec<TokenStream> = self.mask_consts();
-        let mask_reads: Vec<TokenStream> = self.mask_reads();
-        let mask_update: Vec<TokenStream> = self.mask_updates();
         let offsets: Vec<TokenStream> = self.offsets();
-        let shift_reads: Vec<TokenStream> = self.shift_reads();
-        let shift_updates: Vec<TokenStream> = self.shift_updates();
-        let uint_reads: Vec<TokenStream> = self.uint_reads();
-        let uint_updates: Vec<TokenStream> = self.uint_updates();
         let read_volatile: TokenStream = self.read_volatile();
         let write_volatile: TokenStream = self.write_volatile();
         quote! {
@@ -53,13 +47,7 @@ impl Structure {
                 #(#bit_updates)*
                 #(#lengths)*
                 #(#mask_consts)*
-                #(#mask_reads)*
-                #(#mask_update)*
                 #(#offsets)*
-                #(#shift_reads)*
-                #(#shift_updates)*
-                #(#uint_reads)*
-                #(#uint_updates)*
                 #read_volatile
                 #write_volatile
             }
@@ -82,20 +70,6 @@ impl Structure {
         element_offsets
             .into_iter()
             .map(|ElementOffset { element, offset }| element.mask_const(self, offset))
-            .collect()
-    }
-
-    fn mask_reads(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.mask_read(self))
-            .collect()
-    }
-
-    fn mask_updates(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.mask_update(self))
             .collect()
     }
 
@@ -125,34 +99,6 @@ impl Structure {
     fn pretty_structure_ident(&self) -> Ident {
         let ident: &Ident = &self.ident;
         Ident::new(&format!("{}Pretty", ident), ident.span())
-    }
-
-    fn shift_reads(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.shift_read(self))
-            .collect()
-    }
-
-    fn shift_updates(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.shift_update(self))
-            .collect()
-    }
-
-    fn uint_reads(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .filter_map(|element| element.uint_read())
-            .collect()
-    }
-
-    fn uint_updates(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .filter_map(|element| element.uint_update(self))
-            .collect()
     }
 
     fn true_type(&self) -> TokenStream {
@@ -278,7 +224,7 @@ impl Element {
 
     fn bit_update(&self) -> TokenStream {
         let bit_update: Ident = self.bit_update_ident();
-        let mask_update: Ident = self.mask_update_ident();
+        let mask_const: Ident = self.mask_const_ident();
         let offset: Ident = self.offset_ident();
         let bits: u8 = self.bits;
         let (argument_type, argument_value): (TokenStream, TokenStream) = if bits == 1 {
@@ -295,11 +241,11 @@ impl Element {
                     }
                 })
                 .collect();
-            (quote! { [bool; #bits_usize] }, quote! { #(#values)|* })
+            (quote! { [bool; #bits_usize] }, quote! { (#(#values)|*) })
         };
         quote! {
             fn #bit_update(self, argument: #argument_type) -> Self {
-                self.#mask_update(#argument_value)
+                Self((self.0 & !Self::#mask_const) | (#argument_value & Self::#mask_const))
             }
         }
     }
@@ -406,36 +352,6 @@ impl Element {
         self.const_ident("MASK")
     }
 
-    fn mask_read(&self, structure: &Structure) -> TokenStream {
-        let mask_read: Ident = self.mask_read_ident();
-        let mask_const: Ident = self.mask_const_ident();
-        let inner_type: Ident = structure.inner_type();
-        quote! {
-            fn #mask_read(&self) -> #inner_type {
-                self.0 & Self::#mask_const
-            }
-        }
-    }
-
-    fn mask_read_ident(&self) -> Ident {
-        self.function_ident("mask_read")
-    }
-
-    fn mask_update(&self, structure: &Structure) -> TokenStream {
-        let mask_update: Ident = self.mask_update_ident();
-        let mask_const: Ident = self.mask_const_ident();
-        let inner_type: Ident = structure.inner_type();
-        quote! {
-            fn #mask_update(self, argument: #inner_type) -> Self {
-                Self((self.0 & !Self::#mask_const) | (argument & Self::#mask_const))
-            }
-        }
-    }
-
-    fn mask_update_ident(&self) -> Ident {
-        self.function_ident("mask_update")
-    }
-
     fn offset(&self, offset: u8) -> TokenStream {
         let offset_const: Ident = self.offset_ident();
         quote! {
@@ -453,38 +369,6 @@ impl Element {
         quote! {
             #ident: [bool; #bits]
         }
-    }
-
-    fn shift_read(&self, structure: &Structure) -> TokenStream {
-        let shift_read: Ident = self.shift_read_ident();
-        let mask_read: Ident = self.mask_read_ident();
-        let offset: Ident = self.offset_ident();
-        let inner_type: Ident = structure.inner_type();
-        quote! {
-            fn #shift_read(&self) -> #inner_type {
-                self.#mask_read() >> Self::#offset
-            }
-        }
-    }
-
-    fn shift_read_ident(&self) -> Ident {
-        self.function_ident("shift_read")
-    }
-
-    fn shift_update(&self, structure: &Structure) -> TokenStream {
-        let shift_update: Ident = self.shift_update_ident();
-        let mask_update: Ident = self.mask_update_ident();
-        let offset: Ident = self.offset_ident();
-        let inner_type: Ident = structure.inner_type();
-        quote! {
-            fn #shift_update(self, argument: #inner_type) -> Self {
-                self.#mask_update(argument << Self::#offset)
-            }
-        }
-    }
-
-    fn shift_update_ident(&self) -> Ident {
-        self.function_ident("shift_update")
     }
 
     fn type2bits(ty: Type) -> u8 {
@@ -536,65 +420,6 @@ impl Element {
             }
             _ => panic!(),
         }
-    }
-
-    fn uint_read(&self) -> Option<TokenStream> {
-        self.uint_read_ident().map(|uint_read| {
-            let bits: u8 = self.bits;
-            let shift_read: Ident = self.shift_read_ident();
-            let return_type: Ident = Ident::new(
-                match bits {
-                    8 => "u8",
-                    16 => "u16",
-                    32 => "u32",
-                    64 => "u64",
-                    128 => "u128",
-                    _ => panic!(),
-                },
-                uint_read.span(),
-            );
-            quote! {
-                fn #uint_read(&self) -> #return_type {
-                    self.#shift_read() as #return_type
-                }
-            }
-        })
-    }
-
-    fn uint_read_ident(&self) -> Option<Ident> {
-        let bits: u8 = self.bits;
-        (bits.is_power_of_two() && (8..=128).contains(&bits))
-            .then_some(self.function_ident("uint_read"))
-    }
-
-    fn uint_update(&self, structure: &Structure) -> Option<TokenStream> {
-        self.uint_update_ident().map(|uint_update| {
-            let bits: u8 = self.bits;
-            let shift_update: Ident = self.shift_update_ident();
-            let argument_type: Ident = Ident::new(
-                match bits {
-                    8 => "u8",
-                    16 => "u16",
-                    32 => "u32",
-                    64 => "u64",
-                    128 => "u128",
-                    _ => panic!(),
-                },
-                uint_update.span(),
-            );
-            let inner_type: Ident = structure.inner_type();
-            quote! {
-                fn #uint_update(self, argument: #argument_type) -> Self {
-                    self.#shift_update(argument as #inner_type)
-                }
-            }
-        })
-    }
-
-    fn uint_update_ident(&self) -> Option<Ident> {
-        let bits: u8 = self.bits;
-        (bits.is_power_of_two() && (8..=128).contains(&bits))
-            .then_some(self.function_ident("uint_update"))
     }
 }
 
