@@ -32,32 +32,6 @@ impl Structure {
             .collect()
     }
 
-    fn debug(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let ident_string: String = ident.to_string();
-        let fields: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| {
-                let ident_string: String = element.ident.to_string();
-                let shift_read: Ident = element.shift_read_ident();
-                quote! {
-                    field(#ident_string, &unsafe { self.read_volatile() }.#shift_read())
-                }
-            })
-            .collect();
-        quote! {
-            impl core::fmt::Debug for #ident {
-                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                    formatter
-                        .debug_struct(#ident_string)
-                        .#(#fields).*
-                        .finish()
-                }
-            }
-        }
-    }
-
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let bit_reads: Vec<TokenStream> = self.bit_reads();
@@ -231,11 +205,9 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let true_type: TokenStream = structure.true_type();
         let implement: TokenStream = structure.implement();
-        let debug: TokenStream = structure.debug();
         quote! {
             #true_type
             #implement
-            #debug
         }
     }
 }
