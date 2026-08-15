@@ -13,11 +13,7 @@ pub struct Structure {
 
 impl Structure {
     fn implement(&self) -> TokenStream {
-        let Self {
-            vis,
-            ident,
-            elements,
-        } = self;
+        let ident: &Ident = &self.ident;
         let sizes: Vec<TokenStream> = self.sizes();
         let offsets: Vec<TokenStream> = self.offsets();
         quote! {
@@ -56,8 +52,7 @@ impl Structure {
         } = self;
         let elements: Vec<TokenStream> = elements
             .iter()
-            .enumerate()
-            .map(|(index, element)| {
+            .map(|element| {
                 let ident: Ident = element.ident();
                 let ty: &Type = &element.ty;
                 quote! {
@@ -137,7 +132,7 @@ impl Element {
             ident,
             index,
             span,
-            ty,
+            ty: _,
         } = self;
         ident
             .clone()
