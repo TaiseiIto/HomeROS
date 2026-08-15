@@ -1,4 +1,5 @@
 use {
+    proc_macro2::TokenStream,
     quote::quote,
     syn::{
         Attribute, Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path,
@@ -18,24 +19,24 @@ impl Structure {
         self.elements.iter().map(|element| element.bits).sum()
     }
 
-    fn bit_reads(&self) -> Vec<proc_macro2::TokenStream> {
+    fn bit_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.bit_read())
             .collect()
     }
 
-    fn bit_updates(&self) -> Vec<proc_macro2::TokenStream> {
+    fn bit_updates(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.bit_update())
             .collect()
     }
 
-    fn debug(&self) -> proc_macro2::TokenStream {
+    fn debug(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let ident_string: String = ident.to_string();
-        let fields: Vec<proc_macro2::TokenStream> =
+        let fields: Vec<TokenStream> =
             self.elements
                 .iter()
                 .filter_map(|element| {
@@ -61,21 +62,21 @@ impl Structure {
         }
     }
 
-    fn implement(&self) -> proc_macro2::TokenStream {
+    fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let bit_reads: Vec<proc_macro2::TokenStream> = self.bit_reads();
-        let bit_updates: Vec<proc_macro2::TokenStream> = self.bit_updates();
-        let lengths: Vec<proc_macro2::TokenStream> = self.lengths();
-        let mask_consts: Vec<proc_macro2::TokenStream> = self.mask_consts();
-        let mask_reads: Vec<proc_macro2::TokenStream> = self.mask_reads();
-        let mask_update: Vec<proc_macro2::TokenStream> = self.mask_updates();
-        let offsets: Vec<proc_macro2::TokenStream> = self.offsets();
-        let shift_reads: Vec<proc_macro2::TokenStream> = self.shift_reads();
-        let shift_updates: Vec<proc_macro2::TokenStream> = self.shift_updates();
-        let uint_reads: Vec<proc_macro2::TokenStream> = self.uint_reads();
-        let uint_updates: Vec<proc_macro2::TokenStream> = self.uint_updates();
-        let read_volatile: proc_macro2::TokenStream = self.read_volatile();
-        let write_volatile: proc_macro2::TokenStream = self.write_volatile();
+        let bit_reads: Vec<TokenStream> = self.bit_reads();
+        let bit_updates: Vec<TokenStream> = self.bit_updates();
+        let lengths: Vec<TokenStream> = self.lengths();
+        let mask_consts: Vec<TokenStream> = self.mask_consts();
+        let mask_reads: Vec<TokenStream> = self.mask_reads();
+        let mask_update: Vec<TokenStream> = self.mask_updates();
+        let offsets: Vec<TokenStream> = self.offsets();
+        let shift_reads: Vec<TokenStream> = self.shift_reads();
+        let shift_updates: Vec<TokenStream> = self.shift_updates();
+        let uint_reads: Vec<TokenStream> = self.uint_reads();
+        let uint_updates: Vec<TokenStream> = self.uint_updates();
+        let read_volatile: TokenStream = self.read_volatile();
+        let write_volatile: TokenStream = self.write_volatile();
         quote! {
             impl #ident {
                 #(#bit_reads)*
@@ -99,14 +100,14 @@ impl Structure {
         Ident::new(&format!("u{}", self.bits()), self.ident.span())
     }
 
-    fn lengths(&self) -> Vec<proc_macro2::TokenStream> {
+    fn lengths(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.length())
             .collect()
     }
 
-    fn mask_consts(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_consts(&self) -> Vec<TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
@@ -114,21 +115,21 @@ impl Structure {
             .collect()
     }
 
-    fn mask_reads(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.mask_read(self))
             .collect()
     }
 
-    fn mask_updates(&self) -> Vec<proc_macro2::TokenStream> {
+    fn mask_updates(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.mask_update(self))
             .collect()
     }
 
-    fn offsets(&self) -> Vec<proc_macro2::TokenStream> {
+    fn offsets(&self) -> Vec<TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
@@ -136,35 +137,35 @@ impl Structure {
             .collect()
     }
 
-    fn shift_reads(&self) -> Vec<proc_macro2::TokenStream> {
+    fn shift_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.shift_read(self))
             .collect()
     }
 
-    fn shift_updates(&self) -> Vec<proc_macro2::TokenStream> {
+    fn shift_updates(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.shift_update(self))
             .collect()
     }
 
-    fn uint_reads(&self) -> Vec<proc_macro2::TokenStream> {
+    fn uint_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.uint_read())
             .collect()
     }
 
-    fn uint_updates(&self) -> Vec<proc_macro2::TokenStream> {
+    fn uint_updates(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
             .filter_map(|element| element.uint_update(self))
             .collect()
     }
 
-    fn true_type(&self) -> proc_macro2::TokenStream {
+    fn true_type(&self) -> TokenStream {
         let inner_type: Ident = self.inner_type();
         let Self {
             attrs,
@@ -180,7 +181,7 @@ impl Structure {
         }
     }
 
-    fn read_volatile(&self) -> proc_macro2::TokenStream {
+    fn read_volatile(&self) -> TokenStream {
         quote! {
             pub unsafe fn read_volatile(&self) -> Self {
                 unsafe {
@@ -190,7 +191,7 @@ impl Structure {
         }
     }
 
-    fn write_volatile(&self) -> proc_macro2::TokenStream {
+    fn write_volatile(&self) -> TokenStream {
         quote! {
             pub unsafe fn write_volatile(&mut self, argument: Self) {
                 unsafe {
@@ -230,11 +231,11 @@ impl From<ItemStruct> for Structure {
     }
 }
 
-impl From<Structure> for proc_macro2::TokenStream {
+impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
-        let true_type: proc_macro2::TokenStream = structure.true_type();
-        let implement: proc_macro2::TokenStream = structure.implement();
-        let debug: proc_macro2::TokenStream = structure.debug();
+        let true_type: TokenStream = structure.true_type();
+        let implement: TokenStream = structure.implement();
+        let debug: TokenStream = structure.debug();
         quote! {
             #true_type
             #implement
@@ -249,22 +250,19 @@ struct Element {
 }
 
 impl Element {
-    fn bit_read(&self) -> Option<proc_macro2::TokenStream> {
+    fn bit_read(&self) -> Option<TokenStream> {
         let bits: u8 = self.bits;
         self.bit_read_ident()
             .zip(self.offset_ident())
             .map(|(bit_read, offset)| {
-                let (return_type, return_value): (
-                    proc_macro2::TokenStream,
-                    proc_macro2::TokenStream,
-                ) = if bits == 1 {
+                let (return_type, return_value): (TokenStream, TokenStream) = if bits == 1 {
                     (
                         quote! { bool },
                         quote! { self.0 & (1 << Self::#offset) != 0 },
                     )
                 } else {
                     let bits_usize: usize = bits as usize;
-                    let bools: Vec<proc_macro2::TokenStream> = (0..bits)
+                    let bools: Vec<TokenStream> = (0..bits)
                         .map(|bit| {
                             quote! {
                                 self.0 & (1 << (#bit + Self::#offset)) != 0
@@ -289,7 +287,7 @@ impl Element {
         })
     }
 
-    fn bit_update(&self) -> Option<proc_macro2::TokenStream> {
+    fn bit_update(&self) -> Option<TokenStream> {
         if let (Some(bit_update), Some(mask_update), Some(offset)) = (
             self.bit_update_ident(),
             self.mask_update_ident(),
@@ -301,17 +299,14 @@ impl Element {
         }
         .map(|(bit_update, mask_update, offset)| {
             let bits: u8 = self.bits;
-            let (argument_type, argument_value): (
-                proc_macro2::TokenStream,
-                proc_macro2::TokenStream,
-            ) = if bits == 1 {
+            let (argument_type, argument_value): (TokenStream, TokenStream) = if bits == 1 {
                 (
                     quote! { bool },
                     quote! { if argument { 1 << Self::#offset } else { 0 } },
                 )
             } else {
                 let bits_usize: usize = bits as usize;
-                let values: Vec<proc_macro2::TokenStream> = (0..bits)
+                let values: Vec<TokenStream> = (0..bits)
                     .map(|bit| {
                         quote! {
                             if argument[#bits_usize] { 1 << (#bit + Self::#offset) } else { 0 }
@@ -351,7 +346,7 @@ impl Element {
             .map(|ident| Ident::new(&format!("{}_{}", ident, suffix), ident.span()))
     }
 
-    fn length(&self) -> Option<proc_macro2::TokenStream> {
+    fn length(&self) -> Option<TokenStream> {
         let bits: u8 = self.bits;
         self.length_ident().map(|length| {
             quote! {
@@ -364,7 +359,7 @@ impl Element {
         self.const_ident("LENGTH")
     }
 
-    fn mask_const(&self, structure: &Structure, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn mask_const(&self, structure: &Structure, offset: u8) -> Option<TokenStream> {
         self.mask_const_ident()
             .map(|mask_const| match structure.bits() {
                 8 => {
@@ -405,7 +400,7 @@ impl Element {
         self.const_ident("MASK")
     }
 
-    fn mask_read(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+    fn mask_read(&self, structure: &Structure) -> Option<TokenStream> {
         self.mask_read_ident()
             .zip(self.mask_const_ident())
             .map(|(mask_read, mask_const)| {
@@ -422,7 +417,7 @@ impl Element {
         self.function_ident("mask_read")
     }
 
-    fn mask_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+    fn mask_update(&self, structure: &Structure) -> Option<TokenStream> {
         self.mask_update_ident()
             .zip(self.mask_const_ident())
             .map(|(mask_update, mask_const)| {
@@ -439,7 +434,7 @@ impl Element {
         self.function_ident("mask_update")
     }
 
-    fn offset(&self, offset: u8) -> Option<proc_macro2::TokenStream> {
+    fn offset(&self, offset: u8) -> Option<TokenStream> {
         self.offset_ident().map(|offset_const| {
             quote! {
                 const #offset_const: u8 = #offset;
@@ -451,7 +446,7 @@ impl Element {
         self.const_ident("OFFSET")
     }
 
-    fn shift_read(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+    fn shift_read(&self, structure: &Structure) -> Option<TokenStream> {
         if let (Some(shift_read), Some(mask_read), Some(offset)) = (
             self.shift_read_ident(),
             self.mask_read_ident(),
@@ -475,7 +470,7 @@ impl Element {
         self.function_ident("shift_read")
     }
 
-    fn shift_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+    fn shift_update(&self, structure: &Structure) -> Option<TokenStream> {
         if let (Some(shift_update), Some(mask_update), Some(offset)) = (
             self.shift_update_ident(),
             self.mask_update_ident(),
@@ -550,7 +545,7 @@ impl Element {
         }
     }
 
-    fn uint_read(&self) -> Option<proc_macro2::TokenStream> {
+    fn uint_read(&self) -> Option<TokenStream> {
         let bits: u8 = self.bits;
         self.uint_read_ident()
             .zip(self.shift_read_ident())
@@ -581,7 +576,7 @@ impl Element {
             .flatten()
     }
 
-    fn uint_update(&self, structure: &Structure) -> Option<proc_macro2::TokenStream> {
+    fn uint_update(&self, structure: &Structure) -> Option<TokenStream> {
         let bits: u8 = self.bits;
         self.uint_update_ident().zip(self.shift_update_ident()).map(
             |(uint_update, shift_update)| {
