@@ -2,13 +2,12 @@ use {
     proc_macro2::TokenStream,
     quote::quote,
     syn::{
-        Attribute, Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path,
-        PathSegment, Type, TypeArray, TypePath, Visibility,
+        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path, PathSegment, Type,
+        TypeArray, TypePath, Visibility,
     },
 };
 
 pub struct Structure {
-    attrs: Vec<Attribute>,
     vis: Visibility,
     ident: Ident,
     elements: Vec<Element>,
@@ -168,13 +167,11 @@ impl Structure {
     fn true_type(&self) -> TokenStream {
         let inner_type: Ident = self.inner_type();
         let Self {
-            attrs,
             vis,
             ident,
             elements: _,
         } = self;
         quote! {
-            #(#attrs)*
             #[derive(Clone, Copy, Eq, PartialEq)]
             #[repr(transparent)]
             #vis struct #ident(#inner_type);
@@ -205,7 +202,7 @@ impl Structure {
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
-            attrs,
+            attrs: _,
             vis,
             struct_token: _,
             ident,
@@ -220,7 +217,6 @@ impl From<ItemStruct> for Structure {
         {
             let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
             Self {
-                attrs,
                 vis,
                 ident,
                 elements,
