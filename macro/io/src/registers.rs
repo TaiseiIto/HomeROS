@@ -1,5 +1,5 @@
 use {
-    proc_macro2::TokenStream,
+    proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{Field, Fields, FieldsNamed, Ident, ItemStruct, Type, Visibility},
 };
@@ -11,6 +11,18 @@ pub struct Structure {
 }
 
 impl Structure {
+    fn implement(&self) -> TokenStream {
+        let Self {
+            vis,
+            ident,
+            elements,
+        } = self;
+        quote! {
+            impl #ident {
+            }
+        }
+    }
+
     fn true_type(&self) -> TokenStream {
         let Self {
             vis,
@@ -21,10 +33,7 @@ impl Structure {
             .iter()
             .enumerate()
             .map(|(index, element)| {
-                let ident: Ident = element
-                    .ident
-                    .clone()
-                    .unwrap_or(Ident::new(&format!("reserved{}", index), ident.span()));
+                let ident: Ident = element.ident(self);
                 let ty: &Type = &element.ty;
                 quote! {
                     #ident: #ty
@@ -56,7 +65,11 @@ impl From<ItemStruct> for Structure {
             semi_token: _,
         } = item_struct
         {
-            let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
+            let elements: Vec<Element> = named
+                .into_iter()
+                .enumerate()
+                .map(|(index, field)| Element::new(index, field))
+                .collect();
             Self {
                 vis,
                 ident,
@@ -70,20 +83,30 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
+        let implement: TokenStream = structure.implement();
         let true_type: TokenStream = structure.true_type();
         quote! {
             #true_type
+            #implement
         }
     }
 }
 
 struct Element {
     ident: Option<Ident>,
+    index: usize,
     ty: Type,
 }
 
-impl From<Field> for Element {
-    fn from(field: Field) -> Self {
+impl Element {
+    fn ident(&self, structure: &Structure) -> Ident {
+        self.ident.clone().unwrap_or(Ident::new(
+            &format!("reserved{}", self.index),
+            structure.ident.span(),
+        ))
+    }
+
+    fn new(index: usize, field: Field) -> Self {
         if let Field {
             attrs: _,
             vis: _,
@@ -95,7 +118,7 @@ impl From<Field> for Element {
         } = field
         {
             let ident: Option<Ident> = (ident != "__").then_some(ident);
-            Self { ident, ty }
+            Self { ident, index, ty }
         } else {
             panic!();
         }
