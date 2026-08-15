@@ -182,7 +182,7 @@ impl Element {
             }
         };
         quote! {
-            const #offset: usize = #value;
+            pub const #offset: usize = #value;
         }
     }
 
@@ -194,7 +194,7 @@ impl Element {
         let size: Ident = self.size_ident();
         let ty: &Type = &self.ty;
         quote! {
-            const #size: usize = core::mem::size_of::<#ty>();
+            pub const #size: usize = core::mem::size_of::<#ty>();
         }
     }
 

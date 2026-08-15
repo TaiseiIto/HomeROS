@@ -346,7 +346,7 @@ impl Element {
         let bits: u8 = self.bits;
         self.length_ident().map(|length| {
             quote! {
-                const #length: u8 = #bits;
+                pub const #length: u8 = #bits;
             }
         })
     }
@@ -361,31 +361,31 @@ impl Element {
                 8 => {
                     let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                     quote! {
-                        const #mask_const: u8 = #mask;
+                        pub const #mask_const: u8 = #mask;
                     }
                 }
                 16 => {
                     let mask: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                     quote! {
-                        const #mask_const: u16 = #mask;
+                        pub const #mask_const: u16 = #mask;
                     }
                 }
                 32 => {
                     let mask: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                     quote! {
-                        const #mask_const: u32 = #mask;
+                        pub const #mask_const: u32 = #mask;
                     }
                 }
                 64 => {
                     let mask: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                     quote! {
-                        const #mask_const: u64 = #mask;
+                        pub const #mask_const: u64 = #mask;
                     }
                 }
                 128 => {
                     let mask: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                     quote! {
-                        const #mask_const: u128 = #mask;
+                        pub const #mask_const: u128 = #mask;
                     }
                 }
                 _ => panic!(),
@@ -433,7 +433,7 @@ impl Element {
     fn offset(&self, offset: u8) -> Option<TokenStream> {
         self.offset_ident().map(|offset_const| {
             quote! {
-                const #offset_const: u8 = #offset;
+                pub const #offset_const: u8 = #offset;
             }
         })
     }
