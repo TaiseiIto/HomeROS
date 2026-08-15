@@ -8,9 +8,9 @@ use {
 };
 
 pub struct Structure {
-    vis: Visibility,
-    ident: Ident,
     elements: Vec<Element>,
+    ident: Ident,
+    vis: Visibility,
 }
 
 impl Structure {
@@ -191,9 +191,9 @@ impl From<ItemStruct> for Structure {
                 .map(|(index, field)| Element::new(index, field))
                 .collect();
             Self {
-                vis,
-                ident,
                 elements,
+                ident,
+                vis,
             }
         } else {
             panic!();
@@ -213,8 +213,8 @@ impl From<Structure> for TokenStream {
 }
 
 struct Element {
-    ident: Ident,
     bits: u8,
+    ident: Ident,
 }
 
 impl Element {
