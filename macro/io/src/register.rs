@@ -32,6 +32,20 @@ impl Structure {
             .collect()
     }
 
+    fn debug(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let ident_string: String = ident.to_string();
+        quote! {
+            impl core::fmt::Debug for #ident {
+                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    unsafe {
+                        self.read_volatile()
+                    }.prettify().fmt(formatter)
+                }
+            }
+        }
+    }
+
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let bits_reads: Vec<TokenStream> = self.bits_reads();
@@ -129,7 +143,7 @@ impl Structure {
 
     fn pretty_debug(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
-        let pretty_structure_string: String = pretty_structure.to_string();
+        let ident_string: String = self.ident.to_string();
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
@@ -152,7 +166,7 @@ impl Structure {
             impl core::fmt::Debug for #pretty_structure {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     formatter
-                        .debug_struct(#pretty_structure_string)
+                        .debug_struct(#ident_string)
                         .#(#elements).*
                         .finish()
                 }
@@ -340,12 +354,14 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let true_type: TokenStream = structure.true_type();
         let implement: TokenStream = structure.implement();
+        let debug: TokenStream = structure.debug();
         let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_structure: TokenStream = structure.pretty_structure();
         let pretty_debug: TokenStream = structure.pretty_debug();
         quote! {
             #true_type
             #implement
+            #debug
             #pretty_structure
             #pretty_implement
             #pretty_debug
