@@ -134,6 +134,7 @@ impl Structure {
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
         let pretty_bits_updates: Vec<TokenStream> = self.pretty_bits_updates();
         let pretty_mask_reads: Vec<TokenStream> = self.pretty_mask_reads();
+        let pretty_mask_updates: Vec<TokenStream> = self.pretty_mask_updates();
         let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let unprettify: TokenStream = self.unprettify();
@@ -144,6 +145,7 @@ impl Structure {
                 #(#pretty_bits_reads)*
                 #(#pretty_bits_updates)*
                 #(#pretty_mask_reads)*
+                #(#pretty_mask_updates)*
                 #(#pretty_shift_reads)*
                 #(#pretty_shift_updates)*
                 #unprettify
@@ -155,6 +157,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.pretty_mask_read(self))
+            .collect()
+    }
+
+    fn pretty_mask_updates(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_mask_update(self))
             .collect()
     }
 
@@ -582,7 +591,7 @@ impl Element {
                 let structure: &Ident = &structure.ident;
                 let offset: Ident = self.offset_ident();
                 quote! {
-                    pub fn #pretty_mask_read(self) -> #return_type {
+                    pub fn #pretty_mask_read(&self) -> #return_type {
                         self.#pretty_shift_read() << #structure::#offset
                     }
                 }
@@ -591,6 +600,26 @@ impl Element {
 
     fn pretty_mask_read_ident(&self) -> Option<Ident> {
         (!self.reserved).then_some(self.function_ident("mask_read"))
+    }
+
+    fn pretty_mask_update(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_mask_update_ident()
+            .zip(self.pretty_shift_update_ident())
+            .map(|(pretty_mask_update, pretty_shift_update)| {
+                let ident: &Ident = &self.ident;
+                let argument_type: Ident = structure.inner_type();
+                let structure: &Ident = &structure.ident;
+                let offset: Ident = self.offset_ident();
+                quote! {
+                    pub fn #pretty_mask_update(self, #ident: #argument_type) -> Self {
+                        self.#pretty_shift_update(#ident << #structure::#offset)
+                    }
+                }
+            })
+    }
+
+    fn pretty_mask_update_ident(&self) -> Option<Ident> {
+        (!self.reserved).then_some(self.function_ident("mask_update"))
     }
 
     fn pretty_shift_read(&self, structure: &Structure) -> Option<TokenStream> {
