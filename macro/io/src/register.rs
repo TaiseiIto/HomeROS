@@ -99,6 +99,20 @@ impl Structure {
         }
     }
 
+    fn pretty_bit_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_bit_read())
+            .collect()
+    }
+
+    fn pretty_bit_updates(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_bit_update(self))
+            .collect()
+    }
+
     fn pretty_bits_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
@@ -115,11 +129,15 @@ impl Structure {
 
     fn pretty_implement(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
+        let pretty_bit_updates: Vec<TokenStream> = self.pretty_bit_updates();
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
         let pretty_bits_updates: Vec<TokenStream> = self.pretty_bits_updates();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
+                #(#pretty_bit_reads)*
+                #(#pretty_bit_updates)*
                 #(#pretty_bits_reads)*
                 #(#pretty_bits_updates)*
                 #unprettify
@@ -420,6 +438,60 @@ impl Element {
         quote! {
             #ident: [bool; #bits]
         }
+    }
+
+    fn pretty_bit_read(&self) -> Option<TokenStream> {
+        self.pretty_bit_read_ident().map(|pretty_bit_read| {
+            let ident: &Ident = &self.ident;
+            quote! {
+                pub fn #pretty_bit_read(&self) -> bool {
+                    self.#ident[0]
+                }
+            }
+        })
+    }
+
+    fn pretty_bit_read_ident(&self) -> Option<Ident> {
+        (!self.reserved && self.bits == 1).then_some(self.function_ident("bit_read"))
+    }
+
+    fn pretty_bit_update(&self, structure: &Structure) -> Option<TokenStream> {
+        self.pretty_bit_update_ident().map(|pretty_bits_update| {
+            let bits: usize = self.bits as usize;
+            let unpack: Vec<TokenStream> = structure
+                .elements
+                .iter()
+                .map(|element| {
+                    let ident: &Ident = &element.ident;
+                    if *ident == self.ident {
+                        quote! {
+                            #ident: _
+                        }
+                    } else {
+                        quote! {
+                            #ident
+                        }
+                    }
+                })
+                .collect();
+            let pack: Vec<Ident> = structure
+                .elements
+                .iter()
+                .map(|element| element.ident.clone())
+                .collect();
+            let ident: &Ident = &self.ident;
+            quote! {
+                pub fn #pretty_bits_update(self, #ident: bool) -> Self {
+                    let #ident: [bool; 1] = [#ident];
+                    let Self {#(#unpack),*} = self;
+                    Self {#(#pack),*}
+                }
+            }
+        })
+    }
+
+    fn pretty_bit_update_ident(&self) -> Option<Ident> {
+        (!self.reserved && self.bits == 1).then_some(self.function_ident("bit_update"))
     }
 
     fn pretty_bits_read(&self) -> Option<TokenStream> {
