@@ -137,6 +137,7 @@ impl Structure {
         let pretty_mask_updates: Vec<TokenStream> = self.pretty_mask_updates();
         let pretty_shift_reads: Vec<TokenStream> = self.pretty_shift_reads();
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
+        let pretty_uint_reads: Vec<TokenStream> = self.pretty_uint_reads();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
@@ -148,6 +149,7 @@ impl Structure {
                 #(#pretty_mask_updates)*
                 #(#pretty_shift_reads)*
                 #(#pretty_shift_updates)*
+                #(#pretty_uint_reads)*
                 #unprettify
             }
         }
@@ -178,6 +180,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.pretty_shift_update(self))
+            .collect()
+    }
+
+    fn pretty_uint_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.pretty_uint_read())
             .collect()
     }
 
@@ -683,6 +692,33 @@ impl Element {
 
     fn pretty_shift_update_ident(&self) -> Option<Ident> {
         (!self.reserved).then_some(self.function_ident("shift_update"))
+    }
+
+    fn pretty_uint_read(&self) -> Option<TokenStream> {
+        self.pretty_uint_read_ident_and_type()
+            .zip(self.pretty_shift_read_ident())
+            .map(|((pretty_uint_read, return_type), pretty_shift_read)| {
+                quote! {
+                    pub fn #pretty_uint_read(&self) -> #return_type {
+                        self.#pretty_shift_read() as #return_type
+                    }
+                }
+            })
+    }
+
+    fn pretty_uint_read_ident_and_type(&self) -> Option<(Ident, Ident)> {
+        let Self {
+            bits,
+            ident,
+            reserved,
+        } = self;
+        (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
+            let return_type: String = format!("u{}", bits);
+            (
+                self.function_ident(&format!("{}_read", &return_type)),
+                Ident::new(&return_type, ident.span()),
+            )
+        })
     }
 
     fn type2bits(ty: Type) -> u8 {
