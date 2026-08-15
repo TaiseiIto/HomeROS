@@ -34,7 +34,6 @@ impl Structure {
 
     fn debug(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let ident_string: String = ident.to_string();
         quote! {
             impl core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
