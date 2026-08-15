@@ -214,7 +214,11 @@ impl From<ItemStruct> for Structure {
             semi_token: _,
         } = item_struct
         {
-            let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
+            let elements: Vec<Element> = named
+                .into_iter()
+                .enumerate()
+                .map(|(index, field)| Element::new(index, field))
+                .collect();
             Self {
                 vis,
                 ident,
@@ -352,6 +356,25 @@ impl Element {
 
     fn length_ident(&self) -> Option<Ident> {
         self.const_ident("LENGTH")
+    }
+
+    fn new(index: usize, field: Field) -> Self {
+        if let Field {
+            attrs: _,
+            vis: _,
+            modifiers: _,
+            ident: Some(ident),
+            colon_token: _,
+            ty,
+            default: _,
+        } = field
+        {
+            let ident: Option<Ident> = (ident != "__").then_some(ident);
+            let bits: u8 = Self::type2bits(ty);
+            Self { ident, bits }
+        } else {
+            panic!();
+        }
     }
 
     fn mask_const(&self, structure: &Structure, offset: u8) -> Option<TokenStream> {
@@ -601,27 +624,6 @@ impl Element {
         (bits.is_power_of_two() && (8..=128).contains(&bits))
             .then(|| self.function_ident("uint_update"))
             .flatten()
-    }
-}
-
-impl From<Field> for Element {
-    fn from(field: Field) -> Self {
-        if let Field {
-            attrs: _,
-            vis: _,
-            modifiers: _,
-            ident: Some(ident),
-            colon_token: _,
-            ty,
-            default: _,
-        } = field
-        {
-            let ident: Option<Ident> = (ident != "__").then_some(ident);
-            let bits: u8 = Self::type2bits(ty);
-            Self { ident, bits }
-        } else {
-            panic!();
-        }
     }
 }
 
