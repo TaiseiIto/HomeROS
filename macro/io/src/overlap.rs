@@ -15,6 +15,23 @@ pub struct Registers {
 }
 
 impl Registers {
+    fn pretty_type(&self) -> TokenStream {
+        let vis: &Visibility = &self.vis;
+        let pretty_type: Ident = self.pretty_type_ident();
+        let reader_type: Ident = self.reader_type_ident();
+        let writer_type: Ident = self.writer_type_ident();
+        quote! {
+            #vis enum #pretty_type {
+                Reader(#reader_type),
+                Writer(#writer_type),
+            }
+        }
+    }
+
+    fn pretty_type_ident(&self) -> Ident {
+        self.type_ident("Pretty")
+    }
+
     fn reader_type(&self) -> TokenStream {
         let Self {
             elements,
@@ -108,10 +125,12 @@ impl From<ItemUnion> for Registers {
 
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
+        let pretty_type: TokenStream = registers.pretty_type();
         let reader_type: TokenStream = registers.reader_type();
         let true_type: TokenStream = registers.true_type();
         let writer_type: TokenStream = registers.writer_type();
         quote! {
+            #pretty_type
             #reader_type
             #true_type
             #writer_type
