@@ -14,27 +14,27 @@ pub struct Registers {
 }
 
 impl Registers {
-    fn pretty_type(&self) -> TokenStream {
+    fn reader_type(&self) -> TokenStream {
         let Self {
             elements,
             ident: _,
             vis,
         } = self;
-        let pretty_type: Ident = self.pretty_type_ident();
-        let pretty_elements: Vec<TokenStream> = elements
+        let reader_type: Ident = self.reader_type_ident();
+        let reader_elements: Vec<TokenStream> = elements
             .iter()
-            .map(|element| element.pretty_declaration())
+            .map(|element| element.reader_declaration())
             .collect();
         quote! {
-            #vis struct #pretty_type {
-                #(#pretty_elements),*
+            #vis struct #reader_type {
+                #(#reader_elements),*
             }
         }
     }
 
-    fn pretty_type_ident(&self) -> Ident {
+    fn reader_type_ident(&self) -> Ident {
         let ident: &Ident = &self.ident;
-        Ident::new(&format!("{}Pretty", ident), ident.span())
+        Ident::new(&format!("{}Reader", ident), ident.span())
     }
 
     fn true_type(&self) -> TokenStream {
@@ -81,11 +81,11 @@ impl From<ItemUnion> for Registers {
 
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
-        let pretty_type: TokenStream = registers.pretty_type();
         let true_type: TokenStream = registers.true_type();
+        let reader_type: TokenStream = registers.reader_type();
         quote! {
-            #pretty_type
             #true_type
+            #reader_type
         }
     }
 }
@@ -96,15 +96,15 @@ struct Element {
 }
 
 impl Element {
-    fn pretty_declaration(&self) -> TokenStream {
+    fn reader_declaration(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let pretty_type_path: Path = self.pretty_type_path();
+        let reader_type_path: Path = self.reader_type_path();
         quote! {
-            #ident: #pretty_type_path
+            #ident: #reader_type_path
         }
     }
 
-    fn pretty_type_path(&self) -> Path {
+    fn reader_type_path(&self) -> Path {
         let Path {
             leading_colon,
             segments,
