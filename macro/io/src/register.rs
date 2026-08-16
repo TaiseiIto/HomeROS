@@ -49,20 +49,22 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let bits_reads: Vec<TokenStream> = self.bits_reads();
         let bits_updates: Vec<TokenStream> = self.bits_updates();
-        let prettify: TokenStream = self.prettify();
         let lengths: Vec<TokenStream> = self.lengths();
         let mask_consts: Vec<TokenStream> = self.mask_consts();
         let offsets: Vec<TokenStream> = self.offsets();
+        let prettify: TokenStream = self.prettify();
+        let read_port: Option<TokenStream> = self.read_port();
         let read_volatile: TokenStream = self.read_volatile();
         let write_volatile: TokenStream = self.write_volatile();
         quote! {
             impl #ident {
                 #(#bits_reads)*
                 #(#bits_updates)*
-                #prettify
                 #(#lengths)*
                 #(#mask_consts)*
                 #(#offsets)*
+                #prettify
+                #read_port
                 #read_volatile
                 #write_volatile
             }
@@ -294,6 +296,36 @@ impl Structure {
                 #ident::default().#(#unprettifies).*
             }
         }
+    }
+
+    fn read_port(&self) -> Option<TokenStream> {
+        let structure: &Ident = &self.ident;
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let inner_type: Ident = self.inner_type();
+        match inner_type.to_string().as_str() {
+            "u8" => Some(quote! {
+                "out dx, al", in("dx") port, out("al") value
+            }),
+            "u16" => Some(quote! {
+                "out dx, ax", in("dx") port, out("ax") value
+            }),
+            "u32" => Some(quote! {
+                "out dx, eax", in("dx") port, out("eax") value
+            }),
+            _ => None,
+        }
+        .map(|asm| {
+            quote! {
+                #[cfg(target_arch = "x86_64")]
+                pub unsafe fn read_port(port: u16) -> #pretty_structure {
+                    let mut value: #inner_type;
+                    unsafe {
+                        core::arch::asm!(#asm);
+                    }
+                    #structure(value).prettify()
+                }
+            }
+        })
     }
 
     fn read_volatile(&self) -> TokenStream {
