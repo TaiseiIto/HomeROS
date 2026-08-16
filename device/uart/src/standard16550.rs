@@ -5,16 +5,16 @@ mod interrupt;
 mod line;
 mod modem;
 
-use core::mem::ManuallyDrop;
-
+#[io::overlap]
 #[repr(C)]
 union BufferOrBaudLow {
-    buffer: ManuallyDrop<buffer::Register>,
-    baud_low: ManuallyDrop<baud::Low>,
+    buffer: core::mem::ManuallyDrop<buffer::Register>,
+    baud_low: core::mem::ManuallyDrop<baud::Low>,
 }
 
+#[io::overlap]
 #[repr(C)]
 union InterruptEnableOrBaudHigh {
-    interrupt_enable: ManuallyDrop<interrupt::Enable>,
-    baud_high: ManuallyDrop<baud::High>,
+    interrupt_enable: core::mem::ManuallyDrop<interrupt::Enable>,
+    baud_high: core::mem::ManuallyDrop<baud::High>,
 }
