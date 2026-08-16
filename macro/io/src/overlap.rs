@@ -15,11 +15,11 @@ pub struct Registers {
 }
 
 impl Registers {
-    fn pretty_type(&self) -> TokenStream {
+    fn pretty_declaration(&self) -> TokenStream {
         let vis: &Visibility = &self.vis;
-        let pretty_type: Ident = self.pretty_type_ident();
-        let reader_type: Ident = self.reader_type_ident();
-        let writer_type: Ident = self.writer_type_ident();
+        let pretty_type: Ident = self.pretty_ident();
+        let reader_type: Ident = self.reader_ident();
+        let writer_type: Ident = self.writer_ident();
         quote! {
             #vis enum #pretty_type {
                 Reader(#reader_type),
@@ -28,17 +28,17 @@ impl Registers {
         }
     }
 
-    fn pretty_type_ident(&self) -> Ident {
+    fn pretty_ident(&self) -> Ident {
         self.type_ident("Pretty")
     }
 
-    fn reader_type(&self) -> TokenStream {
+    fn reader_declaration(&self) -> TokenStream {
         let Self {
             elements,
             ident: _,
             vis,
         } = self;
-        let reader_type: Ident = self.reader_type_ident();
+        let reader_type: Ident = self.reader_ident();
         let reader_elements: Vec<TokenStream> = elements
             .iter()
             .map(|element| element.reader_declaration())
@@ -50,11 +50,11 @@ impl Registers {
         }
     }
 
-    fn reader_type_ident(&self) -> Ident {
+    fn reader_ident(&self) -> Ident {
         self.type_ident("Reader")
     }
 
-    fn true_type(&self) -> TokenStream {
+    fn true_declaration(&self) -> TokenStream {
         let Self {
             elements,
             ident,
@@ -85,13 +85,13 @@ impl Registers {
         Ident::new(&format!("{}{}", ident, suffix), ident.span())
     }
 
-    fn writer_type(&self) -> TokenStream {
+    fn writer_declaration(&self) -> TokenStream {
         let Self {
             elements,
             ident: _,
             vis,
         } = self;
-        let writer_type: Ident = self.writer_type_ident();
+        let writer_type: Ident = self.writer_ident();
         let elements: Vec<TokenStream> = elements
             .iter()
             .map(|element| element.writer_declaration())
@@ -103,7 +103,7 @@ impl Registers {
         }
     }
 
-    fn writer_type_ident(&self) -> Ident {
+    fn writer_ident(&self) -> Ident {
         self.type_ident("Writer")
     }
 }
@@ -133,17 +133,17 @@ impl From<ItemUnion> for Registers {
 
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
-        let pretty_type: TokenStream = registers.pretty_type();
-        let reader_type: TokenStream = registers.reader_type();
-        let true_type: TokenStream = registers.true_type();
+        let pretty_declaration: TokenStream = registers.pretty_declaration();
+        let reader_declaration: TokenStream = registers.reader_declaration();
+        let true_declaration: TokenStream = registers.true_declaration();
         let true_implement: TokenStream = registers.true_implement();
-        let writer_type: TokenStream = registers.writer_type();
+        let writer_declaration: TokenStream = registers.writer_declaration();
         quote! {
-            #pretty_type
-            #reader_type
-            #true_type
+            #pretty_declaration
+            #reader_declaration
+            #true_declaration
             #true_implement
-            #writer_type
+            #writer_declaration
         }
     }
 }
