@@ -53,7 +53,6 @@ impl Structure {
         let mask_consts: Vec<TokenStream> = self.mask_consts();
         let offsets: Vec<TokenStream> = self.offsets();
         let prettify: TokenStream = self.prettify();
-        let read_port: Option<TokenStream> = self.read_port();
         let read_volatile: TokenStream = self.read_volatile();
         let write_volatile: TokenStream = self.write_volatile();
         quote! {
@@ -64,7 +63,6 @@ impl Structure {
                 #(#mask_consts)*
                 #(#offsets)*
                 #prettify
-                #read_port
                 #read_volatile
                 #write_volatile
             }
@@ -187,6 +185,7 @@ impl Structure {
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let pretty_uint_reads: Vec<TokenStream> = self.pretty_uint_reads();
         let pretty_uint_updates: Vec<TokenStream> = self.pretty_uint_updates();
+        let read_port: Option<TokenStream> = self.read_port();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_structure {
@@ -200,6 +199,7 @@ impl Structure {
                 #(#pretty_shift_updates)*
                 #(#pretty_uint_reads)*
                 #(#pretty_uint_updates)*
+                #read_port
                 #unprettify
             }
         }
@@ -317,7 +317,7 @@ impl Structure {
         .map(|asm| {
             quote! {
                 #[cfg(target_arch = "x86_64")]
-                pub unsafe fn read_port(port: u16) -> #pretty_structure {
+                pub unsafe fn read_port(port: u16) -> Self {
                     let mut value: #inner_type;
                     unsafe {
                         core::arch::asm!(#asm);
