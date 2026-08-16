@@ -104,21 +104,21 @@ impl Registers {
                             core::arch::asm!("in dx, al", in("dx") port, out("al") buffer);
                             core::ptr::read_volatile((&buffer as *const u8) as *const Self)
                         }.prettify()
-                    },
+                    }
                     2 => {
                         let mut buffer: u16;
                         unsafe {
                             core::arch::asm!("in dx, ax", in("dx") port, out("ax") buffer);
                             core::ptr::read_volatile((&buffer as *const u16) as *const Self)
                         }.prettify()
-                    },
+                    }
                     4 => {
                         let mut buffer: u32;
                         unsafe {
                             core::arch::asm!("in dx, eax", in("dx") port, out("eax") buffer);
                             core::ptr::read_volatile((&buffer as *const u32) as *const Self)
                         }.prettify()
-                    },
+                    }
                     8 => {
                         let port0: u16 = port;
                         let port1: u16 = port0 + 4;
@@ -132,7 +132,7 @@ impl Registers {
                         unsafe {
                             core::ptr::read_volatile((&buffer as *const [u32; 2]) as *const Self)
                         }.prettify()
-                    },
+                    }
                     16 => {
                         let port0: u16 = port;
                         let port1: u16 = port0 + 4;
@@ -152,7 +152,7 @@ impl Registers {
                         unsafe {
                             core::ptr::read_volatile((&buffer as *const [u32; 4]) as *const Self)
                         }.prettify()
-                    },
+                    }
                     _ => panic!(),
                 }
             }
@@ -183,12 +183,14 @@ impl Registers {
         let read_memory: TokenStream = self.read_memory();
         let read_port: TokenStream = self.read_port();
         let write_memory: TokenStream = self.write_memory();
+        let write_port: TokenStream = self.write_port();
         quote! {
             impl #ident {
                 #prettify
                 #read_memory
                 #read_port
                 #write_memory
+                #write_port
             }
         }
     }
@@ -228,6 +230,70 @@ impl Registers {
             pub unsafe fn write_memory(&mut self, argument: #pretty_type) {
                 unsafe {
                     core::ptr::write_volatile(self as *mut Self, argument.unprettify());
+                }
+            }
+        }
+    }
+
+    fn write_port(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_ident();
+        quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn write_port(port: u16, value: #pretty_type) {
+                let value: *const Self = (&value.unprettify()) as *const Self;
+                match core::mem::size_of::<Self>() {
+                    1 => {
+                        let value: *const u8 = value as *const u8;
+                        let value: u8 = unsafe { *value };
+                        unsafe {
+                            core::arch::asm!("out dx, al", in("dx") port, in("al") value);
+                        }
+                    }
+                    2 => {
+                        let value: *const u16 = value as *const u16;
+                        let value: u16 = unsafe { *value };
+                        unsafe {
+                            core::arch::asm!("out dx, ax", in("dx") port, in("ax") value);
+                        }
+                    }
+                    4 => {
+                        let value: *const u32 = value as *const u32;
+                        let value: u32 = unsafe { *value };
+                        unsafe {
+                            core::arch::asm!("out dx, eax", in("dx") port, in("eax") value);
+                        }
+                    }
+                    8 => {
+                        let value: *const [u32; 2] = value as *const [u32; 2];
+                        let value: [u32; 2] = unsafe { *value };
+                        let value0: u32 = value[0];
+                        let value1: u32 = value[1];
+                        let port0: u16 = port;
+                        let port1: u16 = port0 + 4;
+                        unsafe {
+                            core::arch::asm!("out dx, eax", in("dx") port0, in("eax") value0);
+                            core::arch::asm!("out dx, eax", in("dx") port1, in("eax") value1);
+                        }
+                    }
+                    16 => {
+                        let value: *const [u32; 4] = value as *const [u32; 4];
+                        let value: [u32; 4] = unsafe { *value };
+                        let value0: u32 = value[0];
+                        let value1: u32 = value[1];
+                        let value2: u32 = value[2];
+                        let value3: u32 = value[3];
+                        let port0: u16 = port;
+                        let port1: u16 = port0 + 4;
+                        let port2: u16 = port1 + 4;
+                        let port3: u16 = port2 + 4;
+                        unsafe {
+                            core::arch::asm!("out dx, eax", in("dx") port0, in("eax") value0);
+                            core::arch::asm!("out dx, eax", in("dx") port1, in("eax") value1);
+                            core::arch::asm!("out dx, eax", in("dx") port2, in("eax") value2);
+                            core::arch::asm!("out dx, eax", in("dx") port3, in("eax") value2);
+                        }
+                    }
+                    _ => panic!(),
                 }
             }
         }
