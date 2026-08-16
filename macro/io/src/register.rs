@@ -304,13 +304,13 @@ impl Structure {
         let inner_type: Ident = self.inner_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {
-                "out dx, al", in("dx") port, out("al") value
+                "in dx, al", in("dx") port, out("al") value
             }),
             "u16" => Some(quote! {
-                "out dx, ax", in("dx") port, out("ax") value
+                "in dx, ax", in("dx") port, out("ax") value
             }),
             "u32" => Some(quote! {
-                "out dx, eax", in("dx") port, out("eax") value
+                "in dx, eax", in("dx") port, out("eax") value
             }),
             _ => None,
         }
