@@ -15,6 +15,23 @@ pub struct Registers {
 }
 
 impl Registers {
+    fn prettify(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_ident();
+        let reader_type: Ident = self.reader_ident();
+        let elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .map(|element| element.prettify())
+            .collect();
+        quote! {
+            fn prettify(self) -> #pretty_type {
+                #pretty_type::Reader(#reader_type {
+                    #(#elements),*
+                })
+            }
+        }
+    }
+
     fn pretty_declaration(&self) -> TokenStream {
         let vis: &Visibility = &self.vis;
         let pretty_type: Ident = self.pretty_ident();
@@ -74,8 +91,10 @@ impl Registers {
 
     fn true_implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
+        let prettify: TokenStream = self.prettify();
         quote! {
             impl #ident {
+                #prettify
             }
         }
     }
@@ -154,6 +173,13 @@ struct Element {
 }
 
 impl Element {
+    fn prettify(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        quote! {
+            #ident: unsafe {self.#ident.read_memory()}
+        }
+    }
+
     fn pretty_type_path(&self) -> Path {
         let Path {
             leading_colon,
