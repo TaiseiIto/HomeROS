@@ -83,12 +83,11 @@ impl Registers {
     }
 
     fn read_port(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
         let pretty_type: Ident = self.pretty_ident();
         quote! {
             #[cfg(target_arch = "x86_64")]
             pub unsafe fn read_port(port: u16) -> #pretty_type {
-                match core::mem::size_of::<#ident>() {
+                match core::mem::size_of::<Self>() {
                     1 => {
                         let mut buffer: u8;
                         unsafe {
