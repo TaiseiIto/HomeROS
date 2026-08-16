@@ -54,7 +54,9 @@ impl Structure {
         let offsets: Vec<TokenStream> = self.offsets();
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
+        let read_port: Option<TokenStream> = self.read_port();
         let write_memory: TokenStream = self.write_memory();
+        let write_port: Option<TokenStream> = self.write_port();
         quote! {
             impl #ident {
                 #(#bits_reads)*
@@ -64,7 +66,9 @@ impl Structure {
                 #(#offsets)*
                 #prettify
                 #read_memory
+                #read_port
                 #write_memory
+                #write_port
             }
         }
     }
@@ -185,9 +189,7 @@ impl Structure {
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let pretty_uint_reads: Vec<TokenStream> = self.pretty_uint_reads();
         let pretty_uint_updates: Vec<TokenStream> = self.pretty_uint_updates();
-        let read_port: Option<TokenStream> = self.read_port();
         let unprettify: TokenStream = self.unprettify();
-        let write_port: Option<TokenStream> = self.write_port();
         quote! {
             impl #pretty_type {
                 #(#pretty_bit_reads)*
@@ -200,9 +202,7 @@ impl Structure {
                 #(#pretty_shift_updates)*
                 #(#pretty_uint_reads)*
                 #(#pretty_uint_updates)*
-                #read_port
                 #unprettify
-                #write_port
             }
         }
     }
@@ -303,6 +303,7 @@ impl Structure {
     fn read_port(&self) -> Option<TokenStream> {
         let structure: &Ident = &self.ident;
         let inner_type: Ident = self.inner_type();
+        let pretty_type: Ident = self.pretty_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {
                 "in dx, al", in("dx") port, out("al") value
@@ -318,7 +319,7 @@ impl Structure {
         .map(|asm| {
             quote! {
                 #[cfg(target_arch = "x86_64")]
-                pub unsafe fn read_port(port: u16) -> Self {
+                pub unsafe fn read_port(port: u16) -> #pretty_type {
                     let mut value: #inner_type;
                     unsafe {
                         core::arch::asm!(#asm);
@@ -342,6 +343,7 @@ impl Structure {
 
     fn write_port(&self) -> Option<TokenStream> {
         let inner_type: Ident = self.inner_type();
+        let pretty_type: Ident = self.pretty_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {
                 "out dx, al", in("dx") port, in("al") value
@@ -357,8 +359,8 @@ impl Structure {
         .map(|asm| {
             quote! {
                 #[cfg(target_arch = "x86_64")]
-                pub unsafe fn write_port(self, port: u16) {
-                    let value: #inner_type = self.unprettify().0;
+                pub unsafe fn write_port(port: u16, argument: #pretty_type) {
+                    let value: #inner_type = argument.unprettify().0;
                     unsafe {
                         core::arch::asm!(#asm);
                     }
