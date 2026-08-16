@@ -72,6 +72,14 @@ impl Registers {
         }
     }
 
+    fn true_implement(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        quote! {
+            impl #ident {
+            }
+        }
+    }
+
     fn type_ident(&self, suffix: &str) -> Ident {
         let ident: &Ident = &self.ident;
         Ident::new(&format!("{}{}", ident, suffix), ident.span())
@@ -128,11 +136,13 @@ impl From<Registers> for TokenStream {
         let pretty_type: TokenStream = registers.pretty_type();
         let reader_type: TokenStream = registers.reader_type();
         let true_type: TokenStream = registers.true_type();
+        let true_implement: TokenStream = registers.true_implement();
         let writer_type: TokenStream = registers.writer_type();
         quote! {
             #pretty_type
             #reader_type
             #true_type
+            #true_implement
             #writer_type
         }
     }
