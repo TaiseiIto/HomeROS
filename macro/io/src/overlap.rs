@@ -71,6 +71,17 @@ impl Registers {
         self.type_ident("Reader")
     }
 
+    fn read_memory(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_ident();
+        quote! {
+            pub unsafe fn read_memory(&self) -> #pretty_type {
+                unsafe {
+                    core::ptr::read_volatile(self as *const Self)
+                }.prettify()
+            }
+        }
+    }
+
     fn true_declaration(&self) -> TokenStream {
         let Self {
             elements,
@@ -92,9 +103,11 @@ impl Registers {
     fn true_implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let prettify: TokenStream = self.prettify();
+        let read_memory: TokenStream = self.read_memory();
         quote! {
             impl #ident {
                 #prettify
+                #read_memory
             }
         }
     }
