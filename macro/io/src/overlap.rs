@@ -82,6 +82,40 @@ impl Registers {
         }
     }
 
+    fn read_port(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let pretty_type: Ident = self.pretty_ident();
+        quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn read_port(port: u16) -> #pretty_type {
+                match core::mem::size_of::<#ident>() {
+                    1 => {
+                        let mut buffer: u8;
+                        unsafe {
+                            core::arch::asm!("in dx, al", in("dx") port, out("al") buffer);
+                            core::ptr::read_volatile((&buffer as *const u8) as *const Self)
+                        }.prettify()
+                    },
+                    2 => {
+                        let mut buffer: u16;
+                        unsafe {
+                            core::arch::asm!("in dx, ax", in("dx") port, out("ax") buffer);
+                            core::ptr::read_volatile((&buffer as *const u16) as *const Self)
+                        }.prettify()
+                    },
+                    4 => {
+                        let mut buffer: u32;
+                        unsafe {
+                            core::arch::asm!("in dx, eax", in("dx") port, out("eax") buffer);
+                            core::ptr::read_volatile((&buffer as *const u32) as *const Self)
+                        }.prettify()
+                    },
+                    _ => panic!(),
+                }
+            }
+        }
+    }
+
     fn true_declaration(&self) -> TokenStream {
         let Self {
             elements,
@@ -104,10 +138,12 @@ impl Registers {
         let ident: &Ident = &self.ident;
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
+        let read_port: TokenStream = self.read_port();
         quote! {
             impl #ident {
                 #prettify
                 #read_memory
+                #read_port
             }
         }
     }
