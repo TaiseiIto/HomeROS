@@ -11,6 +11,29 @@ pub struct Registers {
 }
 
 impl Registers {
+    fn pretty_type(&self) -> TokenStream {
+        let Self {
+            elements,
+            ident: _,
+            vis,
+        } = self;
+        let pretty_type: Ident = self.pretty_type_ident();
+        let pretty_elements: Vec<TokenStream> = elements
+            .iter()
+            .map(|element| element.pretty_declaration())
+            .collect();
+        quote! {
+            #vis struct #pretty_type {
+                #(#pretty_elements),*
+            }
+        }
+    }
+
+    fn pretty_type_ident(&self) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}Pretty", ident), ident.span())
+    }
+
     fn true_type(&self) -> TokenStream {
         let Self {
             elements,
@@ -55,8 +78,10 @@ impl From<ItemUnion> for Registers {
 
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
+        let pretty_type: TokenStream = registers.pretty_type();
         let true_type: TokenStream = registers.true_type();
         quote! {
+            #pretty_type
             #true_type
         }
     }
@@ -68,6 +93,13 @@ struct Element {
 }
 
 impl Element {
+    fn pretty_declaration(&self) -> TokenStream {
+        let Self { ident, ty } = self;
+        quote! {
+            #ident: #ty
+        }
+    }
+
     fn true_declaration(&self) -> TokenStream {
         let Self { ident, ty } = self;
         quote! {
