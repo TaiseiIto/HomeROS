@@ -63,7 +63,7 @@ impl Registers {
     fn writer_type(&self) -> TokenStream {
         let Self {
             elements,
-            ident,
+            ident: _,
             vis,
         } = self;
         let writer_type: Ident = self.writer_type_ident();
