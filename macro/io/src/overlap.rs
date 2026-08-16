@@ -1,7 +1,10 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{Field, FieldsNamed, Ident, ItemUnion, Type, Visibility},
+    syn::{
+        Field, FieldsNamed, Ident, ItemUnion, Path, PathSegment, Type, TypePath, Visibility,
+        punctuated::Punctuated, token::PathSep,
+    },
 };
 
 pub struct Registers {
@@ -89,26 +92,39 @@ impl From<Registers> for TokenStream {
 
 struct Element {
     ident: Ident,
-    ty: Type,
+    type_path: Path,
 }
 
 impl Element {
     fn pretty_declaration(&self) -> TokenStream {
-        let Self { ident, ty } = self;
+        let ident: &Ident = &self.ident;
+        let pretty_type_path: Path = self.pretty_type_path();
         quote! {
-            #ident: #ty
+            #ident: #pretty_type_path
         }
     }
 
-    fn pretty_type_ident(&self) -> Ident {
-        let ident: &Ident = &self.ident;
-        Ident::new(&format!("{}Pretty", ident), ident.span())
+    fn pretty_type_path(&self) -> Path {
+        let Path {
+            leading_colon,
+            segments,
+        } = &self.type_path;
+        let leading_colon: Option<PathSep> = leading_colon.clone();
+        let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
+        segments.last_mut().map(|last_segment| {
+            let ident: &mut Ident = &mut last_segment.ident;
+            *ident = Ident::new(&format!("{}Pretty", ident), ident.span());
+        });
+        Path {
+            leading_colon,
+            segments,
+        }
     }
 
     fn true_declaration(&self) -> TokenStream {
-        let Self { ident, ty } = self;
+        let Self { ident, type_path } = self;
         quote! {
-            #ident: core::mem::ManuallyDrop<#ty>
+            #ident: core::mem::ManuallyDrop<#type_path>
         }
     }
 }
@@ -121,11 +137,16 @@ impl From<Field> for Element {
             modifiers: _,
             ident: Some(ident),
             colon_token: _,
-            ty,
+            ty:
+                Type::Path(TypePath {
+                    attrs: _,
+                    qself: _,
+                    path: type_path,
+                }),
             default: _,
         } = field
         {
-            Self { ident, ty }
+            Self { ident, type_path }
         } else {
             panic!();
         }
