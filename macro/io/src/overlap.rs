@@ -123,6 +123,26 @@ impl Registers {
                             core::ptr::read_volatile((&buffer as *const [u32; 2]) as *const Self)
                         }.prettify()
                     },
+                    16 => {
+                        let port0: u16 = port;
+                        let port1: u16 = port + 4;
+                        let port2: u16 = port + 8;
+                        let port3: u16 = port + 12;
+                        let mut buffer0: u32;
+                        let mut buffer1: u32;
+                        let mut buffer2: u32;
+                        let mut buffer3: u32;
+                        unsafe {
+                            core::arch::asm!("in dx, eax", in("dx") port0, out("eax") buffer0);
+                            core::arch::asm!("in dx, eax", in("dx") port1, out("eax") buffer1);
+                            core::arch::asm!("in dx, eax", in("dx") port2, out("eax") buffer2);
+                            core::arch::asm!("in dx, eax", in("dx") port3, out("eax") buffer3);
+                        }
+                        let buffer: [u32; 4] = [buffer0, buffer1, buffer2, buffer3];
+                        unsafe {
+                            core::ptr::read_volatile((&buffer as *const [u32; 4]) as *const Self)
+                        }.prettify()
+                    },
                     _ => panic!(),
                 }
             }
