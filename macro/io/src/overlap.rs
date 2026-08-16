@@ -1,6 +1,7 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
+    std::iter,
     syn::{
         Field, FieldsNamed, Ident, ItemUnion, Path, PathSegment, Type, TypePath, Visibility,
         punctuated::Punctuated, token::PathSep,
@@ -170,9 +171,16 @@ impl Element {
         let ident: &Ident = &self.ident;
         let writer: String = ident
             .to_string()
-            .to_uppercase()
-            .chars()
-            .filter(|c| c.is_ascii_alphanumeric())
+            .split('_')
+            .map(|word| {
+                word.chars()
+                    .enumerate()
+                    .map(|(index, character)| match index {
+                        0 => character.to_uppercase().collect::<String>(),
+                        _ => iter::once(character).collect::<String>(),
+                    })
+                    .collect::<String>()
+            })
             .collect();
         Ident::new(writer.as_str(), ident.span())
     }
