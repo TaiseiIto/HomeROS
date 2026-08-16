@@ -97,15 +97,15 @@ impl Structure {
     }
 
     fn prettify(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         let prettify_elements: Vec<TokenStream> = self
             .elements
             .iter()
             .map(|element| element.prettify())
             .collect();
         quote! {
-            fn prettify(self) -> #pretty_structure {
-                #pretty_structure {
+            fn prettify(self) -> #pretty_type {
+                #pretty_type {
                     #(#prettify_elements),*
                 }
             }
@@ -141,7 +141,7 @@ impl Structure {
     }
 
     fn pretty_debug(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         let ident_string: String = self.ident.to_string();
         let elements: Vec<TokenStream> = self
             .elements
@@ -162,7 +162,7 @@ impl Structure {
             })
             .collect();
         quote! {
-            impl core::fmt::Debug for #pretty_structure {
+            impl core::fmt::Debug for #pretty_type {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
@@ -174,7 +174,7 @@ impl Structure {
     }
 
     fn pretty_implement(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
         let pretty_bit_updates: Vec<TokenStream> = self.pretty_bit_updates();
         let pretty_bits_reads: Vec<TokenStream> = self.pretty_bits_reads();
@@ -189,7 +189,7 @@ impl Structure {
         let unprettify: TokenStream = self.unprettify();
         let write_port: Option<TokenStream> = self.write_port();
         quote! {
-            impl #pretty_structure {
+            impl #pretty_type {
                 #(#pretty_bit_reads)*
                 #(#pretty_bit_updates)*
                 #(#pretty_bits_reads)*
@@ -249,22 +249,22 @@ impl Structure {
             .collect()
     }
 
-    fn pretty_structure(&self) -> TokenStream {
+    fn pretty_declaration(&self) -> TokenStream {
         let vis: &Visibility = &self.vis;
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
             .map(|element| element.pretty())
             .collect();
         quote! {
-            #vis struct #pretty_structure {
+            #vis struct #pretty_type {
                 #(#elements),*
             }
         }
     }
 
-    fn pretty_structure_ident(&self) -> Ident {
+    fn pretty_type(&self) -> Ident {
         let ident: &Ident = &self.ident;
         Ident::new(&format!("{}Pretty", ident), ident.span())
     }
@@ -330,9 +330,9 @@ impl Structure {
     }
 
     fn read_memory(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         quote! {
-            pub unsafe fn read_memory(&self) -> #pretty_structure {
+            pub unsafe fn read_memory(&self) -> #pretty_type {
                 unsafe {
                     core::ptr::read_volatile(self as *const Self)
                 }.prettify()
@@ -369,9 +369,9 @@ impl Structure {
     }
 
     fn write_memory(&self) -> TokenStream {
-        let pretty_structure: Ident = self.pretty_structure_ident();
+        let pretty_type: Ident = self.pretty_type();
         quote! {
-            pub unsafe fn write_memory(&mut self, argument: #pretty_structure) {
+            pub unsafe fn write_memory(&mut self, argument: #pretty_type) {
                 let argument: Self = argument.unprettify();
                 unsafe {
                     core::ptr::write_volatile(self as *mut Self, argument);
@@ -419,13 +419,13 @@ impl From<Structure> for TokenStream {
         let implement: TokenStream = structure.implement();
         let debug: TokenStream = structure.debug();
         let pretty_implement: TokenStream = structure.pretty_implement();
-        let pretty_structure: TokenStream = structure.pretty_structure();
+        let pretty_declaration: TokenStream = structure.pretty_declaration();
         let pretty_debug: TokenStream = structure.pretty_debug();
         quote! {
             #true_type
             #implement
             #debug
-            #pretty_structure
+            #pretty_declaration
             #pretty_implement
             #pretty_debug
         }
