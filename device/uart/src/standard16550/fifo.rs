@@ -1,7 +1,7 @@
 /// # References
 /// * [FIFO Control Register](https://www.lookrs232.com/rs232/fcr.htm)
 #[io::register]
-struct Control {
+pub struct Control {
     enable: bool,
     clear_receive: bool,
     clear_transmit: bool,

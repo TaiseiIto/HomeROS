@@ -1,7 +1,7 @@
 /// # References
 /// * [Line Control Register](https://www.lookrs232.com/rs232/lcr.htm)
 #[io::register]
-struct Control {
+pub struct Control {
     word_length: [bool; 2],
     stop_bit_length: bool,
     parity_enable: bool,
@@ -13,7 +13,7 @@ struct Control {
 /// # References
 /// * [Line Status Register](https://www.lookrs232.com/rs232/lsr.htm)
 #[io::register]
-struct Status {
+pub struct Status {
     data_ready: bool,
     overrun_error: bool,
     parity_error: bool,

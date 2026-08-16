@@ -1,7 +1,7 @@
 /// # References
 /// * [Modem Control Register](https://www.lookrs232.com/rs232/mcr.htm)
 #[io::register]
-struct Control {
+pub struct Control {
     force_data_terminal_ready: bool,
     force_request_to_sent: bool,
     aux_output: [bool; 2],
@@ -15,7 +15,7 @@ struct Control {
 /// * [Modem Status Register](https://www.gowinsemi.com/upload/database_doc/2072/document/626a18f79b6dc.pdf)
 /// * [Modem Status Register](https://docs.amd.com/api/khub/documents/9fEQkSYc6HI76WBKkRyBLg/content)
 #[io::register]
-struct Status {
+pub struct Status {
     delta_clear_to_send: bool,
     delda_data_set_ready: bool,
     trailing_edge_ring_indicator: bool,
