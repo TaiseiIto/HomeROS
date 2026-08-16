@@ -182,11 +182,13 @@ impl Registers {
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
         let read_port: TokenStream = self.read_port();
+        let write_memory: TokenStream = self.write_memory();
         quote! {
             impl #ident {
                 #prettify
                 #read_memory
                 #read_port
+                #write_memory
             }
         }
     }
@@ -215,6 +217,17 @@ impl Registers {
                     }
                 } else {
                     panic!();
+                }
+            }
+        }
+    }
+
+    fn write_memory(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_ident();
+        quote! {
+            pub unsafe fn write_memory(&mut self, argument: #pretty_type) {
+                unsafe {
+                    core::ptr::write_volatile(self as *mut Self, argument.unprettify());
                 }
             }
         }
