@@ -1,7 +1,7 @@
 use {
-    core::iter,
     proc_macro2::{Span, TokenStream},
     quote::quote,
+    std::iter,
     syn::{Field, Fields, FieldsNamed, Ident, ItemStruct, Type, Visibility},
 };
 
