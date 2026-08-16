@@ -100,6 +100,11 @@ impl Element {
         }
     }
 
+    fn pretty_type_ident(&self) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}Pretty", ident), ident.span())
+    }
+
     fn true_declaration(&self) -> TokenStream {
         let Self { ident, ty } = self;
         quote! {
