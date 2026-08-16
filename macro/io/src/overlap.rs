@@ -111,7 +111,7 @@ impl Registers {
                     },
                     8 => {
                         let port0: u16 = port;
-                        let port1: u16 = port + 4;
+                        let port1: u16 = port0 + 4;
                         let mut buffer0: u32;
                         let mut buffer1: u32;
                         unsafe {
@@ -125,9 +125,9 @@ impl Registers {
                     },
                     16 => {
                         let port0: u16 = port;
-                        let port1: u16 = port + 4;
-                        let port2: u16 = port + 8;
-                        let port3: u16 = port + 12;
+                        let port1: u16 = port0 + 4;
+                        let port2: u16 = port1 + 4;
+                        let port3: u16 = port2 + 4;
                         let mut buffer0: u32;
                         let mut buffer1: u32;
                         let mut buffer2: u32;
