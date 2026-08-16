@@ -38,7 +38,7 @@ impl Structure {
             impl core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     unsafe {
-                        self.read_volatile()
+                        self.read_memory()
                     }.fmt(formatter)
                 }
             }
@@ -53,8 +53,8 @@ impl Structure {
         let mask_consts: Vec<TokenStream> = self.mask_consts();
         let offsets: Vec<TokenStream> = self.offsets();
         let prettify: TokenStream = self.prettify();
-        let read_volatile: TokenStream = self.read_volatile();
-        let write_volatile: TokenStream = self.write_volatile();
+        let read_memory: TokenStream = self.read_memory();
+        let write_memory: TokenStream = self.write_memory();
         quote! {
             impl #ident {
                 #(#bits_reads)*
@@ -63,8 +63,8 @@ impl Structure {
                 #(#mask_consts)*
                 #(#offsets)*
                 #prettify
-                #read_volatile
-                #write_volatile
+                #read_memory
+                #write_memory
             }
         }
     }
@@ -329,10 +329,10 @@ impl Structure {
         })
     }
 
-    fn read_volatile(&self) -> TokenStream {
+    fn read_memory(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
         quote! {
-            pub unsafe fn read_volatile(&self) -> #pretty_structure {
+            pub unsafe fn read_memory(&self) -> #pretty_structure {
                 unsafe {
                     core::ptr::read_volatile(self as *const Self)
                 }.prettify()
@@ -368,10 +368,10 @@ impl Structure {
         })
     }
 
-    fn write_volatile(&self) -> TokenStream {
+    fn write_memory(&self) -> TokenStream {
         let pretty_structure: Ident = self.pretty_structure_ident();
         quote! {
-            pub unsafe fn write_volatile(&mut self, argument: #pretty_structure) {
+            pub unsafe fn write_memory(&mut self, argument: #pretty_structure) {
                 let argument: Self = argument.unprettify();
                 unsafe {
                     core::ptr::write_volatile(self as *mut Self, argument);
