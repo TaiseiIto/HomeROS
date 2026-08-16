@@ -50,7 +50,7 @@ impl Structure {
         let bits_reads: Vec<TokenStream> = self.bits_reads();
         let bits_updates: Vec<TokenStream> = self.bits_updates();
         let lengths: Vec<TokenStream> = self.lengths();
-        let mask_consts: Vec<TokenStream> = self.mask_consts();
+        let masks: Vec<TokenStream> = self.masks();
         let offsets: Vec<TokenStream> = self.offsets();
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
@@ -60,7 +60,7 @@ impl Structure {
                 #(#bits_reads)*
                 #(#bits_updates)*
                 #(#lengths)*
-                #(#mask_consts)*
+                #(#masks)*
                 #(#offsets)*
                 #prettify
                 #read_memory
@@ -80,11 +80,11 @@ impl Structure {
             .collect()
     }
 
-    fn mask_consts(&self) -> Vec<TokenStream> {
+    fn masks(&self) -> Vec<TokenStream> {
         let element_offsets: Vec<ElementOffset> = self.into();
         element_offsets
             .into_iter()
-            .map(|ElementOffset { element, offset }| element.mask_const(self, offset))
+            .map(|ElementOffset { element, offset }| element.mask(self, offset))
             .collect()
     }
 
@@ -464,7 +464,7 @@ impl Element {
 
     fn bits_update(&self) -> TokenStream {
         let bits_update: Ident = self.bits_update_ident();
-        let mask_const: Ident = self.mask_const_ident();
+        let mask: Ident = self.mask_ident();
         let offset: Ident = self.offset_ident();
         let bits: u8 = self.bits;
         let bits_usize: usize = bits as usize;
@@ -478,7 +478,7 @@ impl Element {
             .collect();
         quote! {
             fn #bits_update(self, argument: [bool; #bits_usize]) -> Self {
-                Self((self.0 & !Self::#mask_const) | ((#(#values)|*) & Self::#mask_const))
+                Self((self.0 & !Self::#mask) | ((#(#values)|*) & Self::#mask))
             }
         }
     }
@@ -540,51 +540,51 @@ impl Element {
         }
     }
 
-    fn mask_const(&self, structure: &Structure, offset: u8) -> TokenStream {
-        let mask_const: Ident = self.mask_const_ident();
+    fn mask(&self, structure: &Structure, offset: u8) -> TokenStream {
+        let mask: Ident = self.mask_ident();
         match structure.bits() {
             8 => {
-                let mask: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                let value: u8 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    const #mask_const: u8 = #mask;
+                    const #mask: u8 = #value;
                 }
             }
             16 => {
-                let mask: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                let value: u16 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    const #mask_const: u16 = #mask;
+                    const #mask: u16 = #value;
                 }
             }
             32 => {
-                let mask: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                let value: u32 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    const #mask_const: u32 = #mask;
+                    const #mask: u32 = #value;
                 }
             }
             64 => {
-                let mask: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                let value: u64 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    const #mask_const: u64 = #mask;
+                    const #mask: u64 = #value;
                 }
             }
             128 => {
-                let mask: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
+                let value: u128 = (offset..offset + self.bits).map(|offset| 1 << offset).sum();
                 quote! {
-                    const #mask_const: u128 = #mask;
+                    const #mask: u128 = #value;
                 }
             }
             _ => panic!(),
         }
     }
 
-    fn mask_const_ident(&self) -> Ident {
+    fn mask_ident(&self) -> Ident {
         self.const_ident("MASK")
     }
 
-    fn offset(&self, offset: u8) -> TokenStream {
-        let offset_const: Ident = self.offset_ident();
+    fn offset(&self, value: u8) -> TokenStream {
+        let offset: Ident = self.offset_ident();
         quote! {
-            const #offset_const: u8 = #offset;
+            const #offset: u8 = #value;
         }
     }
 
