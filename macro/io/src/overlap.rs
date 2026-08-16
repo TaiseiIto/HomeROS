@@ -109,6 +109,20 @@ impl Registers {
                             core::ptr::read_volatile((&buffer as *const u32) as *const Self)
                         }.prettify()
                     },
+                    8 => {
+                        let port0: u16 = port;
+                        let port1: u16 = port + 4;
+                        let mut buffer0: u32;
+                        let mut buffer1: u32;
+                        unsafe {
+                            core::arch::asm!("in dx, eax", in("dx") port0, out("eax") buffer0);
+                            core::arch::asm!("in dx, eax", in("dx") port1, out("eax") buffer1);
+                        }
+                        let buffer: [u32; 2] = [buffer0, buffer1];
+                        unsafe {
+                            core::ptr::read_volatile((&buffer as *const [u32; 2]) as *const Self)
+                        }.prettify()
+                    },
                     _ => panic!(),
                 }
             }
