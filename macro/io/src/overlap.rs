@@ -49,6 +49,14 @@ impl Registers {
         self.type_ident("Pretty")
     }
 
+    fn pretty_implement(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_ident();
+        quote! {
+            impl #pretty_type {
+            }
+        }
+    }
+
     fn reader_declaration(&self) -> TokenStream {
         let Self {
             elements,
@@ -235,12 +243,14 @@ impl From<ItemUnion> for Registers {
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
         let pretty_declaration: TokenStream = registers.pretty_declaration();
+        let pretty_implement: TokenStream = registers.pretty_implement();
         let reader_declaration: TokenStream = registers.reader_declaration();
         let true_declaration: TokenStream = registers.true_declaration();
         let true_implement: TokenStream = registers.true_implement();
         let writer_declaration: TokenStream = registers.writer_declaration();
         quote! {
             #pretty_declaration
+            #pretty_implement
             #reader_declaration
             #true_declaration
             #true_implement
