@@ -187,6 +187,7 @@ impl Structure {
         let pretty_uint_updates: Vec<TokenStream> = self.pretty_uint_updates();
         let read_port: Option<TokenStream> = self.read_port();
         let unprettify: TokenStream = self.unprettify();
+        let write_port: Option<TokenStream> = self.write_port();
         quote! {
             impl #pretty_structure {
                 #(#pretty_bit_reads)*
@@ -201,6 +202,7 @@ impl Structure {
                 #(#pretty_uint_updates)*
                 #read_port
                 #unprettify
+                #write_port
             }
         }
     }
@@ -337,6 +339,35 @@ impl Structure {
                 }.prettify()
             }
         }
+    }
+
+    fn write_port(&self) -> Option<TokenStream> {
+        let structure: &Ident = &self.ident;
+        let pretty_structure: Ident = self.pretty_structure_ident();
+        let inner_type: Ident = self.inner_type();
+        match inner_type.to_string().as_str() {
+            "u8" => Some(quote! {
+                "out dx, al", in("dx") port, in("al") value
+            }),
+            "u16" => Some(quote! {
+                "out dx, ax", in("dx") port, in("ax") value
+            }),
+            "u32" => Some(quote! {
+                "out dx, eax", in("dx") port, in("eax") value
+            }),
+            _ => None,
+        }
+        .map(|asm| {
+            quote! {
+                #[cfg(target_arch = "x86_64")]
+                pub unsafe fn write_port(self, port: u16) {
+                    let value: #inner_type = self.unprettify().0;
+                    unsafe {
+                        core::arch::asm!(#asm);
+                    }
+                }
+            }
+        })
     }
 
     fn write_volatile(&self) -> TokenStream {
