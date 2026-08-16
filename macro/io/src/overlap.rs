@@ -109,12 +109,14 @@ impl Element {
             leading_colon,
             segments,
         } = &self.type_path;
-        let leading_colon: Option<PathSep> = leading_colon.clone();
+        let leading_colon: Option<PathSep> = *leading_colon;
         let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
-        segments.last_mut().map(|last_segment| {
+        if let Some(last_segment) = segments.last_mut() {
             let ident: &mut Ident = &mut last_segment.ident;
             *ident = Ident::new(&format!("{}Pretty", ident), ident.span());
-        });
+        } else {
+            panic!();
+        }
         Path {
             leading_colon,
             segments,

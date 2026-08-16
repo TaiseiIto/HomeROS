@@ -341,7 +341,6 @@ impl Structure {
     }
 
     fn write_port(&self) -> Option<TokenStream> {
-        let structure: &Ident = &self.ident;
         let inner_type: Ident = self.inner_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {
