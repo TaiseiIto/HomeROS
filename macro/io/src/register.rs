@@ -302,7 +302,6 @@ impl Structure {
 
     fn read_port(&self) -> Option<TokenStream> {
         let structure: &Ident = &self.ident;
-        let pretty_structure: Ident = self.pretty_structure_ident();
         let inner_type: Ident = self.inner_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {
@@ -343,7 +342,6 @@ impl Structure {
 
     fn write_port(&self) -> Option<TokenStream> {
         let structure: &Ident = &self.ident;
-        let pretty_structure: Ident = self.pretty_structure_ident();
         let inner_type: Ident = self.inner_type();
         match inner_type.to_string().as_str() {
             "u8" => Some(quote! {

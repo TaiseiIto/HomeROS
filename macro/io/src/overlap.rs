@@ -10,6 +10,26 @@ pub struct Registers {
     vis: Visibility,
 }
 
+impl Registers {
+    fn true_type(&self) -> TokenStream {
+        let Self {
+            elements,
+            ident,
+            vis,
+        } = self;
+        let elements: Vec<TokenStream> = elements
+            .iter()
+            .map(|element| element.true_declaration())
+            .collect();
+        quote! {
+            #[repr(C)]
+            #vis union #ident {
+                #(#elements),*
+            }
+        }
+    }
+}
+
 impl From<ItemUnion> for Registers {
     fn from(item_union: ItemUnion) -> Self {
         let ItemUnion {
@@ -35,13 +55,25 @@ impl From<ItemUnion> for Registers {
 
 impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
-        quote! {}
+        let true_type: TokenStream = registers.true_type();
+        quote! {
+            #true_type
+        }
     }
 }
 
 struct Element {
     ident: Ident,
     ty: Type,
+}
+
+impl Element {
+    fn true_declaration(&self) -> TokenStream {
+        let Self { ident, ty } = self;
+        quote! {
+            #ident: core::mem::ManuallyDrop<#ty>
+        }
+    }
 }
 
 impl From<Field> for Element {

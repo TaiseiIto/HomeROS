@@ -52,13 +52,7 @@ impl Structure {
         } = self;
         let elements: Vec<TokenStream> = elements
             .iter()
-            .map(|element| {
-                let ident: Ident = element.ident();
-                let ty: &Type = &element.ty;
-                quote! {
-                    #ident: #ty
-                }
-            })
+            .map(|element| element.true_declaration())
             .collect();
         quote! {
             #[repr(packed)]
@@ -195,5 +189,13 @@ impl Element {
 
     fn size_ident(&self) -> Ident {
         self.const_ident("SIZE")
+    }
+
+    fn true_declaration(&self) -> TokenStream {
+        let ident: Ident = self.ident();
+        let ty: &Type = &self.ty;
+        quote! {
+            #ident: #ty
+        }
     }
 }
