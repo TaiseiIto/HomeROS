@@ -51,8 +51,10 @@ impl Registers {
 
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
+        let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_type {
+                #unprettify
             }
         }
     }
@@ -194,6 +196,30 @@ impl Registers {
         Ident::new(&format!("{}{}", ident, suffix), ident.span())
     }
 
+    fn unprettify(&self) -> TokenStream {
+        let Self {
+            elements,
+            ident,
+            vis: _,
+        } = self;
+        let pretty_type: Ident = self.pretty_ident();
+        let elements: Vec<TokenStream> = elements
+            .iter()
+            .map(|element| element.unprettify(self))
+            .collect();
+        quote! {
+            fn unprettify(self) -> #ident {
+                if let #pretty_type::Writer(writer) = self {
+                    match writer {
+                        #(#elements),*
+                    }
+                } else {
+                    panic!();
+                }
+            }
+        }
+    }
+
     fn writer_declaration(&self) -> TokenStream {
         let Self {
             elements,
@@ -303,6 +329,16 @@ impl Element {
         let Self { ident, type_path } = self;
         quote! {
             #ident: core::mem::ManuallyDrop<#type_path>
+        }
+    }
+
+    fn unprettify(&self, registers: &Registers) -> TokenStream {
+        let element_ident: &Ident = &self.ident;
+        let registers_ident: &Ident = &registers.ident;
+        let writer: Ident = self.writer_ident();
+        let writer_type: Ident = registers.writer_ident();
+        quote! {
+            #writer_type::#writer(writer) => #registers_ident { #element_ident : core::mem::ManuallyDrop::new(writer.unprettify()) }
         }
     }
 

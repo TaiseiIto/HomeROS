@@ -108,7 +108,7 @@ impl Structure {
             .map(|element| element.prettify())
             .collect();
         quote! {
-            fn prettify(self) -> #pretty_type {
+            pub fn prettify(self) -> #pretty_type {
                 #pretty_type {
                     #(#prettify_elements),*
                 }
@@ -294,7 +294,7 @@ impl Structure {
             .filter_map(|element| element.unprettify())
             .collect();
         quote! {
-            fn unprettify(self) -> #ident {
+            pub fn unprettify(self) -> #ident {
                 #ident::default().#(#unprettifies).*
             }
         }
