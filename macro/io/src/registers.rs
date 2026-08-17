@@ -55,7 +55,7 @@ impl Structure {
             .map(|element| element.true_declaration())
             .collect();
         quote! {
-            #[repr(packed)]
+            #[repr(C, packed)]
             #vis struct #ident {
                 #(#elements),*
             }
