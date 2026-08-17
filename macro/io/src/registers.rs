@@ -40,6 +40,26 @@ impl Structure {
         }
     }
 
+    fn debug(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let ident_string: String = ident.to_string();
+        let elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .filter_map(|element| element.debug())
+            .collect();
+        quote! {
+            impl core::fmt::Debug for #ident {
+                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    formatter
+                        .debug_struct(#ident_string)
+                        .#(#elements).*
+                        .finish()
+                }
+            }
+        }
+    }
+
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let offsets: Vec<TokenStream> = self.offsets();
@@ -170,6 +190,7 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let accessor_declaration: TokenStream = structure.accessor_declaration();
         let accessor_implement: TokenStream = structure.accessor_implement();
+        let debug: TokenStream = structure.debug();
         let implement: TokenStream = structure.implement();
         let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
         let true_declaration: TokenStream = structure.true_declaration();
@@ -177,6 +198,7 @@ impl From<Structure> for TokenStream {
             #true_declaration
             #(#offset_asserts)*
             #implement
+            #debug
             #accessor_declaration
             #accessor_implement
         }
@@ -196,6 +218,20 @@ impl Element {
             &format!("{}_{}", self.ident().to_string().to_uppercase(), suffix),
             self.span,
         )
+    }
+
+    fn debug(&self) -> Option<TokenStream> {
+        self.ident
+            .as_ref()
+            .zip(self.read_memory_ident())
+            .map(|(ident, read_memory)| {
+                let ident_string: String = ident.to_string();
+                quote! {
+                    field(#ident_string, &unsafe {
+                        self.#read_memory()
+                    })
+                }
+            })
     }
 
     fn function_ident(&self, prefix: &str, suffix: &str) -> Option<Ident> {
