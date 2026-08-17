@@ -22,6 +22,7 @@ impl Structure {
         let read_ports: Vec<TokenStream> = self.read_ports();
         let sizes: Vec<TokenStream> = self.sizes();
         let write_memories: Vec<TokenStream> = self.write_memories();
+        let write_ports: Vec<TokenStream> = self.write_ports();
         quote! {
             impl #ident {
                 #(#offsets)*
@@ -29,6 +30,7 @@ impl Structure {
                 #(#read_ports)*
                 #(#sizes)*
                 #(#write_memories)*
+                #(#write_ports)*
             }
         }
     }
@@ -96,6 +98,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.write_memory())
+            .collect()
+    }
+
+    fn write_ports(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.write_port())
             .collect()
     }
 }
@@ -286,11 +295,11 @@ impl Element {
     }
 
     fn read_port(&self) -> Option<TokenStream> {
-        let ty: &Type = &self.ty;
         self.read_port_ident()
             .zip(self.pretty_type())
             .map(|(read_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
+                let ty: &Type = &self.ty;
                 quote! {
                     #[cfg(target_arch = "x86_64")]
                     pub unsafe fn #read_port(port: u16) -> #pretty_type {
@@ -350,5 +359,27 @@ impl Element {
 
     fn write_memory_ident(&self) -> Option<Ident> {
         self.function_ident("write", "memory")
+    }
+
+    fn write_port(&self) -> Option<TokenStream> {
+        self.write_port_ident()
+            .zip(self.pretty_type())
+            .map(|(write_port, pretty_type)| {
+                let offset: Ident = self.offset_ident();
+                let ty: &Type = &self.ty;
+                quote! {
+                    #[cfg(target_arch = "x86_64")]
+                    pub unsafe fn #write_port(port: u16, value: #pretty_type) {
+                        let port: u16 = port + Self::#offset as u16;
+                        unsafe {
+                            #ty::write_port(port, value);
+                        }
+                    }
+                }
+            })
+    }
+
+    fn write_port_ident(&self) -> Option<Ident> {
+        self.function_ident("write", "port")
     }
 }
