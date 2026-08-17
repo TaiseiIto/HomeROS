@@ -32,6 +32,14 @@ impl Structure {
         Ident::new(&format!("{}Accessor", ident), ident.span())
     }
 
+    fn accessor_implement(&self) -> TokenStream {
+        let accessor: Ident = self.accessor_ident();
+        quote! {
+            impl #accessor {
+            }
+        }
+    }
+
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let offsets: Vec<TokenStream> = self.offsets();
@@ -161,6 +169,7 @@ impl From<ItemStruct> for Structure {
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let accessor_declaration: TokenStream = structure.accessor_declaration();
+        let accessor_implement: TokenStream = structure.accessor_implement();
         let implement: TokenStream = structure.implement();
         let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
         let true_declaration: TokenStream = structure.true_declaration();
@@ -169,6 +178,7 @@ impl From<Structure> for TokenStream {
             #(#offset_asserts)*
             #implement
             #accessor_declaration
+            #accessor_implement
         }
     }
 }
