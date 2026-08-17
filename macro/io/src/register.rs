@@ -461,7 +461,7 @@ impl Element {
     }
 
     fn bits_read_ident(&self) -> Ident {
-        self.function_ident("bits_read")
+        self.function_ident("read", "bits")
     }
 
     fn bits_update(&self) -> TokenStream {
@@ -486,7 +486,7 @@ impl Element {
     }
 
     fn bits_update_ident(&self) -> Ident {
-        self.function_ident("bits_update")
+        self.function_ident("update", "bits")
     }
 
     fn const_ident(&self, suffix: &str) -> Ident {
@@ -496,8 +496,11 @@ impl Element {
         )
     }
 
-    fn function_ident(&self, suffix: &str) -> Ident {
-        Ident::new(&format!("{}_{}", self.ident, suffix), self.ident.span())
+    fn function_ident(&self, prefix: &str, suffix: &str) -> Ident {
+        Ident::new(
+            &format!("{}_{}_{}", prefix, self.ident, suffix),
+            self.ident.span(),
+        )
     }
 
     fn length(&self) -> TokenStream {
@@ -622,7 +625,7 @@ impl Element {
     }
 
     fn pretty_bit_read_ident(&self) -> Option<Ident> {
-        (!self.reserved && self.bits == 1).then_some(self.function_ident("bit_read"))
+        (!self.reserved && self.bits == 1).then_some(self.function_ident("read", "bit"))
     }
 
     fn pretty_bit_update(&self, structure: &Structure) -> Option<TokenStream> {
@@ -660,7 +663,7 @@ impl Element {
     }
 
     fn pretty_bit_update_ident(&self) -> Option<Ident> {
-        (!self.reserved && self.bits == 1).then_some(self.function_ident("bit_update"))
+        (!self.reserved && self.bits == 1).then_some(self.function_ident("update", "bit"))
     }
 
     fn pretty_bits_read(&self) -> Option<TokenStream> {
@@ -676,7 +679,7 @@ impl Element {
     }
 
     fn pretty_bits_read_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("bits_read"))
+        (!self.reserved).then_some(self.function_ident("read", "bits"))
     }
 
     fn pretty_bits_update(&self, structure: &Structure) -> Option<TokenStream> {
@@ -714,7 +717,7 @@ impl Element {
     }
 
     fn pretty_bits_update_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("bits_update"))
+        (!self.reserved).then_some(self.function_ident("update", "bits"))
     }
 
     fn pretty_mask_read(&self, structure: &Structure) -> Option<TokenStream> {
@@ -733,7 +736,7 @@ impl Element {
     }
 
     fn pretty_mask_read_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("mask_read"))
+        (!self.reserved).then_some(self.function_ident("read", "mask"))
     }
 
     fn pretty_mask_update(&self, structure: &Structure) -> Option<TokenStream> {
@@ -753,7 +756,7 @@ impl Element {
     }
 
     fn pretty_mask_update_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("mask_update"))
+        (!self.reserved).then_some(self.function_ident("update", "mask"))
     }
 
     fn pretty_shift_read(&self, structure: &Structure) -> Option<TokenStream> {
@@ -785,7 +788,7 @@ impl Element {
     }
 
     fn pretty_shift_read_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("shift_read"))
+        (!self.reserved).then_some(self.function_ident("read", "shift"))
     }
 
     fn pretty_shift_update(&self, structure: &Structure) -> Option<TokenStream> {
@@ -816,7 +819,7 @@ impl Element {
     }
 
     fn pretty_shift_update_ident(&self) -> Option<Ident> {
-        (!self.reserved).then_some(self.function_ident("shift_update"))
+        (!self.reserved).then_some(self.function_ident("update", "shift"))
     }
 
     fn pretty_uint_read(&self) -> Option<TokenStream> {
@@ -840,7 +843,7 @@ impl Element {
         (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
             let return_type: String = format!("u{}", bits);
             (
-                self.function_ident(&format!("{}_read", return_type)),
+                self.function_ident("read", &return_type),
                 Ident::new(&return_type, ident.span()),
             )
         })
@@ -870,7 +873,7 @@ impl Element {
         (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
             let argument_type: String = format!("u{}", bits);
             (
-                self.function_ident(&format!("{}_update", argument_type)),
+                self.function_ident("update", &argument_type),
                 Ident::new(&argument_type, ident.span()),
             )
         })
