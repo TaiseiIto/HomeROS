@@ -258,6 +258,7 @@ impl Structure {
             .map(|element| element.pretty())
             .collect();
         quote! {
+            #[derive(Clone)]
             #vis struct #pretty_type {
                 #(#elements),*
             }
@@ -269,7 +270,7 @@ impl Structure {
         Ident::new(&format!("{}Pretty", ident), ident.span())
     }
 
-    fn true_type(&self) -> TokenStream {
+    fn true_declaration(&self) -> TokenStream {
         let inner_type: Ident = self.inner_type();
         let Self {
             vis,
@@ -416,14 +417,14 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
-        let true_type: TokenStream = structure.true_type();
+        let true_declaration: TokenStream = structure.true_declaration();
         let implement: TokenStream = structure.implement();
         let debug: TokenStream = structure.debug();
         let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_declaration: TokenStream = structure.pretty_declaration();
         let pretty_debug: TokenStream = structure.pretty_debug();
         quote! {
-            #true_type
+            #true_declaration
             #implement
             #debug
             #pretty_declaration

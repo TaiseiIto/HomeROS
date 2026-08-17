@@ -38,6 +38,7 @@ impl Registers {
         let reader_type: Ident = self.reader_ident();
         let writer_type: Ident = self.writer_ident();
         quote! {
+            #[derive(Clone, Debug)]
             #vis enum #pretty_type {
                 Reader(#reader_type),
                 Writer(#writer_type),
@@ -80,6 +81,7 @@ impl Registers {
             .map(|element| element.reader_declaration())
             .collect();
         quote! {
+            #[derive(Clone, Debug)]
             #vis struct #reader_type {
                 #(#reader_elements),*
             }
@@ -320,6 +322,7 @@ impl Registers {
             .map(|element| element.writer_declaration())
             .collect();
         quote! {
+            #[derive(Clone, Debug)]
             #vis enum #writer_type {
                 #(#elements),*
             }
@@ -396,9 +399,9 @@ impl Element {
         let pretty_type_path: Path = self.pretty_type_path();
         let ident: &Ident = &self.ident;
         quote! {
-            pub fn #pretty_read(&self) -> &#pretty_type_path {
+            pub fn #pretty_read(&self) -> #pretty_type_path {
                 if let Self::Reader(reader) = self {
-                    &reader.#ident
+                    reader.#ident.clone()
                 } else {
                     panic!();
                 }
@@ -450,7 +453,9 @@ impl Element {
         let writer: Ident = self.writer_ident();
         let writer_type: Ident = registers.writer_ident();
         quote! {
-            #writer_type::#writer(writer) => #registers_ident { #element_ident : core::mem::ManuallyDrop::new(writer.unprettify()) }
+            #writer_type::#writer(writer) => #registers_ident {
+                #element_ident : core::mem::ManuallyDrop::new(writer.unprettify())
+            }
         }
     }
 
