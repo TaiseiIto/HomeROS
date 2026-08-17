@@ -54,7 +54,7 @@ impl Structure {
         let offsets: Vec<TokenStream> = self.offsets();
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
-        let read_port: Option<TokenStream> = self.read_port();
+        let read_port: TokenStream = self.read_port();
         let write_memory: TokenStream = self.write_memory();
         let write_port: Option<TokenStream> = self.write_port();
         quote! {
@@ -301,34 +301,48 @@ impl Structure {
         }
     }
 
-    fn read_port(&self) -> Option<TokenStream> {
+    fn read_port(&self) -> TokenStream {
         let structure: &Ident = &self.ident;
         let inner_type: Ident = self.inner_type();
         let pretty_type: Ident = self.pretty_type();
-        match inner_type.to_string().as_str() {
-            "u8" => Some(quote! {
-                "in dx, al", in("dx") port, out("al") value
-            }),
-            "u16" => Some(quote! {
-                "in dx, ax", in("dx") port, out("ax") value
-            }),
-            "u32" => Some(quote! {
-                "in dx, eax", in("dx") port, out("eax") value
-            }),
-            _ => None,
-        }
-        .map(|asm| {
-            quote! {
-                #[cfg(target_arch = "x86_64")]
-                pub unsafe fn read_port(port: u16) -> #pretty_type {
-                    let mut value: #inner_type;
-                    unsafe {
-                        core::arch::asm!(#asm);
-                    }
-                    #structure(value).prettify()
+        let read: TokenStream = match inner_type.to_string().as_str() {
+            "u8" => quote! {
+                unsafe {
+                    core::arch::asm!("in dx, al", in("dx") port, out("al") value);
                 }
+            },
+            "u16" => quote! {
+                unsafe {
+                    core::arch::asm!("in dx, ax", in("dx") port, out("ax") value);
+                }
+            },
+            "u32" => quote! {
+                unsafe {
+                    core::arch::asm!("in dx, eax", in("dx") port, out("eax") value);
+                }
+            },
+            "u64" | "u128" => quote! {
+                for port in core::iter::successors(Some(port), |current_port| {
+                    let next_port: u16 = current_port + 4;
+                    (next_port - port < core::mem::size_of::<#inner_type>()).then_some(next_port)
+                }).rev() {
+                    let mut buffer: u32;
+                    unsafe {
+                        core::arch::asm!("in dx, eax", in("dx") port, out("eax") buffer);
+                    }
+                    value = (value << u32::BITS) + buffer as #inner_type;
+                }
+            },
+            _ => panic!(),
+        };
+        quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn read_port(port: u16) -> #pretty_type {
+                let mut value: #inner_type = 0;
+                #read
+                #structure(value).prettify()
             }
-        })
+        }
     }
 
     fn read_memory(&self) -> TokenStream {
