@@ -19,6 +19,7 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let offsets: Vec<TokenStream> = self.offsets();
         let read_memories: Vec<TokenStream> = self.read_memories();
+        let read_ports: Vec<TokenStream> = self.read_ports();
         let sizes: Vec<TokenStream> = self.sizes();
         let write_memories: Vec<TokenStream> = self.write_memories();
         quote! {
@@ -58,6 +59,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.read_memory())
+            .collect()
+    }
+
+    fn read_ports(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.read_port())
             .collect()
     }
 
@@ -274,6 +282,33 @@ impl Element {
 
     fn read_memory_ident(&self) -> Option<Ident> {
         self.function_ident("read", "memory")
+    }
+
+    fn read_port(&self) -> Option<TokenStream> {
+        if let (Some(ident), Some(read_memory), Some(pretty_type)) = (
+            self.ident.as_ref(),
+            self.read_port_ident(),
+            self.pretty_type(),
+        ) {
+            Some((ident, read_memory, pretty_type))
+        } else {
+            None
+        }
+        .map(|(ident, read_memory, pretty_type)| {
+            let offset: Ident = self.offset_ident();
+            quote! {
+                pub unsafe fn read_port(port: u16) -> #pretty_type {
+                    let port: u16 = port + Self::#offset;
+                    unsafe {
+                        #pretty_type::read_port(port)
+                    }
+                }
+            }
+        })
+    }
+
+    fn read_port_ident(&self) -> Option<Ident> {
+        self.function_ident("read", "port")
     }
 
     fn size(&self) -> TokenStream {
