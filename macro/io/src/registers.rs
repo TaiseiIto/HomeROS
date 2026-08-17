@@ -244,10 +244,17 @@ impl Element {
             })
     }
 
-    fn function_ident(&self, prefix: &str, suffix: &str) -> Option<Ident> {
-        self.ident
-            .as_ref()
-            .map(|ident| Ident::new(&format!("{}_{}_{}", prefix, ident, suffix), ident.span()))
+    fn function_ident(&self, prefix: &str, suffix: Option<&str>) -> Option<Ident> {
+        self.ident.as_ref().map(|ident| {
+            let prefix: String = prefix.to_string();
+            let stem: String = ident.to_string();
+            let suffix: Option<String> = suffix.map(String::from);
+            let words: Vec<String> = [Some(prefix), Some(stem), suffix]
+                .into_iter()
+                .flatten()
+                .collect();
+            Ident::new(&words.join("_"), ident.span())
+        })
     }
 
     fn ident(&self) -> Ident {
@@ -366,7 +373,7 @@ impl Element {
     }
 
     fn read_memory_ident(&self) -> Option<Ident> {
-        self.function_ident("read", "memory")
+        self.function_ident("read", Some("memory"))
     }
 
     fn read_port(&self) -> Option<TokenStream> {
@@ -388,7 +395,7 @@ impl Element {
     }
 
     fn read_port_ident(&self) -> Option<Ident> {
-        self.function_ident("read", "port")
+        self.function_ident("read", Some("port"))
     }
 
     fn read(&self, structure: &Structure) -> Option<TokenStream> {
@@ -422,9 +429,7 @@ impl Element {
     }
 
     fn read_ident(&self) -> Option<Ident> {
-        self.ident
-            .as_ref()
-            .map(|ident| Ident::new(&format!("read_{}", ident), ident.span()))
+        self.function_ident("read", None)
     }
 
     fn size(&self) -> TokenStream {
@@ -469,7 +474,7 @@ impl Element {
     }
 
     fn write_memory_ident(&self) -> Option<Ident> {
-        self.function_ident("write", "memory")
+        self.function_ident("write", Some("memory"))
     }
 
     fn write_port(&self) -> Option<TokenStream> {
@@ -491,6 +496,6 @@ impl Element {
     }
 
     fn write_port_ident(&self) -> Option<Ident> {
-        self.function_ident("write", "port")
+        self.function_ident("write", Some("port"))
     }
 }
