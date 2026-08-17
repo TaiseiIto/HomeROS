@@ -5,6 +5,8 @@ mod interrupt;
 mod line;
 mod modem;
 
+use arch::pause;
+
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
 #[io::registers]
@@ -33,6 +35,12 @@ impl RegistersAccessor {
                 self.read_line_control()
                     .update_divisor_latch_access_bit(value),
             );
+        }
+    }
+
+    fn wait_for_send(&self) {
+        while !self.can_send_character() {
+            pause();
         }
     }
 }
