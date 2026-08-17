@@ -24,7 +24,7 @@ impl Registers {
             .map(|element| element.prettify())
             .collect();
         quote! {
-            fn prettify(self) -> #pretty_type {
+            pub fn prettify(self) -> #pretty_type {
                 #pretty_type::Reader(#reader_type {
                     #(#elements),*
                 })
@@ -232,7 +232,7 @@ impl Registers {
             .map(|element| element.unprettify(self))
             .collect();
         quote! {
-            fn unprettify(self) -> #ident {
+            pub fn unprettify(self) -> #ident {
                 if let #pretty_type::Writer(writer) = self {
                     match writer {
                         #(#elements),*

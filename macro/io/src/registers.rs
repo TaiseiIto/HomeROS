@@ -2,7 +2,10 @@ use {
     proc_macro2::{Span, TokenStream},
     quote::quote,
     std::iter,
-    syn::{Field, Fields, FieldsNamed, Ident, ItemStruct, Type, Visibility},
+    syn::{
+        Field, Fields, FieldsNamed, Ident, ItemStruct, Path, PathSegment, Type, TypePath,
+        Visibility, punctuated::Punctuated, token::PathSep,
+    },
 };
 
 pub struct Structure {
@@ -14,12 +17,14 @@ pub struct Structure {
 impl Structure {
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let sizes: Vec<TokenStream> = self.sizes();
         let offsets: Vec<TokenStream> = self.offsets();
+        let read_memories: Vec<TokenStream> = self.read_memories();
+        let sizes: Vec<TokenStream> = self.sizes();
         quote! {
             impl #ident {
-                #(#sizes)*
                 #(#offsets)*
+                #(#read_memories)*
+                #(#sizes)*
             }
         }
     }
@@ -40,6 +45,13 @@ impl Structure {
             .collect()
     }
 
+    fn read_memories(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.read_memory())
+            .collect()
+    }
+
     fn sizes(&self) -> Vec<TokenStream> {
         self.elements.iter().map(|element| element.size()).collect()
     }
@@ -55,7 +67,7 @@ impl Structure {
             .map(|element| element.true_declaration())
             .collect();
         quote! {
-            #[repr(C, packed)]
+            #[repr(C)]
             #vis struct #ident {
                 #(#elements),*
             }
@@ -121,6 +133,12 @@ impl Element {
         )
     }
 
+    fn function_ident(&self, prefix: &str, suffix: &str) -> Option<Ident> {
+        self.ident
+            .as_ref()
+            .map(|ident| Ident::new(&format!("{}_{}_{}", prefix, ident, suffix), ident.span()))
+    }
+
     fn ident(&self) -> Ident {
         let Self {
             ident,
@@ -177,6 +195,58 @@ impl Element {
 
     fn offset_ident(&self) -> Ident {
         self.const_ident("OFFSET")
+    }
+
+    fn pretty_type(&self) -> Option<Path> {
+        if let Type::Path(TypePath {
+            attrs: _,
+            qself: _,
+            path: Path {
+                leading_colon,
+                segments,
+            },
+        }) = &self.ty
+        {
+            let leading_colon: Option<PathSep> = leading_colon.clone();
+            let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
+            if let Some(last_segment) = segments.last_mut() {
+                let ident: &mut Ident = &mut last_segment.ident;
+                *ident = Ident::new(&format!("{}Pretty", ident), ident.span());
+            } else {
+                panic!();
+            }
+            Some(Path {
+                leading_colon,
+                segments,
+            })
+        } else {
+            None
+        }
+    }
+
+    fn read_memory(&self) -> Option<TokenStream> {
+        if let (Some(ident), Some(read_memory), Some(pretty_type)) = (
+            self.ident.as_ref(),
+            self.read_memory_ident(),
+            self.pretty_type(),
+        ) {
+            Some((ident, read_memory, pretty_type))
+        } else {
+            None
+        }
+        .map(|(ident, read_memory, pretty_type)| {
+            quote! {
+                pub unsafe fn #read_memory(&self) -> #pretty_type {
+                    unsafe {
+                        self.#ident.read_memory()
+                    }
+                }
+            }
+        })
+    }
+
+    fn read_memory_ident(&self) -> Option<Ident> {
+        self.function_ident("read", "memory")
     }
 
     fn size(&self) -> TokenStream {
