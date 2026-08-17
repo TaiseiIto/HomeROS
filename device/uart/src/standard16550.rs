@@ -40,6 +40,26 @@ impl RegistersAccessor {
         }
     }
 
+    fn set_baud_rate_divisor(&mut self, baud_rate_divisor: u16) {
+        if !self.is_baud_rate_setting_mode() {
+            self.set_baud_rate_setting_mode(true);
+        }
+        let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
+        let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
+        unsafe {
+            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::Writer(
+                BufferOrBaudLowWriter::BaudLow(
+                    baud::LowPretty::default().update_byte_u8(baud_rate_divisor_low),
+                ),
+            ));
+            self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHighPretty::Writer(
+                InterruptEnableOrBaudHighWriter::BaudHigh(
+                    baud::HighPretty::default().update_byte_u8(baud_rate_divisor_high),
+                ),
+            ))
+        }
+    }
+
     fn set_baud_rate_setting_mode(&mut self, value: bool) {
         unsafe {
             self.write_line_control(
