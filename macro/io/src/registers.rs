@@ -20,6 +20,7 @@ impl Structure {
         let offsets: Vec<TokenStream> = self.offsets();
         let read_memories: Vec<TokenStream> = self.read_memories();
         let sizes: Vec<TokenStream> = self.sizes();
+        let write_memories: Vec<TokenStream> = self.write_memories();
         quote! {
             impl #ident {
                 #(#offsets)*
@@ -79,6 +80,13 @@ impl Structure {
                 #(#elements),*
             }
         }
+    }
+
+    fn write_memories(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.write_memory())
+            .collect()
     }
 }
 
@@ -285,5 +293,30 @@ impl Element {
         quote! {
             #ident: #ty
         }
+    }
+
+    fn write_memory(&self) -> Option<TokenStream> {
+        if let (Some(ident), Some(write_memory), Some(pretty_type)) = (
+            self.ident.as_ref(),
+            self.write_memory_ident(),
+            self.pretty_type(),
+        ) {
+            Some((ident, write_memory, pretty_type))
+        } else {
+            None
+        }
+        .map(|(ident, write_memory, pretty_type)| {
+            quote! {
+                pub unsafe fn #write_memory(&mut self, value: #pretty_type) {
+                    unsafe {
+                        self.#ident.write_memory(value);
+                    }
+                }
+            }
+        })
+    }
+
+    fn write_memory_ident(&self) -> Option<Ident> {
+        self.function_ident("write", "memory")
     }
 }
