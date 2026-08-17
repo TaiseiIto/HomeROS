@@ -56,7 +56,7 @@ impl Structure {
         self.elements.iter().map(|element| element.size()).collect()
     }
 
-    fn true_type(&self) -> TokenStream {
+    fn true_declaration(&self) -> TokenStream {
         let Self {
             vis,
             ident,
@@ -110,9 +110,9 @@ impl From<ItemStruct> for Structure {
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let implement: TokenStream = structure.implement();
-        let true_type: TokenStream = structure.true_type();
+        let true_declaration: TokenStream = structure.true_declaration();
         quote! {
-            #true_type
+            #true_declaration
             #implement
         }
     }
