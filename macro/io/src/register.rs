@@ -322,10 +322,10 @@ impl Structure {
                 }
             },
             "u64" | "u128" => quote! {
-                for current_port in core::iter::successors(Some(port), |current_port| {
-                    let next_port: u16 = current_port + 4;
-                    (next_port - port < core::mem::size_of::<#inner_type>()).then_some(next_port)
-                }).rev() {
+                for current_port in (port..)
+                    .step_by(4)
+                    .take_while(|current_port| current_port < port + core::mem::size_of::<#inner_type>())
+                    .rev() {
                     let mut buffer: u32;
                     unsafe {
                         core::arch::asm!("in dx, eax", in("dx") current_port, out("eax") buffer);
@@ -376,10 +376,9 @@ impl Structure {
                 }
             },
             "u64" | "u128" => quote! {
-                for current_port in core::iter::successors(Some(port), |current_port| {
-                    let next_port: u16 = current_port + 4;
-                    (next_port - port < core::mem::size_of::<#inner_type>()).then_some(next_port)
-                }) {
+                for current_port in (port..)
+                    .step_by(4)
+                    .take_while(|current_port| current_port < port + core::mem::size_of::<#inner_type>()) {
                     let buffer: u32 = ((value >> ((current_port - port) * u8::BITS)) & 0xffffffff) as u32;
                     core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
                 }
