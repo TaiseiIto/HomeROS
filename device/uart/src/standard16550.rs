@@ -16,3 +16,9 @@ union InterruptEnableOrBaudHigh {
     interrupt_enable: interrupt::Enable,
     baud_high: baud::High,
 }
+
+#[io::overlap]
+union FifoControlOrInteruptIdentification {
+    fifo_control: fifo::Control,
+    interrupt_identification: interrupt::Identification,
+}
