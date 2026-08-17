@@ -148,7 +148,7 @@ impl Registers {
                             unsafe {
                                 core::arch::asm!("in dx, eax", in("dx") current_port, out("eax") current_buffer);
                             }
-                            buffer += (current_buffer as u64) << ((current_port - port) as u32 * u8::BITS);
+                            buffer += (current_buffer as u64) << (((current_port - port) as u32) * u8::BITS);
                         }
                         unsafe {
                             core::ptr::read_volatile((&buffer as *const u64) as *const Self)
@@ -163,7 +163,7 @@ impl Registers {
                             unsafe {
                                 core::arch::asm!("in dx, eax", in("dx") current_port, out("eax") current_buffer);
                             }
-                            buffer += (current_buffer as u128) << ((current_port - port) as u32 * u8::BITS);
+                            buffer += (current_buffer as u128) << (((current_port - port) as u32) * u8::BITS);
                         }
                         unsafe {
                             core::ptr::read_volatile((&buffer as *const u128) as *const Self)
