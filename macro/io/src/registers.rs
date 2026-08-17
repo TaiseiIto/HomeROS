@@ -35,8 +35,10 @@ impl Structure {
 
     fn accessor_implement(&self) -> TokenStream {
         let accessor: Ident = self.accessor_ident();
+        let reads: Vec<TokenStream> = self.reads();
         quote! {
             impl #accessor {
+                #(#reads)*
             }
         }
     }
@@ -115,6 +117,13 @@ impl Structure {
         self.elements
             .iter()
             .filter_map(|element| element.read_port())
+            .collect()
+    }
+
+    fn reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .filter_map(|element| element.read(self))
             .collect()
     }
 
@@ -380,6 +389,42 @@ impl Element {
 
     fn read_port_ident(&self) -> Option<Ident> {
         self.function_ident("read", "port")
+    }
+
+    fn read(&self, structure: &Structure) -> Option<TokenStream> {
+        let read: Option<Ident> = self.read_ident();
+        let pretty_type: Option<Path> = self.pretty_type();
+        let read_memory: Option<Ident> = self.read_memory_ident();
+        let read_port: Option<Ident> = self.read_port_ident();
+        if let (Some(read), Some(pretty_type), Some(read_memory), Some(read_port)) =
+            (read, pretty_type, read_memory, read_port)
+        {
+            Some((read, pretty_type, read_memory, read_port))
+        } else {
+            None
+        }
+        .map(|(read, pretty_type, read_memory, read_port)| {
+            let structure: &Ident = &structure.ident;
+            quote! {
+                pub unsafe fn #read(&self) -> #pretty_type {
+                    match self {
+                        Self::Memory(memory) => unsafe {
+                            memory.#read_memory()
+                        },
+                        #[cfg(target_arch = "x86_64")]
+                        Self::Port(port) => unsafe {
+                            #structure::#read_port(*port)
+                        },
+                    }
+                }
+            }
+        })
+    }
+
+    fn read_ident(&self) -> Option<Ident> {
+        self.ident
+            .as_ref()
+            .map(|ident| Ident::new(&format!("read_{}", ident), ident.span()))
     }
 
     fn size(&self) -> TokenStream {
