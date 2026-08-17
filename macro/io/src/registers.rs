@@ -26,6 +26,7 @@ impl Structure {
                 #(#offsets)*
                 #(#read_memories)*
                 #(#sizes)*
+                #(#write_memories)*
             }
         }
     }
