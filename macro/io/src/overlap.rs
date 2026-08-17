@@ -53,10 +53,12 @@ impl Registers {
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         let pretty_reads: Vec<TokenStream> = self.pretty_reads();
+        let pretty_writes: Vec<TokenStream> = self.pretty_writes();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_type {
                 #(#pretty_reads)*
+                #(#pretty_writes)*
                 #unprettify
             }
         }
@@ -66,6 +68,13 @@ impl Registers {
         self.elements
             .iter()
             .map(|element| element.pretty_read())
+            .collect()
+    }
+
+    fn pretty_writes(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .map(|element| element.pretty_write(self))
             .collect()
     }
 
@@ -430,6 +439,22 @@ impl Element {
             leading_colon,
             segments,
         }
+    }
+
+    fn pretty_write(&self, registers: &Registers) -> TokenStream {
+        let pretty_write: Ident = self.pretty_write_ident();
+        let pretty_type_path: Path = self.pretty_type_path();
+        let writer: Ident = self.writer_ident();
+        let writer_type: Ident = registers.writer_ident();
+        quote! {
+            pub fn #pretty_write(value: #pretty_type_path) -> Self {
+                Self::Writer(#writer_type::#writer(value))
+            }
+        }
+    }
+
+    fn pretty_write_ident(&self) -> Ident {
+        self.function_ident("write")
     }
 
     fn reader_declaration(&self) -> TokenStream {
