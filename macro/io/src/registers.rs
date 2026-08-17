@@ -29,6 +29,13 @@ impl Structure {
         }
     }
 
+    fn offset_asserts(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .map(|element| element.offset_assert(self))
+            .collect()
+    }
+
     fn offsets(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
@@ -110,9 +117,11 @@ impl From<ItemStruct> for Structure {
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let implement: TokenStream = structure.implement();
+        let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
         let true_declaration: TokenStream = structure.true_declaration();
         quote! {
             #true_declaration
+            #(#offset_asserts)*
             #implement
         }
     }
@@ -189,7 +198,16 @@ impl Element {
             }
         };
         quote! {
-            pub const #offset: usize = #value;
+            const #offset: usize = #value;
+        }
+    }
+
+    fn offset_assert(&self, structure: &Structure) -> TokenStream {
+        let structure: &Ident = &structure.ident;
+        let element: Ident = self.ident();
+        let offset: Ident = self.offset_ident();
+        quote! {
+            const _: () = assert!(core::mem::offset_of!(#structure, #element) == #structure::#offset);
         }
     }
 
@@ -253,7 +271,7 @@ impl Element {
         let size: Ident = self.size_ident();
         let ty: &Type = &self.ty;
         quote! {
-            pub const #size: usize = core::mem::size_of::<#ty>();
+            const #size: usize = core::mem::size_of::<#ty>();
         }
     }
 
