@@ -51,12 +51,21 @@ impl Registers {
 
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
+        let pretty_reads: Vec<TokenStream> = self.pretty_reads();
         let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_type {
+                #(#pretty_reads)*
                 #unprettify
             }
         }
+    }
+
+    fn pretty_reads(&self) -> Vec<TokenStream> {
+        self.elements
+            .iter()
+            .map(|element| element.pretty_read())
+            .collect()
     }
 
     fn reader_declaration(&self) -> TokenStream {
@@ -370,11 +379,35 @@ struct Element {
 }
 
 impl Element {
+    fn function_ident(&self, prefix: &str) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}_{}", prefix, ident), ident.span())
+    }
+
     fn prettify(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         quote! {
             #ident: unsafe {self.#ident.read_memory()}
         }
+    }
+
+    fn pretty_read(&self) -> TokenStream {
+        let pretty_read: Ident = self.pretty_read_ident();
+        let pretty_type_path: Path = self.pretty_type_path();
+        let ident: &Ident = &self.ident;
+        quote! {
+            pub fn #pretty_read(&self) -> &#pretty_type_path {
+                if let Self::Reader(reader) = self {
+                    &reader.#ident
+                } else {
+                    panic!();
+                }
+            }
+        }
+    }
+
+    fn pretty_read_ident(&self) -> Ident {
+        self.function_ident("read")
     }
 
     fn pretty_type_path(&self) -> Path {
