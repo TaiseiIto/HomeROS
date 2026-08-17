@@ -207,7 +207,7 @@ impl Element {
             },
         }) = &self.ty
         {
-            let leading_colon: Option<PathSep> = leading_colon.clone();
+            let leading_colon: Option<PathSep> = *leading_colon;
             let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
             if let Some(last_segment) = segments.last_mut() {
                 let ident: &mut Ident = &mut last_segment.ident;
