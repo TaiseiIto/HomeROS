@@ -18,6 +18,12 @@ struct Registers {
     modem_status: modem::Status,
 }
 
+impl RegistersAccessor {
+    fn divisor_latch_access(&self) -> bool {
+        unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
+    }
+}
+
 #[io::overlap]
 union BufferOrBaudLow {
     buffer: buffer::Register,
