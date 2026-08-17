@@ -247,9 +247,9 @@ impl Registers {
     fn write_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         quote! {
-            pub unsafe fn write_memory(&mut self, argument: #pretty_type) {
+            pub unsafe fn write_memory(&mut self, value: #pretty_type) {
                 unsafe {
-                    core::ptr::write_volatile(self as *mut Self, argument.unprettify());
+                    core::ptr::write_volatile(self as *mut Self, value.unprettify());
                 }
             }
         }
