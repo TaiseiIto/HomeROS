@@ -26,6 +26,7 @@ impl Structure {
             impl #ident {
                 #(#offsets)*
                 #(#read_memories)*
+                #(#read_ports)*
                 #(#sizes)*
                 #(#write_memories)*
             }
@@ -285,26 +286,21 @@ impl Element {
     }
 
     fn read_port(&self) -> Option<TokenStream> {
-        if let (Some(ident), Some(read_memory), Some(pretty_type)) = (
-            self.ident.as_ref(),
-            self.read_port_ident(),
-            self.pretty_type(),
-        ) {
-            Some((ident, read_memory, pretty_type))
-        } else {
-            None
-        }
-        .map(|(ident, read_memory, pretty_type)| {
-            let offset: Ident = self.offset_ident();
-            quote! {
-                pub unsafe fn read_port(port: u16) -> #pretty_type {
-                    let port: u16 = port + Self::#offset;
-                    unsafe {
-                        #pretty_type::read_port(port)
+        let ty: &Type = &self.ty;
+        self.read_port_ident()
+            .zip(self.pretty_type())
+            .map(|(read_port, pretty_type)| {
+                let offset: Ident = self.offset_ident();
+                quote! {
+                    #[cfg(target_arch = "x86_64")]
+                    pub unsafe fn #read_port(port: u16) -> #pretty_type {
+                        let port: u16 = port + Self::#offset as u16;
+                        unsafe {
+                            #ty::read_port(port)
+                        }
                     }
                 }
-            }
-        })
+            })
     }
 
     fn read_port_ident(&self) -> Option<Ident> {
