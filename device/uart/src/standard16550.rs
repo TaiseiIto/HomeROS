@@ -19,8 +19,17 @@ struct Registers {
 }
 
 impl RegistersAccessor {
-    fn divisor_latch_access(&self) -> bool {
+    fn read_divisor_latch_access_bit(&self) -> bool {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
+    }
+
+    fn write_divisor_latch_access_bit(&mut self, value: bool) {
+        unsafe {
+            self.write_line_control(
+                self.read_line_control()
+                    .update_divisor_latch_access_bit(value),
+            );
+        }
     }
 }
 
