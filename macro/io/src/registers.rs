@@ -22,6 +22,7 @@ impl Structure {
         quote! {
             #vis enum #accessor {
                 Memory(&'static mut #ident),
+                #[cfg(target_arch = "x86_64")]
                 Port(u16),
             }
         }
