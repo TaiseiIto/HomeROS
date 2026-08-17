@@ -360,8 +360,8 @@ impl Structure {
         .map(|asm| {
             quote! {
                 #[cfg(target_arch = "x86_64")]
-                pub unsafe fn write_port(port: u16, argument: #pretty_type) {
-                    let value: #inner_type = argument.unprettify().0;
+                pub unsafe fn write_port(port: u16, value: #pretty_type) {
+                    let value: #inner_type = value.unprettify().0;
                     unsafe {
                         core::arch::asm!(#asm);
                     }
@@ -373,10 +373,10 @@ impl Structure {
     fn write_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         quote! {
-            pub unsafe fn write_memory(&mut self, argument: #pretty_type) {
-                let argument: Self = argument.unprettify();
+            pub unsafe fn write_memory(&mut self, value: #pretty_type) {
+                let value: Self = value.unprettify();
                 unsafe {
-                    core::ptr::write_volatile(self as *mut Self, argument);
+                    core::ptr::write_volatile(self as *mut Self, value);
                 }
             }
         }
@@ -474,12 +474,12 @@ impl Element {
             .map(|bit| {
                 let bit_usize: usize = bit as usize;
                 quote! {
-                    if argument[#bit_usize] { 1 << (#bit + Self::#offset) } else { 0 }
+                    if value[#bit_usize] { 1 << (#bit + Self::#offset) } else { 0 }
                 }
             })
             .collect();
         quote! {
-            fn #bits_update(self, argument: [bool; #bits_usize]) -> Self {
+            fn #bits_update(self, value: [bool; #bits_usize]) -> Self {
                 Self((self.0 & !Self::#mask) | ((#(#values)|*) & Self::#mask))
             }
         }
@@ -744,11 +744,11 @@ impl Element {
             .zip(self.pretty_shift_update_ident())
             .map(|(pretty_mask_update, pretty_shift_update)| {
                 let ident: &Ident = &self.ident;
-                let argument_type: Ident = structure.inner_type();
+                let value_type: Ident = structure.inner_type();
                 let structure: &Ident = &structure.ident;
                 let offset: Ident = self.offset_ident();
                 quote! {
-                    pub fn #pretty_mask_update(self, #ident: #argument_type) -> Self {
+                    pub fn #pretty_mask_update(self, #ident: #value_type) -> Self {
                         self.#pretty_shift_update(#ident << #structure::#offset)
                     }
                 }
@@ -800,7 +800,7 @@ impl Element {
                     ident,
                     reserved: _,
                 } = self;
-                let argument_type: Ident = structure.inner_type();
+                let value_type: Ident = structure.inner_type();
                 let bits_usize: usize = *bits as usize;
                 let bools: Vec<TokenStream> = (0..bits_usize)
                     .map(|shift| {
@@ -810,9 +810,9 @@ impl Element {
                     })
                     .collect();
                 quote! {
-                    pub fn #pretty_shift_update(self, #ident: #argument_type) -> Self {
-                        let argument: [bool; #bits_usize] = [#(#bools),*];
-                        self.#pretty_bits_update(argument)
+                    pub fn #pretty_shift_update(self, #ident: #value_type) -> Self {
+                        let value: [bool; #bits_usize] = [#(#bools),*];
+                        self.#pretty_bits_update(value)
                     }
                 }
             })
@@ -852,16 +852,14 @@ impl Element {
     fn pretty_uint_update(&self, structure: &Structure) -> Option<TokenStream> {
         self.pretty_uint_update_ident_and_type()
             .zip(self.pretty_shift_update_ident())
-            .map(
-                |((pretty_uint_update, argument_type), pretty_shift_update)| {
-                    let inner_type: Ident = structure.inner_type();
-                    quote! {
-                        pub fn #pretty_uint_update(self, argument: #argument_type) -> Self {
-                            self.#pretty_shift_update(argument as #inner_type)
-                        }
+            .map(|((pretty_uint_update, value_type), pretty_shift_update)| {
+                let inner_type: Ident = structure.inner_type();
+                quote! {
+                    pub fn #pretty_uint_update(self, value: #value_type) -> Self {
+                        self.#pretty_shift_update(value as #inner_type)
                     }
-                },
-            )
+                }
+            })
     }
 
     fn pretty_uint_update_ident_and_type(&self) -> Option<(Ident, Ident)> {
@@ -871,10 +869,10 @@ impl Element {
             reserved,
         } = self;
         (!reserved && (8..=128).contains(bits) && bits.is_power_of_two()).then_some({
-            let argument_type: String = format!("u{}", bits);
+            let value_type: String = format!("u{}", bits);
             (
-                self.function_ident("update", &argument_type),
-                Ident::new(&argument_type, ident.span()),
+                self.function_ident("update", &value_type),
+                Ident::new(&value_type, ident.span()),
             )
         })
     }
