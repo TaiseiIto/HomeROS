@@ -15,6 +15,23 @@ pub struct Structure {
 }
 
 impl Structure {
+    fn accessor_declaration(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let vis: &Visibility = &self.vis;
+        let accessor: Ident = self.accessor_ident();
+        quote! {
+            #vis enum #accessor {
+                Memory(&'static mut #ident),
+                Port(u16),
+            }
+        }
+    }
+
+    fn accessor_ident(&self) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}Accessor", ident), ident.span())
+    }
+
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let offsets: Vec<TokenStream> = self.offsets();
@@ -143,6 +160,7 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
+        let accessor_declaration: TokenStream = structure.accessor_declaration();
         let implement: TokenStream = structure.implement();
         let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
         let true_declaration: TokenStream = structure.true_declaration();
@@ -150,6 +168,7 @@ impl From<Structure> for TokenStream {
             #true_declaration
             #(#offset_asserts)*
             #implement
+            #accessor_declaration
         }
     }
 }
