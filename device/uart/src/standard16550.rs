@@ -19,11 +19,15 @@ struct Registers {
 }
 
 impl RegistersAccessor {
-    fn read_divisor_latch_access_bit(&self) -> bool {
+    fn can_send_character(&self) -> bool {
+        unsafe { self.read_line_status() }.read_empty_transmitter_bit()
+    }
+
+    fn is_baud_rate_setting_mode(&self) -> bool {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }
 
-    fn write_divisor_latch_access_bit(&mut self, value: bool) {
+    fn set_baud_rate_setting_mode(&mut self, value: bool) {
         unsafe {
             self.write_line_control(
                 self.read_line_control()
