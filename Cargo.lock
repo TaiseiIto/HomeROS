@@ -74,6 +74,7 @@ version = "0.1.0"
 name = "uart"
 version = "0.1.0"
 dependencies = [
+ "arch",
  "io",
 ]
 

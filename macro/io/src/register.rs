@@ -258,7 +258,7 @@ impl Structure {
             .map(|element| element.pretty())
             .collect();
         quote! {
-            #[derive(Clone)]
+            #[derive(Clone, Default)]
             #vis struct #pretty_type {
                 #(#elements),*
             }

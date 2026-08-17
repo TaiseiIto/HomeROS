@@ -5,8 +5,6 @@ mod interrupt;
 mod line;
 mod modem;
 
-use arch::pause;
-
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
 #[io::registers]
@@ -29,18 +27,25 @@ impl RegistersAccessor {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }
 
+    fn send_byte(&mut self, byte: u8) {
+        if self.is_baud_rate_setting_mode() {
+            self.set_baud_rate_setting_mode(false);
+        }
+        unsafe {
+            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::Writer(
+                BufferOrBaudLowWriter::Buffer(
+                    buffer::RegisterPretty::default().update_data_u8(byte),
+                ),
+            ));
+        }
+    }
+
     fn set_baud_rate_setting_mode(&mut self, value: bool) {
         unsafe {
             self.write_line_control(
                 self.read_line_control()
                     .update_divisor_latch_access_bit(value),
             );
-        }
-    }
-
-    fn wait_for_send(&self) {
-        while !self.can_send_character() {
-            pause();
         }
     }
 }
