@@ -333,36 +333,13 @@ impl Element {
         self.const_ident("OFFSET")
     }
 
-    fn pretty_type(&self) -> Option<Path> {
-        if let Type::Path(TypePath {
-            attrs: _,
-            qself: _,
-            path: Path {
-                leading_colon,
-                segments,
-            },
-        }) = &self.ty
-        {
-            let leading_colon: Option<PathSep> = *leading_colon;
-            let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
-            if let Some(last_segment) = segments.last_mut() {
-                let ident: &mut Ident = &mut last_segment.ident;
-                *ident = Ident::new(&format!("{}Pretty", ident), ident.span());
-            } else {
-                panic!();
-            }
-            Some(Path {
-                leading_colon,
-                segments,
-            })
-        } else {
-            None
-        }
+    fn pretty_type(&self) -> Option<Type> {
+        self.ident.as_ref().map(|_| self.ty.clone())
     }
 
     fn read(&self, structure: &Structure) -> Option<TokenStream> {
         let read: Option<Ident> = self.read_ident();
-        let pretty_type: Option<Path> = self.pretty_type();
+        let pretty_type: Option<Type> = self.pretty_type();
         let read_memory: Option<Ident> = self.read_memory_ident();
         let read_port: Option<Ident> = self.read_port_ident();
         if let (Some(read), Some(pretty_type), Some(read_memory), Some(read_port)) =
@@ -424,7 +401,7 @@ impl Element {
             .zip(self.pretty_type())
             .map(|(read_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
-                let ty: &Type = &self.ty;
+                let ty: Type = self.true_type();
                 quote! {
                     #[cfg(target_arch = "x86_64")]
                     pub unsafe fn #read_port(port: u16) -> #pretty_type {
@@ -443,9 +420,9 @@ impl Element {
 
     fn size(&self) -> TokenStream {
         let size: Ident = self.size_ident();
-        let ty: &Type = &self.ty;
+        let true_type: Type = self.true_type();
         quote! {
-            const #size: usize = core::mem::size_of::<#ty>();
+            const #size: usize = core::mem::size_of::<#true_type>();
         }
     }
 
@@ -455,15 +432,55 @@ impl Element {
 
     fn true_declaration(&self) -> TokenStream {
         let ident: Ident = self.ident();
-        let ty: &Type = &self.ty;
+        let true_type: Type = self.true_type();
         quote! {
-            #ident: #ty
+            #ident: #true_type
+        }
+    }
+
+    fn true_type(&self) -> Type {
+        let Self {
+            ident,
+            index: _,
+            span: _,
+            ty,
+        } = self;
+        match (ident, ty) {
+            (
+                Some(_),
+                Type::Path(TypePath {
+                    attrs,
+                    qself,
+                    path:
+                        Path {
+                            leading_colon,
+                            segments,
+                        },
+                }),
+            ) => {
+                let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
+                if let Some(last_segment) = segments.last_mut() {
+                    let ident: &mut Ident = &mut last_segment.ident;
+                    *ident = Ident::new(&format!("{}Raw", ident), ident.span());
+                } else {
+                    panic!();
+                }
+                Type::Path(TypePath {
+                    attrs: attrs.clone(),
+                    qself: qself.clone(),
+                    path: Path {
+                        leading_colon: leading_colon.clone(),
+                        segments,
+                    },
+                })
+            }
+            _ => ty.clone(),
         }
     }
 
     fn write(&self, structure: &Structure) -> Option<TokenStream> {
         let write: Option<Ident> = self.write_ident();
-        let pretty_type: Option<Path> = self.pretty_type();
+        let pretty_type: Option<Type> = self.pretty_type();
         let write_memory: Option<Ident> = self.write_memory_ident();
         let write_port: Option<Ident> = self.write_port_ident();
         if let (Some(write), Some(pretty_type), Some(write_memory), Some(write_port)) =
@@ -525,7 +542,7 @@ impl Element {
             .zip(self.pretty_type())
             .map(|(write_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
-                let ty: &Type = &self.ty;
+                let ty: Type = self.true_type();
                 quote! {
                     #[cfg(target_arch = "x86_64")]
                     pub unsafe fn #write_port(port: u16, value: #pretty_type) {

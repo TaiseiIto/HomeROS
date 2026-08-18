@@ -11,7 +11,7 @@ pub struct Control {
     interrupt_trigger_level: [bool; 2],
 }
 
-impl ControlPretty {
+impl Control {
     pub fn update_interrupt_trigger_bytes(self, bytes: u8) -> Self {
         self.update_interrupt_trigger_level_shift(match bytes {
             1 => 0,  // Interrupt when FIFO has 1 bytes

@@ -49,7 +49,7 @@ impl RegistersAccessor {
     fn disable_all_interrupts(&mut self) {
         unsafe {
             self.write_interrupt_mask(
-                interrupt::RegisterPretty::default()
+                interrupt::Register::default()
                     .update_ri_modem_bit(true)
                     .update_cts_modem_bit(true)
                     .update_dcd_modem_bit(true)
@@ -68,7 +68,7 @@ impl RegistersAccessor {
     fn initialize_fifo(&mut self) {
         unsafe {
             self.write_interrupt_fifo_level(
-                interrupt::fifo_level::RegisterPretty::default()
+                interrupt::fifo_level::Register::default()
                     .update_transmit_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1))
                     .update_receive_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1)),
             );
@@ -77,14 +77,14 @@ impl RegistersAccessor {
 
     fn send_byte(&mut self, byte: u8) {
         unsafe {
-            self.write_data(data::RegisterPretty::default().update_data_u8(byte));
+            self.write_data(data::Register::default().update_data_u8(byte));
         }
     }
 
     fn set_baud_rate_divisor(&mut self, baud_rate_divisor: u16) {
         unsafe {
             self.write_integer_baud_rate(
-                baud_rate::integer::RegisterPretty::default().update_divisor_u16(baud_rate_divisor),
+                baud_rate::integer::Register::default().update_divisor_u16(baud_rate_divisor),
             );
         }
     }

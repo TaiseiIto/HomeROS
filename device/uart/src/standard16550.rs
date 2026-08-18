@@ -29,9 +29,7 @@ impl RegistersAccessor {
         }
         unsafe {
             self.write_interrupt_enable_or_baud_high(
-                InterruptEnableOrBaudHighPretty::write_interrupt_enable(
-                    interrupt::EnablePretty::default(),
-                ),
+                InterruptEnableOrBaudHigh::write_interrupt_enable(interrupt::Enable::default()),
             );
         }
     }
@@ -39,8 +37,8 @@ impl RegistersAccessor {
     fn initialize_fifo(&mut self) {
         unsafe {
             self.write_fifo_control_or_interrupt_identification(
-                FifoControlOrInterruptIdentificationPretty::write_fifo_control(
-                    fifo::ControlPretty::default()
+                FifoControlOrInterruptIdentification::write_fifo_control(
+                    fifo::Control::default()
                         .update_enable_bit(true)
                         .update_clear_receive_bit(true)
                         .update_clear_transmit_bit(true)
@@ -61,8 +59,8 @@ impl RegistersAccessor {
             self.set_baud_rate_setting_mode(false);
         }
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::write_buffer(
-                buffer::RegisterPretty::default().update_data_u8(byte),
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_buffer(
+                buffer::Register::default().update_data_u8(byte),
             ));
         }
     }
@@ -74,14 +72,12 @@ impl RegistersAccessor {
         let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
         let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::write_baud_low(
-                baud::LowPretty::default().update_byte_u8(baud_rate_divisor_low),
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(
+                baud::Low::default().update_byte_u8(baud_rate_divisor_low),
             ));
-            self.write_interrupt_enable_or_baud_high(
-                InterruptEnableOrBaudHighPretty::write_baud_high(
-                    baud::HighPretty::default().update_byte_u8(baud_rate_divisor_high),
-                ),
-            );
+            self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHigh::write_baud_high(
+                baud::High::default().update_byte_u8(baud_rate_divisor_high),
+            ));
         }
     }
 

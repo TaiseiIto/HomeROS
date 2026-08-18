@@ -33,9 +33,9 @@ impl Structure {
     }
 
     fn debug(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
+        let true_type: Ident = self.true_type();
         quote! {
-            impl core::fmt::Debug for #ident {
+            impl core::fmt::Debug for #true_type {
                 fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     unsafe {
                         self.read_memory()
@@ -46,7 +46,7 @@ impl Structure {
     }
 
     fn implement(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
+        let true_type: Ident = self.true_type();
         let bits_reads: Vec<TokenStream> = self.bits_reads();
         let bits_updates: Vec<TokenStream> = self.bits_updates();
         let lengths: Vec<TokenStream> = self.lengths();
@@ -58,7 +58,7 @@ impl Structure {
         let write_memory: TokenStream = self.write_memory();
         let write_port: TokenStream = self.write_port();
         quote! {
-            impl #ident {
+            impl #true_type {
                 #(#bits_reads)*
                 #(#bits_updates)*
                 #(#lengths)*
@@ -266,43 +266,41 @@ impl Structure {
     }
 
     fn pretty_type(&self) -> Ident {
-        let ident: &Ident = &self.ident;
-        Ident::new(&format!("{}Pretty", ident), ident.span())
+        self.ident.clone()
     }
 
     fn true_declaration(&self) -> TokenStream {
         let inner_type: Ident = self.inner_type();
-        let Self {
-            vis,
-            ident,
-            elements: _,
-        } = self;
+        let true_type: Ident = self.true_type();
+        let vis: &Visibility = &self.vis;
         quote! {
             #[derive(Default)]
             #[repr(transparent)]
-            #vis struct #ident(#inner_type);
+            #vis struct #true_type(#inner_type);
         }
     }
 
+    fn true_type(&self) -> Ident {
+        let ident: &Ident = &self.ident;
+        Ident::new(&format!("{}Raw", ident), ident.span())
+    }
+
     fn unprettify(&self) -> TokenStream {
-        let Self {
-            vis: _,
-            ident,
-            elements,
-        } = self;
-        let unprettifies: Vec<TokenStream> = elements
+        let true_type: Ident = self.true_type();
+        let unprettifies: Vec<TokenStream> = self
+            .elements
             .iter()
             .filter_map(|element| element.unprettify())
             .collect();
         quote! {
-            pub fn unprettify(self) -> #ident {
-                #ident::default().#(#unprettifies).*
+            pub fn unprettify(self) -> #true_type {
+                #true_type::default().#(#unprettifies).*
             }
         }
     }
 
     fn read_port(&self) -> TokenStream {
-        let structure: &Ident = &self.ident;
+        let structure: Ident = self.true_type();
         let inner_type: Ident = self.inner_type();
         let pretty_type: Ident = self.pretty_type();
         let read: TokenStream = match inner_type.to_string().as_str() {
@@ -750,7 +748,7 @@ impl Element {
             .zip(self.pretty_shift_read_ident())
             .map(|(pretty_mask_read, pretty_shift_read)| {
                 let return_type: Ident = structure.inner_type();
-                let structure: &Ident = &structure.ident;
+                let structure: Ident = structure.true_type();
                 let offset: Ident = self.offset_ident();
                 quote! {
                     pub fn #pretty_mask_read(&self) -> #return_type {
@@ -770,7 +768,7 @@ impl Element {
             .map(|(pretty_mask_update, pretty_shift_update)| {
                 let ident: &Ident = &self.ident;
                 let value_type: Ident = structure.inner_type();
-                let structure: &Ident = &structure.ident;
+                let structure: Ident = structure.true_type();
                 let offset: Ident = self.offset_ident();
                 quote! {
                     pub fn #pretty_mask_update(self, #ident: #value_type) -> Self {

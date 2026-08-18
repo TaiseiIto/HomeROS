@@ -47,7 +47,7 @@ impl Registers {
     }
 
     fn pretty_ident(&self) -> Ident {
-        self.type_ident("Pretty")
+        self.ident.clone()
     }
 
     fn pretty_implement(&self) -> TokenStream {
@@ -176,32 +176,30 @@ impl Registers {
     }
 
     fn true_declaration(&self) -> TokenStream {
-        let Self {
-            elements,
-            ident,
-            vis,
-        } = self;
-        let elements: Vec<TokenStream> = elements
+        let vis: &Visibility = &self.vis;
+        let true_type: Ident = self.true_type();
+        let elements: Vec<TokenStream> = self
+            .elements
             .iter()
             .map(|element| element.true_declaration())
             .collect();
         quote! {
             #[repr(C)]
-            #vis union #ident {
+            #vis union #true_type {
                 #(#elements),*
             }
         }
     }
 
     fn true_implement(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
+        let true_type: Ident = self.true_type();
         let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
         let read_port: TokenStream = self.read_port();
         let write_memory: TokenStream = self.write_memory();
         let write_port: TokenStream = self.write_port();
         quote! {
-            impl #ident {
+            impl #true_type {
                 #prettify
                 #read_memory
                 #read_port
@@ -211,24 +209,25 @@ impl Registers {
         }
     }
 
+    fn true_type(&self) -> Ident {
+        self.type_ident("Raw")
+    }
+
     fn type_ident(&self, suffix: &str) -> Ident {
         let ident: &Ident = &self.ident;
         Ident::new(&format!("{}{}", ident, suffix), ident.span())
     }
 
     fn unprettify(&self) -> TokenStream {
-        let Self {
-            elements,
-            ident,
-            vis: _,
-        } = self;
+        let true_type: Ident = self.true_type();
         let pretty_type: Ident = self.pretty_ident();
-        let elements: Vec<TokenStream> = elements
+        let elements: Vec<TokenStream> = self
+            .elements
             .iter()
             .map(|element| element.unprettify(self))
             .collect();
         quote! {
-            pub fn unprettify(self) -> #ident {
+            pub fn unprettify(self) -> #true_type {
                 if let #pretty_type::Writer(writer) = self {
                     match writer {
                         #(#elements),*
@@ -413,22 +412,7 @@ impl Element {
     }
 
     fn pretty_type_path(&self) -> Path {
-        let Path {
-            leading_colon,
-            segments,
-        } = &self.type_path;
-        let leading_colon: Option<PathSep> = *leading_colon;
-        let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
-        if let Some(last_segment) = segments.last_mut() {
-            let ident: &mut Ident = &mut last_segment.ident;
-            *ident = Ident::new(&format!("{}Pretty", ident), ident.span());
-        } else {
-            panic!();
-        }
-        Path {
-            leading_colon,
-            segments,
-        }
+        self.type_path.clone()
     }
 
     fn pretty_write(&self, registers: &Registers) -> TokenStream {
@@ -456,19 +440,39 @@ impl Element {
     }
 
     fn true_declaration(&self) -> TokenStream {
-        let Self { ident, type_path } = self;
+        let ident: &Ident = &self.ident;
+        let type_path: Path = self.true_type_path();
         quote! {
             #ident: core::mem::ManuallyDrop<#type_path>
         }
     }
 
+    fn true_type_path(&self) -> Path {
+        let Path {
+            leading_colon,
+            segments,
+        } = &self.type_path;
+        let leading_colon: Option<PathSep> = *leading_colon;
+        let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
+        if let Some(last_segment) = segments.last_mut() {
+            let ident: &mut Ident = &mut last_segment.ident;
+            *ident = Ident::new(&format!("{}Raw", ident), ident.span());
+        } else {
+            panic!();
+        }
+        Path {
+            leading_colon,
+            segments,
+        }
+    }
+
     fn unprettify(&self, registers: &Registers) -> TokenStream {
         let element_ident: &Ident = &self.ident;
-        let registers_ident: &Ident = &registers.ident;
+        let true_type: Ident = registers.true_type();
         let writer: Ident = self.writer_ident();
         let writer_type: Ident = registers.writer_ident();
         quote! {
-            #writer_type::#writer(writer) => #registers_ident {
+            #writer_type::#writer(writer) => #true_type {
                 #element_ident : core::mem::ManuallyDrop::new(writer.unprettify())
             }
         }
