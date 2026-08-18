@@ -40,3 +40,23 @@ pub struct Registers {
     prime_cell_id2: prime_cell::Id2,
     prime_cell_id3: prime_cell::Id3,
 }
+
+impl RegistersAccessor {
+    fn can_send_character(&self) -> bool {
+        !unsafe { self.read_flag() }.read_busy_bit()
+    }
+
+    fn send_byte(&mut self, byte: u8) {
+        unsafe {
+            self.write_data(data::RegisterPretty::default().update_data_u8(byte));
+        }
+    }
+
+    fn set_baud_rate_divisor(&mut self, baud_rate_divisor: u16) {
+        unsafe {
+            self.write_integer_baud_rate(
+                baud_rate::integer::RegisterPretty::default().update_divisor_u16(baud_rate_divisor),
+            );
+        }
+    }
+}
