@@ -36,6 +36,22 @@ impl RegistersAccessor {
         }
     }
 
+    fn initialize_fifo(&mut self) {
+        unsafe {
+            self.write_fifo_control_or_interrupt_identification(
+                FifoControlOrInterruptIdentificationPretty::write_fifo_control(
+                    fifo::ControlPretty::default()
+                        .update_enable_bit(true)
+                        .update_clear_receive_bit(true)
+                        .update_clear_transmit_bit(true)
+                        .update_dma_bit(false)
+                        .update_enable_64byte_bit(false)
+                        .update_interrupt_trigger_bytes(14),
+                ),
+            );
+        }
+    }
+
     fn is_baud_rate_setting_mode(&self) -> bool {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }

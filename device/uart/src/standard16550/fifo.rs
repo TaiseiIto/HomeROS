@@ -10,3 +10,15 @@ pub struct Control {
     enable_64byte: bool,
     interrupt_trigger_level: [bool; 2],
 }
+
+impl ControlPretty {
+    pub fn update_interrupt_trigger_bytes(self, bytes: u8) -> Self {
+        self.update_interrupt_trigger_level_shift(match bytes {
+            1 => 0,  // Interrupt when FIFO has 1 bytes
+            4 => 1,  // Interrupt when FIFO has 4 bytes
+            8 => 2,  // Interrupt when FIFO has 8 bytes
+            14 => 3, // Interrupt when FIFO has 14 bytes
+            _ => panic!(),
+        })
+    }
+}

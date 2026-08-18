@@ -65,6 +65,16 @@ impl RegistersAccessor {
         }
     }
 
+    fn initialize_fifo(&mut self) {
+        unsafe {
+            self.write_interrupt_fifo_level(
+                interrupt::fifo_level::RegisterPretty::default()
+                    .update_transmit_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1))
+                    .update_receive_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1)),
+            );
+        }
+    }
+
     fn send_byte(&mut self, byte: u8) {
         unsafe {
             self.write_data(data::RegisterPretty::default().update_data_u8(byte));

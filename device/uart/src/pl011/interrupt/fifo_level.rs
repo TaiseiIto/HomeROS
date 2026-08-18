@@ -6,3 +6,14 @@ pub struct Register {
     receive: [bool; 3],
     __: [bool; 26],
 }
+
+pub fn eight_times_ratio_to_shift(eight_times_ratio: u8) -> u32 {
+    match eight_times_ratio {
+        1 => 0, // Interrupt when 1/8 of FIFO is full
+        2 => 1, // Interrupt when 1/4 of FIFO is full
+        4 => 2, // Interrupt when 1/2 of FIFO is full
+        6 => 3, // Interrupt when 3/4 of FIFO is full
+        7 => 4, // Interrupt when 7/8 of FIFO is full
+        _ => panic!(),
+    }
+}
