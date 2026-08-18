@@ -32,10 +32,8 @@ impl RegistersAccessor {
             self.set_baud_rate_setting_mode(false);
         }
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::Writer(
-                BufferOrBaudLowWriter::Buffer(
-                    buffer::RegisterPretty::default().update_data_u8(byte),
-                ),
+            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::write_buffer(
+                buffer::RegisterPretty::default().update_data_u8(byte),
             ));
         }
     }
@@ -47,16 +45,14 @@ impl RegistersAccessor {
         let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
         let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::Writer(
-                BufferOrBaudLowWriter::BaudLow(
-                    baud::LowPretty::default().update_byte_u8(baud_rate_divisor_low),
-                ),
+            self.write_buffer_or_baud_low(BufferOrBaudLowPretty::write_baud_low(
+                baud::LowPretty::default().update_byte_u8(baud_rate_divisor_low),
             ));
-            self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHighPretty::Writer(
-                InterruptEnableOrBaudHighWriter::BaudHigh(
+            self.write_interrupt_enable_or_baud_high(
+                InterruptEnableOrBaudHighPretty::write_baud_high(
                     baud::HighPretty::default().update_byte_u8(baud_rate_divisor_high),
                 ),
-            ))
+            );
         }
     }
 
