@@ -19,8 +19,21 @@ struct Registers {
 }
 
 impl RegistersAccessor {
-    fn can_send_character(&self) -> bool {
+    fn can_send_byte(&self) -> bool {
         unsafe { self.read_line_status() }.read_empty_transmitter_bit()
+    }
+
+    fn disable_all_interrupts(&mut self) {
+        if self.is_baud_rate_setting_mode() {
+            self.set_baud_rate_setting_mode(false);
+        }
+        unsafe {
+            self.write_interrupt_enable_or_baud_high(
+                InterruptEnableOrBaudHighPretty::write_interrupt_enable(
+                    interrupt::EnablePretty::default(),
+                ),
+            );
+        }
     }
 
     fn is_baud_rate_setting_mode(&self) -> bool {

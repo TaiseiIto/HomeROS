@@ -42,8 +42,27 @@ pub struct Registers {
 }
 
 impl RegistersAccessor {
-    fn can_send_character(&self) -> bool {
+    fn can_send_byte(&self) -> bool {
         !unsafe { self.read_flag() }.read_busy_bit()
+    }
+
+    fn disable_all_interrupts(&mut self) {
+        unsafe {
+            self.write_interrupt_mask(
+                interrupt::RegisterPretty::default()
+                    .update_ri_modem_bit(true)
+                    .update_cts_modem_bit(true)
+                    .update_dcd_modem_bit(true)
+                    .update_dsr_modem_bit(true)
+                    .update_receive_bit(true)
+                    .update_transmit_bit(true)
+                    .update_receive_timeout_bit(true)
+                    .update_framing_error_bit(true)
+                    .update_parity_error_bit(true)
+                    .update_break_erro_bit(true)
+                    .update_overrun_error_bit(true),
+            );
+        }
     }
 
     fn send_byte(&mut self, byte: u8) {
