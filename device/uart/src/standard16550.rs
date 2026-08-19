@@ -36,18 +36,25 @@ impl RegistersAccessor {
         }
     }
 
-    fn initialize_fifo(&mut self) {
+    fn set_fifo(
+        &mut self,
+        enable: bool,
+        clear_receive: bool,
+        clear_transmit: bool,
+        dma: bool,
+        enable_64byte: bool,
+        interrupt_trigger_bytes: u8,
+    ) {
         unsafe {
             self.write_fifo_control_or_interrupt_identification(
-                FifoControlOrInterruptIdentification::write_fifo_control(
-                    fifo::Control::default()
-                        .update_enable_bit(true)
-                        .update_clear_receive_bit(true)
-                        .update_clear_transmit_bit(true)
-                        .update_dma_bit(false)
-                        .update_enable_64byte_bit(false)
-                        .update_interrupt_trigger_bytes(14),
-                ),
+                FifoControlOrInterruptIdentification::write_fifo_control(fifo::Control::set(
+                    enable,
+                    clear_receive,
+                    clear_transmit,
+                    dma,
+                    enable_64byte,
+                    interrupt_trigger_bytes,
+                )),
             );
         }
     }
