@@ -80,6 +80,27 @@ impl RegistersAccessor {
         }
     }
 
+    fn set_modem(
+        &mut self,
+        force_data_terminal_ready: bool,
+        force_request_to_send: bool,
+        out1: bool,
+        out2: bool,
+        loopback_mode: bool,
+        autoflow_control: bool,
+    ) {
+        unsafe {
+            self.write_modem_control(modem::Control::set(
+                force_data_terminal_ready,
+                force_request_to_send,
+                out1,
+                out2,
+                loopback_mode,
+                autoflow_control,
+            ));
+        }
+    }
+
     fn send_byte(&mut self, data: u8) {
         if self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(false);

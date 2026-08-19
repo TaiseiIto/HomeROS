@@ -81,6 +81,39 @@ impl RegistersAccessor {
         }
     }
 
+    fn set_control(
+        &mut self,
+        uart_enable: bool,
+        sir_enable: bool,
+        sir_low_power_irda_mode: bool,
+        loopback_enable: bool,
+        transmit_enable: bool,
+        receive_enable: bool,
+        data_transmit_ready: bool,
+        request_to_send: bool,
+        out1: bool,
+        out2: bool,
+        rts_enable: bool,
+        cts_enable: bool,
+    ) {
+        unsafe {
+            self.write_control(control::Register::set(
+                uart_enable,
+                sir_enable,
+                sir_low_power_irda_mode,
+                loopback_enable,
+                transmit_enable,
+                receive_enable,
+                data_transmit_ready,
+                request_to_send,
+                out1,
+                out2,
+                rts_enable,
+                cts_enable,
+            ));
+        }
+    }
+
     fn set_fifo(&mut self, transmit_ratio_8times: u8, receive_ratio_8times: u8) {
         unsafe {
             self.write_interrupt_fifo_level(interrupt::fifo_level::Register::set(
