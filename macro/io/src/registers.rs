@@ -469,7 +469,7 @@ impl Element {
                     attrs: attrs.clone(),
                     qself: qself.clone(),
                     path: Path {
-                        leading_colon: leading_colon.clone(),
+                        leading_colon: *leading_colon,
                         segments,
                     },
                 })
