@@ -13,16 +13,16 @@ pub struct Control {
 }
 
 impl Control {
-    pub fn new(parity: Option<Parity>, send_break: bool, stop_bit: u8, word_length: u8) -> Self {
+    pub fn new(parity: Option<Parity>, send_break: bool, stop_bits: u8, word_bits: u8) -> Self {
         Self::default()
-            .update_word_length_shift(match word_length {
+            .update_word_length_shift(match word_bits {
                 5 => 0,
                 6 => 1,
                 7 => 2,
                 8 => 3,
                 _ => panic!(),
             })
-            .update_stop_bit_length_bit(match stop_bit {
+            .update_stop_bit_length_bit(match stop_bits {
                 1 => false,
                 2 => true,
                 _ => panic!(),
