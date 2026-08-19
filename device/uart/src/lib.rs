@@ -7,6 +7,13 @@ mod standard16550;
 
 use core::arch::asm;
 
+pub enum Parity {
+    Even,
+    High,
+    Low,
+    Odd,
+}
+
 /// # TODO
 /// This is an ad hoc implementation working on only QEMU.
 /// Implement RS232C completely.

@@ -5,6 +5,8 @@ mod interrupt;
 mod line;
 mod modem;
 
+use super::Parity;
+
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
 #[io::registers]
@@ -52,6 +54,23 @@ impl RegistersAccessor {
 
     fn is_baud_rate_setting_mode(&self) -> bool {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
+    }
+
+    fn set_line_control(
+        &mut self,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bit: u8,
+        word_length: u8,
+    ) {
+        unsafe {
+            self.write_line_control(line::Control::set(
+                parity,
+                send_break,
+                stop_bit,
+                word_length,
+            ));
+        }
     }
 
     fn send_byte(&mut self, byte: u8) {
