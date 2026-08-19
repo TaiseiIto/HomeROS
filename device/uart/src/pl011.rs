@@ -10,6 +10,8 @@ mod peripheral;
 mod prime_cell;
 mod receive_status;
 
+use super::Parity;
+
 /// # References
 /// * [ARM PrimeCell UART (PL011) Technical Reference Manual](https://support.arm.com/documentation/ddi0183/g/programmers-model/summary-of-registers?lang=en)
 #[io::registers]
@@ -69,8 +71,8 @@ impl RegistersAccessor {
         unsafe {
             self.write_interrupt_fifo_level(
                 interrupt::fifo_level::Register::default()
-                    .update_transmit_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1))
-                    .update_receive_shift(interrupt::fifo_level::eight_times_ratio_to_shift(1)),
+                    .update_transmit_shift(interrupt::fifo_level::eight_times_ratio_to_shift(7))
+                    .update_receive_shift(interrupt::fifo_level::eight_times_ratio_to_shift(7)),
             );
         }
     }
@@ -86,6 +88,25 @@ impl RegistersAccessor {
             self.write_integer_baud_rate(
                 baud_rate::integer::Register::default().update_divisor_u16(baud_rate_divisor),
             );
+        }
+    }
+
+    fn set_line_control(
+        &mut self,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bit: u8,
+        word_length: u8,
+    ) {
+        unsafe {
+            self.write_line_control(line_control::Register::set(
+                enable_fifo,
+                parity,
+                send_break,
+                stop_bit,
+                word_length,
+            ));
         }
     }
 }

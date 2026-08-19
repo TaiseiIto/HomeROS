@@ -14,7 +14,7 @@ pub struct Control {
 
 impl Control {
     pub fn set(parity: Option<Parity>, send_break: bool, stop_bit: u8, word_length: u8) -> Self {
-        let value: Self = Self::default()
+        Self::default()
             .update_word_length_shift(match word_length {
                 5 => 0,
                 6 => 1,
@@ -27,10 +27,13 @@ impl Control {
                 2 => true,
                 _ => panic!(),
             })
-            .update_send_break_bit(send_break);
+            .update_send_break_bit(send_break)
+            .set_parity(parity)
+    }
+
+    fn set_parity(self, parity: Option<Parity>) -> Self {
         if let Some(parity) = parity {
-            value
-                .update_parity_enable_bit(true)
+            self.update_parity_enable_bit(true)
                 .update_parity_type_shift(match parity {
                     Parity::Even => 1,
                     Parity::High => 2,
@@ -38,7 +41,7 @@ impl Control {
                     Parity::Odd => 0,
                 })
         } else {
-            value.update_parity_enable_bit(false)
+            self.update_parity_enable_bit(false)
         }
     }
 }
