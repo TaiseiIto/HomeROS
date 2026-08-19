@@ -36,6 +36,10 @@ impl RegistersAccessor {
         }
     }
 
+    fn is_baud_rate_setting_mode(&self) -> bool {
+        unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
+    }
+
     fn set_fifo(
         &mut self,
         enable: bool,
@@ -57,10 +61,6 @@ impl RegistersAccessor {
                 )),
             );
         }
-    }
-
-    fn is_baud_rate_setting_mode(&self) -> bool {
-        unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }
 
     fn set_line_control(

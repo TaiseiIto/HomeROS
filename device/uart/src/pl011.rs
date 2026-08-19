@@ -67,16 +67,6 @@ impl RegistersAccessor {
         }
     }
 
-    fn initialize_fifo(&mut self) {
-        unsafe {
-            self.write_interrupt_fifo_level(
-                interrupt::fifo_level::Register::default()
-                    .update_transmit_shift(interrupt::fifo_level::eight_times_ratio_to_shift(7))
-                    .update_receive_shift(interrupt::fifo_level::eight_times_ratio_to_shift(7)),
-            );
-        }
-    }
-
     fn send_byte(&mut self, byte: u8) {
         unsafe {
             self.write_data(data::Register::default().update_data_u8(byte));
@@ -88,6 +78,15 @@ impl RegistersAccessor {
             self.write_integer_baud_rate(
                 baud_rate::integer::Register::default().update_divisor_u16(baud_rate_divisor),
             );
+        }
+    }
+
+    fn set_fifo(&mut self, transmit_ratio_8times: u8, receive_ratio_8times: u8) {
+        unsafe {
+            self.write_interrupt_fifo_level(interrupt::fifo_level::Register::set(
+                transmit_ratio_8times,
+                receive_ratio_8times,
+            ));
         }
     }
 
