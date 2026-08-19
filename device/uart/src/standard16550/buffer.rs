@@ -4,3 +4,9 @@
 pub struct Register {
     data: u8,
 }
+
+impl Register {
+    pub fn send(data: u8) -> Self {
+        Self::default().update_data_u8(data)
+    }
+}

@@ -73,14 +73,14 @@ impl RegistersAccessor {
         }
     }
 
-    fn send_byte(&mut self, byte: u8) {
+    fn send_byte(&mut self, data: u8) {
         if self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(false);
         }
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLow::write_buffer(
-                buffer::Register::default().update_data_u8(byte),
-            ));
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_buffer(buffer::Register::send(
+                data,
+            )));
         }
     }
 
@@ -91,11 +91,11 @@ impl RegistersAccessor {
         let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
         let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(
-                baud::Low::default().update_byte_u8(baud_rate_divisor_low),
-            ));
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(baud::Low::set(
+                baud_rate_divisor_low,
+            )));
             self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHigh::write_baud_high(
-                baud::High::default().update_byte_u8(baud_rate_divisor_high),
+                baud::High::set(baud_rate_divisor_high),
             ));
         }
     }
