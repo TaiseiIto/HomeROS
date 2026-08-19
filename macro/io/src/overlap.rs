@@ -101,6 +101,8 @@ impl Registers {
         self.type_ident("Reader")
     }
 
+    /// # TODO
+    /// Add memory barier.
     fn read_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         quote! {
@@ -239,6 +241,8 @@ impl Registers {
         }
     }
 
+    /// # TODO
+    /// Add memory barier.
     fn write_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         quote! {

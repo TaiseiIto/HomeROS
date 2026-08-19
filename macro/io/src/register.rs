@@ -342,6 +342,8 @@ impl Structure {
         }
     }
 
+    /// # TODO
+    /// Add memory barier.
     fn read_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         quote! {
@@ -393,6 +395,8 @@ impl Structure {
         }
     }
 
+    /// # TODO
+    /// Add memory barier.
     fn write_memory(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         quote! {
