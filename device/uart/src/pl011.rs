@@ -30,7 +30,7 @@ pub struct Registers {
     interrupt_mask: interrupt::Register,
     raw_interrupt_status: interrupt::Register,
     masked_interrupt_status: interrupt::Register,
-    interupt_clear: interrupt::Register,
+    interrupt_clear: interrupt::Register,
     dma_control: dma_control::Register,
     __: [u8; 0xfe0 - 0x4c],
     peripheral_id0: peripheral::Id0,
@@ -48,7 +48,121 @@ impl RegistersAccessor {
         !unsafe { self.read_flag() }.read_busy_bit()
     }
 
-    fn enable_interrupt(
+    fn clear_all_interrupts(&mut self) {
+        let ri_modem: bool = true;
+        let cts_modem: bool = true;
+        let dcd_modem: bool = true;
+        let dsr_modem: bool = true;
+        let receive: bool = true;
+        let transmit: bool = true;
+        let receive_timeout: bool = true;
+        let framing_error: bool = true;
+        let parity_error: bool = true;
+        let break_erro: bool = true;
+        let overrun_error: bool = true;
+        self.clear_interrupts(
+            ri_modem,
+            cts_modem,
+            dcd_modem,
+            dsr_modem,
+            receive,
+            transmit,
+            receive_timeout,
+            framing_error,
+            parity_error,
+            break_erro,
+            overrun_error,
+        );
+    }
+
+    fn clear_interrupts(
+        &mut self,
+        ri_modem: bool,
+        cts_modem: bool,
+        dcd_modem: bool,
+        dsr_modem: bool,
+        receive: bool,
+        transmit: bool,
+        receive_timeout: bool,
+        framing_error: bool,
+        parity_error: bool,
+        break_erro: bool,
+        overrun_error: bool,
+    ) {
+        unsafe {
+            self.write_interrupt_clear(interrupt::Register::new(
+                ri_modem,
+                cts_modem,
+                dcd_modem,
+                dsr_modem,
+                receive,
+                transmit,
+                receive_timeout,
+                framing_error,
+                parity_error,
+                break_erro,
+                overrun_error,
+            ));
+        }
+    }
+
+    fn disable(&mut self) {
+        let uart_enable: bool = false;
+        let sir_enable: bool = false;
+        let sir_low_power_irda_mode: bool = false;
+        let loopback_enable: bool = false;
+        let transmit_enable: bool = false;
+        let receive_enable: bool = false;
+        let data_transmit_ready: bool = false;
+        let request_to_send: bool = false;
+        let out1: bool = false;
+        let out2: bool = false;
+        let rts_enable: bool = false;
+        let cts_enable: bool = false;
+        self.set_control(
+            uart_enable,
+            sir_enable,
+            sir_low_power_irda_mode,
+            loopback_enable,
+            transmit_enable,
+            receive_enable,
+            data_transmit_ready,
+            request_to_send,
+            out1,
+            out2,
+            rts_enable,
+            cts_enable,
+        );
+    }
+
+    fn disable_all_interrupts(&mut self) {
+        let ri_modem: bool = false;
+        let cts_modem: bool = false;
+        let dcd_modem: bool = false;
+        let dsr_modem: bool = false;
+        let receive: bool = false;
+        let transmit: bool = false;
+        let receive_timeout: bool = false;
+        let framing_error: bool = false;
+        let parity_error: bool = false;
+        let break_erro: bool = false;
+        let overrun_error: bool = false;
+        self.enable_interrupts(
+            ri_modem,
+            cts_modem,
+            dcd_modem,
+            dsr_modem,
+            receive,
+            transmit,
+            receive_timeout,
+            framing_error,
+            parity_error,
+            break_erro,
+            overrun_error,
+        );
+    }
+
+    fn enable_interrupts(
         &mut self,
         ri_modem: bool,
         cts_modem: bool,
@@ -64,19 +178,25 @@ impl RegistersAccessor {
     ) {
         unsafe {
             self.write_interrupt_mask(interrupt::Register::new(
-                !ri_modem,
-                !cts_modem,
-                !dcd_modem,
-                !dsr_modem,
-                !receive,
-                !transmit,
-                !receive_timeout,
-                !framing_error,
-                !parity_error,
-                !break_erro,
-                !overrun_error,
+                ri_modem,
+                cts_modem,
+                dcd_modem,
+                dsr_modem,
+                receive,
+                transmit,
+                receive_timeout,
+                framing_error,
+                parity_error,
+                break_erro,
+                overrun_error,
             ));
         }
+    }
+
+    fn initialize(&mut self) {
+        self.disable();
+        self.disable_all_interrupts();
+        self.clear_all_interrupts();
     }
 
     fn send_byte(&mut self, byte: u8) {

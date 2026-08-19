@@ -25,7 +25,7 @@ impl RegistersAccessor {
         unsafe { self.read_line_status() }.read_empty_transmitter_bit()
     }
 
-    fn enable_interrupt(
+    fn enable_interrupts(
         &mut self,
         received_data_available: bool,
         transmitter_holding_register_empty: bool,
@@ -77,7 +77,7 @@ impl RegistersAccessor {
         let out2: bool = true;
         let loopback_mode: bool = false;
         let autoflow_control: bool = false;
-        self.enable_interrupt(
+        self.enable_interrupts(
             enable_received_data_available_interrupt,
             enable_transmitter_holding_register_empty_interrupt,
             enable_receiver_line_status_interrupt,
