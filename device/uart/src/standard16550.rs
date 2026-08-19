@@ -58,9 +58,7 @@ impl RegistersAccessor {
         let enable_modem_status_interrupt: bool = false;
         let enable_sleep_mode_interrupt: bool = false;
         let enable_low_power_mode_interrupt: bool = false;
-        let baud_rate_base_frequency: usize = 115200;
         let baud_rate: usize = 9600;
-        let baud_rate_divisor: u16 = (baud_rate_base_frequency / baud_rate) as u16;
         let parity: Option<Parity> = None;
         let send_break: bool = false;
         let stop_bits: u8 = 1;
@@ -85,7 +83,7 @@ impl RegistersAccessor {
             enable_sleep_mode_interrupt,
             enable_low_power_mode_interrupt,
         );
-        self.set_baud_rate_divisor(baud_rate_divisor);
+        self.set_baud_rate(baud_rate);
         self.set_line(parity, send_break, stop_bits, word_bits);
         self.set_fifo(
             enable_fifo,
@@ -109,18 +107,20 @@ impl RegistersAccessor {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }
 
-    fn set_baud_rate_divisor(&mut self, baud_rate_divisor: u16) {
+    fn set_baud_rate(&mut self, baud_rate: usize) {
+        let frequency: usize = 115200;
+        let divisor: u16 = (frequency / baud_rate) as u16;
         if !self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(true);
         }
-        let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
-        let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
+        let divisor_low: u8 = (divisor & 0x00ff) as u8;
+        let divisor_high: u8 = (divisor >> u8::BITS) as u8;
         unsafe {
             self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(baud::Low::new(
-                baud_rate_divisor_low,
+                divisor_low,
             )));
             self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHigh::write_baud_high(
-                baud::High::new(baud_rate_divisor_high),
+                baud::High::new(divisor_high),
             ));
         }
     }
