@@ -3,11 +3,29 @@
 #[io::register]
 pub struct Control {
     force_data_terminal_ready: bool,
-    force_request_to_sent: bool,
+    force_request_to_send: bool,
     aux_output: [bool; 2],
     loopback_mode: bool,
     autoflow_control: bool,
     __: [bool; 2],
+}
+
+impl Control {
+    pub fn set(
+        force_data_terminal_ready: bool,
+        force_request_to_send: bool,
+        out1: bool,
+        out2: bool,
+        loopback_mode: bool,
+        autoflow_control: bool,
+    ) -> Self {
+        Self::default()
+            .update_force_data_terminal_ready_bit(force_data_terminal_ready)
+            .update_force_request_to_send_bit(force_data_terminal_ready)
+            .update_aux_output_bits([out1, out2])
+            .update_loopback_mode_bit(loopback_mode)
+            .update_autoflow_control_bit(autoflow_control)
+    }
 }
 
 /// # References
