@@ -376,7 +376,7 @@ impl From<Registers> for TokenStream {
 
 struct Element {
     ident: Ident,
-    type_path: Path,
+    ty: Type,
 }
 
 impl Element {
@@ -394,10 +394,10 @@ impl Element {
 
     fn pretty_read(&self) -> TokenStream {
         let pretty_read: Ident = self.pretty_read_ident();
-        let pretty_type_path: Path = self.pretty_type_path();
+        let pretty_type: Type = self.pretty_type();
         let ident: &Ident = &self.ident;
         quote! {
-            pub fn #pretty_read(&self) -> #pretty_type_path {
+            pub fn #pretty_read(&self) -> #pretty_type {
                 if let Self::Reader(reader) = self {
                     reader.#ident.clone()
                 } else {
@@ -411,17 +411,17 @@ impl Element {
         self.function_ident("read")
     }
 
-    fn pretty_type_path(&self) -> Path {
-        self.type_path.clone()
+    fn pretty_type(&self) -> Type {
+        self.ty.clone()
     }
 
     fn pretty_write(&self, registers: &Registers) -> TokenStream {
         let pretty_write: Ident = self.pretty_write_ident();
-        let pretty_type_path: Path = self.pretty_type_path();
+        let pretty_type: Type = self.pretty_type();
         let writer: Ident = self.writer_ident();
         let writer_type: Ident = registers.writer_ident();
         quote! {
-            pub fn #pretty_write(value: #pretty_type_path) -> Self {
+            pub fn #pretty_write(value: #pretty_type) -> Self {
                 Self::Writer(#writer_type::#writer(value))
             }
         }
@@ -433,36 +433,47 @@ impl Element {
 
     fn reader_declaration(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let pretty_type_path: Path = self.pretty_type_path();
+        let pretty_type: Type = self.pretty_type();
         quote! {
-            #ident: #pretty_type_path
+            #ident: #pretty_type
         }
     }
 
     fn true_declaration(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let type_path: Path = self.true_type_path();
+        let true_type: Type = self.true_type();
         quote! {
-            #ident: core::mem::ManuallyDrop<#type_path>
+            #ident: core::mem::ManuallyDrop<#true_type>
         }
     }
 
-    fn true_type_path(&self) -> Path {
-        let Path {
-            leading_colon,
-            segments,
-        } = &self.type_path;
-        let leading_colon: Option<PathSep> = *leading_colon;
-        let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
-        if let Some(last_segment) = segments.last_mut() {
-            let ident: &mut Ident = &mut last_segment.ident;
-            *ident = Ident::new(&format!("{}Raw", ident), ident.span());
+    fn true_type(&self) -> Type {
+        if let Type::Path(TypePath {
+            attrs,
+            qself,
+            path: Path {
+                leading_colon,
+                segments,
+            },
+        }) = &self.ty
+        {
+            let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
+            if let Some(last_segment) = segments.last_mut() {
+                let ident: &mut Ident = &mut last_segment.ident;
+                *ident = Ident::new(&format!("{}Raw", ident), ident.span());
+            } else {
+                panic!();
+            }
+            Type::Path(TypePath {
+                attrs: attrs.clone(),
+                qself: qself.clone(),
+                path: Path {
+                    leading_colon: *leading_colon,
+                    segments,
+                },
+            })
         } else {
             panic!();
-        }
-        Path {
-            leading_colon,
-            segments,
         }
     }
 
@@ -480,9 +491,9 @@ impl Element {
 
     fn writer_declaration(&self) -> TokenStream {
         let writer: Ident = self.writer_ident();
-        let pretty_type_path: Path = self.pretty_type_path();
+        let pretty_type: Type = self.pretty_type();
         quote! {
-            #writer(#pretty_type_path)
+            #writer(#pretty_type)
         }
     }
 
@@ -513,16 +524,11 @@ impl From<Field> for Element {
             modifiers: _,
             ident: Some(ident),
             colon_token: _,
-            ty:
-                Type::Path(TypePath {
-                    attrs: _,
-                    qself: _,
-                    path: type_path,
-                }),
+            ty,
             default: _,
         } = field
         {
-            Self { ident, type_path }
+            Self { ident, ty }
         } else {
             panic!();
         }
