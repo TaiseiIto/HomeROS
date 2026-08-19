@@ -11,7 +11,7 @@ pub struct Control {
 }
 
 impl Control {
-    pub fn set(
+    pub fn new(
         force_data_terminal_ready: bool,
         force_request_to_send: bool,
         out1: bool,

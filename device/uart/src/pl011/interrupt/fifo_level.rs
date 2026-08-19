@@ -8,7 +8,7 @@ pub struct Register {
 }
 
 impl Register {
-    pub fn set(transmit_ratio_8times: u8, receive_ratio_8times: u8) -> Self {
+    pub fn new(transmit_ratio_8times: u8, receive_ratio_8times: u8) -> Self {
         Self::default()
             .update_transmit_shift(Self::ratio_8times_to_shift(transmit_ratio_8times))
             .update_receive_shift(Self::ratio_8times_to_shift(receive_ratio_8times))

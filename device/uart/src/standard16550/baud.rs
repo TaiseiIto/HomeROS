@@ -6,7 +6,7 @@ pub struct Low {
 }
 
 impl Low {
-    pub fn set(low: u8) -> Self {
+    pub fn new(low: u8) -> Self {
         Self::default().update_byte_u8(low)
     }
 }
@@ -19,7 +19,7 @@ pub struct High {
 }
 
 impl High {
-    pub fn set(high: u8) -> Self {
+    pub fn new(high: u8) -> Self {
         Self::default().update_byte_u8(high)
     }
 }

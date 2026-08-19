@@ -63,7 +63,7 @@ impl RegistersAccessor {
         overrun_error: bool,
     ) {
         unsafe {
-            self.write_interrupt_mask(interrupt::Register::set(
+            self.write_interrupt_mask(interrupt::Register::new(
                 !ri_modem,
                 !cts_modem,
                 !dcd_modem,
@@ -109,7 +109,7 @@ impl RegistersAccessor {
         cts_enable: bool,
     ) {
         unsafe {
-            self.write_control(control::Register::set(
+            self.write_control(control::Register::new(
                 uart_enable,
                 sir_enable,
                 sir_low_power_irda_mode,
@@ -128,7 +128,7 @@ impl RegistersAccessor {
 
     fn set_fifo(&mut self, transmit_ratio_8times: u8, receive_ratio_8times: u8) {
         unsafe {
-            self.write_interrupt_fifo_level(interrupt::fifo_level::Register::set(
+            self.write_interrupt_fifo_level(interrupt::fifo_level::Register::new(
                 transmit_ratio_8times,
                 receive_ratio_8times,
             ));
@@ -144,7 +144,7 @@ impl RegistersAccessor {
         word_length: u8,
     ) {
         unsafe {
-            self.write_line_control(line_control::Register::set(
+            self.write_line_control(line_control::Register::new(
                 enable_fifo,
                 parity,
                 send_break,

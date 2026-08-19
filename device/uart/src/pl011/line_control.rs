@@ -15,7 +15,7 @@ pub struct Register {
 }
 
 impl Register {
-    pub fn set(
+    pub fn new(
         enable_fifo: bool,
         parity: Option<Parity>,
         send_break: bool,
@@ -37,10 +37,10 @@ impl Register {
                 8 => 3,
                 _ => panic!(),
             })
-            .set_parity(parity)
+            .update_parity(parity)
     }
 
-    fn set_parity(self, parity: Option<Parity>) -> Self {
+    fn update_parity(self, parity: Option<Parity>) -> Self {
         if let Some(parity) = parity {
             self.update_parity_enable_bit(true)
                 .update_even_parity_bit(match parity {

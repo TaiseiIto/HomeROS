@@ -22,7 +22,7 @@ pub struct Register {
 }
 
 impl Register {
-    pub fn set(
+    pub fn new(
         ri_modem: bool,
         cts_modem: bool,
         dcd_modem: bool,

@@ -39,7 +39,7 @@ impl RegistersAccessor {
         }
         unsafe {
             self.write_interrupt_enable_or_baud_high(
-                InterruptEnableOrBaudHigh::write_interrupt_enable(interrupt::Enable::set(
+                InterruptEnableOrBaudHigh::write_interrupt_enable(interrupt::Enable::new(
                     received_data_available,
                     transmitter_holding_register_empty,
                     receiver_line_status,
@@ -66,7 +66,7 @@ impl RegistersAccessor {
     ) {
         unsafe {
             self.write_fifo_control_or_interrupt_identification(
-                FifoControlOrInterruptIdentification::write_fifo_control(fifo::Control::set(
+                FifoControlOrInterruptIdentification::write_fifo_control(fifo::Control::new(
                     enable,
                     clear_receive,
                     clear_transmit,
@@ -86,7 +86,7 @@ impl RegistersAccessor {
         word_length: u8,
     ) {
         unsafe {
-            self.write_line_control(line::Control::set(
+            self.write_line_control(line::Control::new(
                 parity,
                 send_break,
                 stop_bit,
@@ -105,7 +105,7 @@ impl RegistersAccessor {
         autoflow_control: bool,
     ) {
         unsafe {
-            self.write_modem_control(modem::Control::set(
+            self.write_modem_control(modem::Control::new(
                 force_data_terminal_ready,
                 force_request_to_send,
                 out1,
@@ -121,7 +121,7 @@ impl RegistersAccessor {
             self.set_baud_rate_setting_mode(false);
         }
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLow::write_buffer(buffer::Register::send(
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_buffer(buffer::Register::new(
                 data,
             )));
         }
@@ -134,11 +134,11 @@ impl RegistersAccessor {
         let baud_rate_divisor_low: u8 = (baud_rate_divisor & 0x00ff) as u8;
         let baud_rate_divisor_high: u8 = (baud_rate_divisor >> u8::BITS) as u8;
         unsafe {
-            self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(baud::Low::set(
+            self.write_buffer_or_baud_low(BufferOrBaudLow::write_baud_low(baud::Low::new(
                 baud_rate_divisor_low,
             )));
             self.write_interrupt_enable_or_baud_high(InterruptEnableOrBaudHigh::write_baud_high(
-                baud::High::set(baud_rate_divisor_high),
+                baud::High::new(baud_rate_divisor_high),
             ));
         }
     }

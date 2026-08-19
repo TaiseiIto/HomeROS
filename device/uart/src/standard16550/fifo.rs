@@ -12,7 +12,7 @@ pub struct Control {
 }
 
 impl Control {
-    pub fn set(
+    pub fn new(
         enable: bool,
         clear_receive: bool,
         clear_transmit: bool,

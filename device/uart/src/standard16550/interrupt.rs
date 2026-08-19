@@ -12,7 +12,7 @@ pub struct Enable {
 }
 
 impl Enable {
-    pub fn set(
+    pub fn new(
         received_data_available: bool,
         transmitter_holding_register_empty: bool,
         receiver_line_status: bool,

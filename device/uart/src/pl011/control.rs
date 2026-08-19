@@ -18,7 +18,7 @@ pub struct Register {
 }
 
 impl Register {
-    pub fn set(
+    pub fn new(
         uart_enable: bool,
         sir_enable: bool,
         sir_low_power_irda_mode: bool,
