@@ -48,22 +48,34 @@ impl RegistersAccessor {
         !unsafe { self.read_flag() }.read_busy_bit()
     }
 
-    fn disable_all_interrupts(&mut self) {
+    fn enable_interrupt(
+        &mut self,
+        ri_modem: bool,
+        cts_modem: bool,
+        dcd_modem: bool,
+        dsr_modem: bool,
+        receive: bool,
+        transmit: bool,
+        receive_timeout: bool,
+        framing_error: bool,
+        parity_error: bool,
+        break_erro: bool,
+        overrun_error: bool,
+    ) {
         unsafe {
-            self.write_interrupt_mask(
-                interrupt::Register::default()
-                    .update_ri_modem_bit(true)
-                    .update_cts_modem_bit(true)
-                    .update_dcd_modem_bit(true)
-                    .update_dsr_modem_bit(true)
-                    .update_receive_bit(true)
-                    .update_transmit_bit(true)
-                    .update_receive_timeout_bit(true)
-                    .update_framing_error_bit(true)
-                    .update_parity_error_bit(true)
-                    .update_break_erro_bit(true)
-                    .update_overrun_error_bit(true),
-            );
+            self.write_interrupt_mask(interrupt::Register::set(
+                !ri_modem,
+                !cts_modem,
+                !dcd_modem,
+                !dsr_modem,
+                !receive,
+                !transmit,
+                !receive_timeout,
+                !framing_error,
+                !parity_error,
+                !break_erro,
+                !overrun_error,
+            ));
         }
     }
 

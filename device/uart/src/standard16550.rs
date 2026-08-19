@@ -25,13 +25,28 @@ impl RegistersAccessor {
         unsafe { self.read_line_status() }.read_empty_transmitter_bit()
     }
 
-    fn disable_all_interrupts(&mut self) {
+    fn enable_interrupt(
+        &mut self,
+        received_data_available: bool,
+        transmitter_holding_register_empty: bool,
+        receiver_line_status: bool,
+        modem_status: bool,
+        sleep_mode: bool,
+        low_power_mode: bool,
+    ) {
         if self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(false);
         }
         unsafe {
             self.write_interrupt_enable_or_baud_high(
-                InterruptEnableOrBaudHigh::write_interrupt_enable(interrupt::Enable::default()),
+                InterruptEnableOrBaudHigh::write_interrupt_enable(interrupt::Enable::set(
+                    received_data_available,
+                    transmitter_holding_register_empty,
+                    receiver_line_status,
+                    modem_status,
+                    sleep_mode,
+                    low_power_mode,
+                )),
             );
         }
     }
