@@ -18,6 +18,10 @@ use core::{
 static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
     SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
+pub unsafe fn global_mut() -> &'static mut RegistersAccessor {
+    unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
+}
+
 impl RegistersAccessor {
     pub fn new() -> Self {
         #[cfg(target_arch = "aarch64")]
