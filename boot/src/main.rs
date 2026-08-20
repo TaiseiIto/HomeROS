@@ -47,6 +47,7 @@ fn main(global: firmware::Global) {
     unsafe {
         global.set();
     }
+    uart::initialize();
     firmware::println!("Hello, World!");
     unimplemented!();
 }

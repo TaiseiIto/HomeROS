@@ -8,3 +8,6 @@ build = "../firmware/build.rs"
 path = "../arch"
 [dependencies.firmware]
 path = "../firmware"
+[dependencies.uart]
+path = "../device/uart"
+

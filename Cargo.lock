@@ -12,6 +12,7 @@ version = "0.1.0"
 dependencies = [
  "arch",
  "firmware",
+ "uart",
 ]
 
 [[package]]
@@ -20,7 +21,6 @@ version = "0.1.0"
 dependencies = [
  "sbi",
  "tfa",
- "uart",
  "uefi",
 ]
 

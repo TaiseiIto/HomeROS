@@ -18,8 +18,12 @@ use core::{
 static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
     SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
-pub unsafe fn global_mut() -> &'static mut RegistersAccessor {
+pub fn global_mut() -> &'static mut RegistersAccessor {
     unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
+}
+
+pub fn initialize() {
+    RegistersAccessor::new().set();
 }
 
 impl RegistersAccessor {
@@ -45,6 +49,10 @@ impl RegistersAccessor {
             word_bits,
         );
         accessor
+    }
+
+    pub fn set(self) {
+        unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
     }
 }
 
