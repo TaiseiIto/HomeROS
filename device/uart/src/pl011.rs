@@ -200,11 +200,37 @@ impl RegistersAccessor {
         let send_break: bool = false;
         let stop_bits: u8 = 1;
         let word_bits: u8 = 8;
+        let uart_enable: bool = true;
+        let sir_enable: bool = false;
+        let sir_low_power_irda_mode: bool = false;
+        let loopback_enable: bool = false;
+        let transmit_enable: bool = true;
+        let receive_enable: bool = true;
+        let data_transmit_ready: bool = false;
+        let request_to_send: bool = false;
+        let out1: bool = false;
+        let out2: bool = false;
+        let rts_enable: bool = false;
+        let cts_enable: bool = false;
         self.disable();
         self.disable_all_interrupts();
         self.clear_all_interrupts();
         self.set_baud_rate(baud_rate);
         self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
+        self.set_control(
+            uart_enable,
+            sir_enable,
+            sir_low_power_irda_mode,
+            loopback_enable,
+            transmit_enable,
+            receive_enable,
+            data_transmit_ready,
+            request_to_send,
+            out1,
+            out2,
+            rts_enable,
+            cts_enable,
+        );
     }
 
     fn send_byte(&mut self, byte: u8) {
