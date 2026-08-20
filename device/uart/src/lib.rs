@@ -1,3 +1,4 @@
+#![feature(sync_unsafe_cell)]
 #![no_std]
 
 #[cfg(uart = "pl011")]
@@ -9,7 +10,13 @@ mod standard16550;
 #[cfg(uart = "16550")]
 use standard16550::RegistersAccessor;
 
-use core::arch::asm;
+use core::{
+    arch::asm,
+    cell::{OnceCell, SyncUnsafeCell},
+};
+
+static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
+    SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
 impl RegistersAccessor {
     pub fn new() -> Self {
@@ -37,6 +44,8 @@ impl RegistersAccessor {
     }
 }
 
+unsafe impl Sync for RegistersAccessor {}
+
 pub enum Parity {
     Even,
     High,
@@ -57,6 +66,13 @@ pub fn write_byte(byte: u8) {
         asm!("out dx, al", in("dx") 0x03f8, in("al") byte);
     }
 }
+
+/// # TODO
+/// This is not thread safe actualty.
+/// Make it thread safe.
+pub struct SyncOnceCell<T>(OnceCell<T>);
+
+unsafe impl<T> Sync for SyncOnceCell<T> {}
 
 pub trait Driver {
     fn can_send_byte(&self) -> bool;
