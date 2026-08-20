@@ -16,6 +16,17 @@ use core::{
     fmt::{Arguments, Result, Write},
 };
 
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::global_mut().write_format(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    ($fmt:expr) => ($crate::print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => ($crate::print!(concat!($fmt, "\n"), $($arg)*));
+}
+
 pub fn initialize() {
     RegistersAccessor::new().set();
 }
@@ -23,7 +34,7 @@ pub fn initialize() {
 static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
     SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
-fn global_mut() -> &'static mut RegistersAccessor {
+pub fn global_mut() -> &'static mut RegistersAccessor {
     unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
 }
 
