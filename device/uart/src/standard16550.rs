@@ -5,7 +5,7 @@ mod interrupt;
 mod line;
 mod modem;
 
-use super::Parity;
+use super::{Driver, Parity};
 
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
@@ -21,10 +21,6 @@ struct Registers {
 }
 
 impl RegistersAccessor {
-    fn can_send_byte(&self) -> bool {
-        unsafe { self.read_line_status() }.read_empty_transmitter_bit()
-    }
-
     fn enable_interrupts(
         &mut self,
         received_data_available: bool,
@@ -49,60 +45,6 @@ impl RegistersAccessor {
                 )),
             );
         }
-    }
-
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    ) {
-        let enable_received_data_available_interrupt: bool = false;
-        let enable_transmitter_holding_register_empty_interrupt: bool = false;
-        let enable_receiver_line_status_interrupt: bool = false;
-        let enable_modem_status_interrupt: bool = false;
-        let enable_sleep_mode_interrupt: bool = false;
-        let enable_low_power_mode_interrupt: bool = false;
-        let clear_receive: bool = true;
-        let clear_transmit: bool = true;
-        let dma: bool = false;
-        let enable_64byte: bool = false;
-        let interrupt_trigger_bytes: u8 = 14;
-        let force_data_terminal_ready: bool = true;
-        let force_request_to_send: bool = true;
-        let out1: bool = true;
-        let out2: bool = true;
-        let loopback_mode: bool = false;
-        let autoflow_control: bool = false;
-        self.enable_interrupts(
-            enable_received_data_available_interrupt,
-            enable_transmitter_holding_register_empty_interrupt,
-            enable_receiver_line_status_interrupt,
-            enable_modem_status_interrupt,
-            enable_sleep_mode_interrupt,
-            enable_low_power_mode_interrupt,
-        );
-        self.set_baud_rate(baud_rate);
-        self.set_line(parity, send_break, stop_bits, word_bits);
-        self.set_fifo(
-            enable_fifo,
-            clear_receive,
-            clear_transmit,
-            dma,
-            enable_64byte,
-            interrupt_trigger_bytes,
-        );
-        self.set_modem(
-            force_data_terminal_ready,
-            force_request_to_send,
-            out1,
-            out2,
-            loopback_mode,
-            autoflow_control,
-        );
     }
 
     fn is_baud_rate_setting_mode(&self) -> bool {
@@ -185,8 +127,68 @@ impl RegistersAccessor {
             ));
         }
     }
+}
 
-    fn send_byte(&mut self, data: u8) {
+impl Driver for RegistersAccessor {
+    fn can_send_byte(&self) -> bool {
+        unsafe { self.read_line_status() }.read_empty_transmitter_bit()
+    }
+
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    ) {
+        let enable_received_data_available_interrupt: bool = false;
+        let enable_transmitter_holding_register_empty_interrupt: bool = false;
+        let enable_receiver_line_status_interrupt: bool = false;
+        let enable_modem_status_interrupt: bool = false;
+        let enable_sleep_mode_interrupt: bool = false;
+        let enable_low_power_mode_interrupt: bool = false;
+        let clear_receive: bool = true;
+        let clear_transmit: bool = true;
+        let dma: bool = false;
+        let enable_64byte: bool = false;
+        let interrupt_trigger_bytes: u8 = 14;
+        let force_data_terminal_ready: bool = true;
+        let force_request_to_send: bool = true;
+        let out1: bool = true;
+        let out2: bool = true;
+        let loopback_mode: bool = false;
+        let autoflow_control: bool = false;
+        self.enable_interrupts(
+            enable_received_data_available_interrupt,
+            enable_transmitter_holding_register_empty_interrupt,
+            enable_receiver_line_status_interrupt,
+            enable_modem_status_interrupt,
+            enable_sleep_mode_interrupt,
+            enable_low_power_mode_interrupt,
+        );
+        self.set_baud_rate(baud_rate);
+        self.set_line(parity, send_break, stop_bits, word_bits);
+        self.set_fifo(
+            enable_fifo,
+            clear_receive,
+            clear_transmit,
+            dma,
+            enable_64byte,
+            interrupt_trigger_bytes,
+        );
+        self.set_modem(
+            force_data_terminal_ready,
+            force_request_to_send,
+            out1,
+            out2,
+            loopback_mode,
+            autoflow_control,
+        );
+    }
+
+    unsafe fn send_byte_unchecked(&mut self, data: u8) {
         if self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(false);
         }

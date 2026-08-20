@@ -10,7 +10,7 @@ mod peripheral;
 mod prime_cell;
 mod receive_status;
 
-use super::Parity;
+use super::{Driver, Parity};
 
 /// # References
 /// * [ARM PrimeCell UART (PL011) Technical Reference Manual](https://support.arm.com/documentation/ddi0183/g/programmers-model/summary-of-registers?lang=en)
@@ -44,10 +44,6 @@ pub struct Registers {
 }
 
 impl RegistersAccessor {
-    fn can_send_byte(&self) -> bool {
-        !unsafe { self.read_flag() }.read_busy_bit()
-    }
-
     fn clear_all_interrupts(&mut self) {
         let ri_modem: bool = true;
         let cts_modem: bool = true;
@@ -193,54 +189,6 @@ impl RegistersAccessor {
         }
     }
 
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    ) {
-        let uart_enable: bool = true;
-        let sir_enable: bool = false;
-        let sir_low_power_irda_mode: bool = false;
-        let loopback_enable: bool = false;
-        let transmit_enable: bool = true;
-        let receive_enable: bool = true;
-        let data_transmit_ready: bool = false;
-        let request_to_send: bool = false;
-        let out1: bool = false;
-        let out2: bool = false;
-        let rts_enable: bool = false;
-        let cts_enable: bool = false;
-        self.disable();
-        self.disable_all_interrupts();
-        self.clear_all_interrupts();
-        self.set_baud_rate(baud_rate);
-        self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
-        self.set_control(
-            uart_enable,
-            sir_enable,
-            sir_low_power_irda_mode,
-            loopback_enable,
-            transmit_enable,
-            receive_enable,
-            data_transmit_ready,
-            request_to_send,
-            out1,
-            out2,
-            rts_enable,
-            cts_enable,
-        );
-    }
-
-    fn send_byte(&mut self, byte: u8) {
-        unsafe {
-            self.write_data(data::Register::default().update_data_u8(byte));
-        }
-    }
-
     fn set_baud_rate(&mut self, baud_rate: usize) {
         let frequency: usize = 24000000;
         let integer_baud_rate: usize = frequency / (16 * baud_rate);
@@ -313,6 +261,60 @@ impl RegistersAccessor {
                 stop_bits,
                 word_bits,
             ));
+        }
+    }
+}
+
+impl Driver for RegistersAccessor {
+    fn can_send_byte(&self) -> bool {
+        !unsafe { self.read_flag() }.read_busy_bit()
+    }
+
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    ) {
+        let uart_enable: bool = true;
+        let sir_enable: bool = false;
+        let sir_low_power_irda_mode: bool = false;
+        let loopback_enable: bool = false;
+        let transmit_enable: bool = true;
+        let receive_enable: bool = true;
+        let data_transmit_ready: bool = false;
+        let request_to_send: bool = false;
+        let out1: bool = false;
+        let out2: bool = false;
+        let rts_enable: bool = false;
+        let cts_enable: bool = false;
+        self.disable();
+        self.disable_all_interrupts();
+        self.clear_all_interrupts();
+        self.set_baud_rate(baud_rate);
+        self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
+        self.set_control(
+            uart_enable,
+            sir_enable,
+            sir_low_power_irda_mode,
+            loopback_enable,
+            transmit_enable,
+            receive_enable,
+            data_transmit_ready,
+            request_to_send,
+            out1,
+            out2,
+            rts_enable,
+            cts_enable,
+        );
+    }
+
+    unsafe fn send_byte_unchecked(&mut self, byte: u8) {
+        unsafe {
+            self.write_data(data::Register::default().update_data_u8(byte));
         }
     }
 }

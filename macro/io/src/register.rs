@@ -306,17 +306,17 @@ impl Structure {
         let read: TokenStream = match inner_type.to_string().as_str() {
             "u8" => quote! {
                 unsafe {
-                    core::arch::asm!("in dx, al", in("dx") port, out("al") value);
+                    core::arch::asm!("in al, dx", in("dx") port, out("al") value);
                 }
             },
             "u16" => quote! {
                 unsafe {
-                    core::arch::asm!("in dx, ax", in("dx") port, out("ax") value);
+                    core::arch::asm!("in ax, dx", in("dx") port, out("ax") value);
                 }
             },
             "u32" => quote! {
                 unsafe {
-                    core::arch::asm!("in dx, eax", in("dx") port, out("eax") value);
+                    core::arch::asm!("in eax, dx", in("dx") port, out("eax") value);
                 }
             },
             "u64" | "u128" => quote! {
@@ -325,7 +325,7 @@ impl Structure {
                     .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<#inner_type>()) {
                     let mut buffer: u32;
                     unsafe {
-                        core::arch::asm!("in dx, eax", in("dx") current_port, out("eax") buffer);
+                        core::arch::asm!("in eax, dx", in("dx") current_port, out("eax") buffer);
                     }
                     value += (buffer as #inner_type) << (((current_port - port) as u32) * u8::BITS);
                 }
