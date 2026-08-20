@@ -49,4 +49,10 @@ pub trait Driver {
             self.send_byte_unchecked(data);
         }
     }
+
+    fn send_string(&mut self, string: &str) {
+        for byte in string.bytes() {
+            self.send_byte(byte);
+        }
+    }
 }
