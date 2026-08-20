@@ -48,13 +48,13 @@ fn main(global: firmware::Global) {
         global.set();
     }
     uart::initialize();
-    firmware::println!("Hello, World!");
+    uart::println!("Hello, World!");
     unimplemented!();
 }
 
 #[panic_handler]
 fn panic(panic: &PanicInfo) -> ! {
-    firmware::println!("{}", panic);
+    uart::println!("{}", panic);
     loop {
         unsafe {
             wait_for_interrupt();
