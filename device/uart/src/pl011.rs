@@ -193,13 +193,15 @@ impl RegistersAccessor {
         }
     }
 
-    fn initialize(&mut self) {
-        let baud_rate: usize = 9600;
-        let enable_fifo: bool = true;
-        let parity: Option<Parity> = None;
-        let send_break: bool = false;
-        let stop_bits: u8 = 1;
-        let word_bits: u8 = 8;
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    ) {
         let uart_enable: bool = true;
         let sir_enable: bool = false;
         let sir_low_power_irda_mode: bool = false;

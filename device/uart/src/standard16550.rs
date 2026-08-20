@@ -51,19 +51,21 @@ impl RegistersAccessor {
         }
     }
 
-    fn initialize(&mut self) {
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    ) {
         let enable_received_data_available_interrupt: bool = false;
         let enable_transmitter_holding_register_empty_interrupt: bool = false;
         let enable_receiver_line_status_interrupt: bool = false;
         let enable_modem_status_interrupt: bool = false;
         let enable_sleep_mode_interrupt: bool = false;
         let enable_low_power_mode_interrupt: bool = false;
-        let baud_rate: usize = 9600;
-        let parity: Option<Parity> = None;
-        let send_break: bool = false;
-        let stop_bits: u8 = 1;
-        let word_bits: u8 = 8;
-        let enable_fifo: bool = true;
         let clear_receive: bool = true;
         let clear_transmit: bool = true;
         let dma: bool = false;
