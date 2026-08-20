@@ -35,10 +35,14 @@ impl Structure {
 
     fn accessor_implement(&self) -> TokenStream {
         let accessor: Ident = self.accessor_ident();
+        let new_address: TokenStream = self.new_address();
+        let new_port: TokenStream = self.new_port();
         let reads: Vec<TokenStream> = self.reads();
         let writes: Vec<TokenStream> = self.writes();
         quote! {
             impl #accessor {
+                #new_address
+                #new_port
                 #(#reads)*
                 #(#writes)*
             }
@@ -81,6 +85,27 @@ impl Structure {
                 #(#sizes)*
                 #(#write_memories)*
                 #(#write_ports)*
+            }
+        }
+    }
+
+    fn new_address(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        quote! {
+            pub unsafe fn new_address(address: usize) -> Self {
+                let address: *mut #ident = address as *mut #ident;
+                Self::Memory(unsafe {
+                    &mut *address
+                })
+            }
+        }
+    }
+
+    fn new_port(&self) -> TokenStream {
+        quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn new_port(port: u16) -> Self {
+                Self::Port(port)
             }
         }
     }
