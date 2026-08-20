@@ -19,18 +19,18 @@ impl Register {
         enable_fifo: bool,
         parity: Option<Parity>,
         send_break: bool,
-        stop_bit: u8,
-        word_length: u8,
+        stop_bits: u8,
+        word_bits: u8,
     ) -> Self {
         Self::default()
             .update_send_break_bit(send_break)
-            .update_two_stop_bits_bit(match stop_bit {
+            .update_two_stop_bits_bit(match stop_bits {
                 1 => false,
                 2 => true,
                 _ => panic!(),
             })
             .update_enable_fifo_bit(enable_fifo)
-            .update_word_length_shift(match word_length {
+            .update_word_length_shift(match word_bits {
                 5 => 0,
                 6 => 1,
                 7 => 2,

@@ -195,10 +195,16 @@ impl RegistersAccessor {
 
     fn initialize(&mut self) {
         let baud_rate: usize = 9600;
+        let enable_fifo: bool = true;
+        let parity: Option<Parity> = None;
+        let send_break: bool = false;
+        let stop_bits: u8 = 1;
+        let word_bits: u8 = 8;
         self.disable();
         self.disable_all_interrupts();
         self.clear_all_interrupts();
         self.set_baud_rate(baud_rate);
+        self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
     }
 
     fn send_byte(&mut self, byte: u8) {
@@ -268,16 +274,16 @@ impl RegistersAccessor {
         enable_fifo: bool,
         parity: Option<Parity>,
         send_break: bool,
-        stop_bit: u8,
-        word_length: u8,
+        stop_bits: u8,
+        word_bits: u8,
     ) {
         unsafe {
             self.write_line_control(line_control::Register::new(
                 enable_fifo,
                 parity,
                 send_break,
-                stop_bit,
-                word_length,
+                stop_bits,
+                word_bits,
             ));
         }
     }
