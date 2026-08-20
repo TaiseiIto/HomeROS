@@ -13,17 +13,18 @@ use standard16550::RegistersAccessor;
 use core::{
     arch::asm,
     cell::{OnceCell, SyncUnsafeCell},
+    fmt::{Arguments, Result, Write},
 };
+
+pub fn initialize() {
+    RegistersAccessor::new().set();
+}
 
 static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
     SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
-pub fn global_mut() -> &'static mut RegistersAccessor {
+fn global_mut() -> &'static mut RegistersAccessor {
     unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
-}
-
-pub fn initialize() {
-    RegistersAccessor::new().set();
 }
 
 impl RegistersAccessor {
@@ -54,11 +55,22 @@ impl RegistersAccessor {
     pub fn set(self) {
         unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
     }
+
+    pub fn write_format(&mut self, arguments: Arguments) {
+        self.write_fmt(arguments).unwrap();
+    }
 }
 
 unsafe impl Sync for RegistersAccessor {}
 
-pub enum Parity {
+impl Write for RegistersAccessor {
+    fn write_str(&mut self, string: &str) -> Result {
+        self.write_string(string);
+        Ok(())
+    }
+}
+
+enum Parity {
     Even,
     High,
     Low,
@@ -82,7 +94,7 @@ pub fn write_byte(byte: u8) {
 /// # TODO
 /// This is not thread safe actualty.
 /// Make it thread safe.
-pub struct SyncOnceCell<T>(OnceCell<T>);
+struct SyncOnceCell<T>(OnceCell<T>);
 
 unsafe impl<T> Sync for SyncOnceCell<T> {}
 
@@ -108,7 +120,7 @@ pub trait Driver {
         }
     }
 
-    fn send_string(&mut self, string: &str) {
+    fn write_string(&mut self, string: &str) {
         for byte in string.bytes() {
             self.send_byte(byte);
         }
