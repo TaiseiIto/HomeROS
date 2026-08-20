@@ -1,13 +1,14 @@
+#![feature(sync_unsafe_cell)]
 #![no_std]
 
 use core::{
-    cell::OnceCell,
+    cell::{OnceCell, SyncUnsafeCell},
     fmt::{Arguments, Result, Write},
 };
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::global().write_format(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::global_mut().write_format(format_args!($($arg)*)));
 }
 
 #[macro_export]
@@ -19,10 +20,11 @@ macro_rules! println {
 #[cfg(firmware = "uefi")]
 pub use uefi;
 
-static GLOBAL: SyncOnceCell<Global> = SyncOnceCell(OnceCell::new());
+static GLOBAL: SyncUnsafeCell<SyncOnceCell<Global>> =
+    SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
 
-pub fn global() -> &'static Global {
-    GLOBAL.0.get().unwrap()
+pub fn global_mut() -> &'static mut Global {
+    unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
 }
 
 /// # TODO
@@ -55,18 +57,12 @@ impl Global {
         }
     }
 
-    /// # Safety
-    /// This function dereferences `image_handle` and `system_table`.
-    pub unsafe fn set(self) {
-        GLOBAL.0.set(self).unwrap();
+    pub fn set(self) {
+        unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
     }
 
-    pub fn write_format(&self, arguments: Arguments) {
-        self.writer().write_fmt(arguments).unwrap();
-    }
-
-    fn writer(&self) -> Writer<'_> {
-        Writer(self)
+    pub fn write_format(&mut self, arguments: Arguments) {
+        self.write_fmt(arguments).unwrap();
     }
 
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
@@ -87,11 +83,9 @@ impl Global {
     }
 }
 
-pub struct Writer<'a>(&'a Global);
-
-impl Write for Writer<'_> {
+impl Write for Global {
     fn write_str(&mut self, string: &str) -> Result {
-        self.0.write_string(string);
+        self.write_string(string);
         Ok(())
     }
 }

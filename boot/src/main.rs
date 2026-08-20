@@ -44,11 +44,10 @@ extern "efiapi" fn efi_main(
 }
 
 fn main(global: firmware::Global) {
-    unsafe {
-        global.set();
-    }
+    global.set();
     uart::initialize();
-    uart::println!("Hello, World!");
+    firmware::println!("Hello, firmware!");
+    uart::println!("Hello, UART!");
     unimplemented!();
 }
 
