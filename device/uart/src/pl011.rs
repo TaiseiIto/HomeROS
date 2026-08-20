@@ -194,9 +194,11 @@ impl RegistersAccessor {
     }
 
     fn initialize(&mut self) {
+        let baud_rate: usize = 9600;
         self.disable();
         self.disable_all_interrupts();
         self.clear_all_interrupts();
+        self.set_baud_rate(baud_rate);
     }
 
     fn send_byte(&mut self, byte: u8) {
@@ -205,11 +207,17 @@ impl RegistersAccessor {
         }
     }
 
-    fn set_baud_rate_divisor(&mut self, baud_rate_divisor: u16) {
+    fn set_baud_rate(&mut self, baud_rate: usize) {
+        let frequency: usize = 24000000;
+        let integer_baud_rate: usize = frequency / (16 * baud_rate);
+        let fractional_baud_rate: usize = 4 * frequency / baud_rate - 64 * integer_baud_rate;
         unsafe {
-            self.write_integer_baud_rate(
-                baud_rate::integer::Register::default().update_divisor_u16(baud_rate_divisor),
-            );
+            self.write_integer_baud_rate(baud_rate::integer::Register::new(
+                integer_baud_rate as u16,
+            ));
+            self.write_fractional_baud_rate(baud_rate::fractional::Register::new(
+                fractional_baud_rate as u32,
+            ));
         }
     }
 

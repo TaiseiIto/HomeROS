@@ -5,3 +5,9 @@ pub struct Register {
     divisor: [bool; 6],
     __: [bool; 26],
 }
+
+impl Register {
+    pub fn new(divisor: u32) -> Self {
+        Self::default().update_divisor_shift(divisor)
+    }
+}
