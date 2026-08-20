@@ -2,10 +2,40 @@
 
 #[cfg(uart = "pl011")]
 mod pl011;
+#[cfg(uart = "pl011")]
+use pl011::RegistersAccessor;
 #[cfg(uart = "16550")]
 mod standard16550;
+#[cfg(uart = "16550")]
+use standard16550::RegistersAccessor;
 
 use core::arch::asm;
+
+impl RegistersAccessor {
+    pub fn new() -> Self {
+        #[cfg(target_arch = "aarch64")]
+        let mut accessor: Self = unsafe { Self::new_address(0x09000000) };
+        #[cfg(target_arch = "riscv64")]
+        let mut accessor: Self = unsafe { Self::new_address(0x10000000) };
+        #[cfg(target_arch = "x86_64")]
+        let mut accessor: Self = unsafe { Self::new_port(0x03f8) };
+        let baud_rate: usize = 9600;
+        let enable_fifo: bool = true;
+        let parity: Option<Parity> = None;
+        let send_break: bool = false;
+        let stop_bits: u8 = 1;
+        let word_bits: u8 = 8;
+        accessor.initialize(
+            baud_rate,
+            enable_fifo,
+            parity,
+            send_break,
+            stop_bits,
+            word_bits,
+        );
+        accessor
+    }
+}
 
 pub enum Parity {
     Even,

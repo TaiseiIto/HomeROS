@@ -19,7 +19,10 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let vis: &Visibility = &self.vis;
         let accessor: Ident = self.accessor_ident();
+        /// TODO
+        /// Implement debug trait correctly.
         quote! {
+            #[derive(Debug)]
             #vis enum #accessor {
                 Memory(&'static mut #ident),
                 #[cfg(target_arch = "x86_64")]

@@ -10,7 +10,7 @@ use super::{Driver, Parity};
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
 #[io::registers]
-struct Registers {
+pub struct Registers {
     buffer_or_baud_low: BufferOrBaudLow,
     interrupt_enable_or_baud_high: InterruptEnableOrBaudHigh,
     fifo_control_or_interrupt_identification: FifoControlOrInterruptIdentification,
