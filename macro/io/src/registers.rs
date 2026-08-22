@@ -15,14 +15,32 @@ pub struct Structure {
 }
 
 impl Structure {
+    fn accessor_debug(&self) -> TokenStream {
+        let accessor: Ident = self.accessor_ident();
+        let ident: &Ident = &self.ident;
+        let ident_string: String = ident.to_string();
+        let elements: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .filter_map(|element| element.accessor_debug())
+            .collect();
+        quote! {
+            impl core::fmt::Debug for #accessor {
+                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    formatter
+                        .debug_struct(#ident_string)
+                        .#(#elements).*
+                        .finish()
+                }
+            }
+        }
+    }
+
     fn accessor_declaration(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let vis: &Visibility = &self.vis;
         let accessor: Ident = self.accessor_ident();
-        /// TODO
-        /// Implement debug trait correctly.
         quote! {
-            #[derive(Debug)]
             #vis enum #accessor {
                 Memory(&'static mut #ident),
                 #[cfg(target_arch = "x86_64")]
@@ -235,6 +253,7 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
+        let accessor_debug: TokenStream = structure.accessor_debug();
         let accessor_declaration: TokenStream = structure.accessor_declaration();
         let accessor_implement: TokenStream = structure.accessor_implement();
         let debug: TokenStream = structure.debug();
@@ -248,6 +267,7 @@ impl From<Structure> for TokenStream {
             #debug
             #accessor_declaration
             #accessor_implement
+            #accessor_debug
         }
     }
 }
@@ -260,6 +280,20 @@ struct Element {
 }
 
 impl Element {
+    fn accessor_debug(&self) -> Option<TokenStream> {
+        self.ident
+            .as_ref()
+            .zip(self.read_ident())
+            .map(|(ident, read)| {
+                let ident_string: String = ident.to_string();
+                quote! {
+                    field(#ident_string, &unsafe {
+                        self.#read()
+                    })
+                }
+            })
+    }
+
     fn const_ident(&self, suffix: &str) -> Ident {
         Ident::new(
             &format!("{}_{}", self.ident().to_string().to_uppercase(), suffix),
