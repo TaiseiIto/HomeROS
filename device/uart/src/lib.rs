@@ -17,6 +17,22 @@ use core::{
 };
 
 #[macro_export]
+macro_rules! dbg {
+    ($arg:expr) => {
+        let value = $arg;
+        $crate::println!(
+            "[{}:{}:{}] {} = {}",
+            file!(),
+            line!(),
+            column!(),
+            stringify!($arg),
+            value
+        );
+        value
+    };
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::global_mut().write_format(format_args!($($arg)*)));
 }
