@@ -18,7 +18,7 @@ use core::{
 
 #[macro_export]
 macro_rules! dbg {
-    ($arg:expr) => {
+    ($arg:expr) => {{
         let value = $arg;
         $crate::println!(
             "[{}:{}:{}] {} = {}",
@@ -29,7 +29,7 @@ macro_rules! dbg {
             value
         );
         value
-    };
+    }};
 }
 
 #[macro_export]
