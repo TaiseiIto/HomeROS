@@ -219,20 +219,20 @@ impl RegistersAccessor {
         cts_enable: bool,
     ) {
         unsafe {
-            self.write_control(control::Register::new(
-                uart_enable,
-                sir_enable,
-                sir_low_power_irda_mode,
-                loopback_enable,
-                transmit_enable,
-                receive_enable,
-                data_transmit_ready,
-                request_to_send,
-                out1,
-                out2,
-                rts_enable,
-                cts_enable,
-            ));
+            self.write_control(
+                control::Register::default()
+                    .update_uart_enable_bit(uart_enable)
+                    .update_sir_enable_bit(sir_enable)
+                    .update_sir_low_power_irda_mode_bit(sir_low_power_irda_mode)
+                    .update_loopback_enable_bit(loopback_enable)
+                    .update_transmit_enable_bit(transmit_enable)
+                    .update_receive_enable_bit(receive_enable)
+                    .update_data_transmit_ready_bit(data_transmit_ready)
+                    .update_request_to_send_bit(request_to_send)
+                    .update_out_bits([out1, out2])
+                    .update_rts_enable_bit(rts_enable)
+                    .update_cts_enable_bit(cts_enable),
+            );
         }
     }
 
