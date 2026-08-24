@@ -56,35 +56,6 @@ impl RegistersAccessor {
         let parity_error: bool = true;
         let break_erro: bool = true;
         let overrun_error: bool = true;
-        self.clear_interrupts(
-            ri_modem,
-            cts_modem,
-            dcd_modem,
-            dsr_modem,
-            receive,
-            transmit,
-            receive_timeout,
-            framing_error,
-            parity_error,
-            break_erro,
-            overrun_error,
-        );
-    }
-
-    fn clear_interrupts(
-        &mut self,
-        ri_modem: bool,
-        cts_modem: bool,
-        dcd_modem: bool,
-        dsr_modem: bool,
-        receive: bool,
-        transmit: bool,
-        receive_timeout: bool,
-        framing_error: bool,
-        parity_error: bool,
-        break_erro: bool,
-        overrun_error: bool,
-    ) {
         unsafe {
             self.write_interrupt_clear(
                 interrupt::Register::default()
