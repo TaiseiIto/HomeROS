@@ -42,6 +42,13 @@ macro_rules! println {
     ($fmt:expr, $($arg:tt)*) => ($crate::print!(concat!($fmt, "\n"), $($arg)*));
 }
 
+pub enum Parity {
+    Even,
+    High,
+    Low,
+    Odd,
+}
+
 pub fn initialize() {
     RegistersAccessor::new().set();
 }
@@ -94,13 +101,6 @@ impl Write for RegistersAccessor {
         self.write_string(string);
         Ok(())
     }
-}
-
-enum Parity {
-    Even,
-    High,
-    Low,
-    Odd,
 }
 
 /// # TODO
