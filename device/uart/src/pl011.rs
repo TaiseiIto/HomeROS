@@ -87,20 +87,22 @@ impl RegistersAccessor {
         let out2: bool = false;
         let rts_enable: bool = false;
         let cts_enable: bool = false;
-        self.set_control(
-            uart_enable,
-            sir_enable,
-            sir_low_power_irda_mode,
-            loopback_enable,
-            transmit_enable,
-            receive_enable,
-            data_transmit_ready,
-            request_to_send,
-            out1,
-            out2,
-            rts_enable,
-            cts_enable,
-        );
+        unsafe {
+            self.write_control(
+                control::Register::default()
+                    .update_uart_enable_bit(uart_enable)
+                    .update_sir_enable_bit(sir_enable)
+                    .update_sir_low_power_irda_mode_bit(sir_low_power_irda_mode)
+                    .update_loopback_enable_bit(loopback_enable)
+                    .update_transmit_enable_bit(transmit_enable)
+                    .update_receive_enable_bit(receive_enable)
+                    .update_data_transmit_ready_bit(data_transmit_ready)
+                    .update_request_to_send_bit(request_to_send)
+                    .update_out_bits([out1, out2])
+                    .update_rts_enable_bit(rts_enable)
+                    .update_cts_enable_bit(cts_enable),
+            );
+        }
     }
 
     fn disable_all_interrupts(&mut self) {
@@ -144,39 +146,6 @@ impl RegistersAccessor {
             self.write_fractional_baud_rate(baud_rate::fractional::Register::new(
                 fractional_baud_rate as u32,
             ));
-        }
-    }
-
-    fn set_control(
-        &mut self,
-        uart_enable: bool,
-        sir_enable: bool,
-        sir_low_power_irda_mode: bool,
-        loopback_enable: bool,
-        transmit_enable: bool,
-        receive_enable: bool,
-        data_transmit_ready: bool,
-        request_to_send: bool,
-        out1: bool,
-        out2: bool,
-        rts_enable: bool,
-        cts_enable: bool,
-    ) {
-        unsafe {
-            self.write_control(
-                control::Register::default()
-                    .update_uart_enable_bit(uart_enable)
-                    .update_sir_enable_bit(sir_enable)
-                    .update_sir_low_power_irda_mode_bit(sir_low_power_irda_mode)
-                    .update_loopback_enable_bit(loopback_enable)
-                    .update_transmit_enable_bit(transmit_enable)
-                    .update_receive_enable_bit(receive_enable)
-                    .update_data_transmit_ready_bit(data_transmit_ready)
-                    .update_request_to_send_bit(request_to_send)
-                    .update_out_bits([out1, out2])
-                    .update_rts_enable_bit(rts_enable)
-                    .update_cts_enable_bit(cts_enable),
-            );
         }
     }
 
@@ -240,20 +209,22 @@ impl Driver for RegistersAccessor {
         self.clear_all_interrupts();
         self.set_baud_rate(baud_rate);
         self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
-        self.set_control(
-            uart_enable,
-            sir_enable,
-            sir_low_power_irda_mode,
-            loopback_enable,
-            transmit_enable,
-            receive_enable,
-            data_transmit_ready,
-            request_to_send,
-            out1,
-            out2,
-            rts_enable,
-            cts_enable,
-        );
+        unsafe {
+            self.write_control(
+                control::Register::default()
+                    .update_uart_enable_bit(uart_enable)
+                    .update_sir_enable_bit(sir_enable)
+                    .update_sir_low_power_irda_mode_bit(sir_low_power_irda_mode)
+                    .update_loopback_enable_bit(loopback_enable)
+                    .update_transmit_enable_bit(transmit_enable)
+                    .update_receive_enable_bit(receive_enable)
+                    .update_data_transmit_ready_bit(data_transmit_ready)
+                    .update_request_to_send_bit(request_to_send)
+                    .update_out_bits([out1, out2])
+                    .update_rts_enable_bit(rts_enable)
+                    .update_cts_enable_bit(cts_enable),
+            );
+        }
     }
 
     unsafe fn send_byte_unchecked(&mut self, byte: u8) {
