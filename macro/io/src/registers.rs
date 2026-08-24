@@ -25,8 +25,8 @@ impl Structure {
             .filter_map(|element| element.accessor_debug())
             .collect();
         quote! {
-            impl core::fmt::Debug for #accessor {
-                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            impl ::core::fmt::Debug for #accessor {
+                fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
                         .#(#elements).*
@@ -79,8 +79,8 @@ impl Structure {
             .filter_map(|element| element.debug())
             .collect();
         quote! {
-            impl core::fmt::Debug for #ident {
-                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            impl ::core::fmt::Debug for #ident {
+                fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
                         .#(#elements).*
@@ -387,7 +387,7 @@ impl Element {
         let element: Ident = self.ident();
         let offset: Ident = self.offset_ident();
         quote! {
-            const _: () = assert!(core::mem::offset_of!(#structure, #element) == #structure::#offset);
+            const _: () = assert!(::core::mem::offset_of!(#structure, #element) == #structure::#offset);
         }
     }
 
@@ -484,7 +484,7 @@ impl Element {
         let size: Ident = self.size_ident();
         let true_type: Type = self.true_type();
         quote! {
-            const #size: usize = core::mem::size_of::<#true_type>();
+            const #size: usize = ::core::mem::size_of::<#true_type>();
         }
     }
 

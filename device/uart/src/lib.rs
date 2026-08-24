@@ -11,7 +11,6 @@ mod standard16550;
 use standard16550::RegistersAccessor;
 
 use core::{
-    arch::asm,
     cell::{OnceCell, SyncUnsafeCell},
     fmt::{Arguments, Result, Write},
 };

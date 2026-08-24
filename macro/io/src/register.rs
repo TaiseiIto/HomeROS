@@ -35,8 +35,8 @@ impl Structure {
     fn debug(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
         quote! {
-            impl core::fmt::Debug for #true_type {
-                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            impl ::core::fmt::Debug for #true_type {
+                fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     unsafe {
                         self.read_memory()
                     }.fmt(formatter)
@@ -166,8 +166,8 @@ impl Structure {
             })
             .collect();
         quote! {
-            impl core::fmt::Debug for #pretty_type {
-                fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            impl ::core::fmt::Debug for #pretty_type {
+                fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
                         .#(#elements).*
@@ -306,26 +306,26 @@ impl Structure {
         let read: TokenStream = match inner_type.to_string().as_str() {
             "u8" => quote! {
                 unsafe {
-                    core::arch::asm!("in al, dx", out("al") value, in("dx") port);
+                    ::core::arch::asm!("in al, dx", out("al") value, in("dx") port);
                 }
             },
             "u16" => quote! {
                 unsafe {
-                    core::arch::asm!("in ax, dx", out("ax") value, in("dx") port);
+                    ::core::arch::asm!("in ax, dx", out("ax") value, in("dx") port);
                 }
             },
             "u32" => quote! {
                 unsafe {
-                    core::arch::asm!("in eax, dx", out("eax") value, in("dx") port);
+                    ::core::arch::asm!("in eax, dx", out("eax") value, in("dx") port);
                 }
             },
             "u64" | "u128" => quote! {
                 for current_port in (port..)
-                    .step_by(core::mem::size_of::<u32>())
-                    .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<#inner_type>()) {
+                    .step_by(::core::mem::size_of::<u32>())
+                    .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<#inner_type>()) {
                     let mut buffer: u32;
                     unsafe {
-                        core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") current_port);
+                        ::core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") current_port);
                     }
                     value += (buffer as #inner_type) << (((current_port - port) as u32) * u8::BITS);
                 }
@@ -349,7 +349,7 @@ impl Structure {
         quote! {
             pub unsafe fn read_memory(&self) -> #pretty_type {
                 unsafe {
-                    core::ptr::read_volatile(self as *const Self)
+                    ::core::ptr::read_volatile(self as *const Self)
                 }.prettify()
             }
         }
@@ -361,26 +361,26 @@ impl Structure {
         let write: TokenStream = match inner_type.to_string().as_str() {
             "u8" => quote! {
                 unsafe {
-                    core::arch::asm!("out dx, al", in("dx") port, in("al") value);
+                    ::core::arch::asm!("out dx, al", in("dx") port, in("al") value);
                 }
             },
             "u16" => quote! {
                 unsafe {
-                    core::arch::asm!("out dx, ax", in("dx") port, in("ax") value);
+                    ::core::arch::asm!("out dx, ax", in("dx") port, in("ax") value);
                 }
             },
             "u32" => quote! {
                 unsafe {
-                    core::arch::asm!("out dx, eax", in("dx") port, in("eax") value);
+                    ::core::arch::asm!("out dx, eax", in("dx") port, in("eax") value);
                 }
             },
             "u64" | "u128" => quote! {
                 for current_port in (port..)
-                    .step_by(core::mem::size_of::<u32>())
-                    .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<#inner_type>()) {
+                    .step_by(::core::mem::size_of::<u32>())
+                    .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<#inner_type>()) {
                     let buffer: u32 = ((value >> (((current_port - port) as u32) * u8::BITS)) & 0xffffffff) as u32;
                     unsafe {
-                        core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
+                        ::core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
                     }
                 }
             },
@@ -403,7 +403,7 @@ impl Structure {
             pub unsafe fn write_memory(&mut self, value: #pretty_type) {
                 let value: Self = value.unprettify();
                 unsafe {
-                    core::ptr::write_volatile(self as *mut Self, value);
+                    ::core::ptr::write_volatile(self as *mut Self, value);
                 }
             }
         }

@@ -108,7 +108,7 @@ impl Registers {
         quote! {
             pub unsafe fn read_memory(&self) -> #pretty_type {
                 unsafe {
-                    core::ptr::read_volatile(self as *const Self)
+                    ::core::ptr::read_volatile(self as *const Self)
                 }.prettify()
             }
         }
@@ -119,56 +119,56 @@ impl Registers {
         quote! {
             #[cfg(target_arch = "x86_64")]
             pub unsafe fn read_port(port: u16) -> #pretty_type {
-                match core::mem::size_of::<Self>() {
+                match ::core::mem::size_of::<Self>() {
                     1 => {
                         let mut buffer: u8;
                         unsafe {
-                            core::arch::asm!("in al, dx", out("al") buffer, in("dx") port);
-                            core::ptr::read_volatile((&buffer as *const u8) as *const Self)
+                            ::core::arch::asm!("in al, dx", out("al") buffer, in("dx") port);
+                            ::core::ptr::read_volatile((&buffer as *const u8) as *const Self)
                         }.prettify()
                     },
                     2 => {
                         let mut buffer: u16;
                         unsafe {
-                            core::arch::asm!("in ax, dx", out("ax") buffer, in("dx") port);
-                            core::ptr::read_volatile((&buffer as *const u16) as *const Self)
+                            ::core::arch::asm!("in ax, dx", out("ax") buffer, in("dx") port);
+                            ::core::ptr::read_volatile((&buffer as *const u16) as *const Self)
                         }.prettify()
                     },
                     4 => {
                         let mut buffer: u32;
                         unsafe {
-                            core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") port);
-                            core::ptr::read_volatile((&buffer as *const u32) as *const Self)
+                            ::core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") port);
+                            ::core::ptr::read_volatile((&buffer as *const u32) as *const Self)
                         }.prettify()
                     },
                     8 => {
                         let mut buffer: u64 = 0;
                         for current_port in (port..)
-                            .step_by(core::mem::size_of::<u32>())
-                            .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<u64>()) {
+                            .step_by(::core::mem::size_of::<u32>())
+                            .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<u64>()) {
                             let mut current_buffer: u32;
                             unsafe {
-                                core::arch::asm!("in eax, dx", out("eax") current_buffer, in("dx") current_port);
+                                ::core::arch::asm!("in eax, dx", out("eax") current_buffer, in("dx") current_port);
                             }
                             buffer += (current_buffer as u64) << (((current_port - port) as u32) * u8::BITS);
                         }
                         unsafe {
-                            core::ptr::read_volatile((&buffer as *const u64) as *const Self)
+                            ::core::ptr::read_volatile((&buffer as *const u64) as *const Self)
                         }.prettify()
                     },
                     16 => {
                         let mut buffer: u128 = 0;
                         for current_port in (port..)
-                            .step_by(core::mem::size_of::<u32>())
-                            .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<u128>()) {
+                            .step_by(::core::mem::size_of::<u32>())
+                            .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<u128>()) {
                             let mut current_buffer: u32;
                             unsafe {
-                                core::arch::asm!("in eax, dx", out("eax") current_buffer, in("dx") current_port);
+                                ::core::arch::asm!("in eax, dx", out("eax") current_buffer, in("dx") current_port);
                             }
                             buffer += (current_buffer as u128) << (((current_port - port) as u32) * u8::BITS);
                         }
                         unsafe {
-                            core::ptr::read_volatile((&buffer as *const u128) as *const Self)
+                            ::core::ptr::read_volatile((&buffer as *const u128) as *const Self)
                         }.prettify()
                     },
                     _ => panic!(),
@@ -248,7 +248,7 @@ impl Registers {
         quote! {
             pub unsafe fn write_memory(&mut self, value: #pretty_type) {
                 unsafe {
-                    core::ptr::write_volatile(self as *mut Self, value.unprettify());
+                    ::core::ptr::write_volatile(self as *mut Self, value.unprettify());
                 }
             }
         }
@@ -260,37 +260,37 @@ impl Registers {
             #[cfg(target_arch = "x86_64")]
             pub unsafe fn write_port(port: u16, value: #pretty_type) {
                 let value: *const Self = (&value.unprettify()) as *const Self;
-                match core::mem::size_of::<Self>() {
+                match ::core::mem::size_of::<Self>() {
                     1 => {
                         let value: *const u8 = value as *const u8;
                         let value: u8 = unsafe { *value };
                         unsafe {
-                            core::arch::asm!("out dx, al", in("dx") port, in("al") value);
+                            ::core::arch::asm!("out dx, al", in("dx") port, in("al") value);
                         }
                     },
                     2 => {
                         let value: *const u16 = value as *const u16;
                         let value: u16 = unsafe { *value };
                         unsafe {
-                            core::arch::asm!("out dx, ax", in("dx") port, in("ax") value);
+                            ::core::arch::asm!("out dx, ax", in("dx") port, in("ax") value);
                         }
                     },
                     4 => {
                         let value: *const u32 = value as *const u32;
                         let value: u32 = unsafe { *value };
                         unsafe {
-                            core::arch::asm!("out dx, eax", in("dx") port, in("eax") value);
+                            ::core::arch::asm!("out dx, eax", in("dx") port, in("eax") value);
                         }
                     },
                     8 => {
                         let value: *const u64 = value as *const u64;
                         let value: u64 = unsafe { *value };
                         for current_port in (port..)
-                            .step_by(core::mem::size_of::<u32>())
-                            .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<u64>()) {
+                            .step_by(::core::mem::size_of::<u32>())
+                            .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<u64>()) {
                             let buffer: u32 = ((value >> (((current_port - port) as u32) * u8::BITS)) & 0xffffffff) as u32;
                             unsafe {
-                                core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
+                                ::core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
                             }
                         }
                     },
@@ -298,11 +298,11 @@ impl Registers {
                         let value: *const u128 = value as *const u128;
                         let value: u128 = unsafe { *value };
                         for current_port in (port..)
-                            .step_by(core::mem::size_of::<u32>())
-                            .take_while(|current_port| (*current_port as usize) < (port as usize) + core::mem::size_of::<u128>()) {
+                            .step_by(::core::mem::size_of::<u32>())
+                            .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<u128>()) {
                             let buffer: u32 = ((value >> (((current_port - port) as u32) * u8::BITS)) & 0xffffffff) as u32;
                             unsafe {
-                                core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
+                                ::core::arch::asm!("out dx, eax", in("dx") current_port, in("eax") buffer);
                             }
                         }
                     },
@@ -447,7 +447,7 @@ impl Element {
         let ident: &Ident = &self.ident;
         let true_type: Type = self.true_type();
         quote! {
-            #ident: core::mem::ManuallyDrop<#true_type>
+            #ident: ::core::mem::ManuallyDrop<#true_type>
         }
     }
 
@@ -488,7 +488,7 @@ impl Element {
         let writer_type: Ident = registers.writer_ident();
         quote! {
             #writer_type::#writer(writer) => #true_type {
-                #element_ident : core::mem::ManuallyDrop::new(writer.unprettify())
+                #element_ident : ::core::mem::ManuallyDrop::new(writer.unprettify())
             }
         }
     }
