@@ -54,7 +54,11 @@ pub fn global_mut() -> &'static mut RegistersAccessor {
 }
 
 impl RegistersAccessor {
-    pub fn new() -> Self {
+    pub fn write_format(&mut self, arguments: Arguments) {
+        self.write_fmt(arguments).unwrap();
+    }
+
+    fn new() -> Self {
         #[cfg(target_arch = "aarch64")]
         let mut accessor: Self = unsafe { Self::new_address(0x09000000) };
         #[cfg(target_arch = "riscv64")]
@@ -78,12 +82,8 @@ impl RegistersAccessor {
         accessor
     }
 
-    pub fn set(self) {
+    fn set(self) {
         unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
-    }
-
-    pub fn write_format(&mut self, arguments: Arguments) {
-        self.write_fmt(arguments).unwrap();
     }
 }
 
@@ -110,7 +110,7 @@ struct SyncOnceCell<T>(OnceCell<T>);
 
 unsafe impl<T> Sync for SyncOnceCell<T> {}
 
-pub trait Driver {
+trait Driver {
     fn can_send_byte(&self) -> bool;
 
     fn initialize(
