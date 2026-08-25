@@ -21,7 +21,7 @@ impl Control {
     ) -> Self {
         Self::default()
             .update_force_data_terminal_ready_bit(force_data_terminal_ready)
-            .update_force_request_to_send_bit(force_data_terminal_ready)
+            .update_force_request_to_send_bit(force_request_to_send)
             .update_aux_output_bits([out1, out2])
             .update_loopback_mode_bit(loopback_mode)
             .update_autoflow_control_bit(autoflow_control)
