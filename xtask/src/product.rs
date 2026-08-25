@@ -7,6 +7,8 @@ use {
     },
 };
 
+/// # TODO
+/// * Add release build.
 pub fn build() {
     for binary in Binary::domain().into_iter() {
         binary.build();
