@@ -204,11 +204,14 @@ impl Driver for RegistersAccessor {
         let out2: bool = false;
         let rts_enable: bool = false;
         let cts_enable: bool = false;
+        let transmit_ratio_8times: u8 = 7;
+        let receive_ratio_8times: u8 = 7;
         self.disable();
         self.disable_all_interrupts();
         self.clear_all_interrupts();
         self.set_baud_rate(baud_rate);
         self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
+        self.set_fifo(transmit_ratio_8times, receive_ratio_8times);
         unsafe {
             self.write_control(
                 control::Register::default()
