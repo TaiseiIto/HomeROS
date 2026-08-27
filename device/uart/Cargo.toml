@@ -9,3 +9,6 @@ path = "../../arch"
 
 [dependencies.io]
 path = "../../macro/io"
+
+[dependencies.sync]
+path = "../../sync"

@@ -2,11 +2,13 @@ use {
     arch::pause,
     core::{
         cell::UnsafeCell,
+        marker::{Send, Sync},
+        ops::{Deref, DerefMut, Drop},
         sync::atomic::{AtomicBool, Ordering},
     },
 };
 
-pub struct Guard<'a, T>(&'a SpinLock<T>);
+pub struct Guard<'a, T>(&'a Lock<T>);
 
 impl<T> Deref for Guard<'_, T> {
     type Target = T;
@@ -36,7 +38,7 @@ pub struct Lock<T> {
     value: UnsafeCell<T>,
 }
 
-impl Lock {
+impl<T> Lock<T> {
     pub const fn new(value: T) -> Self {
         Self {
             locked: AtomicBool::new(false),
@@ -44,11 +46,11 @@ impl Lock {
         }
     }
 
-    pub fn lock(&self) -> Guard<T> {
+    pub fn lock<'a>(&'a self) -> Guard<'a, T> {
         while self.locked.swap(true, Ordering::Acquire) {
             pause();
         }
-        Guard { lock: self }
+        Guard(self)
     }
 
     pub fn unlock(&self) {
@@ -56,4 +58,4 @@ impl Lock {
     }
 }
 
-unsafe impl<T> Sync for SpinLock<T> where T: Send {}
+unsafe impl<T> Sync for Lock<T> where T: Send {}

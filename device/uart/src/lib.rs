@@ -10,9 +10,13 @@ mod standard16550;
 #[cfg(uart = "16550")]
 use standard16550::RegistersAccessor;
 
-use core::{
-    cell::{OnceCell, SyncUnsafeCell},
-    fmt::{Arguments, Result, Write},
+use {
+    arch::pause,
+    core::{
+        cell::OnceCell,
+        fmt::{Arguments, Result, Write},
+    },
+    sync::spin::Lock,
 };
 
 #[macro_export]
@@ -33,7 +37,7 @@ macro_rules! dbg {
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::global_mut().write_format(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
 }
 
 #[macro_export]
@@ -53,12 +57,7 @@ pub fn initialize() {
     RegistersAccessor::new().set();
 }
 
-static GLOBAL: SyncUnsafeCell<SyncOnceCell<RegistersAccessor>> =
-    SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
-
-pub fn global_mut() -> &'static mut RegistersAccessor {
-    unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
-}
+pub static GLOBAL: Lock<OnceCell<RegistersAccessor>> = Lock::new(OnceCell::new());
 
 impl RegistersAccessor {
     pub fn write_format(&mut self, arguments: Arguments) {
@@ -90,7 +89,7 @@ impl RegistersAccessor {
     }
 
     fn set(self) {
-        unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
+        GLOBAL.lock().set(self).unwrap()
     }
 }
 
@@ -102,13 +101,6 @@ impl Write for RegistersAccessor {
         Ok(())
     }
 }
-
-/// # TODO
-/// This is not thread safe actualty.
-/// Make it thread safe.
-struct SyncOnceCell<T>(OnceCell<T>);
-
-unsafe impl<T> Sync for SyncOnceCell<T> {}
 
 trait Driver {
     fn can_send_byte(&self) -> bool;
@@ -127,7 +119,7 @@ trait Driver {
 
     fn send_byte(&mut self, data: u8) {
         while !self.can_send_byte() {
-            arch::pause();
+            pause();
         }
         unsafe {
             self.send_byte_unchecked(data);

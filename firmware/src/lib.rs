@@ -76,7 +76,12 @@ impl Global {
             self.write_byte(byte);
         }
         #[cfg(firmware = "tfa")]
-        uart::global_mut().write_str(string).unwrap();
+        uart::GLOBAL
+            .lock()
+            .get_mut()
+            .unwrap()
+            .write_str(string)
+            .unwrap();
         #[cfg(firmware = "uefi")]
         self.system_table.write(string);
     }
