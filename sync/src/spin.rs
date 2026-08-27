@@ -4,7 +4,10 @@ use {
         cell::UnsafeCell,
         marker::{Send, Sync},
         ops::{Deref, DerefMut, Drop},
-        sync::atomic::{AtomicBool, Ordering},
+        sync::atomic::{
+            AtomicBool,
+            Ordering::{Acquire, Release},
+        },
     },
 };
 
@@ -47,14 +50,14 @@ impl<T> Lock<T> {
     }
 
     pub fn lock<'a>(&'a self) -> Guard<'a, T> {
-        while self.locked.swap(true, Ordering::Acquire) {
+        while self.locked.swap(true, Acquire) {
             pause();
         }
         Guard(self)
     }
 
     pub fn unlock(&self) {
-        self.locked.store(false, Ordering::Release);
+        self.locked.store(false, Release);
     }
 }
 
