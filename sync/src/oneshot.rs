@@ -16,7 +16,7 @@ pub struct Channel<T> {
 }
 
 impl<T> Channel<T> {
-    pub fn is_read(&self) -> bool {
+    pub fn is_ready(&self) -> bool {
         self.ready.load(Relaxed)
     }
 
@@ -55,3 +55,25 @@ impl<T> Drop for Channel<T> {
 }
 
 unsafe impl<T> Sync for Channel<T> where T: Send {}
+
+#[cfg(test)]
+mod tests {
+    use {super::*, std::thread};
+
+    #[test]
+    fn test() {
+        let channel = Channel::new();
+        let main_thread = thread::current();
+        let message: &str = "Hello, World!";
+        thread::scope(|thread_scope| {
+            thread_scope.spawn(|| {
+                channel.send(message);
+                main_thread.unpark();
+            });
+            while !channel.is_ready() {
+                thread::park();
+            }
+            assert_eq!(channel.receive(), message);
+        });
+    }
+}
