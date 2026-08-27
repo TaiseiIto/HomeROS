@@ -88,7 +88,7 @@ impl RegistersAccessor {
     }
 
     fn set(self) {
-        GLOBAL.lock().set(self).unwrap()
+        GLOBAL.lock().set(self).unwrap();
     }
 }
 

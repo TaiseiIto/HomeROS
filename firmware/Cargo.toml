@@ -7,6 +7,9 @@ build = "build.rs"
 [dependencies.uart]
 path = "../device/uart"
 
+[dependencies.sync]
+path = "../sync"
+
 [target.'cfg(target_arch = "aarch64")'.dependencies.tfa]
 path = "tfa"
 

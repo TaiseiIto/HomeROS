@@ -1,14 +1,16 @@
-#![feature(sync_unsafe_cell)]
 #![no_std]
 
-use core::{
-    cell::{OnceCell, SyncUnsafeCell},
-    fmt::{Arguments, Result, Write},
+use {
+    core::{
+        cell::OnceCell,
+        fmt::{Arguments, Result, Write},
+    },
+    sync::spin::Lock,
 };
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::global_mut().write_format(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
 }
 
 #[macro_export]
@@ -20,19 +22,7 @@ macro_rules! println {
 #[cfg(firmware = "uefi")]
 pub use uefi;
 
-static GLOBAL: SyncUnsafeCell<SyncOnceCell<Global>> =
-    SyncUnsafeCell::new(SyncOnceCell(OnceCell::new()));
-
-pub fn global_mut() -> &'static mut Global {
-    unsafe { &mut *GLOBAL.get() }.0.get_mut().unwrap()
-}
-
-/// # TODO
-/// This is not thread safe actualty.
-/// Make it thread safe.
-pub struct SyncOnceCell<T>(OnceCell<T>);
-
-unsafe impl<T> Sync for SyncOnceCell<T> {}
+pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 
 #[derive(Debug)]
 pub struct Global {
@@ -58,7 +48,7 @@ impl Global {
     }
 
     pub fn set(self) {
-        unsafe { &mut *GLOBAL.get() }.0.set(self).unwrap();
+        GLOBAL.lock().set(self).unwrap();
     }
 
     pub fn write_format(&mut self, arguments: Arguments) {
@@ -93,3 +83,6 @@ impl Write for Global {
         Ok(())
     }
 }
+
+unsafe impl Send for Global {}
+unsafe impl Sync for Global {}
