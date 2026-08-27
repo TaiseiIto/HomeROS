@@ -1,4 +1,3 @@
-#![feature(sync_unsafe_cell)]
 #![no_std]
 
 #[cfg(uart = "pl011")]
