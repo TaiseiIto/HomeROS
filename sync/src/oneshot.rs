@@ -9,6 +9,8 @@ use core::{
     },
 };
 
+/// # TODO
+/// * Read 5.4 of [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/) after implementing Arc.
 pub struct Channel<T> {
     message: UnsafeCell<MaybeUninit<T>>,
     in_use: AtomicBool,
