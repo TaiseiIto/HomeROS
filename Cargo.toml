@@ -1,13 +1,14 @@
 [workspace]
 members = [
 	"arch",
-	"macro/io",
 	"boot",
 	"device/uart",
 	"firmware",
 	"firmware/sbi",
 	"firmware/tfa",
 	"firmware/uefi",
+	"macro/io",
+	"sync",
 	"xtask"
 ]
 resolver = "3"

@@ -10,4 +10,3 @@ path = "../arch"
 path = "../firmware"
 [dependencies.uart]
 path = "../device/uart"
-
