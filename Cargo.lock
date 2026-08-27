@@ -68,6 +68,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sync"
+version = "0.1.0"
+dependencies = [
+ "arch",
+]
+
+[[package]]
 name = "tfa"
 version = "0.1.0"
 
