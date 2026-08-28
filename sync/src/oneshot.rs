@@ -2,7 +2,6 @@ use core::{
     cell::{OnceCell, UnsafeCell},
     fmt::Debug,
     marker::{Send, Sync},
-    mem::MaybeUninit,
     ops::Drop,
     sync::atomic::{
         AtomicBool,
