@@ -2,7 +2,7 @@ use {
     crate::{
         docker::{Container, Image},
         git::{branch, developer, domain, email, product},
-        product::{Arch, Version},
+        product::Tree,
         run,
         time::zone,
     },
@@ -64,12 +64,10 @@ pub fn build_in_container() {
     let container: Container = build();
     assert!(container.runs());
     container.execute("cargo xtask build");
-    for version in Version::domain().into_iter() {
-        for arch in Arch::domain().into_iter() {
-            let destination: PathBuf = arch.destination(&version);
-            let source: PathBuf = container.working_directory().join(&destination);
-            container.export(&source, &destination);
-        }
+    for tree in Tree::domain().into_iter() {
+        let destination: PathBuf = tree.destination();
+        let source: PathBuf = container.working_directory().join(&destination);
+        container.export(&source, &destination);
     }
 }
 

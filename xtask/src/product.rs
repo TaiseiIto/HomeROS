@@ -24,9 +24,8 @@ pub fn lint() {
 }
 
 pub struct Binary {
-    arch: Arch,
     package: Package,
-    version: Version,
+    tree: Tree,
 }
 
 impl Binary {
@@ -42,7 +41,7 @@ impl Binary {
             "{} cargo build --package {} {} --target {}",
             self.vars(),
             self.package,
-            self.version.argument(),
+            self.tree.version.argument(),
             self.target(),
         ));
         run(&format!(
@@ -50,9 +49,8 @@ impl Binary {
             self.destination().parent().unwrap().to_str().unwrap()
         ));
         let Self {
-            arch,
             package,
-            version: _,
+            tree: Tree { arch, version: _ },
         } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => {
@@ -84,11 +82,10 @@ impl Binary {
 
     fn destination(&self) -> PathBuf {
         let Self {
-            arch,
             package,
-            version,
+            tree: tree @ Tree { arch, version: _ },
         } = self;
-        let destination: PathBuf = arch.destination(version);
+        let destination: PathBuf = tree.destination();
         let disk_relative_path: &str = match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "qemu_fw.rom",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
@@ -98,20 +95,12 @@ impl Binary {
     }
 
     fn domain() -> Vec<Self> {
-        Version::domain()
+        Package::domain()
             .into_iter()
-            .flat_map(|version| {
-                Arch::domain().into_iter().flat_map(move |arch| {
-                    let version: Version = version.clone();
-                    Package::domain().into_iter().map(move |package| {
-                        let arch: Arch = arch.clone();
-                        let version: Version = version.clone();
-                        Self {
-                            arch,
-                            package,
-                            version,
-                        }
-                    })
+            .flat_map(|package| {
+                Tree::domain().into_iter().map(move |tree| {
+                    let package: Package = package.clone();
+                    Self { package, tree }
                 })
             })
             .collect()
@@ -128,9 +117,8 @@ impl Binary {
 
     fn name(&self) -> &str {
         let Self {
-            arch,
             package,
-            version: _,
+            tree: Tree { arch, version: _ },
         } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "boot",
@@ -140,11 +128,8 @@ impl Binary {
     }
 
     fn new(arch: Arch, package: Package, version: Version) -> Self {
-        Self {
-            arch,
-            package,
-            version,
-        }
+        let tree: Tree = Tree { arch, version };
+        Self { package, tree }
     }
 
     fn source(&self) -> PathBuf {
@@ -153,9 +138,8 @@ impl Binary {
 
     fn target(&self) -> &str {
         let Self {
-            arch,
             package,
-            version: _,
+            tree: Tree { arch, version: _ },
         } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none-softfloat",
@@ -166,9 +150,8 @@ impl Binary {
 
     fn vars(&self) -> &str {
         let Self {
-            arch,
             package,
-            version: _,
+            tree: Tree { arch, version: _ },
         } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "RUSTFLAGS=\"-C link-arg=boot/link/aarch64.ld\"",
@@ -207,12 +190,6 @@ impl Arch {
         Binary::new(self.clone(), Package::Boot, version.clone()).destination()
     }
 
-    pub fn destination(&self, version: &Version) -> PathBuf {
-        let mut destination: PathBuf = version.destination();
-        destination.push(format!("{}", self));
-        destination
-    }
-
     pub fn domain() -> Vec<Self> {
         [Self::Aarch64, Self::RiscV64, Self::X64]
             .into_iter()
@@ -245,6 +222,36 @@ impl From<&str> for Arch {
             "x64" => Self::X64,
             arch => unimplemented!("arch = {}", arch),
         }
+    }
+}
+
+pub struct Tree {
+    arch: Arch,
+    version: Version,
+}
+
+impl Tree {
+    pub fn domain() -> Vec<Self> {
+        Arch::domain()
+            .into_iter()
+            .flat_map(|arch| {
+                Version::domain().into_iter().map(move |version| {
+                    let arch: Arch = arch.clone();
+                    Self { arch, version }
+                })
+            })
+            .collect()
+    }
+
+    pub fn destination(&self) -> PathBuf {
+        let Self { arch, version } = self;
+        let mut destination: PathBuf = version.destination();
+        destination.push(format!("{}", arch));
+        destination
+    }
+
+    pub fn new(arch: Arch, version: Version) -> Self {
+        Self { arch, version }
     }
 }
 
@@ -299,6 +306,7 @@ impl From<&str> for Version {
     }
 }
 
+#[derive(Clone)]
 enum Package {
     Boot,
 }

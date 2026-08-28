@@ -2,7 +2,7 @@ use {
     crate::{
         command::run,
         git::product,
-        product::{Arch, Version, build},
+        product::{Arch, Tree, Version, build},
         tmux,
     },
     std::{
@@ -92,6 +92,11 @@ impl Command {
         }
     }
 
+    fn destination(&self) -> PathBuf {
+        let tree: Tree = self.into();
+        tree.destination()
+    }
+
     fn display(&self) -> &str {
         let Self { arch, version: _ } = self;
         match arch {
@@ -101,21 +106,20 @@ impl Command {
     }
 
     fn drive(&self) -> String {
-        let Self { arch, version } = self;
-        match arch {
+        match self.arch {
             Arch::Aarch64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device virtio-blk-device,drive={},bootindex=1",
-                arch.destination(version).to_str().unwrap(),
+                self.destination().to_str().unwrap(),
                 product(),
                 product()
             ),
             Arch::RiscV64 => format!(
                 "-drive format=raw,file=fat:rw:{}",
-                arch.destination(version).to_str().unwrap(),
+                self.destination().to_str().unwrap(),
             ),
             Arch::X64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
-                arch.destination(version).to_str().unwrap(),
+                self.destination().to_str().unwrap(),
                 product(),
                 product()
             ),
@@ -171,6 +175,13 @@ impl Command {
             version,
             source.to_str().unwrap()
         ));
+    }
+}
+
+impl From<&Command> for Tree {
+    fn from(command: &Command) -> Self {
+        let Command { arch, version } = command;
+        Self::new(arch.clone(), version.clone())
     }
 }
 
