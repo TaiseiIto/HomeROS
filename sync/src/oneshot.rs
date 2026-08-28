@@ -1,5 +1,5 @@
 use core::{
-    cell::UnsafeCell,
+    cell::{OnceCell, UnsafeCell},
     marker::{Send, Sync},
     mem::MaybeUninit,
     ops::Drop,
@@ -11,9 +11,8 @@ use core::{
 
 /// # TODO
 /// * Read 5.4 of [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/) after implementing Arc.
-/// * Use OnceCell<T> instead of UnsafeCell<MaybeUninit<T>>
 pub struct Channel<T> {
-    message: UnsafeCell<MaybeUninit<T>>,
+    message: UnsafeCell<OnceCell<T>>,
     in_use: AtomicBool,
     ready: AtomicBool,
 }
@@ -25,7 +24,7 @@ impl<T> Channel<T> {
 
     pub const fn new() -> Self {
         Self {
-            message: UnsafeCell::new(MaybeUninit::uninit()),
+            message: UnsafeCell::new(OnceCell::new()),
             in_use: AtomicBool::new(false),
             ready: AtomicBool::new(false),
         }
@@ -35,25 +34,21 @@ impl<T> Channel<T> {
         if !self.ready.swap(false, Acquire) {
             panic!();
         }
-        unsafe { (*self.message.get()).assume_init_read() }
+        unsafe { &mut *self.message.get() }.take().unwrap()
     }
 
     pub fn send(&self, message: T) {
         if self.in_use.swap(true, Relaxed) {
             panic!();
         }
-        unsafe { &mut *self.message.get() }.write(message);
+        unsafe { &mut *self.message.get() }.set(message);
         self.ready.store(true, Release);
     }
 }
 
 impl<T> Drop for Channel<T> {
     fn drop(&mut self) {
-        if *self.ready.get_mut() {
-            unsafe {
-                self.message.get_mut().assume_init_drop();
-            }
-        }
+        self.message.get_mut().take();
     }
 }
 
