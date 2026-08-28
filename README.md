@@ -27,19 +27,7 @@ And run the commands below.
 ### Run HomeROS on QEMU
 
 ```
-/somewhere/HomeROS$ cargo xtask run aarch64
-```
-
-or
-
-```
-/somewhere/HomeROS$ cargo xtask run riscv64
-```
-
-or
-
-```
-/somewhere/HomeROS$ cargo xtask run x64
+/somewhere/HomeROS$ cargo xtask run --arch (aarch64|riscv64|x64) --version (debug|release)
 ```
 
 Then you can connect to `localhost:5900` with VNC and operate HomeROS.
@@ -47,19 +35,7 @@ Then you can connect to `localhost:5900` with VNC and operate HomeROS.
 ### Disassemble
 
 ```
-/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch aarch64
-```
-
-or
-
-```
-/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch riscv64
-```
-
-or
-
-```
-/somewhere/HomeROS$ cargo xtask disassemble --package boot --arch x64
+/somewhere/HomeROS$ cargo xtask disassemble --arch (aarch64|riscv64|x64) --package boot --version (debug|release)
 ```
 
 ### Build development environment
