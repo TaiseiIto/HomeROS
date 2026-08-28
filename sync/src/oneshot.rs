@@ -1,5 +1,6 @@
 use core::{
     cell::{OnceCell, UnsafeCell},
+    fmt::Debug,
     marker::{Send, Sync},
     mem::MaybeUninit,
     ops::Drop,
@@ -11,13 +12,13 @@ use core::{
 
 /// # TODO
 /// * Read 5.4 of [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/) after implementing Arc.
-pub struct Channel<T> {
+pub struct Channel<T: Debug> {
     message: UnsafeCell<OnceCell<T>>,
     in_use: AtomicBool,
     ready: AtomicBool,
 }
 
-impl<T> Channel<T> {
+impl<T: Debug> Channel<T> {
     pub fn is_ready(&self) -> bool {
         self.ready.load(Relaxed)
     }
@@ -41,18 +42,18 @@ impl<T> Channel<T> {
         if self.in_use.swap(true, Relaxed) {
             panic!();
         }
-        unsafe { &mut *self.message.get() }.set(message);
+        unsafe { &mut *self.message.get() }.set(message).unwrap();
         self.ready.store(true, Release);
     }
 }
 
-impl<T> Drop for Channel<T> {
+impl<T: Debug> Drop for Channel<T> {
     fn drop(&mut self) {
         self.message.get_mut().take();
     }
 }
 
-unsafe impl<T> Sync for Channel<T> where T: Send {}
+unsafe impl<T: Debug> Sync for Channel<T> where T: Send {}
 
 #[cfg(test)]
 mod tests {
