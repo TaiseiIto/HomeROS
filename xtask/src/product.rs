@@ -133,7 +133,12 @@ impl Binary {
     }
 
     fn source(&self) -> PathBuf {
-        PathBuf::from(&format!("target/{}/debug/{}", self.target(), self.name()))
+        PathBuf::from(&format!(
+            "target/{}/{}/{}",
+            self.target(),
+            self.tree.version,
+            self.name()
+        ))
     }
 
     fn target(&self) -> &str {
