@@ -2,7 +2,7 @@ use {
     crate::{
         command::run,
         git::product,
-        product::{Arch, build},
+        product::{Arch, Version, build},
         tmux,
     },
     std::{
@@ -35,7 +35,10 @@ impl Command {
     fn boot(&self) -> String {
         let Self { arch } = self;
         match arch {
-            Arch::RiscV64 => format!("-kernel {}", arch.boot_destination().to_str().unwrap()),
+            Arch::RiscV64 => format!(
+                "-kernel {}",
+                arch.boot_destination(&Version::Debug).to_str().unwrap()
+            ),
             _ => String::new(),
         }
     }
@@ -101,17 +104,17 @@ impl Command {
         match arch {
             Arch::Aarch64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device virtio-blk-device,drive={},bootindex=1",
-                arch.destination().to_str().unwrap(),
+                arch.destination(&Version::Debug).to_str().unwrap(),
                 product(),
                 product()
             ),
             Arch::RiscV64 => format!(
                 "-drive format=raw,file=fat:rw:{}",
-                arch.destination().to_str().unwrap(),
+                arch.destination(&Version::Debug).to_str().unwrap(),
             ),
             Arch::X64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
-                arch.destination().to_str().unwrap(),
+                arch.destination(&Version::Debug).to_str().unwrap(),
                 product(),
                 product()
             ),
@@ -122,7 +125,7 @@ impl Command {
         let Self { arch } = self;
         match arch {
             Arch::Aarch64 => {
-                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination().to_str().unwrap())
+                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination(&Version::Debug).to_str().unwrap())
             }
             Arch::RiscV64 => "-bios default".to_string(),
             Arch::X64 => {

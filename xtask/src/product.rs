@@ -28,6 +28,7 @@ pub fn lint() {
 pub struct Binary {
     arch: Arch,
     package: Package,
+    version: Version,
 }
 
 impl Binary {
@@ -40,16 +41,21 @@ impl Binary {
 
     fn build(&self) {
         run(&format!(
-            "{} cargo build --package {} --target {}",
+            "{} cargo build --package {} {} --target {}",
             self.vars(),
             self.package,
-            self.target()
+            self.version.argument(),
+            self.target(),
         ));
         run(&format!(
             "mkdir -p {}",
             self.destination().parent().unwrap().to_str().unwrap()
         ));
-        let Self { arch, package } = self;
+        let Self {
+            arch,
+            package,
+            version: _,
+        } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => {
                 run(&format!(
@@ -79,8 +85,12 @@ impl Binary {
     }
 
     fn destination(&self) -> PathBuf {
-        let Self { arch, package } = self;
-        let destination: PathBuf = arch.destination();
+        let Self {
+            arch,
+            package,
+            version,
+        } = self;
+        let destination: PathBuf = arch.destination(version);
         let disk_relative_path: &str = match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "qemu_fw.rom",
             (Arch::RiscV64, Package::Boot) => "boot.elf",
@@ -90,12 +100,20 @@ impl Binary {
     }
 
     fn domain() -> Vec<Self> {
-        Arch::domain()
+        Version::domain()
             .into_iter()
-            .flat_map(|arch| {
-                Package::domain().into_iter().map(move |package| {
-                    let arch: Arch = arch.clone();
-                    Self { arch, package }
+            .flat_map(|version| {
+                Arch::domain().into_iter().flat_map(move |arch| {
+                    let version: Version = version.clone();
+                    Package::domain().into_iter().map(move |package| {
+                        let arch: Arch = arch.clone();
+                        let version: Version = version.clone();
+                        Self {
+                            arch,
+                            package,
+                            version,
+                        }
+                    })
                 })
             })
             .collect()
@@ -111,7 +129,11 @@ impl Binary {
     }
 
     fn name(&self) -> &str {
-        let Self { arch, package } = self;
+        let Self {
+            arch,
+            package,
+            version: _,
+        } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "boot",
             (Arch::RiscV64, Package::Boot) => "boot",
@@ -119,8 +141,12 @@ impl Binary {
         }
     }
 
-    fn new(arch: Arch, package: Package) -> Self {
-        Self { arch, package }
+    fn new(arch: Arch, package: Package, version: Version) -> Self {
+        Self {
+            arch,
+            package,
+            version,
+        }
     }
 
     fn source(&self) -> PathBuf {
@@ -128,7 +154,11 @@ impl Binary {
     }
 
     fn target(&self) -> &str {
-        let Self { arch, package } = self;
+        let Self {
+            arch,
+            package,
+            version: _,
+        } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none-softfloat",
             (Arch::RiscV64, Package::Boot) => "riscv64gc-unknown-none-elf",
@@ -137,7 +167,11 @@ impl Binary {
     }
 
     fn vars(&self) -> &str {
-        let Self { arch, package } = self;
+        let Self {
+            arch,
+            package,
+            version: _,
+        } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "RUSTFLAGS=\"-C link-arg=boot/link/aarch64.ld\"",
             (Arch::RiscV64, Package::Boot) => "RUSTFLAGS=\"-C link-arg=boot/link/riscv64.ld\"",
@@ -150,14 +184,16 @@ impl From<Args> for Binary {
     fn from(mut args: Args) -> Self {
         let mut arch: Option<Arch> = None;
         let mut package: Option<Package> = None;
+        let mut version: Option<Version> = None;
         while let Some(arg) = args.next() {
             match arg.as_str() {
                 "--arch" => arch = Some(args.next().unwrap().as_str().into()),
                 "--package" => package = Some(args.next().unwrap().as_str().into()),
+                "--version" => version = Some(args.next().unwrap().as_str().into()),
                 arg => unreachable!("arg = {}", arg),
             }
         }
-        Self::new(arch.unwrap(), package.unwrap())
+        Self::new(arch.unwrap(), package.unwrap(), version.unwrap())
     }
 }
 
@@ -169,12 +205,12 @@ pub enum Arch {
 }
 
 impl Arch {
-    pub fn boot_destination(&self) -> PathBuf {
-        Binary::new(self.clone(), Package::Boot).destination()
+    pub fn boot_destination(&self, version: &Version) -> PathBuf {
+        Binary::new(self.clone(), Package::Boot, version.clone()).destination()
     }
 
-    pub fn destination(&self) -> PathBuf {
-        let mut destination: PathBuf = destination();
+    pub fn destination(&self, version: &Version) -> PathBuf {
+        let mut destination: PathBuf = version.destination();
         destination.push(format!("{}", self));
         destination
     }
@@ -210,6 +246,57 @@ impl From<&str> for Arch {
             "riscv64" => Self::RiscV64,
             "x64" => Self::X64,
             arch => unimplemented!("arch = {}", arch),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum Version {
+    Debug,
+    Release,
+}
+
+impl Version {
+    fn argument(&self) -> &str {
+        match self {
+            Self::Debug => "",
+            Self::Release => "--release",
+        }
+    }
+
+    fn destination(&self) -> PathBuf {
+        let mut destination: PathBuf = destination();
+        destination.push(format!("{}", self));
+        destination
+    }
+
+    fn domain() -> Vec<Self> {
+        [Self::Debug, Self::Release].into_iter().collect()
+    }
+}
+
+impl Display for Version {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let version: &str = self.into();
+        write!(formatter, "{}", version)
+    }
+}
+
+impl From<&Version> for &str {
+    fn from(version: &Version) -> Self {
+        match version {
+            Version::Debug => "debug",
+            Version::Release => "release",
+        }
+    }
+}
+
+impl From<&str> for Version {
+    fn from(version: &str) -> Self {
+        match version {
+            "debug" => Self::Debug,
+            "release" => Self::Release,
+            version => unimplemented!("version = {}", version),
         }
     }
 }
