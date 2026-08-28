@@ -213,7 +213,7 @@ impl Arch {
         destination
     }
 
-    fn domain() -> Vec<Self> {
+    pub fn domain() -> Vec<Self> {
         [Self::Aarch64, Self::RiscV64, Self::X64]
             .into_iter()
             .collect()
@@ -255,6 +255,10 @@ pub enum Version {
 }
 
 impl Version {
+    pub fn domain() -> Vec<Self> {
+        [Self::Debug, Self::Release].into_iter().collect()
+    }
+
     fn argument(&self) -> &str {
         match self {
             Self::Debug => "",
@@ -266,10 +270,6 @@ impl Version {
         let mut destination: PathBuf = destination();
         destination.push(format!("{}", self));
         destination
-    }
-
-    fn domain() -> Vec<Self> {
-        [Self::Debug, Self::Release].into_iter().collect()
     }
 }
 
