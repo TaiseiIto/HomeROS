@@ -191,10 +191,6 @@ pub enum Arch {
 }
 
 impl Arch {
-    pub fn boot_destination(&self, version: &Version) -> PathBuf {
-        Binary::new(self.clone(), Package::Boot, version.clone()).destination()
-    }
-
     pub fn domain() -> Vec<Self> {
         [Self::Aarch64, Self::RiscV64, Self::X64]
             .into_iter()
@@ -236,6 +232,11 @@ pub struct Tree {
 }
 
 impl Tree {
+    pub fn boot_destination(&self) -> PathBuf {
+        let Tree { arch, version } = self;
+        Binary::new(arch.clone(), Package::Boot, version.clone()).destination()
+    }
+
     pub fn domain() -> Vec<Self> {
         Arch::domain()
             .into_iter()

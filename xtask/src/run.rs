@@ -34,14 +34,15 @@ impl Command {
     }
 
     fn boot(&self) -> String {
-        let Self { arch, version } = self;
-        match arch {
-            Arch::RiscV64 => format!(
-                "-kernel {}",
-                arch.boot_destination(version).to_str().unwrap()
-            ),
+        match self.arch {
+            Arch::RiscV64 => format!("-kernel {}", self.boot_destination().to_str().unwrap()),
             _ => String::new(),
         }
+    }
+
+    fn boot_destination(&self) -> PathBuf {
+        let tree: Tree = self.into();
+        tree.boot_destination()
     }
 
     fn command(&self) -> String {
@@ -127,10 +128,9 @@ impl Command {
     }
 
     fn firmware(&self) -> String {
-        let Self { arch, version } = self;
-        match arch {
+        match self.arch {
             Arch::Aarch64 => {
-                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination(version).to_str().unwrap())
+                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", self.boot_destination().to_str().unwrap())
             }
             Arch::RiscV64 => "-bios default".to_string(),
             Arch::X64 => {
