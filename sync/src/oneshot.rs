@@ -12,6 +12,7 @@ use core::{
 
 /// # TODO
 /// * Read 5.4 of [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/) after implementing Arc.
+#[derive(Default)]
 pub struct Channel<T: Debug> {
     message: UnsafeCell<OnceCell<T>>,
     in_use: AtomicBool,
@@ -21,14 +22,6 @@ pub struct Channel<T: Debug> {
 impl<T: Debug> Channel<T> {
     pub fn is_ready(&self) -> bool {
         self.ready.load(Relaxed)
-    }
-
-    pub const fn new() -> Self {
-        Self {
-            message: UnsafeCell::new(OnceCell::new()),
-            in_use: AtomicBool::new(false),
-            ready: AtomicBool::new(false),
-        }
     }
 
     pub fn receive(&self) -> T {
@@ -61,7 +54,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let channel = Channel::new();
+        let channel = Channel::default();
         let main_thread = thread::current();
         let message: &str = "Hello, World!";
         thread::scope(|thread_scope| {
