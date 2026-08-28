@@ -163,11 +163,12 @@ impl Command {
 
     fn run_outside_tmux(self) {
         build();
-        let Self { arch, version: _ } = self;
+        let Self { arch, version } = self;
         let source: PathBuf = PathBuf::from(".docker/tmux/run");
         run(&format!(
-            "QEMU_ARCH={} tmux new-session ; source-file {}",
+            "ARCH={} VERSION={} tmux new-session ; source-file {}",
             arch,
+            version,
             source.to_str().unwrap()
         ));
     }
@@ -175,8 +176,8 @@ impl Command {
 
 impl Display for Command {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let Self { arch, version: _ } = self;
-        write!(formatter, "{}", arch)
+        let Self { arch, version } = self;
+        write!(formatter, "--arch {} --version {}", arch, version)
     }
 }
 
