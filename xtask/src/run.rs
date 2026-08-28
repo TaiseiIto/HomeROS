@@ -14,6 +14,7 @@ use {
 
 pub struct Command {
     arch: Arch,
+    version: Version,
 }
 
 impl Command {
@@ -33,11 +34,11 @@ impl Command {
     }
 
     fn boot(&self) -> String {
-        let Self { arch } = self;
+        let Self { arch, version } = self;
         match arch {
             Arch::RiscV64 => format!(
                 "-kernel {}",
-                arch.boot_destination(&Version::Debug).to_str().unwrap()
+                arch.boot_destination(version).to_str().unwrap()
             ),
             _ => String::new(),
         }
@@ -64,7 +65,7 @@ impl Command {
     }
 
     fn com2(&self) -> &str {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::X64 => "-serial file:com2.log",
             _ => "",
@@ -72,7 +73,7 @@ impl Command {
     }
 
     fn cpu(&self) -> &str {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::Aarch64 => "-cpu max",
             _ => "",
@@ -80,7 +81,7 @@ impl Command {
     }
 
     fn debug(&self) -> String {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::Aarch64 => format!("-serial file:{}", Self::DEBUG),
             Arch::X64 => format!(
@@ -92,7 +93,7 @@ impl Command {
     }
 
     fn display(&self) -> &str {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::Aarch64 | Arch::RiscV64 => "-device ramfb",
             _ => "",
@@ -100,21 +101,21 @@ impl Command {
     }
 
     fn drive(&self) -> String {
-        let Self { arch } = self;
+        let Self { arch, version } = self;
         match arch {
             Arch::Aarch64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device virtio-blk-device,drive={},bootindex=1",
-                arch.destination(&Version::Debug).to_str().unwrap(),
+                arch.destination(version).to_str().unwrap(),
                 product(),
                 product()
             ),
             Arch::RiscV64 => format!(
                 "-drive format=raw,file=fat:rw:{}",
-                arch.destination(&Version::Debug).to_str().unwrap(),
+                arch.destination(version).to_str().unwrap(),
             ),
             Arch::X64 => format!(
                 "-drive file=fat:rw:{},format=raw,id={},if=none -device ide-hd,drive={},bootindex=1",
-                arch.destination(&Version::Debug).to_str().unwrap(),
+                arch.destination(version).to_str().unwrap(),
                 product(),
                 product()
             ),
@@ -122,10 +123,10 @@ impl Command {
     }
 
     fn firmware(&self) -> String {
-        let Self { arch } = self;
+        let Self { arch, version } = self;
         match arch {
             Arch::Aarch64 => {
-                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination(&Version::Debug).to_str().unwrap())
+                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", arch.boot_destination(version).to_str().unwrap())
             }
             Arch::RiscV64 => "-bios default".to_string(),
             Arch::X64 => {
@@ -135,7 +136,7 @@ impl Command {
     }
 
     fn machine(&self) -> &str {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::Aarch64 => "-machine virt,secure=on",
             Arch::RiscV64 => "-machine virt",
@@ -143,8 +144,12 @@ impl Command {
         }
     }
 
+    fn new(arch: Arch, version: Version) -> Self {
+        Self { arch, version }
+    }
+
     fn qemu(&self) -> &str {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         match arch {
             Arch::Aarch64 => "qemu-system-aarch64",
             Arch::RiscV64 => "qemu-system-riscv64",
@@ -158,7 +163,7 @@ impl Command {
 
     fn run_outside_tmux(self) {
         build();
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         let source: PathBuf = PathBuf::from(".docker/tmux/run");
         run(&format!(
             "QEMU_ARCH={} tmux new-session ; source-file {}",
@@ -170,14 +175,22 @@ impl Command {
 
 impl Display for Command {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let Self { arch } = self;
+        let Self { arch, version: _ } = self;
         write!(formatter, "{}", arch)
     }
 }
 
 impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
-        let arch: Arch = args.next().unwrap().as_str().into();
-        Self { arch }
+        let mut arch: Option<Arch> = None;
+        let mut version: Option<Version> = None;
+        while let Some(arg) = args.next() {
+            match arg.as_str() {
+                "--arch" => arch = Some(args.next().unwrap().as_str().into()),
+                "--version" => version = Some(args.next().unwrap().as_str().into()),
+                arg => unreachable!("arg = {}", arg),
+            }
+        }
+        Self::new(arch.unwrap(), version.unwrap())
     }
 }
