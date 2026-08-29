@@ -9,6 +9,16 @@ pub struct Structure {
     ident: Ident,
 }
 
+impl Structure {
+    fn implement(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        quote! {
+            impl #ident {
+            }
+        }
+    }
+}
+
 impl From<DeriveInput> for Structure {
     fn from(structure: DeriveInput) -> Self {
         if let DeriveInput {
@@ -31,14 +41,17 @@ impl From<DeriveInput> for Structure {
             let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
             Self { elements, ident }
         } else {
-            unimplemented!();
+            panic!();
         }
     }
 }
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
-        quote! {}
+        let implement: TokenStream = structure.implement();
+        quote! {
+            #implement
+        }
     }
 }
 
@@ -61,7 +74,7 @@ impl From<Field> for Element {
         {
             Self { ident, ty }
         } else {
-            unimplemented!();
+            panic!();
         }
     }
 }
