@@ -17,6 +17,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "endian"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "firmware"
 version = "0.1.0"
 dependencies = [
@@ -84,6 +93,9 @@ version = "0.1.0"
 [[package]]
 name = "tree"
 version = "0.1.0"
+dependencies = [
+ "endian",
+]
 
 [[package]]
 name = "uart"
