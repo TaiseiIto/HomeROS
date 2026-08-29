@@ -6,10 +6,10 @@ use {arch::wait_for_interrupt, core::panic::PanicInfo};
 #[cfg(firmware = "uefi")]
 use firmware::uefi;
 
-#[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+#[cfg(any(firmware = "sbi", firmware = "tfa"))]
 use core::arch::naked_asm;
 
-#[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+#[cfg(any(firmware = "sbi", firmware = "tfa"))]
 #[unsafe(link_section = ".text._start")]
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
@@ -24,7 +24,7 @@ unsafe extern "C" fn _start() -> ! {
     naked_asm!("la sp, _stack_bottom", "j initialize_global");
 }
 
-#[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+#[cfg(any(firmware = "sbi", firmware = "tfa"))]
 #[unsafe(no_mangle)]
 fn initialize_global(
     #[cfg(firmware = "sbi")] hartid: usize,
