@@ -75,7 +75,7 @@ impl Element {
     }
 
     fn read(&self) -> Option<TokenStream> {
-        self.read_ident().zip(self.type_ident()).map(|(read, ty)| {
+        self.read_ident().zip(self.type_ident()).map(|(_, ty)| {
             let ident: &Ident = &self.ident;
             let read: Ident = self.function_ident("read");
             quote! {

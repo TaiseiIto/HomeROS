@@ -1,6 +1,9 @@
 #![no_std]
 
-use core::fmt::{Debug, Formatter, Result};
+use core::{
+    fmt::{Debug, Formatter, Result},
+    slice::from_raw_parts,
+};
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.2 Header
@@ -19,20 +22,29 @@ pub struct Header {
     size_dt_struct: u32,
 }
 
+impl Header {
+    fn structure_bytes(&self) -> &[u8] {
+        let offset: usize = self.read_off_dt_struct() as usize;
+        let size: usize = self.read_size_dt_struct() as usize;
+        let header: *const Self = self as *const Self;
+        let header: *const u8 = header as *const u8;
+        unsafe { from_raw_parts(header.add(offset), size) }
+    }
+}
+
 impl Debug for Header {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Header")
             .field("magic", &self.read_magic())
             .field("totalsize", &self.read_totalsize())
-            .field("off_dt_struct", &self.read_off_dt_struct())
+            .field("structure", &self.structure_bytes())
             .field("off_dt_strings", &self.read_off_dt_strings())
             .field("off_mem_rsvmap", &self.read_off_mem_rsvmap())
             .field("version", &self.read_version())
             .field("last_comp_version", &self.read_last_comp_version())
             .field("boot_cpuid_phys", &self.read_boot_cpuid_phys())
             .field("size_dt_strings", &self.read_size_dt_strings())
-            .field("size_dt_struct", &self.read_size_dt_struct())
             .finish()
     }
 }
