@@ -16,7 +16,7 @@ path = "tfa"
 [target.'cfg(target_arch = "riscv64")'.dependencies.sbi]
 path = "sbi"
 
-[target.'cfg(target_arch = "riscv64")'.dependencies.tree]
+[target.'cfg(any(target_arch = "aarch64", target_arch = "riscv64"))'.dependencies.tree]
 path = "../device/tree"
 
 [target.'cfg(target_arch = "x86_64")'.dependencies.uefi]

@@ -28,7 +28,7 @@ pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 pub struct Global {
     #[cfg(firmware = "sbi")]
     hartid: usize,
-    #[cfg(firmware = "sbi")]
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     device_tree: &'static tree::Header,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
@@ -50,6 +50,8 @@ impl Global {
             hartid,
             #[cfg(firmware = "sbi")]
             device_tree: unsafe { &*device_tree },
+            #[cfg(firmware = "tfa")]
+            device_tree: unsafe { &*(0x40000000 as *const tree::Header) },
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]
