@@ -18,6 +18,7 @@ pub enum ResetType {
 
 /// # References
 /// * [EFI_RUNTIME_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-runtime-services)
+#[derive(Debug)]
 #[repr(C)]
 pub struct Table {
     hdr: table::Header,

@@ -8,6 +8,7 @@ mod table;
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
+#[derive(Debug)]
 #[repr(C)]
 pub struct Guid {
     data1: u32,
