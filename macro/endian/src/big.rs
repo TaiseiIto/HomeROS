@@ -13,26 +13,6 @@ pub struct Structure {
 }
 
 impl Structure {
-    fn debug(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| element.debug())
-            .collect();
-        quote! {
-            impl ::core::fmt::Debug for #ident {
-                fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-                    formatter
-                        .debug_struct(#ident_string)
-                        .#(#elements).*
-                        .finish()
-                }
-            }
-        }
-    }
-
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let reads: Vec<TokenStream> = self
@@ -77,10 +57,8 @@ impl From<DeriveInput> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
-        let debug: TokenStream = structure.debug();
         let implement: TokenStream = structure.implement();
         quote! {
-            #debug
             #implement
         }
     }
@@ -92,23 +70,6 @@ struct Element {
 }
 
 impl Element {
-    fn debug(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let ident_string: String = ident.to_string();
-        let read: TokenStream = if let Some(read) = self.read_ident() {
-            quote! {
-                #read()
-            }
-        } else {
-            quote! {
-                #ident
-            }
-        };
-        quote! {
-            field(#ident_string, &self.#read)
-        }
-    }
-
     fn function_ident(&self, prefix: &str) -> Ident {
         Ident::new(&format!("{}_{}", prefix, self.ident), self.ident.span())
     }
