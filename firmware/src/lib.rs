@@ -38,7 +38,8 @@ pub struct Global {
 
 impl Global {
     /// # Safety
-    /// This function dereferences `image_handle` and `system_table`.
+    /// This function dereferences raw pointers.
+    /// Caller must pass valid pointers.
     pub unsafe fn new(
         #[cfg(firmware = "sbi")] hartid: usize,
         #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
