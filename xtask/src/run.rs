@@ -18,7 +18,6 @@ pub struct Command {
 }
 
 impl Command {
-    const COM1: &str = "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1";
     const DEBUG: &str = "debug.log";
     const LOG: &str = "-d int,cpu_reset -D qemu.log";
     const MEMORY: &str = "-m 1G";
@@ -49,7 +48,7 @@ impl Command {
         [
             self.qemu(),
             &self.boot(),
-            Self::COM1,
+            self.com1(),
             self.com2(),
             self.cpu(),
             &self.debug(),
@@ -65,10 +64,18 @@ impl Command {
         .join(" ")
     }
 
+    fn com1(&self) -> &str {
+        let Self { arch, version: _ } = self;
+        match arch {
+            Arch::X64 => "-serial file:com1.log",
+            _ => "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1",
+        }
+    }
+
     fn com2(&self) -> &str {
         let Self { arch, version: _ } = self;
         match arch {
-            Arch::X64 => "-serial file:com2.log",
+            Arch::X64 => "-chardev stdio,id=com2,mux=on,logfile=com2.log -serial chardev:com2",
             _ => "",
         }
     }

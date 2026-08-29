@@ -69,7 +69,7 @@ impl RegistersAccessor {
         #[cfg(target_arch = "riscv64")]
         let mut accessor: Self = unsafe { Self::new_address(0x10000000) };
         #[cfg(target_arch = "x86_64")]
-        let mut accessor: Self = unsafe { Self::new_port(0x03f8) };
+        let mut accessor: Self = unsafe { Self::new_port(0x02f8) };
         let baud_rate: usize = 9600;
         let enable_fifo: bool = true;
         let parity: Option<Parity> = None;
