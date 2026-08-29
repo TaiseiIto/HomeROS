@@ -48,6 +48,10 @@ fn main(global: firmware::Global) {
     uart::initialize();
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
+    uart::println!(
+        "firmware::GLOBAL = {:#x?}",
+        firmware::GLOBAL.lock().get_mut().unwrap()
+    );
     unimplemented!();
 }
 
