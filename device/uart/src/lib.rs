@@ -20,18 +20,21 @@ use {
 
 #[macro_export]
 macro_rules! dbg {
-    ($arg:expr) => {{
-        let value = $arg;
-        $crate::println!(
-            "[{}:{}:{}] {} = {}",
-            file!(),
-            line!(),
-            column!(),
-            stringify!($arg),
-            value
-        );
-        value
-    }};
+    ($arg:expr) => {
+        match $arg {
+            tmp => {
+                $crate::println!(
+                    "[{}:{}:{}] {} = {:#x?}",
+                    file!(),
+                    line!(),
+                    column!(),
+                    stringify!($arg),
+                    tmp
+                );
+                tmp
+            }
+        }
+    };
 }
 
 #[macro_export]

@@ -9,6 +9,25 @@ use {
 };
 
 #[macro_export]
+macro_rules! dbg {
+    ($arg:expr) => {
+        match $arg {
+            tmp => {
+                $crate::println!(
+                    "[{}:{}:{}] {} = {:#x?}",
+                    file!(),
+                    line!(),
+                    column!(),
+                    stringify!($arg),
+                    tmp
+                );
+                tmp
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
 }
