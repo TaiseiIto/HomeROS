@@ -1,0 +1,20 @@
+[package]
+name = "firmware"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[dependencies.uart]
+path = "../device/uart"
+
+[dependencies.sync]
+path = "../sync"
+
+[target.'cfg(target_arch = "aarch64")'.dependencies.tfa]
+path = "tfa"
+
+[target.'cfg(target_arch = "riscv64")'.dependencies.sbi]
+path = "sbi"
+
+[target.'cfg(target_arch = "x86_64")'.dependencies.uefi]
+path = "uefi"

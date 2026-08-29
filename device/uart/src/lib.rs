@@ -1,0 +1,133 @@
+#![no_std]
+
+#[cfg(uart = "pl011")]
+mod pl011;
+#[cfg(uart = "pl011")]
+use pl011::RegistersAccessor;
+#[cfg(uart = "16550")]
+mod standard16550;
+#[cfg(uart = "16550")]
+use standard16550::RegistersAccessor;
+
+use {
+    arch::pause,
+    core::{
+        cell::OnceCell,
+        fmt::{Arguments, Result, Write},
+    },
+    sync::spin::Lock,
+};
+
+#[macro_export]
+macro_rules! dbg {
+    ($arg:expr) => {{
+        let value = $arg;
+        $crate::println!(
+            "[{}:{}:{}] {} = {}",
+            file!(),
+            line!(),
+            column!(),
+            stringify!($arg),
+            value
+        );
+        value
+    }};
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    ($fmt:expr) => ($crate::print!(concat!($fmt, "\n")));
+    ($fmt:expr, $($arg:tt)*) => ($crate::print!(concat!($fmt, "\n"), $($arg)*));
+}
+
+pub enum Parity {
+    Even,
+    High,
+    Low,
+    Odd,
+}
+
+pub fn initialize() {
+    RegistersAccessor::new().set();
+}
+
+pub static GLOBAL: Lock<OnceCell<RegistersAccessor>> = Lock::new(OnceCell::new());
+
+impl RegistersAccessor {
+    pub fn write_format(&mut self, arguments: Arguments) {
+        self.write_fmt(arguments).unwrap();
+    }
+
+    fn new() -> Self {
+        #[cfg(target_arch = "aarch64")]
+        let mut accessor: Self = unsafe { Self::new_address(0x09000000) };
+        #[cfg(target_arch = "riscv64")]
+        let mut accessor: Self = unsafe { Self::new_address(0x10000000) };
+        #[cfg(target_arch = "x86_64")]
+        let mut accessor: Self = unsafe { Self::new_port(0x02f8) };
+        let baud_rate: usize = 9600;
+        let enable_fifo: bool = true;
+        let parity: Option<Parity> = None;
+        let send_break: bool = false;
+        let stop_bits: u8 = 1;
+        let word_bits: u8 = 8;
+        accessor.initialize(
+            baud_rate,
+            enable_fifo,
+            parity,
+            send_break,
+            stop_bits,
+            word_bits,
+        );
+        accessor
+    }
+
+    fn set(self) {
+        GLOBAL.lock().set(self).unwrap();
+    }
+}
+
+unsafe impl Sync for RegistersAccessor {}
+
+impl Write for RegistersAccessor {
+    fn write_str(&mut self, string: &str) -> Result {
+        self.write_string(string);
+        Ok(())
+    }
+}
+
+trait Driver {
+    fn can_send_byte(&self) -> bool;
+
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    );
+
+    unsafe fn send_byte_unchecked(&mut self, data: u8);
+
+    fn send_byte(&mut self, data: u8) {
+        while !self.can_send_byte() {
+            pause();
+        }
+        unsafe {
+            self.send_byte_unchecked(data);
+        }
+    }
+
+    fn write_string(&mut self, string: &str) {
+        for byte in string.bytes() {
+            self.send_byte(byte);
+        }
+    }
+}

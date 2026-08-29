@@ -1,9 +1,8 @@
-use std::env::{Args, args};
-
 mod command;
 mod disassemble;
 mod docker;
 mod environment;
+mod firmware;
 mod format;
 mod git;
 mod lint;
@@ -11,6 +10,8 @@ mod product;
 mod run;
 mod time;
 mod tmux;
+
+use std::env::Args;
 
 pub use {docker::in_container, format::format, lint::lint};
 
@@ -25,7 +26,7 @@ pub enum Command {
 
 impl Command {
     pub fn run(self) {
-        match args().into() {
+        match self {
             Self::Build => {
                 if in_container() {
                     product::build()
@@ -41,7 +42,8 @@ impl Command {
             Self::Lint => lint(),
             Self::PreCommit => {
                 git::add_rust_sources();
-                lint();
+                Self::Build.run();
+                Self::Lint.run();
                 format();
                 git::add_rust_sources();
             }

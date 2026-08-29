@@ -2,7 +2,11 @@
 name = "boot"
 version = "0.1.0"
 edition = "2024"
-build = "build.rs"
+build = "../firmware/build.rs"
 
-[dependencies]
-arch = { path = "../arch" }
+[dependencies.arch]
+path = "../arch"
+[dependencies.firmware]
+path = "../firmware"
+[dependencies.uart]
+path = "../device/uart"
