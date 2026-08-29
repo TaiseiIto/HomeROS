@@ -23,6 +23,14 @@ pub struct Header {
 }
 
 impl Header {
+    fn strings_bytes(&self) -> &[u8] {
+        let offset: usize = self.read_off_dt_strings() as usize;
+        let size: usize = self.read_size_dt_strings() as usize;
+        let header: *const Self = self as *const Self;
+        let header: *const u8 = header as *const u8;
+        unsafe { from_raw_parts(header.add(offset), size) }
+    }
+
     fn structure_bytes(&self) -> &[u8] {
         let offset: usize = self.read_off_dt_struct() as usize;
         let size: usize = self.read_size_dt_struct() as usize;
@@ -39,12 +47,11 @@ impl Debug for Header {
             .field("magic", &self.read_magic())
             .field("totalsize", &self.read_totalsize())
             .field("structure", &self.structure_bytes())
-            .field("off_dt_strings", &self.read_off_dt_strings())
+            .field("strings", &self.strings_bytes())
             .field("off_mem_rsvmap", &self.read_off_mem_rsvmap())
             .field("version", &self.read_version())
             .field("last_comp_version", &self.read_last_comp_version())
             .field("boot_cpuid_phys", &self.read_boot_cpuid_phys())
-            .field("size_dt_strings", &self.read_size_dt_strings())
             .finish()
     }
 }
