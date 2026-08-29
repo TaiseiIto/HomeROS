@@ -2,7 +2,7 @@
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.2 Header
-#[derive(Debug, endian::Big)]
+#[derive(endian::Big)]
 #[repr(C)]
 pub struct Header {
     magic: u32,
