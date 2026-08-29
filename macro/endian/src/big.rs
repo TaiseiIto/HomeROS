@@ -1,7 +1,10 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Type},
+    syn::{
+        Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Path, PathSegment, Type,
+        TypePath,
+    },
 };
 
 pub struct Structure {
@@ -12,8 +15,14 @@ pub struct Structure {
 impl Structure {
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
+        let reads: Vec<TokenStream> = self
+            .elements
+            .iter()
+            .filter_map(|element| element.read())
+            .collect();
         quote! {
             impl #ident {
+                #(#reads)*
             }
         }
     }
@@ -58,6 +67,48 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Ident,
     ty: Type,
+}
+
+impl Element {
+    fn function_ident(&self, prefix: &str) -> Ident {
+        Ident::new(&format!("{}_{}", prefix, self.ident), self.ident.span())
+    }
+
+    fn read(&self) -> Option<TokenStream> {
+        self.type_ident().map(|ty| {
+            let ident: &Ident = &self.ident;
+            let read: Ident = self.function_ident("read");
+            quote! {
+                pub fn #read(&self) -> #ty {
+                    #ty::from_be(self.#ident)
+                }
+            }
+        })
+    }
+
+    fn type_ident(&self) -> Option<Ident> {
+        if let Type::Path(TypePath {
+            attrs: _,
+            qself: _,
+            path:
+                Path {
+                    leading_colon: _,
+                    ref segments,
+                },
+        }) = self.ty
+        {
+            let mut segments = segments.iter();
+            let segment: &PathSegment = segments.next().unwrap();
+            assert!(segments.next().is_none());
+            let ident: Ident = segment.ident.clone();
+            match ident.to_string().as_str() {
+                "u8" | "u16" | "u32" | "u64" | "u128" => Some(ident),
+                _ => None,
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl From<Field> for Element {
