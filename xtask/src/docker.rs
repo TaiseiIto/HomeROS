@@ -56,7 +56,7 @@ impl Container {
         run(&format!(
             "docker cp {}:{} {}",
             self.id,
-            source.to_str().unwrap(),
+            source.join(".").to_str().unwrap(),
             destination.to_str().unwrap()
         ));
     }
