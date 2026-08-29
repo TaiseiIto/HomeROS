@@ -29,7 +29,7 @@ pub struct Global {
     #[cfg(firmware = "sbi")]
     hartid: usize,
     #[cfg(firmware = "sbi")]
-    device_tree: usize,
+    device_tree: &'static tree::Header,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
     #[cfg(firmware = "uefi")]
@@ -41,7 +41,7 @@ impl Global {
     /// This function dereferences `image_handle` and `system_table`.
     pub unsafe fn new(
         #[cfg(firmware = "sbi")] hartid: usize,
-        #[cfg(firmware = "sbi")] device_tree: usize,
+        #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
@@ -49,7 +49,7 @@ impl Global {
             #[cfg(firmware = "sbi")]
             hartid,
             #[cfg(firmware = "sbi")]
-            device_tree,
+            device_tree: unsafe { &*device_tree },
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]

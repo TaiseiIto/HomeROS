@@ -12,6 +12,7 @@ version = "0.1.0"
 dependencies = [
  "arch",
  "firmware",
+ "tree",
  "uart",
 ]
 
@@ -22,6 +23,7 @@ dependencies = [
  "sbi",
  "sync",
  "tfa",
+ "tree",
  "uart",
  "uefi",
 ]
@@ -77,6 +79,10 @@ dependencies = [
 
 [[package]]
 name = "tfa"
+version = "0.1.0"
+
+[[package]]
+name = "tree"
 version = "0.1.0"
 
 [[package]]

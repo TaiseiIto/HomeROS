@@ -6,7 +6,13 @@ build = "../firmware/build.rs"
 
 [dependencies.arch]
 path = "../arch"
+
 [dependencies.firmware]
 path = "../firmware"
+
 [dependencies.uart]
 path = "../device/uart"
+
+[target.'cfg(target_arch = "riscv64")'.dependencies.tree]
+path = "../device/tree"
+

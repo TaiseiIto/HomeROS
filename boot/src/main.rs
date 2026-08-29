@@ -28,7 +28,7 @@ unsafe extern "C" fn _start() -> ! {
 #[unsafe(no_mangle)]
 fn initialize_global(
     #[cfg(firmware = "sbi")] hartid: usize,
-    #[cfg(firmware = "sbi")] device_tree: usize,
+    #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
 ) {
     main(unsafe {
         firmware::Global::new(
