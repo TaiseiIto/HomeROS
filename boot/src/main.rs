@@ -26,8 +26,18 @@ unsafe extern "C" fn _start() -> ! {
 
 #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
 #[unsafe(no_mangle)]
-fn initialize_global() {
-    main(unsafe { firmware::Global::new() });
+fn initialize_global(
+    #[cfg(firmware = "sbi")] hartid: usize,
+    #[cfg(firmware = "sbi")] device_tree: usize,
+) {
+    main(unsafe {
+        firmware::Global::new(
+            #[cfg(firmware = "sbi")]
+            hartid,
+            #[cfg(firmware = "sbi")]
+            device_tree,
+        )
+    });
     unreachable!();
 }
 

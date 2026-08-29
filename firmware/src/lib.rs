@@ -26,6 +26,10 @@ pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 
 #[derive(Debug)]
 pub struct Global {
+    #[cfg(firmware = "sbi")]
+    hartid: usize,
+    #[cfg(firmware = "sbi")]
+    device_tree: usize,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
     #[cfg(firmware = "uefi")]
@@ -36,10 +40,16 @@ impl Global {
     /// # Safety
     /// This function dereferences `image_handle` and `system_table`.
     pub unsafe fn new(
+        #[cfg(firmware = "sbi")] hartid: usize,
+        #[cfg(firmware = "sbi")] device_tree: usize,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
         Self {
+            #[cfg(firmware = "sbi")]
+            hartid,
+            #[cfg(firmware = "sbi")]
+            device_tree,
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]
