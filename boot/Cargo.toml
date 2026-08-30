@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2024"
 build = "../firmware/build.rs"
 
+[dependencies.allocator]
+path = "../memory/allocator"
+
 [dependencies.arch]
 path = "../arch"
 

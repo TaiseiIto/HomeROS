@@ -1,5 +1,7 @@
 #![no_std]
 
+extern crate alloc;
+
 use {
     alloc::alloc::Layout,
     core::{alloc::GlobalAlloc, cell::UnsafeCell},

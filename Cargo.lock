@@ -5,6 +5,9 @@ version = 4
 [[package]]
 name = "allocator"
 version = "0.1.0"
+dependencies = [
+ "sync",
+]
 
 [[package]]
 name = "arch"
@@ -14,6 +17,7 @@ version = "0.1.0"
 name = "boot"
 version = "0.1.0"
 dependencies = [
+ "allocator",
  "arch",
  "firmware",
  "tree",
