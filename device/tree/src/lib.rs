@@ -140,7 +140,7 @@ impl<'a> Iterator for StructureIterator<'a> {
                     .max()
                     .unwrap_or(0);
                 let name: &str = str::from_utf8(&remaining_bytes[..name_size]).unwrap();
-                *structure_offset += name_size + size_of::<u32>() - 1;
+                *structure_offset += name_size + size_of::<u32>();
                 *structure_offset &= !size_of::<u32>();
                 Self::Item::BeginNode { name }
             }
