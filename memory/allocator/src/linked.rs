@@ -21,7 +21,7 @@ impl List {
 
 unsafe impl GlobalAlloc for List {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        unimplemented!();
+        unsafe { &mut *self.head }.alloc(layout)
     }
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
