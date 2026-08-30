@@ -17,12 +17,13 @@ unsafe impl GlobalAlloc for List {
         unimplemented!();
     }
 
-    unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
+    unsafe fn dealloc(&self, address: *mut u8, _: Layout) {
         unimplemented!();
     }
 }
 
 struct Node {
+    allocated: bool,
     previous: Option<*mut Node>,
     next: Option<*mut Node>,
 }
@@ -32,9 +33,18 @@ impl Node {
         let node: *mut Self = node as *mut Self;
         unsafe {
             let node: &mut Self = &mut *node;
+            node.allocated = false;
             node.previous = None;
             node.next = None;
         }
         node
+    }
+
+    fn next(&mut self) -> Option<&mut Self> {
+        self.next.map(|next| unsafe { &mut *next })
+    }
+
+    fn previous(&mut self) -> Option<&mut Self> {
+        self.previous.map(|previous| unsafe { &mut *previous })
     }
 }
