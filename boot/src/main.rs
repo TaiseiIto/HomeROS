@@ -56,6 +56,7 @@ extern "efiapi" fn efi_main(
 fn main(global: firmware::Global) {
     global.set();
     uart::initialize();
+    allocator::temporize();
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());

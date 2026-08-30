@@ -8,6 +8,10 @@ use {
     sync::spin::Lock,
 };
 
+pub fn temporize() {
+    GLOBAL.temporize();
+}
+
 #[global_allocator]
 static GLOBAL: Global = Global::new();
 
@@ -16,6 +20,10 @@ struct Global(Lock<UnsafeCell<Allocator>>);
 impl Global {
     const fn new() -> Self {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
+    }
+
+    fn temporize(&self) {
+        unsafe { &mut *self.0.lock().get() }.temporize();
     }
 }
 
@@ -32,6 +40,7 @@ unsafe impl GlobalAlloc for Global {
 }
 
 enum Allocator {
+    Temporary,
     Uninitialized,
 }
 
@@ -39,17 +48,23 @@ impl Allocator {
     const fn new() -> Self {
         Self::Uninitialized
     }
+
+    fn temporize(&mut self) {
+        *self = Self::Temporary;
+    }
 }
 
 unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
+            Self::Temporary => panic!(),
             Self::Uninitialized => panic!(),
         }
     }
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         match self {
+            Self::Temporary => panic!(),
             Self::Uninitialized => panic!(),
         }
     }
