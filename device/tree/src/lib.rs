@@ -120,6 +120,7 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 enum Property<'a> {
     AddressCells(u32),
     Compatible(&'a [u8]),
+    Model(&'a str),
     SizeCells(u32),
     Unknown { name: &'a str, data: &'a [u8] },
 }
@@ -136,14 +137,19 @@ impl Property<'_> {
         .map(u32::from_be_bytes)
         .unwrap()
     }
+
+    fn data2str(data: &[u8]) -> &str {
+        str::from_utf8(&data[..data.len() - 1]).unwrap()
+    }
 }
 
 impl<'a> Property<'a> {
     fn new(name: &'a str, data: &'a [u8]) -> Self {
         match name {
             "#address-cells" => Self::AddressCells(Self::data2u32(data)),
-            "compatible" => Self::Compatible(data),
             "#size-cells" => Self::SizeCells(Self::data2u32(data)),
+            "compatible" => Self::Compatible(data),
+            "model" => Self::Model(Self::data2str(data)),
             name => Self::Unknown { name, data },
         }
     }
@@ -176,6 +182,10 @@ impl Debug for Structure<'_> {
                 Property::Compatible(strings) => formatter
                     .debug_struct("Property::Compatible")
                     .field("strings", &CompatibleStrings::new(strings))
+                    .finish(),
+                Property::Model(string) => formatter
+                    .debug_tuple("Property::Model")
+                    .field(&string)
                     .finish(),
                 Property::SizeCells(cells) => formatter
                     .debug_tuple("Property::SizeCells")
