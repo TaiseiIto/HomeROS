@@ -53,18 +53,22 @@ impl Node {
         self.next().map(|next| next.address())
     }
 
-    fn fit(&self, layout: Layout) -> bool {
-        !self.allocated
-            && self.available_range().is_some_and(
-                |Range {
-                     start: available_head,
-                     end: available_tail,
-                 }| {
-                    let head: usize = (available_head + layout.align() - 1) & !(layout.align() - 1);
-                    let tail: usize = head + layout.size();
-                    tail <= available_tail
-                },
-            )
+    fn alloc_by_myself(&self, layout: Layout) -> Option<*mut u8> {
+        (!self.allocated)
+            .then(|| {
+                self.available_range().and_then(
+                    |Range {
+                         start: available_head,
+                         end: available_tail,
+                     }| {
+                        let head: usize =
+                            (available_head + layout.align() - 1) & !(layout.align() - 1);
+                        let tail: usize = head + layout.size();
+                        (tail <= available_tail).then(|| head as *mut u8)
+                    },
+                )
+            })
+            .flatten()
     }
 
     fn new(node: usize) -> *mut Self {
