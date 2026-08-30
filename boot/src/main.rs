@@ -62,7 +62,10 @@ extern "efiapi" fn efi_main(
 fn main(global: firmware::Global) {
     global.set();
     uart::initialize();
-    allocator::temporize();
+    allocator::temporize(
+        #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+        firmware::GLOBAL.lock().get().unwrap().boot_stack_bottom(),
+    );
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());

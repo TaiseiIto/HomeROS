@@ -50,7 +50,7 @@ pub struct Global {
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     device_tree: &'static tree::Header,
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-    stack_bottom: usize,
+    boot_stack_bottom: usize,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
     #[cfg(firmware = "uefi")]
@@ -58,13 +58,18 @@ pub struct Global {
 }
 
 impl Global {
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    pub fn boot_stack_bottom(&self) -> usize {
+        self.boot_stack_bottom
+    }
+
     /// # Safety
     /// This function dereferences raw pointers.
     /// Caller must pass valid pointers.
     pub unsafe fn new(
         #[cfg(firmware = "sbi")] hartid: usize,
         #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
-        #[cfg(any(firmware = "sbi", firmware = "tfa"))] stack_bottom: usize,
+        #[cfg(any(firmware = "sbi", firmware = "tfa"))] boot_stack_bottom: usize,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
@@ -76,7 +81,7 @@ impl Global {
             #[cfg(firmware = "tfa")]
             device_tree: unsafe { &*(0x40000000 as *const tree::Header) },
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-            stack_bottom,
+            boot_stack_bottom,
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]
