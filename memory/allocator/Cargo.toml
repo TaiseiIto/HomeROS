@@ -3,3 +3,6 @@ name = "allocator"
 version = "0.1.0"
 edition = "2024"
 build = "../../firmware/build.rs"
+
+[dependencies.sync]
+path = "../../sync"
