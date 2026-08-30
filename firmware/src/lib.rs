@@ -49,6 +49,8 @@ pub struct Global {
     hartid: usize,
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     device_tree: &'static tree::Header,
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    stack_bottom: usize,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
     #[cfg(firmware = "uefi")]
@@ -62,6 +64,7 @@ impl Global {
     pub unsafe fn new(
         #[cfg(firmware = "sbi")] hartid: usize,
         #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
+        #[cfg(any(firmware = "sbi", firmware = "tfa"))] stack_bottom: usize,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
@@ -72,6 +75,8 @@ impl Global {
             device_tree: unsafe { &*device_tree },
             #[cfg(firmware = "tfa")]
             device_tree: unsafe { &*(0x40000000 as *const tree::Header) },
+            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            stack_bottom,
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]

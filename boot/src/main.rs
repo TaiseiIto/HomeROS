@@ -16,12 +16,16 @@ use core::arch::naked_asm;
 unsafe extern "C" fn _start() -> ! {
     #[cfg(target_arch = "aarch64")]
     naked_asm!(
-        "ldr x9, =_stack_bottom",
-        "mov sp, x9",
+        "ldr x0, =_stack_bottom",
+        "mov sp, x0",
         "b initialize_global"
     );
     #[cfg(target_arch = "riscv64")]
-    naked_asm!("la sp, _stack_bottom", "j initialize_global");
+    naked_asm!(
+        "la sp, _stack_bottom",
+        "la a2, _stack_bottom",
+        "j initialize_global"
+    );
 }
 
 #[cfg(any(firmware = "sbi", firmware = "tfa"))]
@@ -29,6 +33,7 @@ unsafe extern "C" fn _start() -> ! {
 fn initialize_global(
     #[cfg(firmware = "sbi")] hartid: usize,
     #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
+    stack_bottom: usize,
 ) {
     main(unsafe {
         firmware::Global::new(
@@ -36,6 +41,7 @@ fn initialize_global(
             hartid,
             #[cfg(firmware = "sbi")]
             device_tree,
+            stack_bottom,
         )
     });
     unreachable!();
