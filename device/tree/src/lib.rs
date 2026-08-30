@@ -82,6 +82,7 @@ enum Structure<'a> {
     Property { name: &'a str, data: &'a [u8] },
     Nop,
     End,
+    Unknown { token: u32 },
 }
 
 #[derive(Clone)]
@@ -159,7 +160,7 @@ impl<'a> Iterator for StructureIterator<'a> {
             }
             0x00000004 => Self::Item::Nop,
             0x00000009 => Self::Item::End,
-            _ => unreachable!(),
+            token => Self::Item::Unknown { token },
         })
     }
 }
