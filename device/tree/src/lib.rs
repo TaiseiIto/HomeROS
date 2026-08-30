@@ -141,7 +141,7 @@ impl<'a> Iterator for StructureIterator<'a> {
                     .unwrap_or(0);
                 let name: &str = str::from_utf8(&remaining_bytes[..name_size]).unwrap();
                 *structure_offset += name_size + size_of::<u32>();
-                *structure_offset &= !size_of::<u32>();
+                *structure_offset &= !(size_of::<u32>() - 1);
                 Self::Item::BeginNode { name }
             }
             0x00000002 => Self::Item::EndNode,
@@ -156,7 +156,7 @@ impl<'a> Iterator for StructureIterator<'a> {
                 let remaining_bytes: &[u8] = &header.structure_bytes()[*structure_offset..];
                 let data: &[u8] = &remaining_bytes[..length];
                 *structure_offset += length + size_of::<u32>() - 1;
-                *structure_offset &= !size_of::<u32>();
+                *structure_offset &= !(size_of::<u32>() - 1);
                 Self::Item::Property { name, data }
             }
             0x00000004 => Self::Item::Nop,
