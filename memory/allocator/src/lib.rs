@@ -8,10 +8,10 @@ use {
     sync::spin::Lock,
 };
 
-pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] stack_bottom: usize) {
+pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
     GLOBAL.temporize(
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-        stack_bottom,
+        head,
     );
 }
 
@@ -25,10 +25,10 @@ impl Global {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
     }
 
-    fn temporize(&self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] stack_bottom: usize) {
+    fn temporize(&self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
         unsafe { &mut *self.0.lock().get() }.temporize(
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-            stack_bottom,
+            head,
         );
     }
 }
@@ -48,7 +48,7 @@ unsafe impl GlobalAlloc for Global {
 enum Allocator {
     Temporary {
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-        stack_bottom: usize,
+        head: usize,
     },
     Uninitialized,
 }
@@ -58,10 +58,10 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn temporize(&mut self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] stack_bottom: usize) {
+    fn temporize(&mut self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
         *self = Self::Temporary {
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-            stack_bottom,
+            head,
         };
     }
 }
@@ -71,7 +71,7 @@ unsafe impl GlobalAlloc for Allocator {
         match self {
             Self::Temporary {
                 #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-                stack_bottom,
+                head,
             } => panic!(),
             Self::Uninitialized => panic!(),
         }
@@ -81,7 +81,7 @@ unsafe impl GlobalAlloc for Allocator {
         match self {
             Self::Temporary {
                 #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-                stack_bottom,
+                head,
             } => panic!(),
             Self::Uninitialized => panic!(),
         }
