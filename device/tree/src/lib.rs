@@ -75,16 +75,52 @@ impl Debug for Header {
     }
 }
 
+struct CompatibleStrings<'a> {
+    strings: &'a [u8],
+    offset: usize,
+}
+
+impl<'a> CompatibleStrings<'a> {
+    fn new(strings: &'a [u8]) -> Self {
+        Self { strings, offset: 0 }
+    }
+}
+
+impl<'a> Iterator for CompatibleStrings<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let Self { strings, offset } = self;
+        let strings_length: usize = strings.len();
+        let begin: usize = *offset;
+        if begin < strings_length {
+            let end: usize = (begin..strings_length)
+                .take_while(|offset| strings.get(*offset).is_some_and(|byte| *byte != 0x00))
+                .max()
+                .map(|last_index| last_index + 1)
+                .unwrap_or(begin);
+            *offset += end - begin + 1;
+            Some(str::from_utf8(&strings[begin..end]).unwrap())
+        } else {
+            None
+        }
+    }
+}
+
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 #[derive(Debug)]
 enum Property<'a> {
+    Compatible(&'a [u8]),
     Unknown { name: &'a str, data: &'a [u8] },
 }
 
 impl<'a> Property<'a> {
     fn new(name: &'a str, data: &'a [u8]) -> Self {
-        Self::Unknown { name, data }
+        match name {
+            "compatible" => Self::Compatible(data),
+            name => Self::Unknown { name, data },
+        }
     }
 }
 
@@ -108,6 +144,10 @@ impl Debug for Structure<'_> {
                 .finish(),
             Self::EndNode => formatter.debug_struct("EndNode").finish(),
             Self::Property { name, data } => match Property::new(name, data) {
+                Property::Compatible(strings) => formatter
+                    .debug_list()
+                    .entries(CompatibleStrings::new(strings))
+                    .finish(),
                 Property::Unknown { name, data } => formatter
                     .debug_struct("Property::Unknown")
                     .field("name", &name)
