@@ -76,8 +76,20 @@ impl Debug for Header {
 }
 
 /// # References
-/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
+/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 #[derive(Debug)]
+enum Property<'a> {
+    Unknown { name: &'a str, data: &'a [u8] },
+}
+
+impl<'a> Property<'a> {
+    fn new(name: &'a str, data: &'a [u8]) -> Self {
+        Self::Unknown { name, data }
+    }
+}
+
+/// # References
+/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
 enum Structure<'a> {
     BeginNode { name: &'a str },
     EndNode,
@@ -85,6 +97,31 @@ enum Structure<'a> {
     Nop,
     End,
     Unknown { token: u32 },
+}
+
+impl Debug for Structure<'_> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        match self {
+            Self::BeginNode { name } => formatter
+                .debug_struct("BeginNode")
+                .field("name", name)
+                .finish(),
+            Self::EndNode => formatter.debug_struct("EndNode").finish(),
+            Self::Property { name, data } => match Property::new(name, data) {
+                Property::Unknown { name, data } => formatter
+                    .debug_struct("Property::Unknown")
+                    .field("name", &name)
+                    .field("data", &data)
+                    .finish(),
+            },
+            Self::Nop => formatter.debug_struct("Nop").finish(),
+            Self::End => formatter.debug_struct("End").finish(),
+            Self::Unknown { token } => formatter
+                .debug_struct("Unknown")
+                .field("token", &token)
+                .finish(),
+        }
+    }
 }
 
 #[derive(Clone)]
