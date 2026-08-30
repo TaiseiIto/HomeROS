@@ -25,7 +25,7 @@ pub struct Header {
 }
 
 impl Header {
-    fn iter(&self) -> StructureIterator {
+    fn iter(&self) -> StructureIterator<'_> {
         StructureIterator {
             header: self,
             structure_offset: 0,
