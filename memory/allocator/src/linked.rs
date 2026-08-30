@@ -31,8 +31,8 @@ unsafe impl GlobalAlloc for List {
 
 struct Node {
     allocated: bool,
-    previous: Option<*mut Node>,
-    next: Option<*mut Node>,
+    previous: Option<*mut Self>,
+    next: Option<*mut Self>,
 }
 
 impl Node {
@@ -53,7 +53,25 @@ impl Node {
         self.next().map(|next| next.address())
     }
 
-    fn alloc_by_myself(&self, layout: Layout) -> Option<*mut u8> {
+    fn alloc(&mut self, layout: Layout) -> *mut u8 {
+        self.alloc_by_myself(layout)
+            .or_else(|| self.next_mut().map(|next| next.alloc(layout)))
+            .unwrap_or_else(|| self.alloc_by_extending(layout))
+    }
+
+    fn alloc_by_extending(&mut self, layout: Layout) -> *mut u8 {
+        assert!(self.next().is_none());
+        self.allocated = true;
+        let allocated_head: usize =
+            (self.available_head() + layout.align() - 1) & !(layout.align() - 1);
+        let allocated_tail: usize = allocated_head + layout.size();
+        let next_node_head: usize =
+            (allocated_tail + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
+        self.connect(unsafe { &mut *Self::new(next_node_head) });
+        allocated_head as *mut u8
+    }
+
+    fn alloc_by_myself(&mut self, layout: Layout) -> Option<*mut u8> {
         (!self.allocated)
             .then(|| {
                 self.available_range().and_then(
@@ -64,11 +82,19 @@ impl Node {
                         let head: usize =
                             (available_head + layout.align() - 1) & !(layout.align() - 1);
                         let tail: usize = head + layout.size();
-                        (tail <= available_tail).then(|| head as *mut u8)
+                        (tail <= available_tail).then(|| {
+                            self.allocated = true;
+                            head as *mut u8
+                        })
                     },
                 )
             })
             .flatten()
+    }
+
+    fn connect(&mut self, next: &mut Self) {
+        self.next = Some(next as *mut Self);
+        next.previous = Some(self as *mut Self);
     }
 
     fn new(node: usize) -> *mut Self {
