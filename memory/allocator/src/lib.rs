@@ -21,11 +21,13 @@ impl Global {
 
 unsafe impl GlobalAlloc for Global {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        unimplemented!();
+        unsafe { (&*self.0.lock().get()).alloc(layout) }
     }
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
-        unimplemented!();
+        unsafe {
+            (&*self.0.lock().get()).dealloc(address, layout);
+        }
     }
 }
 
@@ -36,5 +38,19 @@ enum Allocator {
 impl Allocator {
     const fn new() -> Self {
         Self::Uninitialized
+    }
+}
+
+unsafe impl GlobalAlloc for Allocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        match self {
+            Self::Uninitialized => panic!(),
+        }
+    }
+
+    unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
+        match self {
+            Self::Uninitialized => panic!(),
+        }
     }
 }
