@@ -2,6 +2,9 @@
 
 extern crate alloc;
 
+#[cfg(any(firmware = "sbi", firmware = "tfa"))]
+mod linked;
+
 use {
     alloc::alloc::Layout,
     core::{alloc::GlobalAlloc, cell::UnsafeCell},
@@ -45,11 +48,11 @@ unsafe impl GlobalAlloc for Global {
     }
 }
 
+unsafe impl Send for Global {}
+unsafe impl Sync for Global {}
+
 enum Allocator {
-    Temporary {
-        #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-        head: usize,
-    },
+    Temporary(#[cfg(any(firmware = "sbi", firmware = "tfa"))] linked::List),
     Uninitialized,
 }
 
@@ -59,30 +62,32 @@ impl Allocator {
     }
 
     fn temporize(&mut self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
-        *self = Self::Temporary {
+        *self = Self::Temporary(
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-            head,
-        };
+            linked::List::new(head),
+        );
     }
 }
 
 unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
-            Self::Temporary {
-                #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-                head,
-            } => panic!(),
+            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
+            #[cfg(firmware = "uefi")]
+            Self::Temporary() => panic!(),
             Self::Uninitialized => panic!(),
         }
     }
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         match self {
-            Self::Temporary {
-                #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-                head,
-            } => panic!(),
+            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            Self::Temporary(linked_list) => unsafe {
+                linked_list.dealloc(address, layout);
+            },
+            #[cfg(firmware = "uefi")]
+            Self::Temporary() => panic!(),
             Self::Uninitialized => panic!(),
         }
     }
