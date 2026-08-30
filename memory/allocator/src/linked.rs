@@ -46,11 +46,25 @@ impl Node {
 
     fn available_range(&self) -> Option<Range<usize>> {
         self.available_tail()
-            .map(|tail| (self.available_head()..tail))
+            .map(|available_tail| self.available_head()..available_tail)
     }
 
     fn available_tail(&self) -> Option<usize> {
         self.next().map(|next| next.address())
+    }
+
+    fn fit(&self, layout: Layout) -> bool {
+        !self.allocated
+            && self.available_range().is_some_and(
+                |Range {
+                     start: available_head,
+                     end: available_tail,
+                 }| {
+                    let head: usize = (available_head + layout.align() - 1) & !(layout.align() - 1);
+                    let tail: usize = head + layout.size();
+                    tail <= available_tail
+                },
+            )
     }
 
     fn new(node: usize) -> *mut Self {
