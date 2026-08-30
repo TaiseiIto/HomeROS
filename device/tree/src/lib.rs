@@ -66,6 +66,7 @@ impl Debug for Header {
             .debug_struct("Header")
             .field("magic", &self.read_magic())
             .field("totalsize", &self.read_totalsize())
+            .field("structures", &self.structure_bytes())
             .field("structures", &self.iter())
             .field("off_mem_rsvmap", &self.read_off_mem_rsvmap())
             .field("version", &self.read_version())
