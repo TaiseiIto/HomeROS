@@ -75,6 +75,8 @@ impl Debug for Header {
     }
 }
 
+/// # References
+/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
 #[derive(Debug)]
 enum Structure<'a> {
     BeginNode { name: &'a str },
