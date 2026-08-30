@@ -120,24 +120,30 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 enum Property<'a> {
     AddressCells(u32),
     Compatible(&'a [u8]),
+    SizeCells(u32),
     Unknown { name: &'a str, data: &'a [u8] },
+}
+
+impl Property<'_> {
+    fn data2u32(data: &[u8]) -> u32 {
+        [
+            data.get(0).copied(),
+            data.get(1).copied(),
+            data.get(2).copied(),
+            data.get(3).copied(),
+        ]
+        .transpose()
+        .map(u32::from_be_bytes)
+        .unwrap()
+    }
 }
 
 impl<'a> Property<'a> {
     fn new(name: &'a str, data: &'a [u8]) -> Self {
         match name {
-            "#address-cells" => Self::AddressCells(
-                [
-                    data.get(0).copied(),
-                    data.get(1).copied(),
-                    data.get(2).copied(),
-                    data.get(3).copied(),
-                ]
-                .transpose()
-                .map(u32::from_be_bytes)
-                .unwrap(),
-            ),
+            "#address-cells" => Self::AddressCells(Self::data2u32(data)),
             "compatible" => Self::Compatible(data),
+            "#size-cells" => Self::SizeCells(Self::data2u32(data)),
             name => Self::Unknown { name, data },
         }
     }
@@ -170,6 +176,10 @@ impl Debug for Structure<'_> {
                 Property::Compatible(strings) => formatter
                     .debug_struct("Property::Compatible")
                     .field("strings", &CompatibleStrings::new(strings))
+                    .finish(),
+                Property::SizeCells(cells) => formatter
+                    .debug_tuple("Property::SizeCells")
+                    .field(&cells)
                     .finish(),
                 Property::Unknown { name, data } => formatter
                     .debug_struct("Property::Unknown")
