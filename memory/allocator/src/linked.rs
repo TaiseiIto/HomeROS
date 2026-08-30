@@ -71,6 +71,8 @@ impl Node {
         allocated_head as *mut u8
     }
 
+    /// # TODO
+    /// * Devide myself.
     fn alloc_by_myself(&mut self, layout: Layout) -> Option<*mut u8> {
         (!self.allocated)
             .then(|| {
