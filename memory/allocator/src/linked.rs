@@ -1,4 +1,11 @@
-use {alloc::alloc::Layout, core::alloc::GlobalAlloc};
+use {
+    alloc::alloc::Layout,
+    core::{
+        alloc::GlobalAlloc,
+        mem::{align_of, size_of},
+        ops::Range,
+    },
+};
 
 pub struct List {
     head: *mut Node,
@@ -17,7 +24,7 @@ unsafe impl GlobalAlloc for List {
         unimplemented!();
     }
 
-    unsafe fn dealloc(&self, address: *mut u8, _: Layout) {
+    unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         unimplemented!();
     }
 }
@@ -29,7 +36,25 @@ struct Node {
 }
 
 impl Node {
+    fn address(&self) -> usize {
+        self as *const Self as usize
+    }
+
+    fn available_head(&self) -> usize {
+        self.address() + size_of::<Self>()
+    }
+
+    fn available_range(&self) -> Option<Range<usize>> {
+        self.available_tail()
+            .map(|tail| (self.available_head()..tail))
+    }
+
+    fn available_tail(&self) -> Option<usize> {
+        self.next().map(|next| next.address())
+    }
+
     fn new(node: usize) -> *mut Self {
+        let node: usize = (node + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
         let node: *mut Self = node as *mut Self;
         unsafe {
             let node: &mut Self = &mut *node;
@@ -40,11 +65,19 @@ impl Node {
         node
     }
 
-    fn next(&mut self) -> Option<&mut Self> {
+    fn next(&self) -> Option<&Self> {
+        self.next.map(|next| unsafe { &*next })
+    }
+
+    fn next_mut(&mut self) -> Option<&mut Self> {
         self.next.map(|next| unsafe { &mut *next })
     }
 
-    fn previous(&mut self) -> Option<&mut Self> {
+    fn previous(&self) -> Option<&Self> {
+        self.previous.map(|previous| unsafe { &*previous })
+    }
+
+    fn previous_mut(&mut self) -> Option<&mut Self> {
         self.previous.map(|previous| unsafe { &mut *previous })
     }
 }
