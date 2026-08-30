@@ -75,6 +75,7 @@ impl Debug for Header {
     }
 }
 
+#[derive(Clone)]
 struct CompatibleStrings<'a> {
     strings: &'a [u8],
     offset: usize,
@@ -83,6 +84,12 @@ struct CompatibleStrings<'a> {
 impl<'a> CompatibleStrings<'a> {
     fn new(strings: &'a [u8]) -> Self {
         Self { strings, offset: 0 }
+    }
+}
+
+impl Debug for CompatibleStrings<'_> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.debug_list().entries(self.clone()).finish()
     }
 }
 
@@ -145,8 +152,8 @@ impl Debug for Structure<'_> {
             Self::EndNode => formatter.debug_struct("EndNode").finish(),
             Self::Property { name, data } => match Property::new(name, data) {
                 Property::Compatible(strings) => formatter
-                    .debug_list()
-                    .entries(CompatibleStrings::new(strings))
+                    .debug_struct("Property::Compatible")
+                    .field("strings", &CompatibleStrings::new(strings))
                     .finish(),
                 Property::Unknown { name, data } => formatter
                     .debug_struct("Property::Unknown")
