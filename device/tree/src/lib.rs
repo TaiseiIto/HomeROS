@@ -118,6 +118,7 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 #[derive(Debug)]
 enum Property<'a> {
+    AddressCells(u32),
     Compatible(&'a [u8]),
     Unknown { name: &'a str, data: &'a [u8] },
 }
@@ -125,6 +126,17 @@ enum Property<'a> {
 impl<'a> Property<'a> {
     fn new(name: &'a str, data: &'a [u8]) -> Self {
         match name {
+            "#address-cells" => Self::AddressCells(
+                [
+                    data.get(0).copied(),
+                    data.get(1).copied(),
+                    data.get(2).copied(),
+                    data.get(3).copied(),
+                ]
+                .transpose()
+                .map(u32::from_be_bytes)
+                .unwrap(),
+            ),
             "compatible" => Self::Compatible(data),
             name => Self::Unknown { name, data },
         }
@@ -151,6 +163,10 @@ impl Debug for Structure<'_> {
                 .finish(),
             Self::EndNode => formatter.debug_struct("EndNode").finish(),
             Self::Property { name, data } => match Property::new(name, data) {
+                Property::AddressCells(cells) => formatter
+                    .debug_tuple("Property::AddressCells")
+                    .field(&cells)
+                    .finish(),
                 Property::Compatible(strings) => formatter
                     .debug_struct("Property::Compatible")
                     .field("strings", &CompatibleStrings::new(strings))
