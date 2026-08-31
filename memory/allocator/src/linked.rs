@@ -71,8 +71,6 @@ impl Node {
         allocated_head as *mut u8
     }
 
-    /// # TODO
-    /// * Devide myself.
     fn alloc_by_myself(&mut self, layout: Layout) -> Option<*mut u8> {
         (!self.allocated)
             .then(|| {
@@ -85,6 +83,7 @@ impl Node {
                             (available_head + layout.align() - 1) & !(layout.align() - 1);
                         let allocated_tail: usize = allocated_head + layout.size();
                         (allocated_tail <= available_tail).then(|| {
+                            self.divide(allocated_tail);
                             self.allocated = true;
                             allocated_head as *mut u8
                         })
@@ -97,6 +96,24 @@ impl Node {
     fn connect(&mut self, next: &mut Self) {
         self.next = Some(next as *mut Self);
         next.previous = Some(self as *mut Self);
+    }
+
+    fn divide(&mut self, divide_point: usize) {
+        let new_node_head: usize =
+            (divide_point + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
+        let new_node_tail: usize = new_node_head + size_of::<Self>();
+        if self.available_range().is_some_and(
+            |Range {
+                 start: available_head,
+                 end: available_tail,
+             }| available_head < new_node_head && new_node_tail < available_tail,
+        ) {
+            let new_node: &mut Self = unsafe { &mut *Self::new(new_node_head) };
+            if let Some(next_node) = self.next {
+                new_node.connect(unsafe { &mut *next_node });
+            }
+            self.connect(new_node);
+        }
     }
 
     fn new(node: usize) -> *mut Self {
