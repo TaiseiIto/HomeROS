@@ -200,14 +200,13 @@ impl StructureIterator<'_> {
     }
 
     fn take_word(&mut self) -> Option<u32> {
-        [
-            self.take_byte(),
-            self.take_byte(),
-            self.take_byte(),
-            self.take_byte(),
-        ]
-        .transpose()
-        .map(u32::from_be_bytes)
+        (0..size_of::<u32>())
+            .map(|_| self.take_byte())
+            .collect::<Option<Vec<u8>>>()
+            .map(|word| {
+                let word: [u8; size_of::<u32>()] = word.try_into().unwrap();
+                u32::from_be_bytes(word)
+            })
     }
 }
 
