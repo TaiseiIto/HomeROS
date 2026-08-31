@@ -146,6 +146,9 @@ enum Property {
     NoMap,
     Offset(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.3 phandle
+    Phandle(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.8 ranges
     Ranges(Vec<u32>),
     /// # References
@@ -159,7 +162,13 @@ enum Property {
         name: String,
         data: Vec<u8>,
     },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.4 status
+    Status(String),
     Value(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.7 virtual-reg
+    VirtualReg(u32),
 }
 
 impl Property {
@@ -200,10 +209,13 @@ impl Property {
             "model" => Self::Model(Self::data2string(data)),
             "no-map" => Self::NoMap,
             "offset" => Self::Offset(Self::data2u32(data)),
+            "phandle" => Self::Phandle(Self::data2u32(data)),
             "ranges" => Self::Ranges(Self::data2u32s(data)),
             "reg" => Self::Reg(Self::data2u32s(data)),
             "regmap" => Self::RegMap(Self::data2u32(data)),
+            "status" => Self::Status(Self::data2string(data)),
             "value" => Self::Value(Self::data2u32(data)),
+            "virtual-reg" => Self::VirtualReg(Self::data2u32(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
