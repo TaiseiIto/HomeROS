@@ -128,6 +128,8 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 enum Property {
     AddressCells(u32),
     Compatible(Vec<String>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.13 device_type (deprecated)
     DeviceType(String),
     InterruptParent(u32),
     Model(String),
@@ -137,7 +139,10 @@ enum Property {
     Reg(Vec<u32>),
     RegMap(u32),
     SizeCells(u32),
-    Unknown { name: String, data: Vec<u8> },
+    Unknown {
+        name: String,
+        data: Vec<u8>,
+    },
     Value(u32),
 }
 
