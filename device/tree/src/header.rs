@@ -24,10 +24,6 @@ pub struct Header {
 }
 
 impl Header {
-    fn iter(&self) -> StructureIterator<'_> {
-        self.into()
-    }
-
     pub fn string(&self, offset: usize) -> &str {
         let strings_bytes: &[u8] = self.strings_bytes();
         let strings_bytes_len: usize = strings_bytes.len();
@@ -39,17 +35,21 @@ impl Header {
         str::from_utf8(&strings_bytes[offset..end]).unwrap()
     }
 
-    fn strings_bytes(&self) -> &[u8] {
-        let offset: usize = self.read_off_dt_strings() as usize;
-        let size: usize = self.read_size_dt_strings() as usize;
+    pub fn structure_bytes(&self) -> &[u8] {
+        let offset: usize = self.read_off_dt_struct() as usize;
+        let size: usize = self.read_size_dt_struct() as usize;
         let header: *const Self = self as *const Self;
         let header: *const u8 = header as *const u8;
         unsafe { from_raw_parts(header.add(offset), size) }
     }
 
-    pub fn structure_bytes(&self) -> &[u8] {
-        let offset: usize = self.read_off_dt_struct() as usize;
-        let size: usize = self.read_size_dt_struct() as usize;
+    fn iter(&self) -> StructureIterator<'_> {
+        self.into()
+    }
+
+    fn strings_bytes(&self) -> &[u8] {
+        let offset: usize = self.read_off_dt_strings() as usize;
+        let size: usize = self.read_size_dt_strings() as usize;
         let header: *const Self = self as *const Self;
         let header: *const u8 = header as *const u8;
         unsafe { from_raw_parts(header.add(offset), size) }
