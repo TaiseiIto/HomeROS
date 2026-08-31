@@ -7,10 +7,6 @@ mod property;
 mod structure;
 
 use {
-    alloc::{
-        string::{String, ToString},
-        vec::Vec,
-    },
     core::{
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,
