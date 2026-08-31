@@ -146,6 +146,9 @@ enum Property {
     DmaRanges(Vec<u32>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
+    Interrupts(Vec<u32>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptParent(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
@@ -220,6 +223,7 @@ impl Property {
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
             "dma-ranges" => Self::DmaRanges(Self::data2u32s(data)),
+            "interrupts" => Self::Interrupts(Self::data2u32s(data)),
             "interrupt-parent" => Self::InterruptParent(Self::data2u32(data)),
             "model" => Self::Model(Self::data2string(data)),
             "name" => Self::Name(Self::data2string(data)),
