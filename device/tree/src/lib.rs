@@ -1,3 +1,4 @@
+#![feature(iter_array_chunks)]
 #![no_std]
 
 extern crate alloc;
@@ -128,6 +129,7 @@ enum Property {
     AddressCells(u32),
     Compatible(Vec<String>),
     Model(String),
+    Ranges(Vec<u32>),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
 }
@@ -144,8 +146,16 @@ impl Property {
         u32::from_be_bytes(data)
     }
 
-    fn data2str(data: &[u8]) -> &str {
-        str::from_utf8(&data[..data.len() - 1]).unwrap()
+    fn data2u32s(data: &[u8]) -> Vec<u32> {
+        data.iter()
+            .copied()
+            .array_chunks::<{ size_of::<u32>() }>()
+            .map(u32::from_be_bytes)
+            .collect()
+    }
+
+    fn data2string(data: &[u8]) -> String {
+        str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
     }
 }
 
@@ -159,7 +169,8 @@ impl Property {
                     .map(|string| string.to_string())
                     .collect(),
             ),
-            "model" => Self::Model(Self::data2str(data).to_string()),
+            "model" => Self::Model(Self::data2string(data)),
+            "ranges" => Self::Ranges(Self::data2u32s(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
