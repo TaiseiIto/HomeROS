@@ -1,4 +1,3 @@
-#![feature(option_array_transpose)]
 #![no_std]
 
 extern crate alloc;
@@ -135,15 +134,14 @@ enum Property {
 
 impl Property {
     fn data2u32(data: &[u8]) -> u32 {
-        [
-            data.get(0).copied(),
-            data.get(1).copied(),
-            data.get(2).copied(),
-            data.get(3).copied(),
-        ]
-        .transpose()
-        .map(u32::from_be_bytes)
-        .unwrap()
+        let data: [u8; size_of::<u32>()] = data
+            .iter()
+            .take(size_of::<u32>())
+            .copied()
+            .collect::<Vec<u8>>()
+            .try_into()
+            .unwrap();
+        u32::from_be_bytes(data)
     }
 
     fn data2str(data: &[u8]) -> &str {
