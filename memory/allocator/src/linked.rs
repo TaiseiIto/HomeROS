@@ -81,12 +81,12 @@ impl Node {
                          start: available_head,
                          end: available_tail,
                      }| {
-                        let head: usize =
+                        let allocated_head: usize =
                             (available_head + layout.align() - 1) & !(layout.align() - 1);
-                        let tail: usize = head + layout.size();
-                        (tail <= available_tail).then(|| {
+                        let allocated_tail: usize = allocated_head + layout.size();
+                        (allocated_tail <= available_tail).then(|| {
                             self.allocated = true;
-                            head as *mut u8
+                            allocated_head as *mut u8
                         })
                     },
                 )
