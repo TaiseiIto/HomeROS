@@ -91,6 +91,9 @@ enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.5 #address-cells and #size-cells
     AddressCells(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
+    ChassisType(String),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
     Compatible(Vec<String>),
     /// # References
@@ -148,6 +151,9 @@ enum Property {
     Reg(Vec<u32>),
     RegMap(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
+    SerialNumber(String),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.5 #address-cells and #size-cells
     SizeCells(u32),
     Unknown {
@@ -198,6 +204,7 @@ impl Property {
             "#address-cells" => Self::AddressCells(Self::data2cell(data)),
             "#interrupt-cells" => Self::InterruptCells(Self::data2cell(data)),
             "#size-cells" => Self::SizeCells(Self::data2cell(data)),
+            "chassis-type" => Self::ChassisType(Self::data2string(data)),
             "compatible" => Self::Compatible(Self::data2strings(data)),
             "device_type" => Self::DeviceType(Self::data2string(data)),
             "dma-coherent" => Self::DmaCoherent,
@@ -217,6 +224,7 @@ impl Property {
             "ranges" => Self::Ranges(Self::data2cells(data)),
             "reg" => Self::Reg(Self::data2cells(data)),
             "regmap" => Self::RegMap(Self::data2cell(data)),
+            "serial-number" => Self::SerialNumber(Self::data2string(data)),
             "status" => Self::Status(Self::data2string(data)),
             "value" => Self::Value(Self::data2cell(data)),
             "virtual-reg" => Self::VirtualReg(Self::data2cell(data)),
