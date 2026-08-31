@@ -203,7 +203,7 @@ enum Property {
 }
 
 impl Property {
-    fn data2u32(data: &[u8]) -> u32 {
+    fn data2cell(data: &[u8]) -> u32 {
         data.iter()
             .copied()
             .array_chunks::<{ size_of::<u32>() }>()
@@ -212,7 +212,7 @@ impl Property {
             .unwrap()
     }
 
-    fn data2u32s(data: &[u8]) -> Vec<u32> {
+    fn data2cells(data: &[u8]) -> Vec<u32> {
         data.iter()
             .copied()
             .array_chunks::<{ size_of::<u32>() }>()
@@ -228,9 +228,9 @@ impl Property {
 impl Property {
     fn new(name: &str, data: &[u8]) -> Self {
         match name {
-            "#address-cells" => Self::AddressCells(Self::data2u32(data)),
-            "#interrupt-cells" => Self::InterruptCells(Self::data2u32(data)),
-            "#size-cells" => Self::SizeCells(Self::data2u32(data)),
+            "#address-cells" => Self::AddressCells(Self::data2cell(data)),
+            "#interrupt-cells" => Self::InterruptCells(Self::data2cell(data)),
+            "#size-cells" => Self::SizeCells(Self::data2cell(data)),
             "compatible" => Self::Compatible(
                 CompatibleStrings::new(data)
                     .map(|string| string.to_string())
@@ -239,24 +239,24 @@ impl Property {
             "device_type" => Self::DeviceType(Self::data2string(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
-            "dma-ranges" => Self::DmaRanges(Self::data2u32s(data)),
+            "dma-ranges" => Self::DmaRanges(Self::data2cells(data)),
             "interrupt-controller" => Self::InterruptController,
-            "interrupt-map" => Self::InterruptMap(Self::data2u32s(data)),
-            "interrupt-map-mask" => Self::InterruptMapMask(Self::data2u32s(data)),
-            "interrupt-parent" => Self::InterruptParent(Self::data2u32(data)),
-            "interrupts" => Self::Interrupts(Self::data2u32s(data)),
-            "interrupts-extended" => Self::InterruptsExtended(Self::data2u32s(data)),
+            "interrupt-map" => Self::InterruptMap(Self::data2cells(data)),
+            "interrupt-map-mask" => Self::InterruptMapMask(Self::data2cells(data)),
+            "interrupt-parent" => Self::InterruptParent(Self::data2cell(data)),
+            "interrupts" => Self::Interrupts(Self::data2cells(data)),
+            "interrupts-extended" => Self::InterruptsExtended(Self::data2cells(data)),
             "model" => Self::Model(Self::data2string(data)),
             "name" => Self::Name(Self::data2string(data)),
             "no-map" => Self::NoMap,
-            "offset" => Self::Offset(Self::data2u32(data)),
-            "phandle" => Self::Phandle(Self::data2u32(data)),
-            "ranges" => Self::Ranges(Self::data2u32s(data)),
-            "reg" => Self::Reg(Self::data2u32s(data)),
-            "regmap" => Self::RegMap(Self::data2u32(data)),
+            "offset" => Self::Offset(Self::data2cell(data)),
+            "phandle" => Self::Phandle(Self::data2cell(data)),
+            "ranges" => Self::Ranges(Self::data2cells(data)),
+            "reg" => Self::Reg(Self::data2cells(data)),
+            "regmap" => Self::RegMap(Self::data2cell(data)),
             "status" => Self::Status(Self::data2string(data)),
-            "value" => Self::Value(Self::data2u32(data)),
-            "virtual-reg" => Self::VirtualReg(Self::data2u32(data)),
+            "value" => Self::Value(Self::data2cell(data)),
+            "virtual-reg" => Self::VirtualReg(Self::data2cell(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
