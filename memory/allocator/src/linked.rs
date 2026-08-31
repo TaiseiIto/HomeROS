@@ -126,16 +126,14 @@ impl Node {
     }
 
     fn disconnect_next(&mut self) -> Option<*mut Self> {
-        self.next.take().map(|next| {
+        self.next.take().inspect(|&next| {
             unsafe { &mut *next }.previous = None;
-            next
         })
     }
 
     fn disconnect_previous(&mut self) -> Option<*mut Self> {
-        self.previous.take().map(|previous| {
+        self.previous.take().inspect(|&previous| {
             unsafe { &mut *previous }.next = None;
-            previous
         })
     }
 
