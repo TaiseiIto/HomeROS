@@ -136,11 +136,23 @@ enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.13 device_type (deprecated)
     DeviceType(String),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.10 dma-coherent
+    DmaCoherent,
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.11 dma-noncoherent
+    DmaNonCoherent,
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
+    DmaRanges(Vec<u32>),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptParent(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     Model(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.12 name
+    Name(String),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     NoMap,
@@ -205,8 +217,12 @@ impl Property {
                     .collect(),
             ),
             "device_type" => Self::DeviceType(Self::data2string(data)),
+            "dma-coherent" => Self::DmaCoherent,
+            "dma-noncoherent" => Self::DmaNonCoherent,
+            "dma-ranges" => Self::DmaRanges(Self::data2u32s(data)),
             "interrupt-parent" => Self::InterruptParent(Self::data2u32(data)),
             "model" => Self::Model(Self::data2string(data)),
+            "name" => Self::Name(Self::data2string(data)),
             "no-map" => Self::NoMap,
             "offset" => Self::Offset(Self::data2u32(data)),
             "phandle" => Self::Phandle(Self::data2u32(data)),
