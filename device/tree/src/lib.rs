@@ -130,6 +130,7 @@ enum Property {
     Compatible(Vec<String>),
     Model(String),
     Ranges(Vec<u32>),
+    Reg(Vec<u32>),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
 }
@@ -169,6 +170,7 @@ impl Property {
             ),
             "model" => Self::Model(Self::data2string(data)),
             "ranges" => Self::Ranges(Self::data2u32s(data)),
+            "reg" => Self::Reg(Self::data2u32s(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
