@@ -129,6 +129,7 @@ enum Property {
     AddressCells(u32),
     Compatible(Vec<String>),
     Model(String),
+    NoMap,
     Ranges(Vec<u32>),
     Reg(Vec<u32>),
     SizeCells(u32),
@@ -168,6 +169,7 @@ impl Property {
                     .map(|string| string.to_string())
                     .collect(),
             ),
+            "no-map" => Self::NoMap,
             "model" => Self::Model(Self::data2string(data)),
             "ranges" => Self::Ranges(Self::data2u32s(data)),
             "reg" => Self::Reg(Self::data2u32s(data)),
