@@ -130,11 +130,13 @@ enum Property {
     Compatible(Vec<String>),
     Model(String),
     NoMap,
+    Offset(u32),
     Ranges(Vec<u32>),
     Reg(Vec<u32>),
+    RegMap(u32),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
-    Value(Vec<u8>),
+    Value(u32),
 }
 
 impl Property {
@@ -170,11 +172,13 @@ impl Property {
                     .map(|string| string.to_string())
                     .collect(),
             ),
-            "no-map" => Self::NoMap,
             "model" => Self::Model(Self::data2string(data)),
+            "no-map" => Self::NoMap,
+            "offset" => Self::Offset(Self::data2u32(data)),
             "ranges" => Self::Ranges(Self::data2u32s(data)),
             "reg" => Self::Reg(Self::data2u32s(data)),
-            "value" => Self::Value(data.to_vec()),
+            "regmap" => Self::RegMap(Self::data2u32(data)),
+            "value" => Self::Value(Self::data2u32(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
