@@ -128,7 +128,7 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 enum Property<'a> {
     AddressCells(u32),
     Compatible(&'a [u8]),
-    Model(&'a str),
+    Model(String),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
 }
@@ -157,7 +157,7 @@ impl<'a> Property<'a> {
             "#address-cells" => Self::AddressCells(Self::data2u32(data)),
             "#size-cells" => Self::SizeCells(Self::data2u32(data)),
             "compatible" => Self::Compatible(data),
-            "model" => Self::Model(Self::data2str(data)),
+            "model" => Self::Model(Self::data2str(data).to_string()),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
