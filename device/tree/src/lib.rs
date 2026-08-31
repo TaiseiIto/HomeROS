@@ -145,6 +145,19 @@ enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
     DmaRanges(Vec<u32>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.2 Properties for Interrupt Controllers
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
+    InterruptCells(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.2 Properties for Interrupt Controllers
+    InterruptController,
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
+    InterruptMap(Vec<u32>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
+    InterruptMapMask(Vec<u32>),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     Interrupts(Vec<u32>),
     /// # References
@@ -216,6 +229,7 @@ impl Property {
     fn new(name: &str, data: &[u8]) -> Self {
         match name {
             "#address-cells" => Self::AddressCells(Self::data2u32(data)),
+            "#interrupt-cells" => Self::InterruptCells(Self::data2u32(data)),
             "#size-cells" => Self::SizeCells(Self::data2u32(data)),
             "compatible" => Self::Compatible(
                 CompatibleStrings::new(data)
@@ -226,6 +240,9 @@ impl Property {
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
             "dma-ranges" => Self::DmaRanges(Self::data2u32s(data)),
+            "interrupt-controller" => Self::InterruptController,
+            "interrupt-map" => Self::InterruptMap(Self::data2u32s(data)),
+            "interrupt-map-mask" => Self::InterruptMapMask(Self::data2u32s(data)),
             "interrupt-parent" => Self::InterruptParent(Self::data2u32(data)),
             "interrupts" => Self::Interrupts(Self::data2u32s(data)),
             "interrupts-extended" => Self::InterruptsExtended(Self::data2u32s(data)),
