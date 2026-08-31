@@ -109,8 +109,6 @@ impl Node {
         }
     }
 
-    /// # TODO
-    /// * Merge myself.
     fn dealloc_myself(&mut self, address: *mut u8, layout: Layout) {
         let align: usize = layout.align();
         let size: usize = layout.size();
@@ -124,6 +122,21 @@ impl Node {
         assert!(available_head <= deallocated_head);
         assert!(deallocated_tail <= available_tail);
         self.allocated = false;
+        self.merge();
+    }
+
+    fn disconnect_next(&mut self) -> Option<*mut Self> {
+        self.next.take().map(|next| {
+            unsafe { &mut *next }.previous = None;
+            next
+        })
+    }
+
+    fn disconnect_previous(&mut self) -> Option<*mut Self> {
+        self.previous.take().map(|previous| {
+            unsafe { &mut *previous }.next = None;
+            previous
+        })
     }
 
     fn divide(&mut self, divide_point: usize) {
@@ -141,6 +154,27 @@ impl Node {
                 new_node.connect(next_node);
             }
             self.connect(new_node);
+        }
+    }
+
+    fn merge(&mut self) {
+        if !self.allocated {
+            if self.previous().is_some_and(|previous| !previous.allocated) {
+                self.previous_mut().unwrap().merge();
+            } else {
+                self.merge_next();
+            }
+        }
+    }
+
+    fn merge_next(&mut self) {
+        if !self.allocated && self.next().is_some_and(|next| !next.allocated) {
+            if let Some(next) = self.disconnect_next() {
+                if let Some(next_next) = unsafe { &mut *next }.next_mut() {
+                    self.connect(next_next);
+                }
+            }
+            self.merge_next();
         }
     }
 
