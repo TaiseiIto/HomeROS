@@ -25,7 +25,7 @@ unsafe impl GlobalAlloc for List {
     }
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
-        unimplemented!();
+        unsafe { &mut *self.head }.dealloc(address, layout)
     }
 }
 
@@ -54,7 +54,7 @@ impl Node {
     }
 
     fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        self.alloc_by_myself(layout)
+        self.alloc_myself(layout)
             .or_else(|| self.next_mut().map(|next| next.alloc(layout)))
             .unwrap_or_else(|| self.alloc_by_extending(layout))
     }
@@ -71,7 +71,7 @@ impl Node {
         allocated_head as *mut u8
     }
 
-    fn alloc_by_myself(&mut self, layout: Layout) -> Option<*mut u8> {
+    fn alloc_myself(&mut self, layout: Layout) -> Option<*mut u8> {
         (!self.allocated)
             .then(|| {
                 self.available_range().and_then(
@@ -96,6 +96,34 @@ impl Node {
     fn connect(&mut self, next: &mut Self) {
         self.next = Some(next as *mut Self);
         next.previous = Some(self as *mut Self);
+    }
+
+    fn dealloc(&mut self, address: *mut u8, layout: Layout) {
+        if self
+            .available_range()
+            .is_some_and(|available_range| available_range.contains(&(address as usize)))
+        {
+            self.dealloc_myself(address, layout);
+        } else {
+            self.next_mut().unwrap().dealloc(address, layout);
+        }
+    }
+
+    /// # TODO
+    /// * Merge myself.
+    fn dealloc_myself(&mut self, address: *mut u8, layout: Layout) {
+        let align: usize = layout.align();
+        let size: usize = layout.size();
+        let deallocated_head: usize = address as usize;
+        let deallocated_tail: usize = deallocated_head + size;
+        let Range {
+            start: available_head,
+            end: available_tail,
+        }: Range<usize> = self.available_range().unwrap();
+        assert_eq!(deallocated_head & (align - 1), 0);
+        assert!(available_head <= deallocated_head);
+        assert!(deallocated_tail <= available_tail);
+        self.allocated = false;
     }
 
     fn divide(&mut self, divide_point: usize) {
