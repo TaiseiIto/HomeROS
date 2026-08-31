@@ -1,5 +1,5 @@
 use {
-    super::{Header, property::Property},
+    super::{header::Header, property::Property},
     alloc::{
         string::{String, ToString},
         vec::Vec,
