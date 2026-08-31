@@ -136,14 +136,12 @@ enum Property {
 
 impl Property {
     fn data2u32(data: &[u8]) -> u32 {
-        let data: [u8; size_of::<u32>()] = data
-            .iter()
-            .take(size_of::<u32>())
+        data.iter()
             .copied()
-            .collect::<Vec<u8>>()
-            .try_into()
-            .unwrap();
-        u32::from_be_bytes(data)
+            .array_chunks::<{ size_of::<u32>() }>()
+            .map(u32::from_be_bytes)
+            .next()
+            .unwrap()
     }
 
     fn data2u32s(data: &[u8]) -> Vec<u32> {
