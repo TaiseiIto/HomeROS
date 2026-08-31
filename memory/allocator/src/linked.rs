@@ -109,8 +109,8 @@ impl Node {
              }| available_head < new_node_head && new_node_tail < available_tail,
         ) {
             let new_node: &mut Self = unsafe { &mut *Self::new(new_node_head) };
-            if let Some(next_node) = self.next {
-                new_node.connect(unsafe { &mut *next_node });
+            if let Some(next_node) = self.next_mut() {
+                new_node.connect(next_node);
             }
             self.connect(new_node);
         }
