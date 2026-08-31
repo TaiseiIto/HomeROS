@@ -128,6 +128,7 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 enum Property {
     AddressCells(u32),
     Compatible(Vec<String>),
+    DeviceType(String),
     InterruptParent(u32),
     Model(String),
     NoMap,
@@ -173,6 +174,7 @@ impl Property {
                     .map(|string| string.to_string())
                     .collect(),
             ),
+            "device_type" => Self::DeviceType(Self::data2string(data)),
             "interrupt-parent" => Self::InterruptParent(Self::data2u32(data)),
             "model" => Self::Model(Self::data2string(data)),
             "no-map" => Self::NoMap,
