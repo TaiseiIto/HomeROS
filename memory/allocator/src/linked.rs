@@ -131,12 +131,6 @@ impl Node {
         })
     }
 
-    fn disconnect_previous(&mut self) -> Option<*mut Self> {
-        self.previous.take().inspect(|&previous| {
-            unsafe { &mut *previous }.next = None;
-        })
-    }
-
     fn divide(&mut self, divide_point: usize) {
         let new_node_head: usize =
             (divide_point + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);

@@ -1,10 +1,15 @@
 #![feature(option_array_transpose)]
 #![no_std]
 
-use core::{
-    fmt::{Debug, Formatter, Result},
-    mem::size_of,
-    slice::from_raw_parts,
+extern crate alloc;
+
+use {
+    alloc::string::{String, ToString},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        mem::size_of,
+        slice::from_raw_parts,
+    },
 };
 
 /// # References
@@ -158,7 +163,7 @@ impl<'a> Property<'a> {
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
 enum Structure<'a> {
-    BeginNode { name: &'a str },
+    BeginNode { name: String },
     EndNode,
     Property { name: &'a str, data: &'a [u8] },
     Nop,
@@ -171,7 +176,7 @@ impl Debug for Structure<'_> {
         match self {
             Self::BeginNode { name } => formatter
                 .debug_struct("BeginNode")
-                .field("name", name)
+                .field("name", &name)
                 .finish(),
             Self::EndNode => formatter.debug_struct("EndNode").finish(),
             Self::Property { name, data } => match Property::new(name, data) {
@@ -260,7 +265,9 @@ impl<'a> Iterator for StructureIterator<'a> {
                     .map(|(index, _)| index + 1)
                     .max()
                     .unwrap_or(0);
-                let name: &str = str::from_utf8(&remaining_bytes[..name_size]).unwrap();
+                let name: String = str::from_utf8(&remaining_bytes[..name_size])
+                    .unwrap()
+                    .to_string();
                 *structure_offset += name_size + size_of::<u32>();
                 *structure_offset &= !(size_of::<u32>() - 1);
                 Self::Item::BeginNode { name }
