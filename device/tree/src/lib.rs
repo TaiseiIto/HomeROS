@@ -201,10 +201,8 @@ impl StructureIterator<'_> {
         (0..size_of::<u32>())
             .map(|_| self.take_byte())
             .collect::<Option<Vec<u8>>>()
-            .map(|word| {
-                let word: [u8; size_of::<u32>()] = word.try_into().unwrap();
-                u32::from_be_bytes(word)
-            })
+            .map::<[u8; size_of::<u32>()], _>(|word| word.try_into().unwrap())
+            .map(u32::from_be_bytes)
     }
 }
 
