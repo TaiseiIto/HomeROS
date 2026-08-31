@@ -96,64 +96,35 @@ pub enum Property {
 }
 
 impl Property {
-    fn data2cell(data: &[u8]) -> u32 {
-        data.iter()
-            .copied()
-            .array_chunks::<{ size_of::<u32>() }>()
-            .map(u32::from_be_bytes)
-            .next()
-            .unwrap()
-    }
-
-    fn data2cells(data: &[u8]) -> Vec<u32> {
-        data.iter()
-            .copied()
-            .array_chunks::<{ size_of::<u32>() }>()
-            .map(u32::from_be_bytes)
-            .collect()
-    }
-
-    fn data2string(data: &[u8]) -> String {
-        str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
-    }
-
-    fn data2strings(data: &[u8]) -> Vec<String> {
-        Strings::new(data)
-            .map(|string| string.to_string())
-            .collect()
-    }
-}
-
-impl Property {
     pub fn new(name: &str, data: &[u8]) -> Self {
         match name {
-            "#address-cells" => Self::AddressCells(Self::data2cell(data)),
-            "#interrupt-cells" => Self::InterruptCells(Self::data2cell(data)),
-            "#size-cells" => Self::SizeCells(Self::data2cell(data)),
-            "chassis-type" => Self::ChassisType(Self::data2string(data)),
-            "compatible" => Self::Compatible(Self::data2strings(data)),
-            "device_type" => Self::DeviceType(Self::data2string(data)),
+            "#address-cells" => Self::AddressCells(u32::read_data(data)),
+            "#interrupt-cells" => Self::InterruptCells(u32::read_data(data)),
+            "#size-cells" => Self::SizeCells(u32::read_data(data)),
+            "chassis-type" => Self::ChassisType(String::read_data(data)),
+            "compatible" => Self::Compatible(Vec::<String>::read_data(data)),
+            "device_type" => Self::DeviceType(String::read_data(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
-            "dma-ranges" => Self::DmaRanges(Self::data2cells(data)),
+            "dma-ranges" => Self::DmaRanges(Vec::<u32>::read_data(data)),
             "interrupt-controller" => Self::InterruptController,
-            "interrupt-map" => Self::InterruptMap(Self::data2cells(data)),
-            "interrupt-map-mask" => Self::InterruptMapMask(Self::data2cells(data)),
-            "interrupt-parent" => Self::InterruptParent(Self::data2cell(data)),
-            "interrupts" => Self::Interrupts(Self::data2cells(data)),
-            "interrupts-extended" => Self::InterruptsExtended(Self::data2cells(data)),
-            "model" => Self::Model(Self::data2string(data)),
-            "name" => Self::Name(Self::data2string(data)),
+            "interrupt-map" => Self::InterruptMap(Vec::<u32>::read_data(data)),
+            "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read_data(data)),
+            "interrupt-parent" => Self::InterruptParent(u32::read_data(data)),
+            "interrupts" => Self::Interrupts(Vec::<u32>::read_data(data)),
+            "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read_data(data)),
+            "model" => Self::Model(String::read_data(data)),
+            "name" => Self::Name(String::read_data(data)),
             "no-map" => Self::NoMap,
-            "offset" => Self::Offset(Self::data2cell(data)),
-            "phandle" => Self::Phandle(Self::data2cell(data)),
-            "ranges" => Self::Ranges(Self::data2cells(data)),
-            "reg" => Self::Reg(Self::data2cells(data)),
-            "regmap" => Self::RegMap(Self::data2cell(data)),
-            "serial-number" => Self::SerialNumber(Self::data2string(data)),
-            "status" => Self::Status(Self::data2string(data)),
-            "value" => Self::Value(Self::data2cell(data)),
-            "virtual-reg" => Self::VirtualReg(Self::data2cell(data)),
+            "offset" => Self::Offset(u32::read_data(data)),
+            "phandle" => Self::Phandle(u32::read_data(data)),
+            "ranges" => Self::Ranges(Vec::<u32>::read_data(data)),
+            "reg" => Self::Reg(Vec::<u32>::read_data(data)),
+            "regmap" => Self::RegMap(u32::read_data(data)),
+            "serial-number" => Self::SerialNumber(String::read_data(data)),
+            "status" => Self::Status(String::read_data(data)),
+            "value" => Self::Value(u32::read_data(data)),
+            "virtual-reg" => Self::VirtualReg(u32::read_data(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
@@ -198,5 +169,44 @@ impl<'a> Iterator for Strings<'a> {
         } else {
             None
         }
+    }
+}
+
+trait Reader {
+    fn read_data(data: &[u8]) -> Self;
+}
+
+impl Reader for String {
+    fn read_data(data: &[u8]) -> Self {
+        str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
+    }
+}
+
+impl Reader for Vec<u32> {
+    fn read_data(data: &[u8]) -> Self {
+        data.iter()
+            .copied()
+            .array_chunks::<{ size_of::<u32>() }>()
+            .map(u32::from_be_bytes)
+            .collect()
+    }
+}
+
+impl Reader for Vec<String> {
+    fn read_data(data: &[u8]) -> Self {
+        Strings::new(data)
+            .map(|string| string.to_string())
+            .collect()
+    }
+}
+
+impl Reader for u32 {
+    fn read_data(data: &[u8]) -> Self {
+        data.iter()
+            .copied()
+            .array_chunks::<{ size_of::<u32>() }>()
+            .map(u32::from_be_bytes)
+            .next()
+            .unwrap()
     }
 }
