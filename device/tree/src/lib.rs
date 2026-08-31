@@ -83,45 +83,6 @@ impl Debug for Header {
     }
 }
 
-#[derive(Clone)]
-struct CompatibleStrings<'a> {
-    strings: &'a [u8],
-    offset: usize,
-}
-
-impl<'a> CompatibleStrings<'a> {
-    fn new(strings: &'a [u8]) -> Self {
-        Self { strings, offset: 0 }
-    }
-}
-
-impl Debug for CompatibleStrings<'_> {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter.debug_list().entries(self.clone()).finish()
-    }
-}
-
-impl<'a> Iterator for CompatibleStrings<'a> {
-    type Item = &'a str;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let Self { strings, offset } = self;
-        let strings_length: usize = strings.len();
-        let begin: usize = *offset;
-        if begin < strings_length {
-            let end: usize = (begin..strings_length)
-                .take_while(|offset| strings.get(*offset).is_some_and(|byte| *byte != 0x00))
-                .max()
-                .map(|last_index| last_index + 1)
-                .unwrap_or(begin);
-            *offset += end - begin + 1;
-            Some(str::from_utf8(&strings[begin..end]).unwrap())
-        } else {
-            None
-        }
-    }
-}
-
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 #[derive(Debug)]
@@ -223,6 +184,12 @@ impl Property {
     fn data2string(data: &[u8]) -> String {
         str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
     }
+
+    fn data2strings(data: &[u8]) -> Vec<String> {
+        Strings::new(data)
+            .map(|string| string.to_string())
+            .collect()
+    }
 }
 
 impl Property {
@@ -231,11 +198,7 @@ impl Property {
             "#address-cells" => Self::AddressCells(Self::data2cell(data)),
             "#interrupt-cells" => Self::InterruptCells(Self::data2cell(data)),
             "#size-cells" => Self::SizeCells(Self::data2cell(data)),
-            "compatible" => Self::Compatible(
-                CompatibleStrings::new(data)
-                    .map(|string| string.to_string())
-                    .collect(),
-            ),
+            "compatible" => Self::Compatible(Self::data2strings(data)),
             "device_type" => Self::DeviceType(Self::data2string(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
@@ -261,6 +224,45 @@ impl Property {
                 name: name.to_string(),
                 data: data.to_vec(),
             },
+        }
+    }
+}
+
+#[derive(Clone)]
+struct Strings<'a> {
+    strings: &'a [u8],
+    offset: usize,
+}
+
+impl<'a> Strings<'a> {
+    fn new(strings: &'a [u8]) -> Self {
+        Self { strings, offset: 0 }
+    }
+}
+
+impl Debug for Strings<'_> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.debug_list().entries(self.clone()).finish()
+    }
+}
+
+impl<'a> Iterator for Strings<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let Self { strings, offset } = self;
+        let strings_length: usize = strings.len();
+        let begin: usize = *offset;
+        if begin < strings_length {
+            let end: usize = (begin..strings_length)
+                .take_while(|offset| strings.get(*offset).is_some_and(|byte| *byte != 0x00))
+                .max()
+                .map(|last_index| last_index + 1)
+                .unwrap_or(begin);
+            *offset += end - begin + 1;
+            Some(str::from_utf8(&strings[begin..end]).unwrap())
+        } else {
+            None
         }
     }
 }
