@@ -98,33 +98,33 @@ pub enum Property {
 impl Property {
     pub fn new(name: &str, data: &[u8]) -> Self {
         match name {
-            "#address-cells" => Self::AddressCells(u32::read_data(data)),
-            "#interrupt-cells" => Self::InterruptCells(u32::read_data(data)),
-            "#size-cells" => Self::SizeCells(u32::read_data(data)),
-            "chassis-type" => Self::ChassisType(String::read_data(data)),
-            "compatible" => Self::Compatible(Vec::<String>::read_data(data)),
-            "device_type" => Self::DeviceType(String::read_data(data)),
+            "#address-cells" => Self::AddressCells(u32::read(data)),
+            "#interrupt-cells" => Self::InterruptCells(u32::read(data)),
+            "#size-cells" => Self::SizeCells(u32::read(data)),
+            "chassis-type" => Self::ChassisType(String::read(data)),
+            "compatible" => Self::Compatible(Vec::<String>::read(data)),
+            "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
-            "dma-ranges" => Self::DmaRanges(Vec::<u32>::read_data(data)),
+            "dma-ranges" => Self::DmaRanges(Vec::<u32>::read(data)),
             "interrupt-controller" => Self::InterruptController,
-            "interrupt-map" => Self::InterruptMap(Vec::<u32>::read_data(data)),
-            "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read_data(data)),
-            "interrupt-parent" => Self::InterruptParent(u32::read_data(data)),
-            "interrupts" => Self::Interrupts(Vec::<u32>::read_data(data)),
-            "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read_data(data)),
-            "model" => Self::Model(String::read_data(data)),
-            "name" => Self::Name(String::read_data(data)),
+            "interrupt-map" => Self::InterruptMap(Vec::<u32>::read(data)),
+            "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read(data)),
+            "interrupt-parent" => Self::InterruptParent(u32::read(data)),
+            "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
+            "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
+            "model" => Self::Model(String::read(data)),
+            "name" => Self::Name(String::read(data)),
             "no-map" => Self::NoMap,
-            "offset" => Self::Offset(u32::read_data(data)),
-            "phandle" => Self::Phandle(u32::read_data(data)),
-            "ranges" => Self::Ranges(Vec::<u32>::read_data(data)),
-            "reg" => Self::Reg(Vec::<u32>::read_data(data)),
-            "regmap" => Self::RegMap(u32::read_data(data)),
-            "serial-number" => Self::SerialNumber(String::read_data(data)),
-            "status" => Self::Status(String::read_data(data)),
-            "value" => Self::Value(u32::read_data(data)),
-            "virtual-reg" => Self::VirtualReg(u32::read_data(data)),
+            "offset" => Self::Offset(u32::read(data)),
+            "phandle" => Self::Phandle(u32::read(data)),
+            "ranges" => Self::Ranges(Vec::<u32>::read(data)),
+            "reg" => Self::Reg(Vec::<u32>::read(data)),
+            "regmap" => Self::RegMap(u32::read(data)),
+            "serial-number" => Self::SerialNumber(String::read(data)),
+            "status" => Self::Status(String::read(data)),
+            "value" => Self::Value(u32::read(data)),
+            "virtual-reg" => Self::VirtualReg(u32::read(data)),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
@@ -173,17 +173,17 @@ impl<'a> Iterator for Strings<'a> {
 }
 
 trait Reader {
-    fn read_data(data: &[u8]) -> Self;
+    fn read(data: &[u8]) -> Self;
 }
 
 impl Reader for String {
-    fn read_data(data: &[u8]) -> Self {
+    fn read(data: &[u8]) -> Self {
         str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
     }
 }
 
 impl Reader for Vec<u32> {
-    fn read_data(data: &[u8]) -> Self {
+    fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
             .array_chunks::<{ size_of::<u32>() }>()
@@ -193,7 +193,7 @@ impl Reader for Vec<u32> {
 }
 
 impl Reader for Vec<String> {
-    fn read_data(data: &[u8]) -> Self {
+    fn read(data: &[u8]) -> Self {
         Strings::new(data)
             .map(|string| string.to_string())
             .collect()
@@ -201,7 +201,7 @@ impl Reader for Vec<String> {
 }
 
 impl Reader for u32 {
-    fn read_data(data: &[u8]) -> Self {
+    fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
             .array_chunks::<{ size_of::<u32>() }>()
