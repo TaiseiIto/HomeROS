@@ -4,7 +4,10 @@
 extern crate alloc;
 
 use {
-    alloc::string::{String, ToString},
+    alloc::{
+        string::{String, ToString},
+        vec::Vec,
+    },
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,
@@ -127,7 +130,7 @@ enum Property<'a> {
     Compatible(&'a [u8]),
     Model(&'a str),
     SizeCells(u32),
-    Unknown { name: &'a str, data: &'a [u8] },
+    Unknown { name: String, data: Vec<u8> },
 }
 
 impl Property<'_> {
@@ -155,7 +158,10 @@ impl<'a> Property<'a> {
             "#size-cells" => Self::SizeCells(Self::data2u32(data)),
             "compatible" => Self::Compatible(data),
             "model" => Self::Model(Self::data2str(data)),
-            name => Self::Unknown { name, data },
+            name => Self::Unknown {
+                name: name.to_string(),
+                data: data.to_vec(),
+            },
         }
     }
 }
