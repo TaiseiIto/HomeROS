@@ -125,15 +125,15 @@ impl<'a> Iterator for CompatibleStrings<'a> {
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 #[derive(Debug)]
-enum Property<'a> {
+enum Property {
     AddressCells(u32),
-    Compatible(&'a [u8]),
+    Compatible(Vec<String>),
     Model(String),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
 }
 
-impl Property<'_> {
+impl Property {
     fn data2u32(data: &[u8]) -> u32 {
         [
             data.get(0).copied(),
@@ -151,12 +151,16 @@ impl Property<'_> {
     }
 }
 
-impl<'a> Property<'a> {
-    fn new(name: &'a str, data: &'a [u8]) -> Self {
+impl Property {
+    fn new(name: &str, data: &[u8]) -> Self {
         match name {
             "#address-cells" => Self::AddressCells(Self::data2u32(data)),
             "#size-cells" => Self::SizeCells(Self::data2u32(data)),
-            "compatible" => Self::Compatible(data),
+            "compatible" => Self::Compatible(
+                CompatibleStrings::new(data)
+                    .map(|string| string.to_string())
+                    .collect(),
+            ),
             "model" => Self::Model(Self::data2str(data).to_string()),
             name => Self::Unknown {
                 name: name.to_string(),
@@ -192,7 +196,7 @@ impl Debug for Structure<'_> {
                     .finish(),
                 Property::Compatible(strings) => formatter
                     .debug_struct("Property::Compatible")
-                    .field("strings", &CompatibleStrings::new(strings))
+                    .field("strings", &strings)
                     .finish(),
                 Property::Model(string) => formatter
                     .debug_tuple("Property::Model")
