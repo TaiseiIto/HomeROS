@@ -172,54 +172,14 @@ impl Property {
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
-enum Structure<'a> {
+#[derive(Debug)]
+enum Structure {
     BeginNode { name: String },
     EndNode,
-    Property { name: &'a str, data: &'a [u8] },
+    Property(Property),
     Nop,
     End,
     Unknown { token: u32 },
-}
-
-impl Debug for Structure<'_> {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        match self {
-            Self::BeginNode { name } => formatter
-                .debug_struct("BeginNode")
-                .field("name", &name)
-                .finish(),
-            Self::EndNode => formatter.debug_struct("EndNode").finish(),
-            Self::Property { name, data } => match Property::new(name, data) {
-                Property::AddressCells(cells) => formatter
-                    .debug_tuple("Property::AddressCells")
-                    .field(&cells)
-                    .finish(),
-                Property::Compatible(strings) => formatter
-                    .debug_struct("Property::Compatible")
-                    .field("strings", &strings)
-                    .finish(),
-                Property::Model(string) => formatter
-                    .debug_tuple("Property::Model")
-                    .field(&string)
-                    .finish(),
-                Property::SizeCells(cells) => formatter
-                    .debug_tuple("Property::SizeCells")
-                    .field(&cells)
-                    .finish(),
-                Property::Unknown { name, data } => formatter
-                    .debug_struct("Property::Unknown")
-                    .field("name", &name)
-                    .field("data", &data)
-                    .finish(),
-            },
-            Self::Nop => formatter.debug_struct("Nop").finish(),
-            Self::End => formatter.debug_struct("End").finish(),
-            Self::Unknown { token } => formatter
-                .debug_struct("Unknown")
-                .field("token", &token)
-                .finish(),
-        }
-    }
 }
 
 #[derive(Clone)]
@@ -257,8 +217,8 @@ impl Debug for StructureIterator<'_> {
     }
 }
 
-impl<'a> Iterator for StructureIterator<'a> {
-    type Item = Structure<'a>;
+impl Iterator for StructureIterator<'_> {
+    type Item = Structure;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.take_word().map(|token| match token {
@@ -295,7 +255,7 @@ impl<'a> Iterator for StructureIterator<'a> {
                 let data: &[u8] = &remaining_bytes[..length];
                 *structure_offset += length + size_of::<u32>() - 1;
                 *structure_offset &= !(size_of::<u32>() - 1);
-                Self::Item::Property { name, data }
+                Self::Item::Property(Property::new(name, data))
             }
             0x00000004 => Self::Item::Nop,
             0x00000009 => Self::Item::End,
