@@ -134,6 +134,7 @@ enum Property {
     Reg(Vec<u32>),
     SizeCells(u32),
     Unknown { name: String, data: Vec<u8> },
+    Value(Vec<u8>),
 }
 
 impl Property {
@@ -173,6 +174,7 @@ impl Property {
             "model" => Self::Model(Self::data2string(data)),
             "ranges" => Self::Ranges(Self::data2u32s(data)),
             "reg" => Self::Reg(Self::data2u32s(data)),
+            "value" => Self::Value(data.to_vec()),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
