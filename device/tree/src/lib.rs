@@ -11,7 +11,7 @@ use {
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,
     },
-    structure::{Structure, StructureIterator},
+    structure::StructureIterator,
 };
 
 /// # References
