@@ -167,10 +167,10 @@ impl Node {
 
     fn merge_next(&mut self) {
         if !self.allocated && self.next().is_some_and(|next| !next.allocated) {
-            if let Some(next) = self.disconnect_next() {
-                if let Some(next_next) = unsafe { &mut *next }.next_mut() {
-                    self.connect(next_next);
-                }
+            if let Some(next) = self.disconnect_next()
+                && let Some(next_next) = unsafe { &mut *next }.next_mut()
+            {
+                self.connect(next_next);
             }
             self.merge_next();
         }
