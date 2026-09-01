@@ -157,6 +157,15 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
     LocalMacAddress([u8; 6]),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
+    MacAddress([u8; 6]),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
+    MaxFrameSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.2 Ethernet specific considerations
+    MaxSpeed(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
     MemoryRegion(Vec<u32>),
     /// # References
@@ -184,6 +193,12 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.3 phandle
     Phandle(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.2 Ethernet specific considerations
+    PhyConnectionType(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.2 Ethernet specific considerations
+    PhyHandle(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     /// # TODO
@@ -300,6 +315,9 @@ impl Property {
             "i-tlb-size" => Self::ITlbSize(u32::read(data)),
             "label" => Self::Label(String::read(data)),
             "local-mac-address" => Self::LocalMacAddress(<[u8; 6]>::read(data)),
+            "mac-address" => Self::MacAddress(<[u8; 6]>::read(data)),
+            "max-frame-size" => Self::MaxFrameSize(u32::read(data)),
+            "max-speed" => Self::MaxSpeed(u32::read(data)),
             "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
             "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
             "mmu-type" => Self::MmuType(String::read(data)),
@@ -310,6 +328,8 @@ impl Property {
             "nonposted-mmio" => Self::NonPostedMmio,
             "offset" => Self::Offset(u32::read(data)),
             "phandle" => Self::Phandle(u32::read(data)),
+            "phy-connection-type" => Self::PhyConnectionType(String::read(data)),
+            "phy-handle" => Self::PhyHandle(u32::read(data)),
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
             "ranges" => Self::Ranges(Vec::<u32>::read(data)),
             "reg" => Self::Reg(Vec::<u32>::read(data)),
