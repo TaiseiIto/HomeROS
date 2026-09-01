@@ -26,8 +26,23 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
     BootArgs(String),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    CacheBlockSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    CacheLineSize(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     CacheOpBlockSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    CacheSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    CacheSets(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    CacheUnified,
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
@@ -41,6 +56,27 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     CpuReleaseAddr(u64),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
+    DmaRanges(Vec<u32>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    DCacheSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    DCacheSets(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    DCacheBlockSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    DCacheLineSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    DTlbSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    DTlbSets(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.13 device_type (deprecated)
     DeviceType(String),
     /// # References
@@ -49,15 +85,6 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.11 dma-noncoherent
     DmaNonCoherent,
-    /// # References
-    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
-    DmaRanges(Vec<u32>),
-    /// # References
-    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
-    DTlbSize(u32),
-    /// # References
-    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
-    DTlbSets(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     EnableMethod(Vec<String>),
@@ -71,6 +98,18 @@ pub enum Property {
         physical_address: u64,
         size: u32,
     },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    ICacheSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    ICacheSets(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    ICacheBlockSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    ICacheLineSize(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.2 Properties for Interrupt Controllers
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
@@ -114,6 +153,9 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.12 name
     Name(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
+    NextLevelCache(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     NoMap,
@@ -185,7 +227,12 @@ impl Property {
             "alignment" => Self::Alignment(Vec::<u32>::read(data)),
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
+            "cache-block-size" => Self::CacheBlockSize(u32::read(data)),
+            "cache-line-size" => Self::CacheLineSize(u32::read(data)),
             "cache-op-block-size" => Self::CacheOpBlockSize(u32::read(data)),
+            "cache-sets" => Self::CacheSets(u32::read(data)),
+            "cache-size" => Self::CacheSize(u32::read(data)),
+            "cache-unified" => Self::CacheUnified,
             "chassis-type" => Self::ChassisType(String::read(data)),
             "clock-frequency" => Self::ClockFrequency(match data.len() {
                 4 => u32::read(data) as u64,
@@ -194,6 +241,10 @@ impl Property {
             }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
+            "d-cache-block-size" => Self::DCacheBlockSize(u32::read(data)),
+            "d-cache-line-size" => Self::DCacheLineSize(u32::read(data)),
+            "d-cache-sets" => Self::DCacheSets(u32::read(data)),
+            "d-cache-size" => Self::DCacheSize(u32::read(data)),
             "d-tlb-sets" => Self::DTlbSets(u32::read(data)),
             "d-tlb-size" => Self::DTlbSize(u32::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
@@ -213,6 +264,10 @@ impl Property {
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
             "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
+            "i-cache-block-size" => Self::ICacheBlockSize(u32::read(data)),
+            "i-cache-line-size" => Self::ICacheLineSize(u32::read(data)),
+            "i-cache-sets" => Self::ICacheSets(u32::read(data)),
+            "i-cache-size" => Self::ICacheSize(u32::read(data)),
             "i-tlb-sets" => Self::ITlbSets(u32::read(data)),
             "i-tlb-size" => Self::ITlbSize(u32::read(data)),
             "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
@@ -220,6 +275,7 @@ impl Property {
             "mmu-type" => Self::MmuType(String::read(data)),
             "model" => Self::Model(String::read(data)),
             "name" => Self::Name(String::read(data)),
+            "next-level-cache" => Self::NextLevelCache(u32::read(data)),
             "no-map" => Self::NoMap,
             "offset" => Self::Offset(u32::read(data)),
             "phandle" => Self::Phandle(u32::read(data)),
