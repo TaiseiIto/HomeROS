@@ -26,6 +26,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
     BootArgs(String),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    CacheOpBlockSize(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
     /// # References
@@ -34,6 +37,9 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
     Compatible(Vec<String>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    CpuReleaseAddr(u64),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.13 device_type (deprecated)
     DeviceType(String),
@@ -46,6 +52,9 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
     DmaRanges(Vec<u32>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    EnableMethod(Vec<String>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.4 /memory node
     HotPluggable,
@@ -85,6 +94,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
     MemoryRegionNames(Vec<String>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    MmuType(String),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     Model(String),
     /// # References
@@ -98,12 +110,20 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.3 phandle
     Phandle(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    /// # TODO
+    /// * add `power-isa-*`
+    PowerIsaVersion(String),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.8 ranges
     Ranges(Vec<u32>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.6 reg
     Reg(Vec<u32>),
     RegMap(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    ReservationGranuleSiz(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     Reusable,
@@ -144,6 +164,7 @@ impl Property {
             "alignment" => Self::Alignment(Vec::<u32>::read(data)),
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
+            "cache-op-block-size" => Self::CacheOpBlockSize(u32::read(data)),
             "chassis-type" => Self::ChassisType(String::read(data)),
             "clock-frequency" => Self::ClockFrequency(match data.len() {
                 4 => u32::read(data) as u64,
@@ -151,10 +172,12 @@ impl Property {
                 _ => panic!(),
             }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
+            "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
             "dma-ranges" => Self::DmaRanges(Vec::<u32>::read(data)),
+            "enable-method" => Self::EnableMethod(Vec::<String>::read(data)),
             "hotpluggable" => Self::HotPluggable,
             "initial-mapped-area" => Self::InitialMappedArea {
                 effective_address: u64::read(data),
@@ -169,14 +192,17 @@ impl Property {
             "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
             "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
             "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
+            "mmu-type" => Self::MmuType(String::read(data)),
             "model" => Self::Model(String::read(data)),
             "name" => Self::Name(String::read(data)),
             "no-map" => Self::NoMap,
             "offset" => Self::Offset(u32::read(data)),
             "phandle" => Self::Phandle(u32::read(data)),
+            "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
             "ranges" => Self::Ranges(Vec::<u32>::read(data)),
             "reg" => Self::Reg(Vec::<u32>::read(data)),
             "regmap" => Self::RegMap(u32::read(data)),
+            "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
             "status" => Self::Status(String::read(data)),
