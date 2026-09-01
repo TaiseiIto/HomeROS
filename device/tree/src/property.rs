@@ -53,6 +53,12 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
     DmaRanges(Vec<u32>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    DTlbSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    DTlbSets(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     EnableMethod(Vec<String>),
     /// # References
@@ -87,6 +93,12 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptParent(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    ITlbSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    ITlbSets(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
     MemoryRegion(Vec<u32>),
@@ -149,6 +161,15 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     TimeBaseFrequency(u64),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    TlbSets(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    TlbSize(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
+    TlbSplit,
     Value(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.7 virtual-reg
@@ -173,6 +194,8 @@ impl Property {
             }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
+            "d-tlb-sets" => Self::DTlbSets(u32::read(data)),
+            "d-tlb-size" => Self::DTlbSize(u32::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
@@ -190,6 +213,8 @@ impl Property {
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
             "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
+            "i-tlb-sets" => Self::ITlbSets(u32::read(data)),
+            "i-tlb-size" => Self::ITlbSize(u32::read(data)),
             "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
             "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
             "mmu-type" => Self::MmuType(String::read(data)),
@@ -213,6 +238,9 @@ impl Property {
                 8 => u64::read(data),
                 _ => panic!(),
             }),
+            "tlb-sets" => Self::TlbSets(u32::read(data)),
+            "tlb-size" => Self::TlbSize(u32::read(data)),
+            "tlb-split" => Self::TlbSplit,
             "value" => Self::Value(u32::read(data)),
             "virtual-reg" => Self::VirtualReg(u32::read(data)),
             name => Self::Unknown {
