@@ -14,6 +14,9 @@ use {
 #[derive(Debug)]
 pub enum Property {
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
+    AddressBits(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.5 #address-cells and #size-cells
     AddressCells(u32),
     /// # References
@@ -51,15 +54,18 @@ pub enum Property {
     ChassisType(String),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.1.2 Miscellaneous Properties
     ClockFrequency(u64),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.1 Serial Class Binding
     Compatible(Vec<String>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     CpuReleaseAddr(u64),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.2 National Semiconductor 16450/16550 Compatible UART Requirements
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.1 Serial Class Binding
     CurrentSpeed(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
@@ -145,6 +151,12 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.2 TLB Properties
     ITlbSets(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.1.2 Miscellaneous Properties
+    Label(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
+    LocalMacAddress([u8; 6]),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
     MemoryRegion(Vec<u32>),
     /// # References
@@ -185,6 +197,7 @@ pub enum Property {
     Reg(Vec<u32>),
     RegMap(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.1.2 Miscellaneous Properties
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.2 National Semiconductor 16450/16550 Compatible UART Requirements
     RegShift(u32),
     /// # References
@@ -236,6 +249,7 @@ impl Property {
             "#address-cells" => Self::AddressCells(u32::read(data)),
             "#interrupt-cells" => Self::InterruptCells(u32::read(data)),
             "#size-cells" => Self::SizeCells(u32::read(data)),
+            "address-bits" => Self::AddressBits(u32::read(data)),
             "alignment" => Self::Alignment(Vec::<u32>::read(data)),
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
@@ -284,6 +298,8 @@ impl Property {
             "i-cache-size" => Self::ICacheSize(u32::read(data)),
             "i-tlb-sets" => Self::ITlbSets(u32::read(data)),
             "i-tlb-size" => Self::ITlbSize(u32::read(data)),
+            "label" => Self::Label(String::read(data)),
+            "local-mac-address" => Self::LocalMacAddress(<[u8; 6]>::read(data)),
             "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
             "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
             "mmu-type" => Self::MmuType(String::read(data)),
@@ -368,6 +384,12 @@ impl<'a> Iterator for Strings<'a> {
 
 trait Reader {
     fn read(data: &[u8]) -> Self;
+}
+
+impl<const N: usize> Reader for [u8; N] {
+    fn read(data: &[u8]) -> Self {
+        data.iter().copied().array_chunks::<N>().next().unwrap()
+    }
 }
 
 impl Reader for String {
