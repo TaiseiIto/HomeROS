@@ -23,6 +23,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     AllocRanges(Vec<u32>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
+    BootArgs(String),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
     /// # References
@@ -73,6 +76,12 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptParent(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
+    MemoryRegion(Vec<u32>),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.3 Device node references to reserved memory
+    MemoryRegionNames(Vec<String>),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     Model(String),
     /// # References
@@ -101,13 +110,19 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.5 #address-cells and #size-cells
     SizeCells(u32),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.4 status
+    Status(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
+    StdInPath(String),
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
+    StdOutPath(String),
     Unknown {
         name: String,
         data: Vec<u8>,
     },
-    /// # References
-    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.4 status
-    Status(String),
     Value(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.7 virtual-reg
@@ -122,6 +137,7 @@ impl Property {
             "#size-cells" => Self::SizeCells(u32::read(data)),
             "alignment" => Self::Alignment(Vec::<u32>::read(data)),
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
+            "bootargs" => Self::BootArgs(String::read(data)),
             "chassis-type" => Self::ChassisType(String::read(data)),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
@@ -140,6 +156,8 @@ impl Property {
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
             "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
+            "memory-region" => Self::MemoryRegion(Vec::<u32>::read(data)),
+            "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
             "model" => Self::Model(String::read(data)),
             "name" => Self::Name(String::read(data)),
             "no-map" => Self::NoMap,
@@ -151,6 +169,8 @@ impl Property {
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
             "status" => Self::Status(String::read(data)),
+            "stdin-path" => Self::StdInPath(String::read(data)),
+            "stdout-path" => Self::StdOutPath(String::read(data)),
             "value" => Self::Value(u32::read(data)),
             "virtual-reg" => Self::VirtualReg(u32::read(data)),
             name => Self::Unknown {
