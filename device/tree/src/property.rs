@@ -17,6 +17,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.5 #address-cells and #size-cells
     AddressCells(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
+    Alignment(Vec<u32>),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
     /// # References
@@ -111,6 +114,7 @@ impl Property {
             "#address-cells" => Self::AddressCells(u32::read(data)),
             "#interrupt-cells" => Self::InterruptCells(u32::read(data)),
             "#size-cells" => Self::SizeCells(u32::read(data)),
+            "alignment" => Self::Alignment(Vec::<u32>::read(data)),
             "chassis-type" => Self::ChassisType(String::read(data)),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
