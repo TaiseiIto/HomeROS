@@ -35,6 +35,16 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
     DmaRanges(Vec<u32>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.4 /memory node
+    HotPluggable,
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.4 /memory node
+    InitialMappedArea {
+        effective_address: u64,
+        physical_address: u64,
+        size: u32,
+    },
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.2 Properties for Interrupt Controllers
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
     InterruptCells(u32),
@@ -107,6 +117,12 @@ impl Property {
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
             "dma-ranges" => Self::DmaRanges(Vec::<u32>::read(data)),
+            "hotpluggable" => Self::HotPluggable,
+            "initial-mapped-area" => Self::InitialMappedArea {
+                effective_address: u64::read(data),
+                physical_address: u64::read(data),
+                size: u32::read(data),
+            },
             "interrupt-controller" => Self::InterruptController,
             "interrupt-map" => Self::InterruptMap(Vec::<u32>::read(data)),
             "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read(data)),
@@ -204,8 +220,19 @@ impl Reader for u32 {
     fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
-            .array_chunks::<{ size_of::<u32>() }>()
-            .map(u32::from_be_bytes)
+            .array_chunks::<{ size_of::<Self>() }>()
+            .map(Self::from_be_bytes)
+            .next()
+            .unwrap()
+    }
+}
+
+impl Reader for u64 {
+    fn read(data: &[u8]) -> Self {
+        data.iter()
+            .copied()
+            .array_chunks::<{ size_of::<Self>() }>()
+            .map(Self::from_be_bytes)
             .next()
             .unwrap()
     }
