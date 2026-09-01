@@ -11,6 +11,12 @@ use {
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
+/// # TODO
+/// * Implement `<specifier>-map`
+/// * Implement `<specifier>-map-mask`
+/// * Implement `<specifier>-map-pass-thru`
+/// * Implement `#<specifier>-cells`
+/// * Implement `power-isa-*`
 #[derive(Debug)]
 pub enum Property {
     /// # References
@@ -201,8 +207,6 @@ pub enum Property {
     PhyHandle(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
-    /// # TODO
-    /// * add `power-isa-*`
     PowerIsaVersion(String),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.8 ranges
