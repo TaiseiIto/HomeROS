@@ -163,6 +163,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     NextLevelCache(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.5 simple-bus Compatible Value
+    NonPostedMmio,
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     NoMap,
     Offset(u32),
@@ -288,6 +291,7 @@ impl Property {
             "name" => Self::Name(String::read(data)),
             "next-level-cache" => Self::NextLevelCache(u32::read(data)),
             "no-map" => Self::NoMap,
+            "nonposted-mmio" => Self::NonPostedMmio,
             "offset" => Self::Offset(u32::read(data)),
             "phandle" => Self::Phandle(u32::read(data)),
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
