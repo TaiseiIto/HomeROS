@@ -29,6 +29,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     CacheBlockSize(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.9 Multi-level and Shared Cache Nodes (/cpu/cpu*/l?-cache)
+    CacheLevel(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     CacheLineSize(u32),
     /// # References
@@ -228,6 +231,7 @@ impl Property {
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
             "cache-block-size" => Self::CacheBlockSize(u32::read(data)),
+            "cache-level" => Self::CacheLevel(u32::read(data)),
             "cache-line-size" => Self::CacheLineSize(u32::read(data)),
             "cache-op-block-size" => Self::CacheOpBlockSize(u32::read(data)),
             "cache-sets" => Self::CacheSets(u32::read(data)),
