@@ -59,6 +59,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     CpuReleaseAddr(u64),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.2 National Semiconductor 16450/16550 Compatible UART Requirements
+    CurrentSpeed(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
     DmaRanges(Vec<u32>),
     /// # References
@@ -179,6 +182,9 @@ pub enum Property {
     Reg(Vec<u32>),
     RegMap(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.2 National Semiconductor 16450/16550 Compatible UART Requirements
+    RegShift(u32),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     ReservationGranuleSiz(u32),
     /// # References
@@ -218,7 +224,7 @@ pub enum Property {
     Value(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.7 virtual-reg
-    VirtualReg(u32),
+    VirtualReg(u64),
 }
 
 impl Property {
@@ -245,6 +251,7 @@ impl Property {
             }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
+            "current-speed" => Self::CurrentSpeed(u32::read(data)),
             "d-cache-block-size" => Self::DCacheBlockSize(u32::read(data)),
             "d-cache-line-size" => Self::DCacheLineSize(u32::read(data)),
             "d-cache-sets" => Self::DCacheSets(u32::read(data)),
@@ -286,6 +293,7 @@ impl Property {
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
             "ranges" => Self::Ranges(Vec::<u32>::read(data)),
             "reg" => Self::Reg(Vec::<u32>::read(data)),
+            "reg-shift" => Self::RegShift(u32::read(data)),
             "regmap" => Self::RegMap(u32::read(data)),
             "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
             "reusable" => Self::Reusable,
@@ -302,7 +310,11 @@ impl Property {
             "tlb-size" => Self::TlbSize(u32::read(data)),
             "tlb-split" => Self::TlbSplit,
             "value" => Self::Value(u32::read(data)),
-            "virtual-reg" => Self::VirtualReg(u32::read(data)),
+            "virtual-reg" => Self::VirtualReg(match data.len() {
+                4 => u32::read(data) as u64,
+                8 => u64::read(data),
+                _ => panic!(),
+            }),
             name => Self::Unknown {
                 name: name.to_string(),
                 data: data.to_vec(),
