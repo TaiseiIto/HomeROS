@@ -29,6 +29,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    ClockFrequency(u64),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
     Compatible(Vec<String>),
     /// # References
@@ -139,6 +142,11 @@ impl Property {
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
             "chassis-type" => Self::ChassisType(String::read(data)),
+            "clock-frequency" => Self::ClockFrequency(match data.len() {
+                4 => u32::read(data) as u64,
+                8 => u64::read(data),
+                _ => unreachable!(),
+            }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
