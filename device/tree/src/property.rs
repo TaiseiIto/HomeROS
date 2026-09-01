@@ -126,6 +126,9 @@ pub enum Property {
         name: String,
         data: Vec<u8>,
     },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    TimeBaseFrequency(u64),
     Value(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.7 virtual-reg
@@ -145,7 +148,7 @@ impl Property {
             "clock-frequency" => Self::ClockFrequency(match data.len() {
                 4 => u32::read(data) as u64,
                 8 => u64::read(data),
-                _ => unreachable!(),
+                _ => panic!(),
             }),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
@@ -179,6 +182,11 @@ impl Property {
             "status" => Self::Status(String::read(data)),
             "stdin-path" => Self::StdInPath(String::read(data)),
             "stdout-path" => Self::StdOutPath(String::read(data)),
+            "timebase-frequency" => Self::TimeBaseFrequency(match data.len() {
+                4 => u32::read(data) as u64,
+                8 => u64::read(data),
+                _ => panic!(),
+            }),
             "value" => Self::Value(u32::read(data)),
             "virtual-reg" => Self::VirtualReg(u32::read(data)),
             name => Self::Unknown {
