@@ -20,6 +20,9 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     Alignment(Vec<u32>),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
+    AllocRanges(Vec<u32>),
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
     /// # References
@@ -90,6 +93,9 @@ pub enum Property {
     Reg(Vec<u32>),
     RegMap(u32),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
+    Reusable,
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     SerialNumber(String),
     /// # References
@@ -115,6 +121,7 @@ impl Property {
             "#interrupt-cells" => Self::InterruptCells(u32::read(data)),
             "#size-cells" => Self::SizeCells(u32::read(data)),
             "alignment" => Self::Alignment(Vec::<u32>::read(data)),
+            "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "chassis-type" => Self::ChassisType(String::read(data)),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "device_type" => Self::DeviceType(String::read(data)),
@@ -124,8 +131,8 @@ impl Property {
             "hotpluggable" => Self::HotPluggable,
             "initial-mapped-area" => Self::InitialMappedArea {
                 effective_address: u64::read(data),
-                physical_address: u64::read(data),
-                size: u32::read(data),
+                physical_address: u64::read(&data[size_of::<u64>()..]),
+                size: u32::read(&data[2 * size_of::<u64>()..]),
             },
             "interrupt-controller" => Self::InterruptController,
             "interrupt-map" => Self::InterruptMap(Vec::<u32>::read(data)),
@@ -141,6 +148,7 @@ impl Property {
             "ranges" => Self::Ranges(Vec::<u32>::read(data)),
             "reg" => Self::Reg(Vec::<u32>::read(data)),
             "regmap" => Self::RegMap(u32::read(data)),
+            "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
             "status" => Self::Status(String::read(data)),
             "value" => Self::Value(u32::read(data)),
