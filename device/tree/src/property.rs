@@ -12,10 +12,6 @@ use {
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
 /// # TODO
-/// * Implement `<specifier>-map`
-/// * Implement `<specifier>-map-mask`
-/// * Implement `<specifier>-map-pass-thru`
-/// * Implement `#<specifier>-cells`
 /// * Implement `power-isa-*`
 #[derive(Debug)]
 pub enum Property {
@@ -55,6 +51,12 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     CacheUnified,
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
+    Cells {
+        specifier: String,
+        cells: u32,
+    },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     ChassisType(String),
@@ -170,6 +172,18 @@ pub enum Property {
     Map {
         specifier: String,
         value: Vec<u32>,
+    },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
+    MapMask {
+        specifier: String,
+        bit_mask: Vec<u8>,
+    },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
+    MapPassThru {
+        specifier: String,
+        bit_mask: Vec<u8>,
     },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
@@ -371,6 +385,23 @@ impl Property {
                         specifier: specifier.to_string(),
                         value: Vec::<u32>::read(data),
                     }
+                } else if let Some(specifier) = name.strip_suffix("-map-mask") {
+                    Self::MapMask {
+                        specifier: specifier.to_string(),
+                        bit_mask: Vec::<u8>::read(data),
+                    }
+                } else if let Some(specifier) = name.strip_suffix("-map-pass-thru") {
+                    Self::MapPassThru {
+                        specifier: specifier.to_string(),
+                        bit_mask: Vec::<u8>::read(data),
+                    }
+                } else if let Some(name) = name.strip_prefix("#")
+                    && let Some(specifier) = name.strip_suffix("-cells")
+                {
+                    Self::Cells {
+                        specifier: specifier.to_string(),
+                        cells: u32::read(data),
+                    }
                 } else {
                     Self::Unknown {
                         name: name.to_string(),
@@ -434,6 +465,12 @@ impl<const N: usize> Reader for [u8; N] {
 impl Reader for String {
     fn read(data: &[u8]) -> Self {
         str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
+    }
+}
+
+impl Reader for Vec<u8> {
+    fn read(data: &[u8]) -> Self {
+        data.to_vec()
     }
 }
 
