@@ -166,6 +166,12 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
     MacAddress([u8; 6]),
     /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
+    Map {
+        specifier: String,
+        value: Vec<u32>,
+    },
+    /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
     MaxFrameSize(u32),
     /// # References
@@ -359,10 +365,19 @@ impl Property {
                 8 => u64::read(data),
                 _ => panic!(),
             }),
-            name => Self::Unknown {
-                name: name.to_string(),
-                data: data.to_vec(),
-            },
+            name => {
+                if let Some(specifier) = name.strip_suffix("-map") {
+                    Self::Map {
+                        specifier: specifier.to_string(),
+                        value: Vec::<u32>::read(data),
+                    }
+                } else {
+                    Self::Unknown {
+                        name: name.to_string(),
+                        data: data.to_vec(),
+                    }
+                }
+            }
         }
     }
 }
