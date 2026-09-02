@@ -11,8 +11,6 @@ use {
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
-/// # TODO
-/// * Implement `power-isa-*`
 #[derive(Debug)]
 pub enum Property {
     /// # References
@@ -227,6 +225,11 @@ pub enum Property {
     PhyHandle(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
+    PowerIsa {
+        cat: String,
+    },
+    /// # References
+    /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     PowerIsaVersion(String),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.8 ranges
@@ -401,6 +404,10 @@ impl Property {
                     Self::Cells {
                         specifier: specifier.to_string(),
                         cells: u32::read(data),
+                    }
+                } else if let Some(cat) = name.strip_prefix("power-isa-") {
+                    Self::PowerIsa {
+                        cat: cat.to_string(),
                     }
                 } else {
                     Self::Unknown {
