@@ -1,8 +1,5 @@
 use {
-    super::{
-        property::Property,
-        structure::{Structure, StructureIterator},
-    },
+    super::{property::Property, structure::Structure},
     alloc::{string::String, vec::Vec},
 };
 
