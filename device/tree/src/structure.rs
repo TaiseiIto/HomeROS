@@ -15,11 +15,10 @@ use {
 #[derive(Debug)]
 pub enum Structure {
     BeginNode { name: String },
-    EndNode,
-    Property(Property),
-    Nop,
     End,
-    Unknown { token: u32 },
+    EndNode,
+    Nop,
+    Property(Property),
 }
 
 #[derive(Clone)]
@@ -105,7 +104,7 @@ impl Iterator for StructureIterator<'_> {
             }
             0x00000004 => Self::Item::Nop,
             0x00000009 => Self::Item::End,
-            token => Self::Item::Unknown { token },
+            _ => panic!(),
         })
     }
 }
