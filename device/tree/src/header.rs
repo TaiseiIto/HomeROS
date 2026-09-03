@@ -1,5 +1,5 @@
 use {
-    super::structure::StructureIterator,
+    super::{node::Node, structure::StructureIterator},
     core::{
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,
@@ -47,6 +47,10 @@ impl Header {
         self.into()
     }
 
+    fn root(&self) -> Node {
+        self.iter().collect()
+    }
+
     fn strings_bytes(&self) -> &[u8] {
         let offset: usize = self.read_off_dt_strings() as usize;
         let size: usize = self.read_size_dt_strings() as usize;
@@ -62,7 +66,7 @@ impl Debug for Header {
             .debug_struct("Header")
             .field("magic", &self.read_magic())
             .field("totalsize", &self.read_totalsize())
-            .field("structures", &self.iter())
+            .field("root", &self.root())
             .field("off_mem_rsvmap", &self.read_off_mem_rsvmap())
             .field("version", &self.read_version())
             .field("last_comp_version", &self.read_last_comp_version())
