@@ -11,6 +11,19 @@ pub struct Node {
 }
 
 impl Node {
+    fn address_cells(&self) -> usize {
+        self.properties
+            .iter()
+            .find_map(|property| {
+                if let Property::AddressCells(address_cells) = property {
+                    Some(*address_cells as usize)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(2)
+    }
+
     fn read<T: Iterator<Item = Structure>>(name: String, structures: &mut T) -> Self {
         let mut properties: Vec<Property> = Vec::new();
         let mut children: Vec<Self> = Vec::new();
