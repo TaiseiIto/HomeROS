@@ -220,7 +220,7 @@ pub enum Property {
     Offset(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.3 phandle
-    Phandle(u32),
+    PHandle(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.2 Ethernet specific considerations
     PhyConnectionType(String),
@@ -362,7 +362,7 @@ impl Property {
             "no-map" => Self::NoMap,
             "nonposted-mmio" => Self::NonPostedMmio,
             "offset" => Self::Offset(u32::read(data)),
-            "phandle" => Self::Phandle(u32::read(data)),
+            "phandle" => Self::PHandle(u32::read(data)),
             "phy-connection-type" => Self::PhyConnectionType(String::read(data)),
             "phy-handle" => Self::PhyHandle(u32::read(data)),
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),

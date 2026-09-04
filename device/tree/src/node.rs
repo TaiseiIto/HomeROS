@@ -24,6 +24,32 @@ impl Node {
             .unwrap_or(2)
     }
 
+    fn find_from_phandle(&self, phandle: u32) -> Option<&Self> {
+        self.phandle()
+            .and_then(|my_phandle| {
+                if my_phandle == phandle {
+                    Some(self)
+                } else {
+                    None
+                }
+            })
+            .or_else(|| {
+                self.children
+                    .iter()
+                    .find_map(|child| child.find_from_phandle(phandle))
+            })
+    }
+
+    fn phandle(&self) -> Option<u32> {
+        self.properties.iter().find_map(|property| {
+            if let Property::PHandle(phandle) = property {
+                Some(*phandle)
+            } else {
+                None
+            }
+        })
+    }
+
     fn read<T: Iterator<Item = Structure>>(name: String, structures: &mut T) -> Self {
         let mut properties: Vec<Property> = Vec::new();
         let mut children: Vec<Self> = Vec::new();
