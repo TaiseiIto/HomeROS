@@ -1,6 +1,7 @@
 use {
     super::{property::Property, structure::Structure},
     alloc::{collections::vec_deque::VecDeque, string::String, vec::Vec},
+    core::iter::once,
 };
 
 #[derive(Debug)]
@@ -49,7 +50,8 @@ impl Node {
         }
     }
 
-    fn find_from_path(&self, mut path: VecDeque<&str>) -> Option<&Self> {
+    fn find_from_path(&self, path: &VecDeque<&str>) -> Option<&Self> {
+        let mut path: VecDeque<&str> = path.clone();
         if let Some(name) = path.pop_front() {
             if name == self.name {
                 if path.is_empty() {
@@ -57,7 +59,7 @@ impl Node {
                 } else {
                     self.children
                         .iter()
-                        .find_map(|child| child.find_from_path(path.clone()))
+                        .find_map(|child| child.find_from_path(&path))
                 }
             } else {
                 None
@@ -114,6 +116,32 @@ impl FromIterator<Structure> for Node {
             Self::analyze_first(name, &mut iter)
         } else {
             panic!();
+        }
+    }
+}
+
+struct WithPath<'a> {
+    node: &'a Node,
+    path: VecDeque<&'a str>,
+}
+
+impl<'a> WithPath<'a> {
+    fn children(&self) -> Vec<Self> {
+        let Self { node, path } = self;
+        node.children
+            .iter()
+            .map(|node| {
+                let mut path: VecDeque<&str> = path.clone();
+                path.push_back(&node.name);
+                Self { node, path }
+            })
+            .collect()
+    }
+
+    fn root(node: &'a Node) -> Self {
+        Self {
+            node,
+            path: once(node.name.as_str()).collect(),
         }
     }
 }
