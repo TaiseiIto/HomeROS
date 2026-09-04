@@ -48,6 +48,19 @@ impl Node {
             children,
         }
     }
+
+    fn size_cells(&self) -> usize {
+        self.properties
+            .iter()
+            .find_map(|property| {
+                if let Property::SizeCells(size_cells) = property {
+                    Some(*size_cells as usize)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(1)
+    }
 }
 
 impl FromIterator<Structure> for Node {
