@@ -1,6 +1,6 @@
 use {
     super::{property::Property, structure::Structure},
-    alloc::{string::String, vec::Vec},
+    alloc::{collections::vec_deque::VecDeque, string::String, vec::Vec},
 };
 
 #[derive(Debug)]
@@ -46,6 +46,24 @@ impl Node {
             name,
             properties,
             children,
+        }
+    }
+
+    fn find_from_path(&self, mut path: VecDeque<&str>) -> Option<&Self> {
+        if let Some(name) = path.pop_front() {
+            if name == self.name {
+                if path.is_empty() {
+                    Some(self)
+                } else {
+                    self.children
+                        .iter()
+                        .find_map(|child| child.find_from_path(path.clone()))
+                }
+            } else {
+                None
+            }
+        } else {
+            panic!();
         }
     }
 
