@@ -1,3 +1,5 @@
+mod reg;
+
 use {
     alloc::{
         string::{String, ToString},
@@ -7,6 +9,7 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
+    reg::Reg,
 };
 
 /// # References
@@ -240,7 +243,7 @@ pub enum Property {
     Ranges(Vec<u32>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.6 reg
-    Reg(Vec<u32>),
+    Reg(Reg),
     RegMap(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.1.2 Miscellaneous Properties
@@ -367,7 +370,7 @@ impl Property {
             "phy-handle" => Self::PhyHandle(u32::read(data)),
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
             "ranges" => Self::Ranges(Vec::<u32>::read(data)),
-            "reg" => Self::Reg(Vec::<u32>::read(data)),
+            "reg" => Self::Reg(Reg::Raw(Vec::<u32>::read(data))),
             "reg-shift" => Self::RegShift(u32::read(data)),
             "regmap" => Self::RegMap(u32::read(data)),
             "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
