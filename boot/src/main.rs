@@ -18,12 +18,13 @@ unsafe extern "C" fn _start() -> ! {
     naked_asm!(
         "ldr x0, =_stack_bottom",
         "mov sp, x0",
+        "ldr x0, =_heap_head",
         "b initialize_global"
     );
     #[cfg(target_arch = "riscv64")]
     naked_asm!(
         "la sp, _stack_bottom",
-        "la a2, _stack_bottom",
+        "la a2, _heap_head",
         "j initialize_global"
     );
 }
@@ -33,7 +34,7 @@ unsafe extern "C" fn _start() -> ! {
 fn initialize_global(
     #[cfg(firmware = "sbi")] hartid: usize,
     #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
-    stack_bottom: usize,
+    heap_head: usize,
 ) {
     main(unsafe {
         firmware::Global::new(
@@ -41,7 +42,7 @@ fn initialize_global(
             hartid,
             #[cfg(firmware = "sbi")]
             device_tree,
-            stack_bottom,
+            heap_head,
         )
     });
     unreachable!();
@@ -64,7 +65,7 @@ fn main(global: firmware::Global) {
     uart::initialize();
     allocator::temporize(
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-        firmware::GLOBAL.lock().get().unwrap().boot_stack_bottom(),
+        firmware::GLOBAL.lock().get().unwrap().boot_heap_head(),
     );
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
