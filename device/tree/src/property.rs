@@ -204,6 +204,10 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.12 name
     Name(String),
+    Names {
+        specifier: String,
+        names: Vec<String>,
+    },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     NextLevelCache(u32),
@@ -401,6 +405,11 @@ impl Property {
                     Self::MapPassThru {
                         specifier: specifier.to_string(),
                         bit_mask: Vec::<u8>::read(data),
+                    }
+                } else if let Some(specifier) = name.strip_suffix("-names") {
+                    Self::Names {
+                        specifier: specifier.to_string(),
+                        names: Vec::<String>::read(data),
                     }
                 } else if let Some(specifier) = name.strip_suffix("-status") {
                     Self::StatusWithSpecifier {
