@@ -1,6 +1,10 @@
 use {
     crate::{property::Property, structure::Structure},
-    alloc::{collections::vec_deque::VecDeque, string::String, vec::Vec},
+    alloc::{
+        collections::vec_deque::VecDeque,
+        string::{String, ToString},
+        vec::Vec,
+    },
     core::iter::once,
 };
 
@@ -116,6 +120,30 @@ impl FromIterator<Structure> for Node {
             Self::first_analyze(name, &mut iter)
         } else {
             panic!();
+        }
+    }
+}
+
+impl SecondAnalyzed for Node {
+    fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
+        let Self {
+            name,
+            properties,
+            children,
+        } = self;
+        let properties: Vec<Property> = properties
+            .iter()
+            .map(|property| property.second_analyze(second_analyzer))
+            .collect();
+        let children: Vec<Self> = second_analyzer
+            .children()
+            .into_iter()
+            .map(|second_analyzer| second_analyzer.node.second_analyze(&second_analyzer))
+            .collect();
+        Self {
+            name: name.to_string(),
+            properties,
+            children,
         }
     }
 }

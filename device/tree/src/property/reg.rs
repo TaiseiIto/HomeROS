@@ -46,7 +46,7 @@ impl SecondAnalyzed for Reg {
                             .rev()
                             .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
                         let end: usize = start + size;
-                        (start..end)
+                        start..end
                     })
                     .collect(),
             )
