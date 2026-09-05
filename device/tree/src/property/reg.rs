@@ -9,6 +9,7 @@ use {
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.6 reg
+#[derive(Clone)]
 pub enum Reg {
     Raw(Vec<u32>),
     Pretty(Vec<Range<usize>>),

@@ -1,5 +1,5 @@
 use {
-    super::header::Header,
+    crate::header::Header,
     core::fmt::{Debug, Formatter, Result},
 };
 

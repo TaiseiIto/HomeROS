@@ -1,5 +1,5 @@
 use {
-    super::{property::Property, structure::Structure},
+    crate::{property::Property, structure::Structure},
     alloc::{collections::vec_deque::VecDeque, string::String, vec::Vec},
     core::iter::once,
 };

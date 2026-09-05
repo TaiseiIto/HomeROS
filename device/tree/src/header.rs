@@ -1,5 +1,5 @@
 use {
-    super::{
+    crate::{
         node::Node,
         reserved_memory::{Entry, EntryIterator},
         structure::StructureIterator,

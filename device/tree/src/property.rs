@@ -1,6 +1,7 @@
 mod reg;
 
 use {
+    crate::node::{SecondAnalyzed, SecondAnalyzer},
     alloc::{
         string::{String, ToString},
         vec::Vec,
@@ -14,7 +15,7 @@ use {
 
 /// # References
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3 Standard Properties
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
@@ -437,6 +438,15 @@ impl Property {
                     }
                 }
             }
+        }
+    }
+}
+
+impl SecondAnalyzed for Property {
+    fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
+        match self {
+            Self::Reg(reg) => Self::Reg(reg.second_analyze(second_analyzer)),
+            _ => self.clone(),
         }
     }
 }
