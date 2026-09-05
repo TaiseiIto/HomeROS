@@ -139,23 +139,23 @@ impl<'a> SecondAnalyzer<'a> {
             .collect()
     }
 
-    fn parent(&'a self) -> Self {
+    fn node_from_phandle(&'a self, phandle: u32) -> &'a Node {
+        self.root.find_from_phandle(phandle).unwrap()
+    }
+
+    fn parent(&'a self) -> &'a Node {
         let Self { node, path, root } = self;
         let mut path: VecDeque<&str> = path.clone();
         path.pop_back().unwrap();
-        Self {
-            node: root.find_from_path(&path).unwrap(),
-            path,
-            root,
-        }
+        root.find_from_path(&path).unwrap()
     }
 
     fn parent_address_cells(&self) -> usize {
-        self.parent().node.address_cells()
+        self.parent().address_cells()
     }
 
     fn parent_size_cells(&self) -> usize {
-        self.parent().node.size_cells()
+        self.parent().size_cells()
     }
 
     fn root(root: &'a Node) -> Self {
