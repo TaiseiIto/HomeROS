@@ -451,12 +451,14 @@ impl Property {
 impl SecondAnalyzed for Property {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         match self {
-            Self::DmaRanges(dma_ranges) => Self::DmaRanges(second_analyzer.analyze(dma_ranges)),
-            Self::InterruptMap(interrupt_map) => {
-                Self::InterruptMap(second_analyzer.analyze(interrupt_map))
+            Self::DmaRanges(dma_ranges) => {
+                Self::DmaRanges(second_analyzer.second_analyze(dma_ranges))
             }
-            Self::Ranges(ranges) => Self::Ranges(second_analyzer.analyze(ranges)),
-            Self::Reg(reg) => Self::Reg(second_analyzer.analyze(reg)),
+            Self::InterruptMap(interrupt_map) => {
+                Self::InterruptMap(second_analyzer.second_analyze(interrupt_map))
+            }
+            Self::Ranges(ranges) => Self::Ranges(second_analyzer.second_analyze(ranges)),
+            Self::Reg(reg) => Self::Reg(second_analyzer.second_analyze(reg)),
             _ => self.clone(),
         }
     }

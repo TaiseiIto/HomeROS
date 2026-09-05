@@ -131,7 +131,7 @@ impl FromIterator<Structure> for Node {
         let mut iter = iter.into_iter();
         if let Some(Structure::BeginNode { name }) = iter.next() {
             let root: Self = Self::first_analyze(name, &mut iter);
-            SecondAnalyzer::root(&root).analyze(&root)
+            SecondAnalyzer::root(&root).second_analyze(&root)
         } else {
             panic!();
         }
@@ -147,12 +147,12 @@ impl SecondAnalyzed for Node {
         } = self;
         let properties: Vec<Property> = properties
             .iter()
-            .map(|property| second_analyzer.analyze(property))
+            .map(|property| second_analyzer.second_analyze(property))
             .collect();
         let children: Vec<Self> = second_analyzer
             .children()
             .into_iter()
-            .map(|second_analyzer| second_analyzer.analyze(second_analyzer.node))
+            .map(|second_analyzer| second_analyzer.second_analyze(second_analyzer.node))
             .collect();
         Self {
             name: name.to_string(),
@@ -173,10 +173,6 @@ impl<'a> SecondAnalyzer<'a> {
         self.node.address_cells()
     }
 
-    pub fn analyze<T: SecondAnalyzed>(&self, analyzed: &T) -> T {
-        analyzed.second_analyze(self)
-    }
-
     pub fn interrupt_cells(&self) -> usize {
         self.node.interrupt_cells()
     }
@@ -195,6 +191,10 @@ impl<'a> SecondAnalyzer<'a> {
 
     pub fn phandle_interrupt_cells(&self, phandle: u32) -> usize {
         self.node_from_phandle(phandle).interrupt_cells()
+    }
+
+    pub fn second_analyze<T: SecondAnalyzed>(&self, analyzed: &T) -> T {
+        analyzed.second_analyze(self)
     }
 
     pub fn size_cells(&self) -> usize {
