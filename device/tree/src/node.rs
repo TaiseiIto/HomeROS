@@ -25,31 +25,6 @@ impl Node {
             .unwrap_or(2)
     }
 
-    fn analyze_first<T: Iterator<Item = Structure>>(name: String, structures: &mut T) -> Self {
-        let mut properties: Vec<Property> = Vec::new();
-        let mut children: Vec<Self> = Vec::new();
-        while let Some(structure) = structures.next() {
-            match structure {
-                Structure::BeginNode { name } => {
-                    children.push(Self::analyze_first(name, structures));
-                }
-                Structure::End => panic!(),
-                Structure::EndNode => {
-                    break;
-                }
-                Structure::Nop => {}
-                Structure::Property(property) => {
-                    properties.push(property);
-                }
-            }
-        }
-        Self {
-            name,
-            properties,
-            children,
-        }
-    }
-
     fn find_from_path(&self, path: &VecDeque<&str>) -> Option<&Self> {
         let mut path: VecDeque<&str> = path.clone();
         if let Some(name) = path.pop_front() {
@@ -85,6 +60,31 @@ impl Node {
             })
     }
 
+    fn first_analyze<T: Iterator<Item = Structure>>(name: String, structures: &mut T) -> Self {
+        let mut properties: Vec<Property> = Vec::new();
+        let mut children: Vec<Self> = Vec::new();
+        while let Some(structure) = structures.next() {
+            match structure {
+                Structure::BeginNode { name } => {
+                    children.push(Self::first_analyze(name, structures));
+                }
+                Structure::End => panic!(),
+                Structure::EndNode => {
+                    break;
+                }
+                Structure::Nop => {}
+                Structure::Property(property) => {
+                    properties.push(property);
+                }
+            }
+        }
+        Self {
+            name,
+            properties,
+            children,
+        }
+    }
+
     fn phandle(&self) -> Option<u32> {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
@@ -113,20 +113,36 @@ impl FromIterator<Structure> for Node {
     fn from_iter<T: IntoIterator<Item = Structure>>(iter: T) -> Self {
         let mut iter = iter.into_iter();
         if let Some(Structure::BeginNode { name }) = iter.next() {
-            Self::analyze_first(name, &mut iter)
+            Self::first_analyze(name, &mut iter)
         } else {
             panic!();
         }
     }
 }
 
-struct SecondAnalyzer<'a> {
+pub struct SecondAnalyzer<'a> {
     node: &'a Node,
     path: VecDeque<&'a str>,
     root: &'a Node,
 }
 
 impl<'a> SecondAnalyzer<'a> {
+    pub fn parent_address_cells(&self) -> usize {
+        self.parent().address_cells()
+    }
+
+    pub fn parent_size_cells(&self) -> usize {
+        self.parent().size_cells()
+    }
+
+    pub fn phandle_address_cells(&self, phandle: u32) -> usize {
+        self.node_from_phandle(phandle).address_cells()
+    }
+
+    pub fn phandle_size_cells(&self, phandle: u32) -> usize {
+        self.node_from_phandle(phandle).size_cells()
+    }
+
     fn children(&self) -> Vec<Self> {
         let Self { node, path, root } = self;
         node.children
@@ -150,14 +166,6 @@ impl<'a> SecondAnalyzer<'a> {
         root.find_from_path(&path).unwrap()
     }
 
-    fn parent_address_cells(&self) -> usize {
-        self.parent().address_cells()
-    }
-
-    fn parent_size_cells(&self) -> usize {
-        self.parent().size_cells()
-    }
-
     fn root(root: &'a Node) -> Self {
         Self {
             node: root,
@@ -165,4 +173,8 @@ impl<'a> SecondAnalyzer<'a> {
             root,
         }
     }
+}
+
+pub trait SecondAnalyzed {
+    fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self;
 }
