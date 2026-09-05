@@ -118,7 +118,7 @@ impl FromIterator<Structure> for Node {
         let mut iter = iter.into_iter();
         if let Some(Structure::BeginNode { name }) = iter.next() {
             let root: Self = Self::first_analyze(name, &mut iter);
-            root.second_analyze(&SecondAnalyzer::root(&root))
+            SecondAnalyzer::root(&root).analyze(&root)
         } else {
             panic!();
         }
@@ -134,12 +134,12 @@ impl SecondAnalyzed for Node {
         } = self;
         let properties: Vec<Property> = properties
             .iter()
-            .map(|property| property.second_analyze(second_analyzer))
+            .map(|property| second_analyzer.analyze(property))
             .collect();
         let children: Vec<Self> = second_analyzer
             .children()
             .into_iter()
-            .map(|second_analyzer| second_analyzer.node.second_analyze(&second_analyzer))
+            .map(|second_analyzer| second_analyzer.analyze(second_analyzer.node))
             .collect();
         Self {
             name: name.to_string(),
@@ -158,6 +158,10 @@ pub struct SecondAnalyzer<'a> {
 impl<'a> SecondAnalyzer<'a> {
     pub fn address_cells(&self) -> usize {
         self.node.address_cells()
+    }
+
+    pub fn analyze<T: SecondAnalyzed>(&self, analyzed: &T) -> T {
+        analyzed.second_analyze(self)
     }
 
     pub fn parent_address_cells(&self) -> usize {
