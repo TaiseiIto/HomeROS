@@ -117,7 +117,8 @@ impl FromIterator<Structure> for Node {
     fn from_iter<T: IntoIterator<Item = Structure>>(iter: T) -> Self {
         let mut iter = iter.into_iter();
         if let Some(Structure::BeginNode { name }) = iter.next() {
-            Self::first_analyze(name, &mut iter)
+            let root: Self = Self::first_analyze(name, &mut iter);
+            root.second_analyze(&SecondAnalyzer::root(&root))
         } else {
             panic!();
         }
