@@ -120,28 +120,30 @@ impl FromIterator<Structure> for Node {
     }
 }
 
-struct WithPath<'a> {
+struct SecondAnalyzer<'a> {
     node: &'a Node,
     path: VecDeque<&'a str>,
+    root: &'a Node,
 }
 
-impl<'a> WithPath<'a> {
+impl<'a> SecondAnalyzer<'a> {
     fn children(&self) -> Vec<Self> {
-        let Self { node, path } = self;
+        let Self { node, path, root } = self;
         node.children
             .iter()
             .map(|node| {
                 let mut path: VecDeque<&str> = path.clone();
                 path.push_back(&node.name);
-                Self { node, path }
+                Self { node, path, root }
             })
             .collect()
     }
 
-    fn root(node: &'a Node) -> Self {
+    fn root(root: &'a Node) -> Self {
         Self {
-            node,
-            path: once(node.name.as_str()).collect(),
+            node: root,
+            path: once(root.name.as_str()).collect(),
+            root,
         }
     }
 }
