@@ -39,11 +39,9 @@ impl SecondAnalyzed for Reg {
                             pair.split_at(address_cells);
                         let start: usize = address_cells
                             .iter()
-                            .rev()
                             .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
                         let size: usize = size_cells
                             .iter()
-                            .rev()
                             .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
                         let end: usize = start + size;
                         start..end
