@@ -447,6 +447,7 @@ impl Property {
 impl SecondAnalyzed for Property {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         match self {
+            Self::Ranges(ranges) => Self::Ranges(ranges.second_analyze(second_analyzer)),
             Self::Reg(reg) => Self::Reg(reg.second_analyze(second_analyzer)),
             _ => self.clone(),
         }
