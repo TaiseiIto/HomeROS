@@ -139,6 +139,25 @@ impl<'a> SecondAnalyzer<'a> {
             .collect()
     }
 
+    fn parent(&'a self) -> Self {
+        let Self { node, path, root } = self;
+        let mut path: VecDeque<&str> = path.clone();
+        path.pop_back().unwrap();
+        Self {
+            node: root.find_from_path(&path).unwrap(),
+            path,
+            root,
+        }
+    }
+
+    fn parent_address_cells(&self) -> usize {
+        self.parent().node.address_cells()
+    }
+
+    fn parent_size_cells(&self) -> usize {
+        self.parent().node.size_cells()
+    }
+
     fn root(root: &'a Node) -> Self {
         Self {
             node: root,
