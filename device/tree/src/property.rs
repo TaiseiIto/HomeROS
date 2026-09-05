@@ -1,4 +1,5 @@
 mod dma_ranges;
+mod interrupt_map;
 mod ranges;
 mod reg;
 
@@ -13,6 +14,7 @@ use {
         mem::size_of,
     },
     dma_ranges::DmaRanges,
+    interrupt_map::InterruptMap,
     ranges::Ranges,
     reg::Reg,
 };
@@ -145,7 +147,7 @@ pub enum Property {
     InterruptController,
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
-    InterruptMap(Vec<u32>),
+    InterruptMap(InterruptMap),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
     InterruptMapMask(Vec<u32>),
@@ -345,7 +347,7 @@ impl Property {
                 size: u32::read(&data[2 * size_of::<u64>()..]),
             },
             "interrupt-controller" => Self::InterruptController,
-            "interrupt-map" => Self::InterruptMap(Vec::<u32>::read(data)),
+            "interrupt-map" => Self::InterruptMap(InterruptMap::Raw(Vec::<u32>::read(data))),
             "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read(data)),
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
@@ -450,6 +452,9 @@ impl SecondAnalyzed for Property {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         match self {
             Self::DmaRanges(dma_ranges) => Self::DmaRanges(second_analyzer.analyze(dma_ranges)),
+            Self::InterruptMap(interrupt_map) => {
+                Self::InterruptMap(second_analyzer.analyze(interrupt_map))
+            }
             Self::Ranges(ranges) => Self::Ranges(second_analyzer.analyze(ranges)),
             Self::Reg(reg) => Self::Reg(second_analyzer.analyze(reg)),
             _ => self.clone(),

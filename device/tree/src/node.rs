@@ -89,6 +89,19 @@ impl Node {
         }
     }
 
+    fn interrupt_cells(&self) -> usize {
+        self.properties
+            .iter()
+            .find_map(|property| {
+                if let Property::InterruptCells(interrupt_cells) = property {
+                    Some(*interrupt_cells as usize)
+                } else {
+                    None
+                }
+            })
+            .unwrap()
+    }
+
     fn phandle(&self) -> Option<u32> {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
@@ -164,6 +177,10 @@ impl<'a> SecondAnalyzer<'a> {
         analyzed.second_analyze(self)
     }
 
+    pub fn interrupt_cells(&self) -> usize {
+        self.node.interrupt_cells()
+    }
+
     pub fn parent_address_cells(&self) -> usize {
         self.parent().address_cells()
     }
@@ -176,8 +193,8 @@ impl<'a> SecondAnalyzer<'a> {
         self.node_from_phandle(phandle).address_cells()
     }
 
-    pub fn phandle_size_cells(&self, phandle: u32) -> usize {
-        self.node_from_phandle(phandle).size_cells()
+    pub fn phandle_interrupt_cells(&self, phandle: u32) -> usize {
+        self.node_from_phandle(phandle).interrupt_cells()
     }
 
     pub fn size_cells(&self) -> usize {
