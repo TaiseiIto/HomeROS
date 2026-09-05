@@ -1,3 +1,4 @@
+mod ranges;
 mod reg;
 
 use {
@@ -10,6 +11,7 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
+    ranges::Ranges,
     reg::Reg,
 };
 
@@ -241,7 +243,7 @@ pub enum Property {
     PowerIsaVersion(String),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.8 ranges
-    Ranges(Vec<u32>),
+    Ranges(Ranges),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.6 reg
     Reg(Reg),
@@ -370,7 +372,7 @@ impl Property {
             "phy-connection-type" => Self::PhyConnectionType(String::read(data)),
             "phy-handle" => Self::PhyHandle(u32::read(data)),
             "power-isa-version" => Self::PowerIsaVersion(String::read(data)),
-            "ranges" => Self::Ranges(Vec::<u32>::read(data)),
+            "ranges" => Self::Ranges(Ranges::Raw(Vec::<u32>::read(data))),
             "reg" => Self::Reg(Reg::Raw(Vec::<u32>::read(data))),
             "reg-shift" => Self::RegShift(u32::read(data)),
             "regmap" => Self::RegMap(u32::read(data)),

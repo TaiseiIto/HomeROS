@@ -156,6 +156,10 @@ pub struct SecondAnalyzer<'a> {
 }
 
 impl<'a> SecondAnalyzer<'a> {
+    pub fn address_cells(&self) -> usize {
+        self.node.address_cells()
+    }
+
     pub fn parent_address_cells(&self) -> usize {
         self.parent().address_cells()
     }
@@ -170,6 +174,10 @@ impl<'a> SecondAnalyzer<'a> {
 
     pub fn phandle_size_cells(&self, phandle: u32) -> usize {
         self.node_from_phandle(phandle).size_cells()
+    }
+
+    pub fn size_cells(&self) -> usize {
+        self.node.size_cells()
     }
 
     fn children(&self) -> Vec<Self> {

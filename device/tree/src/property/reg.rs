@@ -29,14 +29,14 @@ impl SecondAnalyzed for Reg {
         if let Self::Raw(words) = self {
             let address_cells: usize = second_analyzer.parent_address_cells();
             let size_cells: usize = second_analyzer.parent_size_cells();
-            let pair_cells: usize = address_cells + size_cells;
+            let range_cells: usize = address_cells + size_cells;
             Self::Pretty(
                 words
                     .as_slice()
-                    .chunks(pair_cells)
-                    .map(|pair| {
+                    .chunks(range_cells)
+                    .map(|range| {
                         let (address_cells, size_cells): (&[u32], &[u32]) =
-                            pair.split_at(address_cells);
+                            range.split_at(address_cells);
                         let start: usize = address_cells
                             .iter()
                             .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
