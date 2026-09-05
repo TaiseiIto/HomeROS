@@ -12,7 +12,7 @@ use {
 #[derive(Clone)]
 pub enum Reg {
     Raw(Vec<u32>),
-    Pretty(Vec<Range<usize>>),
+    Pretty(Vec<Range<u128>>),
 }
 
 impl Debug for Reg {
@@ -37,13 +37,13 @@ impl SecondAnalyzed for Reg {
                     .map(|range| {
                         let (address_cells, size_cells): (&[u32], &[u32]) =
                             range.split_at(address_cells);
-                        let start: usize = address_cells
+                        let start: u128 = address_cells
                             .iter()
-                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
-                        let size: usize = size_cells
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
+                        let size: u128 = size_cells
                             .iter()
-                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
-                        let end: usize = start + size;
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
+                        let end: u128 = start + size;
                         start..end
                     })
                     .collect(),

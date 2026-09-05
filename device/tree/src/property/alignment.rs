@@ -9,7 +9,7 @@ use {
 #[derive(Clone)]
 pub enum Alignment {
     Raw(Vec<u32>),
-    Pretty(usize),
+    Pretty(u128),
 }
 
 impl Debug for Alignment {
@@ -27,7 +27,7 @@ impl SecondAnalyzed for Alignment {
             Self::Pretty(
                 words[0..second_analyzer.parent_size_cells()]
                     .iter()
-                    .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize)),
+                    .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128)),
             )
         } else {
             panic!();

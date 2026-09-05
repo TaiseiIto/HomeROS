@@ -37,22 +37,22 @@ impl SecondAnalyzed for DmaRanges {
                         let child_bus_address_start: usize = 0;
                         let child_bus_address_end: usize =
                             child_bus_address_start + child_bus_address_cells;
-                        let child_bus_address: usize = dma_range
+                        let child_bus_address: u128 = dma_range
                             [child_bus_address_start..child_bus_address_end]
                             .iter()
-                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
                         let parent_bus_address_start: usize = child_bus_address_end;
                         let parent_bus_address_end: usize =
                             parent_bus_address_start + parent_bus_address_cells;
-                        let parent_bus_address: usize = dma_range
+                        let parent_bus_address: u128 = dma_range
                             [parent_bus_address_start..parent_bus_address_end]
                             .iter()
-                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
                         let length_start: usize = parent_bus_address_end;
                         let length_end: usize = length_start + size_cells;
-                        let length: usize = dma_range[length_start..length_end]
+                        let length: u128 = dma_range[length_start..length_end]
                             .iter()
-                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as usize));
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
                         DmaRange {
                             child_bus_address,
                             parent_bus_address,
@@ -69,7 +69,7 @@ impl SecondAnalyzed for DmaRanges {
 
 #[derive(Clone, Debug)]
 struct DmaRange {
-    child_bus_address: usize,
-    parent_bus_address: usize,
-    length: usize,
+    child_bus_address: u128,
+    parent_bus_address: u128,
+    length: u128,
 }
