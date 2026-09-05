@@ -1,3 +1,4 @@
+mod dma_ranges;
 mod ranges;
 mod reg;
 
@@ -11,6 +12,7 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
+    dma_ranges::DmaRanges,
     ranges::Ranges,
     reg::Reg,
 };
@@ -81,7 +83,7 @@ pub enum Property {
     CurrentSpeed(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
-    DmaRanges(Vec<u32>),
+    DmaRanges(DmaRanges),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     DCacheSize(u32),
@@ -334,7 +336,7 @@ impl Property {
             "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
-            "dma-ranges" => Self::DmaRanges(Vec::<u32>::read(data)),
+            "dma-ranges" => Self::DmaRanges(DmaRanges::Raw(Vec::<u32>::read(data))),
             "enable-method" => Self::EnableMethod(Vec::<String>::read(data)),
             "hotpluggable" => Self::HotPluggable,
             "initial-mapped-area" => Self::InitialMappedArea {
@@ -447,6 +449,9 @@ impl Property {
 impl SecondAnalyzed for Property {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         match self {
+            Self::DmaRanges(dma_ranges) => {
+                Self::DmaRanges(dma_ranges.second_analyze(second_analyzer))
+            }
             Self::Ranges(ranges) => Self::Ranges(ranges.second_analyze(second_analyzer)),
             Self::Reg(reg) => Self::Reg(reg.second_analyze(second_analyzer)),
             _ => self.clone(),
