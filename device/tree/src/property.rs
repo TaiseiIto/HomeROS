@@ -1,3 +1,4 @@
+mod alignment;
 mod dma_ranges;
 mod interrupt_map;
 mod ranges;
@@ -5,6 +6,7 @@ mod reg;
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
+    alignment::Alignment,
     alloc::{
         string::{String, ToString},
         vec::Vec,
@@ -31,7 +33,7 @@ pub enum Property {
     AddressCells(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
-    Alignment(Vec<u32>),
+    Alignment(Alignment),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.5.2 /reserved-memory/ child nodes
     AllocRanges(Vec<u32>),
@@ -310,7 +312,7 @@ impl Property {
             "#interrupt-cells" => Self::InterruptCells(u32::read(data)),
             "#size-cells" => Self::SizeCells(u32::read(data)),
             "address-bits" => Self::AddressBits(u32::read(data)),
-            "alignment" => Self::Alignment(Vec::<u32>::read(data)),
+            "alignment" => Self::Alignment(Alignment::Raw(Vec::<u32>::read(data))),
             "alloc-ranges" => Self::AllocRanges(Vec::<u32>::read(data)),
             "bootargs" => Self::BootArgs(String::read(data)),
             "cache-block-size" => Self::CacheBlockSize(u32::read(data)),
@@ -451,6 +453,9 @@ impl Property {
 impl SecondAnalyzed for Property {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         match self {
+            Self::Alignment(alignment) => {
+                Self::Alignment(second_analyzer.second_analyze(alignment))
+            }
             Self::DmaRanges(dma_ranges) => {
                 Self::DmaRanges(second_analyzer.second_analyze(dma_ranges))
             }

@@ -3,7 +3,6 @@ use {
     alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
-        ops::Range,
         slice::Iter,
     },
 };
@@ -20,7 +19,7 @@ impl Debug for InterruptMap {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self {
             Self::Raw(words) => formatter.debug_list().entries(words).finish(),
-            Self::Pretty(ranges) => formatter.debug_list().entries(ranges).finish(),
+            Self::Pretty(entries) => formatter.debug_list().entries(entries).finish(),
         }
     }
 }
