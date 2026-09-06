@@ -220,10 +220,11 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     fn interrupt_parent(&'a self) -> Option<&'a Node> {
-        self.node_from_phandle(self.interrupt_parent_phandle())
+        self.interrupt_parent_phandle()
+            .and_then(|phandle| self.node_from_phandle(phandle))
     }
 
-    fn interrupt_parent_phandle(&'a self) -> u32 {
+    fn interrupt_parent_phandle(&'a self) -> Option<u32> {
         self.node
             .properties
             .iter()
@@ -234,22 +235,22 @@ impl<'a> SecondAnalyzer<'a> {
                     None
                 }
             })
-            .unwrap_or_else(|| self.parent().interrupt_parent_phandle())
+            .or_else(|| {
+                self.parent()
+                    .and_then(|parent| parent.interrupt_parent_phandle())
+            })
     }
 
     fn node_from_phandle(&'a self, phandle: u32) -> Option<&'a Node> {
         self.root.find_from_phandle(phandle)
     }
 
-    fn parent(&'a self) -> Self {
+    fn parent(&'a self) -> Option<Self> {
         let Self { node, path, root } = self;
         let mut path: VecDeque<&str> = path.clone();
-        path.pop_back().unwrap();
-        Self {
-            node: root.find_from_path(&path).unwrap(),
-            path,
-            root,
-        }
+        path.pop_back()
+            .and_then(|_| root.find_from_path(&path))
+            .map(|node| Self { node, path, root })
     }
 
     fn parent_node(&'a self) -> Option<&'a Node> {
