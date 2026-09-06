@@ -165,8 +165,6 @@ impl Regions {
     }
 }
 
-/// # TODO
-/// * Implement Sub also.
 impl Add for Regions {
     type Output = Self;
 
@@ -186,6 +184,24 @@ impl Debug for Regions {
 impl From<Region> for Regions {
     fn from(region: Region) -> Self {
         Self(vec![region])
+    }
+}
+
+impl Sub for Regions {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        self.0
+            .into_iter()
+            .map(|self_region| {
+                other
+                    .clone()
+                    .0
+                    .into_iter()
+                    .map(|other_region| self_region.clone() - other_region)
+                    .sum()
+            })
+            .sum()
     }
 }
 
