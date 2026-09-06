@@ -195,4 +195,11 @@ mod tests {
         assert_eq!(a.try_merge(&b), (0..3).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..3).try_into().ok());
     }
+
+    #[test]
+    fn add_regions() {
+        let a: Regions = [(0..1), (2..3), (4..5)].as_slice().try_into().unwrap();
+        let b: Regions = [(1..2), (3..4), (5..6)].as_slice().try_into().unwrap();
+        assert_eq!(a + b, (0..6).try_into().unwrap());
+    }
 }
