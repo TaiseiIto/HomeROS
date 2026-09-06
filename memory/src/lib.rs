@@ -4,7 +4,7 @@ extern crate alloc;
 
 use {alloc::vec::Vec, core::ops::Range};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Region(Range<usize>);
 
 impl Region {
@@ -88,3 +88,16 @@ impl TryFrom<&Range<&usize>> for Region {
 }
 
 pub struct Regions(Vec<Region>);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn region_try_merge() {
+        let a: Region = (0..1).try_into().unwrap();
+        let b: Region = (2..3).try_into().unwrap();
+        assert!(a.try_merge(&b).is_none());
+        assert!(b.try_merge(&a).is_none());
+    }
+}
