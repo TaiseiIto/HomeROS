@@ -39,9 +39,10 @@ impl SecondAnalyzed for Mask {
         if let Self::Raw(words) = self {
             let (child_unit_address, child_interrupt_specifier): (&[u32], &[u32]) =
                 words.as_slice().split_at(second_analyzer.address_cells());
-            assert_eq!(
-                child_interrupt_specifier.len(),
-                second_analyzer.interrupt_cells()
+            assert!(
+                second_analyzer.interrupt_cells().is_some_and(
+                    |interrupt_cells| interrupt_cells == child_interrupt_specifier.len()
+                )
             );
             Self::Pretty {
                 child_unit_address: child_unit_address

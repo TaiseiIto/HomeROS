@@ -33,7 +33,7 @@ impl SecondAnalyzed for Map {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         if let Self::Raw(words) = self {
             let address_cells: usize = second_analyzer.address_cells();
-            let interrupt_cells: usize = second_analyzer.interrupt_cells();
+            let interrupt_cells: usize = second_analyzer.interrupt_cells().unwrap();
             let mut words: Iter<'_, u32> = words.iter();
             let mut entries: Vec<Entry> = Vec::new();
             while words.len() != 0 {
