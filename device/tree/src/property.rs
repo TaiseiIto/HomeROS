@@ -1,6 +1,6 @@
 mod alignment;
 mod alloc_ranges;
-mod dma_ranges;
+mod dma;
 mod interrupt_map;
 mod ranges;
 mod reg;
@@ -17,7 +17,6 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
-    dma_ranges::DmaRanges,
     interrupt_map::InterruptMap,
     ranges::Ranges,
     reg::Reg,
@@ -89,7 +88,7 @@ pub enum Property {
     CurrentSpeed(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.9 dma-ranges
-    DmaRanges(DmaRanges),
+    DmaRanges(dma::Ranges),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.3 Internal (L1) Cache Properties
     DCacheSize(u32),
@@ -342,7 +341,7 @@ impl Property {
             "device_type" => Self::DeviceType(String::read(data)),
             "dma-coherent" => Self::DmaCoherent,
             "dma-noncoherent" => Self::DmaNonCoherent,
-            "dma-ranges" => Self::DmaRanges(DmaRanges::Raw(Vec::<u32>::read(data))),
+            "dma-ranges" => Self::DmaRanges(dma::Ranges::Raw(Vec::<u32>::read(data))),
             "enable-method" => Self::EnableMethod(Vec::<String>::read(data)),
             "hotpluggable" => Self::HotPluggable,
             "initial-mapped-area" => Self::InitialMappedArea {
