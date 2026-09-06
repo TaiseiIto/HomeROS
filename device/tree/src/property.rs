@@ -215,6 +215,12 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.2 model
     Model(String),
+    MsiMap {
+        rid_base: u32,
+        msi_parent: u32,
+        msi_base: u128,
+        msi_length: u32,
+    },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.12 name
     Name(String),
@@ -375,6 +381,21 @@ impl Property {
             "memory-region-names" => Self::MemoryRegionNames(Vec::<String>::read(data)),
             "mmu-type" => Self::MmuType(String::read(data)),
             "model" => Self::Model(String::read(data)),
+            "msi-map" => {
+                let data: Vec<u32> = Vec::<u32>::read(data);
+                let (rid_base, data): (&u32, &[u32]) = data.as_slice().split_first().unwrap();
+                let (msi_parent, data): (&u32, &[u32]) = data.split_first().unwrap();
+                let (msi_length, data): (&u32, &[u32]) = data.split_last().unwrap();
+                let msi_base: u128 = data
+                    .iter()
+                    .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
+                Self::MsiMap {
+                    rid_base: *rid_base,
+                    msi_parent: *msi_parent,
+                    msi_base,
+                    msi_length: *msi_length,
+                }
+            }
             "name" => Self::Name(String::read(data)),
             "next-level-cache" => Self::NextLevelCache(u32::read(data)),
             "no-map" => Self::NoMap,
