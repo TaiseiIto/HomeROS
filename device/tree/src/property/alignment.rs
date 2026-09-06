@@ -25,7 +25,7 @@ impl SecondAnalyzed for Alignment {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         if let Self::Raw(words) = self {
             Self::Pretty(
-                words[0..second_analyzer.parent_size_cells()]
+                words[0..second_analyzer.parent_size_cells().unwrap()]
                     .iter()
                     .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128)),
             )

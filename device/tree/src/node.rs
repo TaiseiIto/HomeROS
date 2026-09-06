@@ -181,12 +181,14 @@ impl<'a> SecondAnalyzer<'a> {
         self.interrupt_parent().interrupt_cells()
     }
 
-    pub fn parent_address_cells(&self) -> usize {
-        self.parent_node().address_cells()
+    pub fn parent_address_cells(&self) -> Option<usize> {
+        self.parent_node()
+            .map(|parent_node| parent_node.address_cells())
     }
 
-    pub fn parent_size_cells(&self) -> usize {
-        self.parent_node().size_cells()
+    pub fn parent_size_cells(&self) -> Option<usize> {
+        self.parent_node()
+            .map(|parent_node| parent_node.size_cells())
     }
 
     pub fn phandle_address_cells(&self, phandle: u32) -> usize {
@@ -250,11 +252,10 @@ impl<'a> SecondAnalyzer<'a> {
         }
     }
 
-    fn parent_node(&'a self) -> &'a Node {
+    fn parent_node(&'a self) -> Option<&'a Node> {
         let Self { node, path, root } = self;
         let mut path: VecDeque<&str> = path.clone();
-        path.pop_back().unwrap();
-        root.find_from_path(&path).unwrap()
+        path.pop_back().and_then(|_| root.find_from_path(&path))
     }
 
     fn root(root: &'a Node) -> Self {

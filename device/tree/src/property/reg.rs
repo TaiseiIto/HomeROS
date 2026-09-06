@@ -27,8 +27,8 @@ impl Debug for Reg {
 impl SecondAnalyzed for Reg {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         if let Self::Raw(words) = self {
-            let address_cells: usize = second_analyzer.parent_address_cells();
-            let size_cells: usize = second_analyzer.parent_size_cells();
+            let address_cells: usize = second_analyzer.parent_address_cells().unwrap();
+            let size_cells: usize = second_analyzer.parent_size_cells().unwrap();
             let range_cells: usize = address_cells + size_cells;
             Self::Pretty(
                 words

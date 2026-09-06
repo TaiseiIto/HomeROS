@@ -25,7 +25,7 @@ impl SecondAnalyzed for Ranges {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         if let Self::Raw(words) = self {
             let child_bus_address_cells: usize = second_analyzer.address_cells();
-            let parent_bus_address_cells: usize = second_analyzer.parent_address_cells();
+            let parent_bus_address_cells: usize = second_analyzer.parent_address_cells().unwrap();
             let size_cells: usize = second_analyzer.size_cells();
             let range_cells: usize =
                 child_bus_address_cells + parent_bus_address_cells + size_cells;
