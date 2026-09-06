@@ -163,6 +163,12 @@ impl Regions {
     fn sort(&mut self) {
         self.0.sort_by_key(|region| region.0.start);
     }
+
+    fn split_first(self) -> Option<(Region, Self)> {
+        self.0
+            .split_first()
+            .map(|(head, body)| (head.clone(), Self(body.iter().cloned().collect())))
+    }
 }
 
 impl Add for Regions {
@@ -194,12 +200,11 @@ impl Sub for Regions {
         self.0
             .into_iter()
             .map(|self_region| {
-                other
-                    .clone()
-                    .0
-                    .into_iter()
-                    .map(|other_region| self_region.clone() - other_region)
-                    .sum()
+                if let Some((other_region, other)) = other.clone().split_first() {
+                    (self_region - other_region) - other
+                } else {
+                    self_region.into()
+                }
             })
             .sum()
     }
@@ -293,5 +298,15 @@ mod tests {
         let b: Region = (1..2).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), [(0..1), (2..3)].as_slice().into());
         assert_eq!(b.clone() - a.clone(), Regions::default());
+    }
+
+    #[test]
+    fn subtract_regions() {
+        let a: Regions = [0..5, 6..11].as_slice().into();
+        let b: Regions = [1..2, 3..4, 7..8, 9..10].as_slice().into();
+        assert_eq!(
+            a - b,
+            [0..1, 2..3, 4..5, 6..7, 8..9, 10..11].as_slice().into()
+        );
     }
 }
