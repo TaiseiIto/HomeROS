@@ -92,7 +92,6 @@ pub struct Regions(Vec<Region>);
 
 impl Regions {
     fn deduplicate(&mut self) {
-        let length_before_merge: usize = self.0.len();
         if let Some(head) = self.0.pop() {
             self.deduplicate();
             let mut head_is_merged: bool = false;
@@ -103,13 +102,11 @@ impl Regions {
                     break;
                 }
             }
-            if !head_is_merged {
+            if head_is_merged {
+                self.deduplicate();
+            } else {
                 self.0.push(head);
             }
-        }
-        let length_after_merge: usize = self.0.len();
-        if length_after_merge < length_before_merge {
-            self.deduplicate();
         }
     }
 
