@@ -1,7 +1,8 @@
+mod extended;
 pub mod map;
 mod specifiers;
 
-pub use specifiers::Specifiers;
+pub use {extended::Extended, specifiers::Specifiers};
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},

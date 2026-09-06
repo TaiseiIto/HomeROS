@@ -17,7 +17,6 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
-    interrupt::Map,
     ranges::Ranges,
     reg::Reg,
 };
@@ -159,7 +158,7 @@ pub enum Property {
     Interrupts(interrupt::Specifiers),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
-    InterruptsExtended(Vec<u32>),
+    InterruptsExtended(interrupt::Extended),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptParent(u32),
@@ -356,7 +355,9 @@ impl Property {
             }
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(interrupt::Specifiers::Raw(Vec::<u32>::read(data))),
-            "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
+            "interrupts-extended" => {
+                Self::InterruptsExtended(interrupt::Extended::Raw(Vec::<u32>::read(data)))
+            }
             "i-cache-block-size" => Self::ICacheBlockSize(u32::read(data)),
             "i-cache-line-size" => Self::ICacheLineSize(u32::read(data)),
             "i-cache-sets" => Self::ICacheSets(u32::read(data)),
@@ -473,6 +474,9 @@ impl SecondAnalyzed for Property {
             }
             Self::Interrupts(interrupts) => {
                 Self::Interrupts(second_analyzer.second_analyze(interrupts))
+            }
+            Self::InterruptsExtended(interrupts_extended) => {
+                Self::InterruptsExtended(second_analyzer.second_analyze(interrupts_extended))
             }
             Self::Ranges(ranges) => Self::Ranges(second_analyzer.second_analyze(ranges)),
             Self::Reg(reg) => Self::Reg(second_analyzer.second_analyze(reg)),
