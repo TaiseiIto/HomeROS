@@ -98,8 +98,7 @@ impl Sub for Region {
                     // self_start < other_start < other_end <= self_end
                     [self_start..other_start, other_end..self_end]
                         .as_slice()
-                        .try_into()
-                        .unwrap()
+                        .into()
                 }
             }
         } else {
