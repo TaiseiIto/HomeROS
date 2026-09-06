@@ -2,6 +2,7 @@ mod alignment;
 mod alloc_ranges;
 mod dma;
 mod interrupt;
+mod map;
 mod ranges;
 mod reg;
 
@@ -17,6 +18,7 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
+    map::Map,
     ranges::Ranges,
     reg::Reg,
 };
@@ -181,7 +183,7 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
     Map {
         specifier: String,
-        value: Vec<u32>,
+        map: Map,
     },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
@@ -410,7 +412,7 @@ impl Property {
                 if let Some(specifier) = name.strip_suffix("-map") {
                     Self::Map {
                         specifier: specifier.to_string(),
-                        value: Vec::<u32>::read(data),
+                        map: Map::Raw(Vec::<u32>::read(data)),
                     }
                 } else if let Some(specifier) = name.strip_suffix("-map-mask") {
                     Self::MapMask {
@@ -478,6 +480,10 @@ impl SecondAnalyzed for Property {
             Self::InterruptsExtended(interrupts_extended) => {
                 Self::InterruptsExtended(second_analyzer.second_analyze(interrupts_extended))
             }
+            Self::Map { specifier, map } => Self::Map {
+                specifier: specifier.clone(),
+                map: second_analyzer.second_analyze_with_specifier(map, specifier.as_str()),
+            },
             Self::Ranges(ranges) => Self::Ranges(second_analyzer.second_analyze(ranges)),
             Self::Reg(reg) => Self::Reg(second_analyzer.second_analyze(reg)),
             _ => self.clone(),

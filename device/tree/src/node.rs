@@ -221,6 +221,14 @@ impl<'a> SecondAnalyzer<'a> {
         analyzed.second_analyze(self)
     }
 
+    pub fn second_analyze_with_specifier<T: SecondAnalyzedWithSpecifier>(
+        &self,
+        analyzed: &T,
+        specifier: &str,
+    ) -> T {
+        analyzed.second_analyze_with_specifier(self, specifier)
+    }
+
     pub fn size_cells(&self) -> usize {
         self.node.size_cells()
     }
@@ -292,4 +300,12 @@ impl<'a> SecondAnalyzer<'a> {
 
 pub trait SecondAnalyzed {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self;
+}
+
+pub trait SecondAnalyzedWithSpecifier {
+    fn second_analyze_with_specifier(
+        &self,
+        second_analyzer: &SecondAnalyzer<'_>,
+        specifier: &str,
+    ) -> Self;
 }
