@@ -6,7 +6,7 @@ use {
     alloc::{vec, vec::Vec},
     core::{
         fmt::{self, Debug, Formatter},
-        ops::Range,
+        ops::{Add, Range},
     },
 };
 
@@ -56,6 +56,16 @@ impl Region {
     }
 }
 
+impl Add for Region {
+    type Output = Regions;
+
+    fn add(self, other: Region) -> Self::Output {
+        let mut output: Self::Output = Regions(vec![self, other]);
+        output.normalize();
+        output
+    }
+}
+
 impl Debug for Region {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(formatter)
@@ -99,6 +109,7 @@ impl TryFrom<&Range<&usize>> for Region {
     }
 }
 
+#[derive(Clone, Eq, PartialEq)]
 pub struct Regions(Vec<Region>);
 
 impl Regions {
