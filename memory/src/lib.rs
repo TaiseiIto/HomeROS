@@ -152,12 +152,15 @@ impl TryFrom<&[Range<usize>]> for Regions {
     type Error = ();
 
     fn try_from(ranges: &[Range<usize>]) -> Result<Self, Self::Error> {
-        ranges
+        let mut regions: Option<Self> = ranges
             .iter()
             .map(|range| range.clone().try_into().ok())
             .collect::<Option<Vec<Region>>>()
-            .map(Self)
-            .ok_or(())
+            .map(Self);
+        if let Some(regions) = regions.as_mut() {
+            regions.normalize();
+        }
+        regions.ok_or(())
     }
 }
 
