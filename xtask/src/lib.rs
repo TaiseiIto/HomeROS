@@ -8,12 +8,13 @@ mod git;
 mod lint;
 mod product;
 mod run;
+mod test;
 mod time;
 mod tmux;
 
 use std::env::Args;
 
-pub use {docker::in_container, format::format, lint::lint};
+pub use {docker::in_container, format::format, lint::lint, test::test};
 
 pub enum Command {
     Build,
@@ -22,6 +23,7 @@ pub enum Command {
     Lint,
     PreCommit,
     Run(run::Command),
+    Test,
 }
 
 impl Command {
@@ -54,6 +56,7 @@ impl Command {
                     environment::run_in_container(command);
                 }
             }
+            Self::Test => test(),
         }
     }
 }
@@ -68,6 +71,7 @@ impl From<Args> for Command {
             "lint" => Self::Lint,
             "precommit" => Self::PreCommit,
             "run" => Self::Run(args.into()),
+            "test" => Self::Test,
             arg => panic!("arg = {}", arg),
         }
     }

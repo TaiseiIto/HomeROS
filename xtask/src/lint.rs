@@ -6,5 +6,5 @@ pub fn lint() {
 }
 
 fn xtask() {
-    run("cargo clippy --package xtask --all-features -- -D warnings")
+    run("cargo clippy --package xtask --all-features -- -D warnings");
 }
