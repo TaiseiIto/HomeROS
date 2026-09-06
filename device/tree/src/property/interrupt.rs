@@ -44,10 +44,12 @@ impl SecondAnalyzed for Map {
                     .map(|_| words.next().unwrap())
                     .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
                 let interrupt_parent: u32 = *words.next().unwrap();
-                let interrupt_parent_address_cells: usize =
-                    second_analyzer.phandle_address_cells(interrupt_parent);
-                let interrupt_parent_interrupt_cells: usize =
-                    second_analyzer.phandle_interrupt_cells(interrupt_parent);
+                let interrupt_parent_address_cells: usize = second_analyzer
+                    .phandle_address_cells(interrupt_parent)
+                    .unwrap();
+                let interrupt_parent_interrupt_cells: usize = second_analyzer
+                    .phandle_interrupt_cells(interrupt_parent)
+                    .unwrap();
                 let parent_unit_address: u128 = (0..interrupt_parent_address_cells)
                     .map(|_| words.next().unwrap())
                     .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));

@@ -177,26 +177,26 @@ impl<'a> SecondAnalyzer<'a> {
         self.node.interrupt_cells()
     }
 
-    pub fn interrupt_parent_interrupt_cells(&self) -> usize {
-        self.interrupt_parent().interrupt_cells()
+    pub fn interrupt_parent_interrupt_cells(&self) -> Option<usize> {
+        self.interrupt_parent().map(|node| node.interrupt_cells())
     }
 
     pub fn parent_address_cells(&self) -> Option<usize> {
-        self.parent_node()
-            .map(|parent_node| parent_node.address_cells())
+        self.parent_node().map(|node| node.address_cells())
     }
 
     pub fn parent_size_cells(&self) -> Option<usize> {
-        self.parent_node()
-            .map(|parent_node| parent_node.size_cells())
+        self.parent_node().map(|node| node.size_cells())
     }
 
-    pub fn phandle_address_cells(&self, phandle: u32) -> usize {
-        self.node_from_phandle(phandle).address_cells()
+    pub fn phandle_address_cells(&self, phandle: u32) -> Option<usize> {
+        self.node_from_phandle(phandle)
+            .map(|node| node.address_cells())
     }
 
-    pub fn phandle_interrupt_cells(&self, phandle: u32) -> usize {
-        self.node_from_phandle(phandle).interrupt_cells()
+    pub fn phandle_interrupt_cells(&self, phandle: u32) -> Option<usize> {
+        self.node_from_phandle(phandle)
+            .map(|node| node.interrupt_cells())
     }
 
     pub fn second_analyze<T: SecondAnalyzed>(&self, analyzed: &T) -> T {
@@ -219,7 +219,7 @@ impl<'a> SecondAnalyzer<'a> {
             .collect()
     }
 
-    fn interrupt_parent(&'a self) -> &'a Node {
+    fn interrupt_parent(&'a self) -> Option<&'a Node> {
         self.node_from_phandle(self.interrupt_parent_phandle())
     }
 
@@ -237,8 +237,8 @@ impl<'a> SecondAnalyzer<'a> {
             .unwrap_or_else(|| self.parent().interrupt_parent_phandle())
     }
 
-    fn node_from_phandle(&'a self, phandle: u32) -> &'a Node {
-        self.root.find_from_phandle(phandle).unwrap()
+    fn node_from_phandle(&'a self, phandle: u32) -> Option<&'a Node> {
+        self.root.find_from_phandle(phandle)
     }
 
     fn parent(&'a self) -> Self {

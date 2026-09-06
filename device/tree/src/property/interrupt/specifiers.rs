@@ -30,7 +30,7 @@ impl SecondAnalyzed for Specifiers {
             Self::Pretty(
                 words
                     .as_slice()
-                    .chunks(second_analyzer.interrupt_parent_interrupt_cells())
+                    .chunks(second_analyzer.interrupt_parent_interrupt_cells().unwrap())
                     .map(|specifier| {
                         specifier
                             .iter()
