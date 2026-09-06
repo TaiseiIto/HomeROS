@@ -145,6 +145,16 @@ impl Regions {
     }
 }
 
+impl Add for Regions {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        let mut output: Self = Self(self.0.into_iter().chain(other.0).collect());
+        output.normalize();
+        output
+    }
+}
+
 impl Debug for Regions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.debug_list().entries(self.0.iter()).finish()
