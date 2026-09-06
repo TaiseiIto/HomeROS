@@ -7,7 +7,7 @@ use {
     core::{
         fmt::{self, Debug, Formatter},
         iter::Sum,
-        ops::{Add, Range},
+        ops::{Add, Range, Sub},
     },
 };
 
@@ -57,12 +57,10 @@ impl Region {
     }
 }
 
-/// # TODO
-/// * Implement Sub also.
 impl Add for Region {
     type Output = Regions;
 
-    fn add(self, other: Region) -> Self::Output {
+    fn add(self, other: Self) -> Self::Output {
         let left: Regions = self.into();
         let right: Regions = other.into();
         left + right
@@ -72,6 +70,54 @@ impl Add for Region {
 impl Debug for Region {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(formatter)
+    }
+}
+
+impl Sub for Region {
+    type Output = Regions;
+
+    fn sub(self, other: Self) -> Self::Output {
+        let Self(Range {
+            start: self_start,
+            end: self_end,
+        }) = self;
+        let Self(Range {
+            start: other_start,
+            end: other_end,
+        }) = other;
+        if self_start < other_start {
+            if self_end < other_start {
+                // self_start < self_end < other_start < other_end
+                (self_start..self_end).try_into().unwrap()
+            } else {
+                // self_start < other_start <= self_end
+                if self_end < other_end {
+                    // self_start < other_start <= self_end < other_end
+                    (self_start..other_start).try_into().unwrap()
+                } else {
+                    // self_start < other_start < other_end <= self_end
+                    [self_start..other_start, other_end..self_end]
+                        .as_slice()
+                        .try_into()
+                        .unwrap()
+                }
+            }
+        } else {
+            // other_start <= self_start
+            if other_end < self_start {
+                // other_start < other_end < self_start < self_end
+                (self_start..self_end).try_into().unwrap()
+            } else {
+                // other_start <= self_start <= other_end
+                if other_end < self_end {
+                    // other_start <= self_start <= other_end < self_end
+                    (other_end..self_end).try_into().unwrap()
+                } else {
+                    // other_start <= self_start < self_end <= other_end
+                    Self::Output::default()
+                }
+            }
+        }
     }
 }
 
