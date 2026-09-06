@@ -182,11 +182,11 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     pub fn parent_address_cells(&self) -> usize {
-        self.parent().address_cells()
+        self.parent_node().address_cells()
     }
 
     pub fn parent_size_cells(&self) -> usize {
-        self.parent().size_cells()
+        self.parent_node().size_cells()
     }
 
     pub fn phandle_address_cells(&self, phandle: u32) -> usize {
@@ -218,27 +218,39 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     fn interrupt_parent(&'a self) -> &'a Node {
-        self.node_from_phandle(
-            *self
-                .node
-                .properties
-                .iter()
-                .find_map(|property| {
-                    if let Property::InterruptParent(phandle) = property {
-                        Some(phandle)
-                    } else {
-                        None
-                    }
-                })
-                .unwrap(),
-        )
+        self.node_from_phandle(self.interrupt_parent_phandle())
+    }
+
+    fn interrupt_parent_phandle(&'a self) -> u32 {
+        self.node
+            .properties
+            .iter()
+            .find_map(|property| {
+                if let Property::InterruptParent(phandle) = property {
+                    Some(*phandle)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| self.parent().interrupt_parent_phandle())
     }
 
     fn node_from_phandle(&'a self, phandle: u32) -> &'a Node {
         self.root.find_from_phandle(phandle).unwrap()
     }
 
-    fn parent(&'a self) -> &'a Node {
+    fn parent(&'a self) -> Self {
+        let Self { node, path, root } = self;
+        let mut path: VecDeque<&str> = path.clone();
+        path.pop_back().unwrap();
+        Self {
+            node: root.find_from_path(&path).unwrap(),
+            path,
+            root,
+        }
+    }
+
+    fn parent_node(&'a self) -> &'a Node {
         let Self { node, path, root } = self;
         let mut path: VecDeque<&str> = path.clone();
         path.pop_back().unwrap();
