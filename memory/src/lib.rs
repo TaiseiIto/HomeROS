@@ -92,6 +92,30 @@ impl TryFrom<&Range<&usize>> for Region {
 
 pub struct Regions(Vec<Region>);
 
+impl Regions {
+    fn deduplicate(&mut self) {
+        let length_before_merge: usize = self.0.len();
+        if let Some(head) = self.0.pop() {
+            self.deduplicate();
+            let mut head_is_merged: bool = false;
+            for region in self.0.iter_mut() {
+                if let Some(merged) = head.try_merge(region) {
+                    *region = merged;
+                    head_is_merged = true;
+                    break;
+                }
+            }
+            if !head_is_merged {
+                self.0.push(head);
+            }
+        }
+        let length_after_merge: usize = self.0.len();
+        if length_after_merge < length_before_merge {
+            self.deduplicate();
+        }
+    }
+}
+
 impl TryFrom<Range<usize>> for Regions {
     type Error = ();
 
