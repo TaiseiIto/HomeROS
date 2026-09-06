@@ -31,7 +31,7 @@ impl Region {
                 // self_start < other_start <= self_end
                 if self_end < other_end {
                     // self_start < other_start <= self_end < other_end
-                    (self_start..other_end).try_into().ok()
+                    (*self_start..*other_end).try_into().ok()
                 } else {
                     // self_start < other_start < other_end <= self_end
                     Some(self.clone())
@@ -46,7 +46,7 @@ impl Region {
                 // other_start <= self_start <= other_end
                 if other_end < self_end {
                     // other_start <= self_start <= other_end < self_end
-                    (other_start..self_end).try_into().ok()
+                    (*other_start..*self_end).try_into().ok()
                 } else {
                     // other_start <= self_start < self_end <= other_end
                     Some(other.clone())
@@ -56,6 +56,8 @@ impl Region {
     }
 }
 
+/// # TODO
+/// * Implement Sub also.
 impl Add for Region {
     type Output = Regions;
 
@@ -81,31 +83,6 @@ impl TryFrom<Range<usize>> for Region {
         } else {
             Ok(Self(range))
         }
-    }
-}
-
-impl TryFrom<Range<&usize>> for Region {
-    type Error = ();
-
-    fn try_from(range: Range<&usize>) -> Result<Self, Self::Error> {
-        let Range { start, end } = range;
-        (*start..*end).try_into()
-    }
-}
-
-impl TryFrom<&Range<usize>> for Region {
-    type Error = ();
-
-    fn try_from(range: &Range<usize>) -> Result<Self, Self::Error> {
-        range.clone().try_into()
-    }
-}
-
-impl TryFrom<&Range<&usize>> for Region {
-    type Error = ();
-
-    fn try_from(range: &Range<&usize>) -> Result<Self, Self::Error> {
-        range.clone().try_into()
     }
 }
 
@@ -145,6 +122,8 @@ impl Regions {
     }
 }
 
+/// # TODO
+/// * Implement Sub also.
 impl Add for Regions {
     type Output = Self;
 
@@ -165,30 +144,6 @@ impl TryFrom<Range<usize>> for Regions {
     type Error = ();
 
     fn try_from(range: Range<usize>) -> Result<Self, Self::Error> {
-        range.try_into().map(|range| Self(vec![range]))
-    }
-}
-
-impl TryFrom<Range<&usize>> for Regions {
-    type Error = ();
-
-    fn try_from(range: Range<&usize>) -> Result<Self, Self::Error> {
-        range.try_into().map(|range| Self(vec![range]))
-    }
-}
-
-impl TryFrom<&Range<usize>> for Regions {
-    type Error = ();
-
-    fn try_from(range: &Range<usize>) -> Result<Self, Self::Error> {
-        range.try_into().map(|range| Self(vec![range]))
-    }
-}
-
-impl TryFrom<&Range<&usize>> for Regions {
-    type Error = ();
-
-    fn try_from(range: &Range<&usize>) -> Result<Self, Self::Error> {
         range.try_into().map(|range| Self(vec![range]))
     }
 }
