@@ -62,9 +62,9 @@ impl Add for Region {
     type Output = Regions;
 
     fn add(self, other: Region) -> Self::Output {
-        let mut output: Self::Output = Regions(vec![self, other]);
-        output.normalize();
-        output
+        let left: Regions = self.into();
+        let right: Regions = other.into();
+        left + right
     }
 }
 
@@ -137,6 +137,12 @@ impl Add for Regions {
 impl Debug for Regions {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.debug_list().entries(self.0.iter()).finish()
+    }
+}
+
+impl From<Region> for Regions {
+    fn from(region: Region) -> Self {
+        Self(vec![region])
     }
 }
 
