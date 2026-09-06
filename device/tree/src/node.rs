@@ -121,6 +121,21 @@ impl Node {
             })
             .unwrap_or(1)
     }
+
+    fn specifier_cells(&self, specifier: &str) -> Option<usize> {
+        self.properties.iter().find_map(|property| {
+            if let Property::Cells {
+                specifier: property_specifier,
+                cells,
+            } = property
+                && property_specifier == specifier
+            {
+                Some(*cells as usize)
+            } else {
+                None
+            }
+        })
+    }
 }
 
 impl FromIterator<Structure> for Node {
@@ -197,12 +212,21 @@ impl<'a> SecondAnalyzer<'a> {
             .and_then(|node| node.interrupt_cells())
     }
 
+    pub fn phandle_specifier_cells(&self, phandle: u32, specifier: &str) -> Option<usize> {
+        self.node_from_phandle(phandle)
+            .and_then(|node| node.specifier_cells(specifier))
+    }
+
     pub fn second_analyze<T: SecondAnalyzed>(&self, analyzed: &T) -> T {
         analyzed.second_analyze(self)
     }
 
     pub fn size_cells(&self) -> usize {
         self.node.size_cells()
+    }
+
+    pub fn specifier_cells(&self, specifier: &str) -> Option<usize> {
+        self.node.specifier_cells(specifier)
     }
 
     fn children(&self) -> Vec<Self> {
