@@ -195,7 +195,7 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.5.1 Nexus Node Properties
     MapPassThru {
         specifier: String,
-        bit_mask: Vec<u8>,
+        map_mask: map::Mask,
     },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.3.1 Network Class Binding
@@ -443,7 +443,7 @@ impl Property {
                 } else if let Some(specifier) = name.strip_suffix("-map-pass-thru") {
                     Self::MapPassThru {
                         specifier: specifier.to_string(),
-                        bit_mask: Vec::<u8>::read(data),
+                        map_mask: map::Mask::Raw(Vec::<u32>::read(data)),
                     }
                 } else if let Some(specifier) = name.strip_suffix("-names") {
                     Self::Names {
@@ -509,6 +509,13 @@ impl SecondAnalyzed for Property {
                 specifier,
                 map_mask,
             } => Self::MapMask {
+                specifier: specifier.clone(),
+                map_mask: second_analyzer.second_analyze(map_mask),
+            },
+            Self::MapPassThru {
+                specifier,
+                map_mask,
+            } => Self::MapPassThru {
                 specifier: specifier.clone(),
                 map_mask: second_analyzer.second_analyze(map_mask),
             },
