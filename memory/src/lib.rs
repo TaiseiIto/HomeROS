@@ -4,10 +4,13 @@ extern crate alloc;
 
 use {
     alloc::{vec, vec::Vec},
-    core::ops::Range,
+    core::{
+        fmt::{self, Debug, Formatter},
+        ops::Range,
+    },
 };
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct Region(Range<usize>);
 
 impl Region {
@@ -50,6 +53,12 @@ impl Region {
                 }
             }
         }
+    }
+}
+
+impl Debug for Region {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        self.0.fmt(formatter)
     }
 }
 
@@ -122,6 +131,12 @@ impl Regions {
 
     fn sort(&mut self) {
         self.0.sort_by_key(|region| region.0.start);
+    }
+}
+
+impl Debug for Regions {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter.debug_list().entries(self.0.iter()).finish()
     }
 }
 
