@@ -177,6 +177,10 @@ impl<'a> SecondAnalyzer<'a> {
         self.node.interrupt_cells()
     }
 
+    pub fn interrupt_parent_interrupt_cells(&self) -> usize {
+        self.interrupt_parent().interrupt_cells()
+    }
+
     pub fn parent_address_cells(&self) -> usize {
         self.parent().address_cells()
     }
@@ -211,6 +215,23 @@ impl<'a> SecondAnalyzer<'a> {
                 Self { node, path, root }
             })
             .collect()
+    }
+
+    fn interrupt_parent(&'a self) -> &'a Node {
+        self.node_from_phandle(
+            *self
+                .node
+                .properties
+                .iter()
+                .find_map(|property| {
+                    if let Property::InterruptParent(phandle) = property {
+                        Some(phandle)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap(),
+        )
     }
 
     fn node_from_phandle(&'a self, phandle: u32) -> &'a Node {

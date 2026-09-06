@@ -1,4 +1,7 @@
 pub mod map;
+mod specifiers;
+
+pub use specifiers::Specifiers;
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},

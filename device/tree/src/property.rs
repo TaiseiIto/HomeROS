@@ -156,7 +156,7 @@ pub enum Property {
     InterruptMapMask(interrupt::map::Mask),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
-    Interrupts(Vec<u32>),
+    Interrupts(interrupt::Specifiers),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.1 Properties for Interrupt Generating Devices
     InterruptsExtended(Vec<u32>),
@@ -355,7 +355,7 @@ impl Property {
                 Self::InterruptMapMask(interrupt::map::Mask::Raw(Vec::<u32>::read(data)))
             }
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
-            "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),
+            "interrupts" => Self::Interrupts(interrupt::Specifiers::Raw(Vec::<u32>::read(data))),
             "interrupts-extended" => Self::InterruptsExtended(Vec::<u32>::read(data)),
             "i-cache-block-size" => Self::ICacheBlockSize(u32::read(data)),
             "i-cache-line-size" => Self::ICacheLineSize(u32::read(data)),
@@ -470,6 +470,9 @@ impl SecondAnalyzed for Property {
             }
             Self::InterruptMapMask(interrupt_map_mask) => {
                 Self::InterruptMapMask(second_analyzer.second_analyze(interrupt_map_mask))
+            }
+            Self::Interrupts(interrupts) => {
+                Self::Interrupts(second_analyzer.second_analyze(interrupts))
             }
             Self::Ranges(ranges) => Self::Ranges(second_analyzer.second_analyze(ranges)),
             Self::Reg(reg) => Self::Reg(second_analyzer.second_analyze(reg)),
