@@ -1,3 +1,7 @@
+pub mod mask;
+
+pub use mask::Mask;
+
 use {
     crate::node::{SecondAnalyzedWithSpecifier, SecondAnalyzer},
     alloc::vec::Vec,
