@@ -6,6 +6,7 @@ use {
     alloc::{vec, vec::Vec},
     core::{
         fmt::{self, Debug, Formatter},
+        iter::Sum,
         ops::{Add, Range},
     },
 };
@@ -86,7 +87,7 @@ impl TryFrom<Range<usize>> for Region {
     }
 }
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub struct Regions(Vec<Region>);
 
 impl Regions {
@@ -146,6 +147,12 @@ impl From<Region> for Regions {
     }
 }
 
+impl Sum for Regions {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::default(), |sum, region| sum + region)
+    }
+}
+
 impl TryFrom<Range<usize>> for Regions {
     type Error = ();
 
@@ -158,15 +165,12 @@ impl TryFrom<&[Range<usize>]> for Regions {
     type Error = ();
 
     fn try_from(ranges: &[Range<usize>]) -> Result<Self, Self::Error> {
-        let mut regions: Option<Self> = ranges
+        ranges
             .iter()
             .map(|range| range.clone().try_into().ok())
-            .collect::<Option<Vec<Region>>>()
-            .map(Self);
-        if let Some(regions) = regions.as_mut() {
-            regions.normalize();
-        }
-        regions.ok_or(())
+            .collect::<Option<Vec<Self>>>()
+            .map(|regions| regions.into_iter().sum())
+            .ok_or(())
     }
 }
 
