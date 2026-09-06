@@ -148,6 +148,19 @@ impl TryFrom<Range<usize>> for Regions {
     }
 }
 
+impl TryFrom<&[Range<usize>]> for Regions {
+    type Error = ();
+
+    fn try_from(ranges: &[Range<usize>]) -> Result<Self, Self::Error> {
+        ranges
+            .iter()
+            .map(|range| range.clone().try_into().ok())
+            .collect::<Option<Vec<Region>>>()
+            .map(Self)
+            .ok_or(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
