@@ -114,6 +114,15 @@ impl Regions {
             self.deduplicate();
         }
     }
+
+    fn normalize(&mut self) {
+        self.deduplicate();
+        self.sort();
+    }
+
+    fn sort(&mut self) {
+        self.0.sort_by_key(|region| region.0.start);
+    }
 }
 
 impl TryFrom<Range<usize>> for Regions {
