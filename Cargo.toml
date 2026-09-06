@@ -9,6 +9,7 @@ members = [
 	"firmware/tfa",
 	"firmware/uefi",
 	"macro/io",
+	"memory",
 	"memory/allocator",
 	"sync",
 	"xtask"
