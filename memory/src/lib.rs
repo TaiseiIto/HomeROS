@@ -97,7 +97,27 @@ mod tests {
     fn region_try_merge() {
         let a: Region = (0..1).try_into().unwrap();
         let b: Region = (2..3).try_into().unwrap();
-        assert!(a.try_merge(&b).is_none());
-        assert!(b.try_merge(&a).is_none());
+        assert_eq!(a.try_merge(&b), None);
+        assert_eq!(b.try_merge(&a), None);
+        let a: Region = (0..1).try_into().unwrap();
+        let b: Region = (1..2).try_into().unwrap();
+        assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
+        assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
+        let a: Region = (0..2).try_into().unwrap();
+        let b: Region = (1..3).try_into().unwrap();
+        assert_eq!(a.try_merge(&b), (0..3).try_into().ok());
+        assert_eq!(b.try_merge(&a), (0..3).try_into().ok());
+        let a: Region = (0..2).try_into().unwrap();
+        let b: Region = (0..1).try_into().unwrap();
+        assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
+        assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
+        let a: Region = (0..2).try_into().unwrap();
+        let b: Region = (1..2).try_into().unwrap();
+        assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
+        assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
+        let a: Region = (0..3).try_into().unwrap();
+        let b: Region = (1..2).try_into().unwrap();
+        assert_eq!(a.try_merge(&b), (0..3).try_into().ok());
+        assert_eq!(b.try_merge(&a), (0..3).try_into().ok());
     }
 }
