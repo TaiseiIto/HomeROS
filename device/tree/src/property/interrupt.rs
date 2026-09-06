@@ -1,3 +1,5 @@
+pub mod map;
+
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
     alloc::vec::Vec,
