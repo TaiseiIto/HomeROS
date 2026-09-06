@@ -2,7 +2,10 @@
 
 extern crate alloc;
 
-use {alloc::vec::Vec, core::ops::Range};
+use {
+    alloc::{vec, vec::Vec},
+    core::ops::Range,
+};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Region(Range<usize>);
@@ -88,6 +91,38 @@ impl TryFrom<&Range<&usize>> for Region {
 }
 
 pub struct Regions(Vec<Region>);
+
+impl TryFrom<Range<usize>> for Regions {
+    type Error = ();
+
+    fn try_from(range: Range<usize>) -> Result<Self, Self::Error> {
+        range.try_into().map(|range| Self(vec![range]))
+    }
+}
+
+impl TryFrom<Range<&usize>> for Regions {
+    type Error = ();
+
+    fn try_from(range: Range<&usize>) -> Result<Self, Self::Error> {
+        range.try_into().map(|range| Self(vec![range]))
+    }
+}
+
+impl TryFrom<&Range<usize>> for Regions {
+    type Error = ();
+
+    fn try_from(range: &Range<usize>) -> Result<Self, Self::Error> {
+        range.try_into().map(|range| Self(vec![range]))
+    }
+}
+
+impl TryFrom<&Range<&usize>> for Regions {
+    type Error = ();
+
+    fn try_from(range: &Range<&usize>) -> Result<Self, Self::Error> {
+        range.try_into().map(|range| Self(vec![range]))
+    }
+}
 
 #[cfg(test)]
 mod tests {
