@@ -44,6 +44,7 @@ impl Command {
             Self::Lint => lint(),
             Self::PreCommit => {
                 git::add_rust_sources();
+                Self::Test.run();
                 Self::Build.run();
                 Self::Lint.run();
                 format();
