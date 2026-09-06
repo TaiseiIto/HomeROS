@@ -1,7 +1,7 @@
 mod alignment;
 mod alloc_ranges;
 mod dma;
-mod interrupt_map;
+mod interrupt;
 mod ranges;
 mod reg;
 
@@ -17,7 +17,7 @@ use {
         fmt::{Debug, Formatter, Result},
         mem::size_of,
     },
-    interrupt_map::InterruptMap,
+    interrupt::Map,
     ranges::Ranges,
     reg::Reg,
 };
@@ -150,7 +150,7 @@ pub enum Property {
     InterruptController,
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
-    InterruptMap(InterruptMap),
+    InterruptMap(interrupt::Map),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
     InterruptMapMask(Vec<u32>),
@@ -350,7 +350,7 @@ impl Property {
                 size: u32::read(&data[2 * size_of::<u64>()..]),
             },
             "interrupt-controller" => Self::InterruptController,
-            "interrupt-map" => Self::InterruptMap(InterruptMap::Raw(Vec::<u32>::read(data))),
+            "interrupt-map" => Self::InterruptMap(interrupt::Map::Raw(Vec::<u32>::read(data))),
             "interrupt-map-mask" => Self::InterruptMapMask(Vec::<u32>::read(data)),
             "interrupt-parent" => Self::InterruptParent(u32::read(data)),
             "interrupts" => Self::Interrupts(Vec::<u32>::read(data)),

@@ -8,14 +8,14 @@ use {
 };
 
 /// # References
-/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3 Interrupt Nexus Properties
+/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.4.3  Nexus Properties
 #[derive(Clone)]
-pub enum InterruptMap {
+pub enum Map {
     Raw(Vec<u32>),
     Pretty(Vec<Entry>),
 }
 
-impl Debug for InterruptMap {
+impl Debug for Map {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self {
             Self::Raw(words) => formatter.debug_list().entries(words).finish(),
@@ -24,7 +24,7 @@ impl Debug for InterruptMap {
     }
 }
 
-impl SecondAnalyzed for InterruptMap {
+impl SecondAnalyzed for Map {
     fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
         if let Self::Raw(words) = self {
             let address_cells: usize = second_analyzer.address_cells();
