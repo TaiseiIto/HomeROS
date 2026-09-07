@@ -1,10 +1,7 @@
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
     alloc::vec::Vec,
-    core::{
-        fmt::{Debug, Formatter, Result},
-        slice::Iter,
-    },
+    core::fmt::{Debug, Formatter, Result},
 };
 
 /// # References

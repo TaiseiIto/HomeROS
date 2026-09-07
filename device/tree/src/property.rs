@@ -5,6 +5,7 @@ mod interrupt;
 mod map;
 mod ranges;
 mod reg;
+mod status;
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
@@ -21,6 +22,7 @@ use {
     map::Map,
     ranges::Ranges,
     reg::Reg,
+    status::Status,
 };
 
 /// # References
@@ -280,7 +282,7 @@ pub enum Property {
     SizeCells(u32),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.4 status
-    Status(String),
+    Status(Status),
     StatusWithSpecifier {
         specifier: String,
         status: String,
@@ -412,7 +414,7 @@ impl Property {
             "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
-            "status" => Self::Status(String::read(data)),
+            "status" => Self::Status(data.try_into().unwrap()),
             "stdin-path" => Self::StdInPath(String::read(data)),
             "stdout-path" => Self::StdOutPath(String::read(data)),
             "timebase-frequency" => Self::TimeBaseFrequency(match data.len() {
