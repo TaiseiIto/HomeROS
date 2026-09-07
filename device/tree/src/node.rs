@@ -30,6 +30,16 @@ impl Node {
             .unwrap_or(2)
     }
 
+    fn device_type(&self) -> Option<&str> {
+        self.properties.iter().find_map(|property| {
+            if let Property::DeviceType(device_type) = property {
+                Some(device_type.as_str())
+            } else {
+                None
+            }
+        })
+    }
+
     fn find_from_path(&self, path: &VecDeque<&Name>) -> Option<&Self> {
         let mut path: VecDeque<&Name> = path.clone();
         if let Some(name) = path.pop_front() {
@@ -98,6 +108,18 @@ impl Node {
                 None
             }
         })
+    }
+
+    fn memories(&self) -> Vec<&Node> {
+        let mut memories: Vec<&Node> = self
+            .children
+            .iter()
+            .flat_map(|child| child.memories().into_iter())
+            .collect();
+        if let Some("memory") = self.device_type() {
+            memories.push(self);
+        }
+        memories
     }
 
     fn phandle(&self) -> Option<u32> {
