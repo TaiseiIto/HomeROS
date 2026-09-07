@@ -1,9 +1,6 @@
 use {
     crate::{header::Header, node::Name, property::Property},
-    alloc::{
-        string::{String, ToString},
-        vec::Vec,
-    },
+    alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,

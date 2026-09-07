@@ -14,7 +14,6 @@ pub struct Entry {
 
 impl Entry {
     fn check(self) -> Option<Self> {
-        let Entry { address, size } = self;
         (self.read_address() != 0 || self.read_size() != 0).then_some(self)
     }
 }

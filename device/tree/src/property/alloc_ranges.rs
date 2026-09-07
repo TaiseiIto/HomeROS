@@ -25,7 +25,7 @@ impl Debug for AllocRanges {
     }
 }
 
-impl From<&AllocRanges> for memory::Regions<u128> {
+impl From<&AllocRanges> for Regions<u128> {
     fn from(alloc_ranges: &AllocRanges) -> Self {
         if let AllocRanges::Pretty(ranges) = alloc_ranges {
             ranges.as_slice().into()

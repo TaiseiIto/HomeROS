@@ -167,7 +167,7 @@ impl<T: UnsignedInt> Regions<T> {
     fn split_first(self) -> Option<(Region<T>, Self)> {
         self.0
             .split_first()
-            .map(|(head, body)| (head.clone(), Self(body.iter().cloned().collect())))
+            .map(|(head, body)| (head.clone(), Self(body.to_vec())))
     }
 }
 
@@ -233,7 +233,7 @@ impl<T: UnsignedInt> From<&[Range<T>]> for Regions<T> {
     }
 }
 
-trait UnsignedInt:
+pub trait UnsignedInt:
     Add + Clone + Copy + Debug + Default + Eq + Ord + PartialEq + PartialOrd + Sub
 {
 }

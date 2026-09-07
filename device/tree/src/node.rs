@@ -166,7 +166,7 @@ impl SecondAnalyzed for Node {
         let Self {
             name,
             properties,
-            children,
+            children: _,
         } = self;
         let properties: Vec<Property> = properties
             .iter()
@@ -310,7 +310,11 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     fn parent(&'a self) -> Option<Self> {
-        let Self { node, path, root } = self;
+        let Self {
+            node: _,
+            path,
+            root,
+        } = self;
         let mut path: VecDeque<&Name> = path.clone();
         path.pop_back()
             .and_then(|_| root.find_from_path(&path))
@@ -318,7 +322,11 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     fn parent_node(&'a self) -> Option<&'a Node> {
-        let Self { node, path, root } = self;
+        let Self {
+            node: _,
+            path,
+            root,
+        } = self;
         let mut path: VecDeque<&Name> = path.clone();
         path.pop_back().and_then(|_| root.find_from_path(&path))
     }

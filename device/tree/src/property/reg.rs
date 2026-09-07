@@ -25,7 +25,7 @@ impl Debug for Reg {
     }
 }
 
-impl From<&Reg> for memory::Regions<u128> {
+impl From<&Reg> for Regions<u128> {
     fn from(reg: &Reg) -> Self {
         if let Reg::Pretty(ranges) = reg {
             ranges.as_slice().into()
