@@ -3,6 +3,7 @@ use {
     alloc::{
         collections::vec_deque::VecDeque,
         string::{String, ToString},
+        vec,
         vec::Vec,
     },
     core::iter::once,
@@ -111,15 +112,14 @@ impl Node {
     }
 
     fn memories(&self) -> Vec<&Node> {
-        let mut memories: Vec<&Node> = self
-            .children
-            .iter()
-            .flat_map(|child| child.memories().into_iter())
-            .collect();
         if let Some("memory") = self.device_type() {
-            memories.push(self);
+            vec![self]
+        } else {
+            self.children
+                .iter()
+                .flat_map(|child| child.memories().into_iter())
+                .collect()
         }
-        memories
     }
 
     fn phandle(&self) -> Option<u32> {
