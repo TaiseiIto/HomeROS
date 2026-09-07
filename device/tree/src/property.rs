@@ -285,7 +285,7 @@ pub enum Property {
     Status(Status),
     StatusWithSpecifier {
         specifier: String,
-        status: String,
+        status: Status,
     },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
@@ -455,7 +455,7 @@ impl Property {
                 } else if let Some(specifier) = name.strip_suffix("-status") {
                     Self::StatusWithSpecifier {
                         specifier: specifier.to_string(),
-                        status: String::read(data),
+                        status: String::read(data).as_str().try_into().unwrap(),
                     }
                 } else if let Some(name) = name.strip_prefix("#")
                     && let Some(specifier) = name.strip_suffix("-cells")
