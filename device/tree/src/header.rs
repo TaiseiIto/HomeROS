@@ -109,7 +109,6 @@ impl Debug for Header {
             .field("version", &self.read_version())
             .field("last_comp_version", &self.read_last_comp_version())
             .field("boot_cpuid_phys", &self.read_boot_cpuid_phys())
-            .field("memory_regions", &self.memory_regions())
             .finish()
     }
 }
