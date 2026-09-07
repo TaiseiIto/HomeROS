@@ -1,5 +1,5 @@
 use {
-    crate::{header::Header, property::Property},
+    crate::{header::Header, node::Name, property::Property},
     alloc::{
         string::{String, ToString},
         vec::Vec,
@@ -14,7 +14,7 @@ use {
 /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 5.4.1 Lexical structure
 #[derive(Debug)]
 pub enum Structure {
-    BeginNode { name: String },
+    BeginNode { name: Name },
     End,
     EndNode,
     Nop,
@@ -80,9 +80,9 @@ impl Iterator for StructureIterator<'_> {
                     .map(|(index, _)| index + 1)
                     .max()
                     .unwrap_or(0);
-                let name: String = str::from_utf8(&remaining_bytes[..name_size])
+                let name: Name = str::from_utf8(&remaining_bytes[..name_size])
                     .unwrap()
-                    .to_string();
+                    .into();
                 *structure_offset += name_size + size_of::<u32>();
                 *structure_offset &= !(size_of::<u32>() - 1);
                 Self::Item::BeginNode { name }

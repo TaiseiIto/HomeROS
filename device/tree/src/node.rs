@@ -10,7 +10,7 @@ use {
 
 #[derive(Debug)]
 pub struct Node {
-    name: String,
+    name: Name,
     properties: Vec<Property>,
     children: Vec<Self>,
 }
@@ -29,10 +29,10 @@ impl Node {
             .unwrap_or(2)
     }
 
-    fn find_from_path(&self, path: &VecDeque<&str>) -> Option<&Self> {
-        let mut path: VecDeque<&str> = path.clone();
+    fn find_from_path(&self, path: &VecDeque<&Name>) -> Option<&Self> {
+        let mut path: VecDeque<&Name> = path.clone();
         if let Some(name) = path.pop_front() {
-            if name == self.name {
+            if *name == self.name {
                 if path.is_empty() {
                     Some(self)
                 } else {
@@ -64,7 +64,7 @@ impl Node {
             })
     }
 
-    fn first_analyze<T: Iterator<Item = Structure>>(name: String, structures: &mut T) -> Self {
+    fn first_analyze<T: Iterator<Item = Structure>>(name: Name, structures: &mut T) -> Self {
         let mut properties: Vec<Property> = Vec::new();
         let mut children: Vec<Self> = Vec::new();
         while let Some(structure) = structures.next() {
@@ -167,16 +167,33 @@ impl SecondAnalyzed for Node {
             .map(|second_analyzer| second_analyzer.second_analyze(second_analyzer.node))
             .collect();
         Self {
-            name: name.to_string(),
+            name: name.clone(),
             properties,
             children,
         }
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Name {
+    name: String,
+    unit_address: u128,
+}
+
+impl From<&str> for Name {
+    fn from(name: &str) -> Self {
+        let [name, unit_address]: [&str; 2] =
+            name.split('@').collect::<Vec<&str>>().try_into().unwrap();
+        Self {
+            name: name.to_string(),
+            unit_address: u128::from_str_radix(unit_address, 16).unwrap(),
+        }
+    }
+}
+
 pub struct SecondAnalyzer<'a> {
     node: &'a Node,
-    path: VecDeque<&'a str>,
+    path: VecDeque<&'a Name>,
     root: &'a Node,
 }
 
@@ -242,7 +259,7 @@ impl<'a> SecondAnalyzer<'a> {
         node.children
             .iter()
             .map(|node| {
-                let mut path: VecDeque<&str> = path.clone();
+                let mut path: VecDeque<&Name> = path.clone();
                 path.push_back(&node.name);
                 Self { node, path, root }
             })
@@ -277,7 +294,7 @@ impl<'a> SecondAnalyzer<'a> {
 
     fn parent(&'a self) -> Option<Self> {
         let Self { node, path, root } = self;
-        let mut path: VecDeque<&str> = path.clone();
+        let mut path: VecDeque<&Name> = path.clone();
         path.pop_back()
             .and_then(|_| root.find_from_path(&path))
             .map(|node| Self { node, path, root })
@@ -285,14 +302,14 @@ impl<'a> SecondAnalyzer<'a> {
 
     fn parent_node(&'a self) -> Option<&'a Node> {
         let Self { node, path, root } = self;
-        let mut path: VecDeque<&str> = path.clone();
+        let mut path: VecDeque<&Name> = path.clone();
         path.pop_back().and_then(|_| root.find_from_path(&path))
     }
 
     fn root(root: &'a Node) -> Self {
         Self {
             node: root,
-            path: once(root.name.as_str()).collect(),
+            path: once(&root.name).collect(),
             root,
         }
     }
