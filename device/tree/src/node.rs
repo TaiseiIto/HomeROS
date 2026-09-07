@@ -177,16 +177,22 @@ impl SecondAnalyzed for Node {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Name {
     name: String,
-    unit_address: u128,
+    unit_address: Option<u128>,
 }
 
 impl From<&str> for Name {
     fn from(name: &str) -> Self {
-        let [name, unit_address]: [&str; 2] =
-            name.split('@').collect::<Vec<&str>>().try_into().unwrap();
-        Self {
-            name: name.to_string(),
-            unit_address: u128::from_str_radix(unit_address, 16).unwrap(),
+        let name_and_unit_address: Result<[&str; 2], _> =
+            name.split('@').collect::<Vec<&str>>().try_into();
+        match name_and_unit_address {
+            Ok([name, unit_address]) => Self {
+                name: name.to_string(),
+                unit_address: Some(u128::from_str_radix(unit_address, 16).unwrap()),
+            },
+            Err(_) => Self {
+                name: name.to_string(),
+                unit_address: None,
+            },
         }
     }
 }
