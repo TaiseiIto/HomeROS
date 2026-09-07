@@ -6,6 +6,7 @@ use {
         vec::Vec,
     },
     core::iter::once,
+    memory::Regions,
 };
 
 #[derive(Debug)]
@@ -103,6 +104,16 @@ impl Node {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
                 Some(*phandle)
+            } else {
+                None
+            }
+        })
+    }
+
+    fn regions(&self) -> Option<Regions<u128>> {
+        self.properties.iter().find_map(|property| {
+            if let Property::Reg(reg) = property {
+                Some(reg.into())
             } else {
                 None
             }
