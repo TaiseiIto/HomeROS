@@ -132,14 +132,22 @@ impl Node {
         })
     }
 
-    fn regions(&self) -> Option<Regions<u128>> {
-        self.properties.iter().find_map(|property| {
-            if let Property::Reg(reg) = property {
-                Some(reg.into())
-            } else {
-                None
-            }
-        })
+    fn regions(&self) -> Regions<u128> {
+        self.children
+            .iter()
+            .map(|child| child.regions())
+            .sum::<Regions<u128>>()
+            + self
+                .properties
+                .iter()
+                .find_map(|property| {
+                    if let Property::Reg(reg) = property {
+                        Some(reg.into())
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or(Regions::<u128>::default())
     }
 
     fn size_cells(&self) -> usize {
