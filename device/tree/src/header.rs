@@ -36,11 +36,16 @@ impl Header {
             .into_iter()
             .map(|node| node.regions())
             .sum::<Regions<u128>>()
-            - root
+            - (root
                 .reserved_memories()
                 .into_iter()
                 .map(|node| node.regions())
                 .sum::<Regions<u128>>()
+                + self
+                    .reserved_memory_entries()
+                    .into_iter()
+                    .map(|reserved_memory_entry| reserved_memory_entry.into())
+                    .sum::<Regions<u128>>())
     }
 
     pub fn reserved_memory_entry(&self) -> &Entry {

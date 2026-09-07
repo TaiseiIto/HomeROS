@@ -1,6 +1,7 @@
 use {
     crate::header::Header,
     core::fmt::{Debug, Formatter, Result},
+    memory::Regions,
 };
 
 /// # References
@@ -25,6 +26,16 @@ impl Debug for Entry {
             .field("address", &self.read_address())
             .field("size", &self.read_size())
             .finish()
+    }
+}
+
+impl From<Entry> for Regions<u128> {
+    fn from(entry: Entry) -> Self {
+        let address: u128 = entry.address as u128;
+        let size: u128 = entry.size as u128;
+        let start: u128 = address;
+        let end: u128 = start + size;
+        (start..end).try_into().unwrap()
     }
 }
 
