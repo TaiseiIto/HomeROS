@@ -18,6 +18,6 @@ SECTIONS {
 	_heap_head = .;
 	. = ALIGN(4K);
 	_stack_top = .;
-	. += 0x80000;
+	. += 0x100000;
 	_stack_bottom = .;
 }
