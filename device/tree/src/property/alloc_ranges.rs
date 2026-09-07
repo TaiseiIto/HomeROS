@@ -5,6 +5,7 @@ use {
         fmt::{Debug, Formatter, Result},
         ops::Range,
     },
+    memory::Regions,
 };
 
 /// # References
@@ -20,6 +21,16 @@ impl Debug for AllocRanges {
         match self {
             Self::Raw(words) => formatter.debug_list().entries(words).finish(),
             Self::Pretty(ranges) => formatter.debug_list().entries(ranges).finish(),
+        }
+    }
+}
+
+impl From<&AllocRanges> for memory::Regions<u128> {
+    fn from(alloc_ranges: &AllocRanges) -> Self {
+        if let AllocRanges::Pretty(ranges) = alloc_ranges {
+            ranges.as_slice().into()
+        } else {
+            panic!();
         }
     }
 }

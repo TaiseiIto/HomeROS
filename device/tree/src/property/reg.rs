@@ -5,6 +5,7 @@ use {
         fmt::{Debug, Formatter, Result},
         ops::Range,
     },
+    memory::Regions,
 };
 
 /// # References
@@ -20,6 +21,16 @@ impl Debug for Reg {
         match self {
             Self::Raw(words) => formatter.debug_list().entries(words).finish(),
             Self::Pretty(ranges) => formatter.debug_list().entries(ranges).finish(),
+        }
+    }
+}
+
+impl From<&Reg> for memory::Regions<u128> {
+    fn from(reg: &Reg) -> Self {
+        if let Reg::Pretty(ranges) = reg {
+            ranges.as_slice().into()
+        } else {
+            panic!();
         }
     }
 }
