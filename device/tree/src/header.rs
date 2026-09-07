@@ -9,6 +9,7 @@ use {
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,
     },
+    memory::Regions,
 };
 
 /// # References
@@ -29,6 +30,19 @@ pub struct Header {
 }
 
 impl Header {
+    pub fn memory_regions(&self) -> Regions<u128> {
+        let root: Node = self.root();
+        root.memories()
+            .into_iter()
+            .map(|node| node.regions())
+            .sum::<Regions<u128>>()
+            - root
+                .reserved_memories()
+                .into_iter()
+                .map(|node| node.regions())
+                .sum::<Regions<u128>>()
+    }
+
     pub fn reserved_memory_entry(&self) -> &Entry {
         let offset: usize = self.read_off_mem_rsvmap() as usize;
         let header: *const Self = self as *const Self;
@@ -90,6 +104,7 @@ impl Debug for Header {
             .field("version", &self.read_version())
             .field("last_comp_version", &self.read_last_comp_version())
             .field("boot_cpuid_phys", &self.read_boot_cpuid_phys())
+            .field("memory_regions", &self.memory_regions())
             .finish()
     }
 }

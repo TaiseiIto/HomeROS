@@ -18,6 +18,46 @@ pub struct Node {
 }
 
 impl Node {
+    pub fn memories(&self) -> Vec<&Node> {
+        if let Some("memory") = self.device_type() {
+            vec![self]
+        } else {
+            self.children
+                .iter()
+                .flat_map(|child| child.memories().into_iter())
+                .collect()
+        }
+    }
+
+    pub fn regions(&self) -> Regions<u128> {
+        self.properties
+            .iter()
+            .find_map(|property| {
+                if let Property::Reg(reg) = property {
+                    Some(reg.into())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(Regions::<u128>::default())
+            + self
+                .children
+                .iter()
+                .map(|child| child.regions())
+                .sum::<Regions<u128>>()
+    }
+
+    pub fn reserved_memories(&self) -> Vec<&Node> {
+        if let "reserved-memory" = self.name.name.as_str() {
+            vec![self]
+        } else {
+            self.children
+                .iter()
+                .flat_map(|child| child.reserved_memories().into_iter())
+                .collect()
+        }
+    }
+
     fn address_cells(&self) -> usize {
         self.properties
             .iter()
@@ -111,17 +151,6 @@ impl Node {
         })
     }
 
-    fn memories(&self) -> Vec<&Node> {
-        if let Some("memory") = self.device_type() {
-            vec![self]
-        } else {
-            self.children
-                .iter()
-                .flat_map(|child| child.memories().into_iter())
-                .collect()
-        }
-    }
-
     fn phandle(&self) -> Option<u32> {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
@@ -130,35 +159,6 @@ impl Node {
                 None
             }
         })
-    }
-
-    fn regions(&self) -> Regions<u128> {
-        self.properties
-            .iter()
-            .find_map(|property| {
-                if let Property::Reg(reg) = property {
-                    Some(reg.into())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or(Regions::<u128>::default())
-            + self
-                .children
-                .iter()
-                .map(|child| child.regions())
-                .sum::<Regions<u128>>()
-    }
-
-    fn reserved_memories(&self) -> Vec<&Node> {
-        if let "reserved-memory" = self.name.name.as_str() {
-            vec![self]
-        } else {
-            self.children
-                .iter()
-                .flat_map(|child| child.reserved_memories().into_iter())
-                .collect()
-        }
     }
 
     fn size_cells(&self) -> usize {
