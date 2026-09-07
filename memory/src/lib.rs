@@ -12,9 +12,9 @@ use {
 };
 
 #[derive(Clone, Eq, PartialEq)]
-pub struct Region(Range<usize>);
+pub struct Region<T: UnsignedInt>(Range<T>);
 
-impl Region {
+impl<T: UnsignedInt> Region<T> {
     fn try_merge(&self, other: &Self) -> Option<Self> {
         let Self(Range {
             start: self_start,
@@ -57,24 +57,24 @@ impl Region {
     }
 }
 
-impl Add for Region {
-    type Output = Regions;
+impl<T: UnsignedInt> Add for Region<T> {
+    type Output = Regions<T>;
 
     fn add(self, other: Self) -> Self::Output {
-        let left: Regions = self.into();
-        let right: Regions = other.into();
+        let left: Regions<T> = self.into();
+        let right: Regions<T> = other.into();
         left + right
     }
 }
 
-impl Debug for Region {
+impl<T: UnsignedInt> Debug for Region<T> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(formatter)
     }
 }
 
-impl Sub for Region {
-    type Output = Regions;
+impl<T: UnsignedInt> Sub for Region<T> {
+    type Output = Regions<T>;
 
     fn sub(self, other: Self) -> Self::Output {
         let Self(Range {
@@ -120,10 +120,10 @@ impl Sub for Region {
     }
 }
 
-impl TryFrom<Range<usize>> for Region {
+impl<T: UnsignedInt> TryFrom<Range<T>> for Region<T> {
     type Error = ();
 
-    fn try_from(range: Range<usize>) -> Result<Self, Self::Error> {
+    fn try_from(range: Range<T>) -> Result<Self, Self::Error> {
         if range.is_empty() {
             Err(())
         } else {
@@ -133,9 +133,9 @@ impl TryFrom<Range<usize>> for Region {
 }
 
 #[derive(Clone, Default, Eq, PartialEq)]
-pub struct Regions(Vec<Region>);
+pub struct Regions<T: UnsignedInt>(Vec<Region<T>>);
 
-impl Regions {
+impl<T: UnsignedInt> Regions<T> {
     fn deduplicate(&mut self) {
         if let Some(head) = self.0.pop() {
             self.deduplicate();
@@ -164,14 +164,14 @@ impl Regions {
         self.0.sort_by_key(|region| region.0.start);
     }
 
-    fn split_first(self) -> Option<(Region, Self)> {
+    fn split_first(self) -> Option<(Region<T>, Self)> {
         self.0
             .split_first()
             .map(|(head, body)| (head.clone(), Self(body.iter().cloned().collect())))
     }
 }
 
-impl Add for Regions {
+impl<T: UnsignedInt> Add for Regions<T> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
@@ -181,19 +181,19 @@ impl Add for Regions {
     }
 }
 
-impl Debug for Regions {
+impl<T: UnsignedInt> Debug for Regions<T> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.debug_list().entries(self.0.iter()).finish()
     }
 }
 
-impl From<Region> for Regions {
-    fn from(region: Region) -> Self {
+impl<T: UnsignedInt> From<Region<T>> for Regions<T> {
+    fn from(region: Region<T>) -> Self {
         Self(vec![region])
     }
 }
 
-impl Sub for Regions {
+impl<T: UnsignedInt> Sub for Regions<T> {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -210,22 +210,22 @@ impl Sub for Regions {
     }
 }
 
-impl Sum for Regions {
+impl<T: UnsignedInt> Sum for Regions<T> {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::default(), |sum, region| sum + region)
     }
 }
 
-impl TryFrom<Range<usize>> for Regions {
+impl<T: UnsignedInt> TryFrom<Range<T>> for Regions<T> {
     type Error = ();
 
-    fn try_from(range: Range<usize>) -> Result<Self, Self::Error> {
+    fn try_from(range: Range<T>) -> Result<Self, Self::Error> {
         range.try_into().map(|range| Self(vec![range]))
     }
 }
 
-impl From<&[Range<usize>]> for Regions {
-    fn from(ranges: &[Range<usize>]) -> Self {
+impl<T: UnsignedInt> From<&[Range<T>]> for Regions<T> {
+    fn from(ranges: &[Range<T>]) -> Self {
         ranges
             .iter()
             .filter_map(|range| range.clone().try_into().ok())
@@ -233,77 +233,95 @@ impl From<&[Range<usize>]> for Regions {
     }
 }
 
+trait UnsignedInt:
+    Add + Clone + Copy + Debug + Default + Eq + Ord + PartialEq + PartialOrd + Sub
+{
+}
+
+impl UnsignedInt for i8 {}
+impl UnsignedInt for i16 {}
+impl UnsignedInt for i32 {}
+impl UnsignedInt for i64 {}
+impl UnsignedInt for i128 {}
+impl UnsignedInt for isize {}
+impl UnsignedInt for u8 {}
+impl UnsignedInt for u16 {}
+impl UnsignedInt for u32 {}
+impl UnsignedInt for u64 {}
+impl UnsignedInt for u128 {}
+impl UnsignedInt for usize {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn region_try_merge() {
-        let a: Region = (0..1).try_into().unwrap();
-        let b: Region = (2..3).try_into().unwrap();
+        let a: Region<usize> = (0..1).try_into().unwrap();
+        let b: Region<usize> = (2..3).try_into().unwrap();
         assert_eq!(a.try_merge(&b), None);
         assert_eq!(b.try_merge(&a), None);
-        let a: Region = (0..1).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        let a: Region<usize> = (0..1).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (1..3).try_into().unwrap();
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (1..3).try_into().unwrap();
         assert_eq!(a.try_merge(&b), (0..3).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..3).try_into().ok());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (0..1).try_into().unwrap();
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (0..1).try_into().unwrap();
         assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.try_merge(&b), (0..2).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..2).try_into().ok());
-        let a: Region = (0..3).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        let a: Region<usize> = (0..3).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.try_merge(&b), (0..3).try_into().ok());
         assert_eq!(b.try_merge(&a), (0..3).try_into().ok());
     }
 
     #[test]
     fn add_regions() {
-        let a: Regions = [(0..1), (2..3), (4..5)].as_slice().into();
-        let b: Regions = [(1..2), (3..4), (5..6)].as_slice().into();
+        let a: Regions<usize> = [(0..1), (2..3), (4..5)].as_slice().into();
+        let b: Regions<usize> = [(1..2), (3..4), (5..6)].as_slice().into();
         assert_eq!(a + b, (0..6).try_into().unwrap());
     }
 
     #[test]
     fn subtract_region() {
-        let a: Region = (0..1).try_into().unwrap();
-        let b: Region = (2..3).try_into().unwrap();
+        let a: Region<usize> = (0..1).try_into().unwrap();
+        let b: Region<usize> = (2..3).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), a.clone().into());
         assert_eq!(b.clone() - a.clone(), b.clone().into());
-        let a: Region = (0..1).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        let a: Region<usize> = (0..1).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), a.clone().into());
         assert_eq!(b.clone() - a.clone(), b.clone().into());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (1..3).try_into().unwrap();
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (1..3).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), (0..1).try_into().unwrap());
         assert_eq!(b.clone() - a.clone(), (2..3).try_into().unwrap());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (0..1).try_into().unwrap();
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (0..1).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), (1..2).try_into().unwrap());
-        assert_eq!(b.clone() - a.clone(), Regions::default());
-        let a: Region = (0..2).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        assert_eq!(b.clone() - a.clone(), Regions::<usize>::default());
+        let a: Region<usize> = (0..2).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), (0..1).try_into().unwrap());
-        assert_eq!(b.clone() - a.clone(), Regions::default());
-        let a: Region = (0..3).try_into().unwrap();
-        let b: Region = (1..2).try_into().unwrap();
+        assert_eq!(b.clone() - a.clone(), Regions::<usize>::default());
+        let a: Region<usize> = (0..3).try_into().unwrap();
+        let b: Region<usize> = (1..2).try_into().unwrap();
         assert_eq!(a.clone() - b.clone(), [(0..1), (2..3)].as_slice().into());
-        assert_eq!(b.clone() - a.clone(), Regions::default());
+        assert_eq!(b.clone() - a.clone(), Regions::<usize>::default());
     }
 
     #[test]
     fn subtract_regions() {
-        let a: Regions = [0..5, 6..11].as_slice().into();
-        let b: Regions = [1..2, 3..4, 7..8, 9..10].as_slice().into();
+        let a: Regions<usize> = [0..5, 6..11].as_slice().into();
+        let b: Regions<usize> = [1..2, 3..4, 7..8, 9..10].as_slice().into();
         assert_eq!(
             a - b,
             [0..1, 2..3, 4..5, 6..7, 8..9, 10..11].as_slice().into()
