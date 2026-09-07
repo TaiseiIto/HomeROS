@@ -203,7 +203,6 @@ impl Node {
     fn status(&self) -> Option<&Status> {
         self.properties.iter().find_map(|property| match property {
             Property::Status(status) => Some(status),
-            Property::StatusWithSpecifier { specifier, status } => Some(status),
             _ => None,
         })
     }
