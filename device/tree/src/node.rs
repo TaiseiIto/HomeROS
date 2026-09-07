@@ -133,21 +133,32 @@ impl Node {
     }
 
     fn regions(&self) -> Regions<u128> {
-        self.children
+        self.properties
             .iter()
-            .map(|child| child.regions())
-            .sum::<Regions<u128>>()
+            .find_map(|property| {
+                if let Property::Reg(reg) = property {
+                    Some(reg.into())
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(Regions::<u128>::default())
             + self
-                .properties
+                .children
                 .iter()
-                .find_map(|property| {
-                    if let Property::Reg(reg) = property {
-                        Some(reg.into())
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(Regions::<u128>::default())
+                .map(|child| child.regions())
+                .sum::<Regions<u128>>()
+    }
+
+    fn reserved_memories(&self) -> Vec<&Node> {
+        if let "reserved-memory" = self.name.name.as_str() {
+            vec![self]
+        } else {
+            self.children
+                .iter()
+                .flat_map(|child| child.reserved_memories().into_iter())
+                .collect()
+        }
     }
 
     fn size_cells(&self) -> usize {
