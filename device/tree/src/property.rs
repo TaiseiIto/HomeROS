@@ -414,7 +414,7 @@ impl Property {
             "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
-            "status" => Self::Status(data.try_into().unwrap()),
+            "status" => Self::Status(String::read(data).as_str().try_into().unwrap()),
             "stdin-path" => Self::StdInPath(String::read(data)),
             "stdout-path" => Self::StdOutPath(String::read(data)),
             "timebase-frequency" => Self::TimeBaseFrequency(match data.len() {

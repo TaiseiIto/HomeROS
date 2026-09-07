@@ -10,21 +10,19 @@ pub enum Status {
     Fail(Option<String>),
 }
 
-impl TryFrom<&[u8]> for Status {
+impl TryFrom<&str> for Status {
     type Error = ();
 
-    fn try_from(status: &[u8]) -> Result<Self, Self::Error> {
-        str::from_utf8(status)
-            .map_err(|_| ())
-            .and_then(|status| match status {
-                "okay" => Ok(Self::Okay),
-                "disabled" => Ok(Self::Disabled),
-                "reserved" => Ok(Self::Reserved),
-                "fail" => Ok(Self::Fail(None)),
-                status => status
-                    .strip_prefix("fail-")
-                    .map(|suffix| Self::Fail(Some(suffix.to_string())))
-                    .ok_or(()),
-            })
+    fn try_from(status: &str) -> Result<Self, Self::Error> {
+        match status {
+            "okay" => Ok(Self::Okay),
+            "disabled" => Ok(Self::Disabled),
+            "reserved" => Ok(Self::Reserved),
+            "fail" => Ok(Self::Fail(None)),
+            status => status
+                .strip_prefix("fail-")
+                .map(|suffix| Self::Fail(Some(suffix.to_string())))
+                .ok_or(()),
+        }
     }
 }
