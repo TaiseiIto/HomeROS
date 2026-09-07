@@ -1,5 +1,8 @@
 use {
-    crate::{property::Property, structure::Structure},
+    crate::{
+        property::{Property, status::Status},
+        structure::Structure,
+    },
     alloc::{
         collections::vec_deque::VecDeque,
         string::{String, ToString},
@@ -24,6 +27,7 @@ impl Node {
         } else {
             self.children
                 .iter()
+                .filter(|child| child.is_ok())
                 .flat_map(|child| child.memories().into_iter())
                 .collect()
         }
@@ -151,6 +155,13 @@ impl Node {
         })
     }
 
+    fn is_ok(&self) -> bool {
+        match self.status() {
+            Some(Status::Okay) | None => true,
+            _ => false,
+        }
+    }
+
     fn phandle(&self) -> Option<u32> {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
@@ -186,6 +197,14 @@ impl Node {
             } else {
                 None
             }
+        })
+    }
+
+    fn status(&self) -> Option<&Status> {
+        self.properties.iter().find_map(|property| match property {
+            Property::Status(status) => Some(status),
+            Property::StatusWithSpecifier { specifier, status } => Some(status),
+            _ => None,
         })
     }
 }

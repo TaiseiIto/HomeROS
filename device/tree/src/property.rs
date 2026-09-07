@@ -5,7 +5,7 @@ mod interrupt;
 mod map;
 mod ranges;
 mod reg;
-mod status;
+pub mod status;
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
