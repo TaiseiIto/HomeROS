@@ -66,11 +66,13 @@ impl RegistersAccessor {
         self.write_fmt(arguments).unwrap();
     }
 
+    /// # TODO
+    /// * Get address from device tree
     fn new() -> Self {
         #[cfg(target_arch = "aarch64")]
-        let mut accessor: Self = unsafe { Self::new_address(0x09000000) };
+        let mut accessor: Self = unsafe { Self::new_address(0x09000000) }; // Device tree node name "pl011"
         #[cfg(target_arch = "riscv64")]
-        let mut accessor: Self = unsafe { Self::new_address(0x10000000) };
+        let mut accessor: Self = unsafe { Self::new_address(0x10000000) }; // Device tree node name "serial"
         #[cfg(target_arch = "x86_64")]
         let mut accessor: Self = unsafe { Self::new_port(0x02f8) };
         let baud_rate: usize = 9600;
