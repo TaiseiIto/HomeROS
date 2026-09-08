@@ -72,4 +72,20 @@
 |`B+`|`B{1,}`|
 |`B?`|`B{0,1}`|
 
+### Selection
+
+|Expression|Semantic|
+|-|-|
+|`A|B`|Selection of block `A` or `B`|
+
 ## Internal specification
+
+```
+<line> ::= <body> | "^" <body>
+<body> ::= <expression> | <expression> "$"
+<expression> ::= <term> | <expression> "|" <term>
+<term> ::= <power> | <term> <power>
+<power> ::= <base> | <base> <exponent>
+<exponent> ::= "*" | "+" | "?" | "{" <exponent-range> "}"
+<exponent-range> ::= <natural> | <natural> "," | <natural> "," <natural>
+```
