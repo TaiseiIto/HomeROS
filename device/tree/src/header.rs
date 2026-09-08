@@ -5,11 +5,7 @@ use {
         structure::StructureIterator,
     },
     alloc::vec::Vec,
-    core::{
-        fmt::{Debug, Formatter, Result},
-        slice::from_raw_parts,
-    },
-    memory::Regions,
+    core::{fmt::Debug, slice::from_raw_parts},
 };
 
 /// # References

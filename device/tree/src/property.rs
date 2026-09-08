@@ -5,6 +5,7 @@ mod interrupt;
 mod map;
 mod ranges;
 mod reg;
+mod standard;
 pub mod status;
 
 use {
@@ -289,10 +290,10 @@ pub enum Property {
     },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
-    StdInPath(String),
+    StdInPath(standard::Path),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.6 /chosen Node
-    StdOutPath(String),
+    StdOutPath(standard::Path),
     Unknown {
         name: String,
         data: Vec<u8>,
@@ -419,8 +420,8 @@ impl Property {
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
             "status" => Self::Status(String::read(data).as_str().try_into().unwrap()),
-            "stdin-path" => Self::StdInPath(String::read(data)),
-            "stdout-path" => Self::StdOutPath(String::read(data)),
+            "stdin-path" => Self::StdInPath(<&str>::read(data).into()),
+            "stdout-path" => Self::StdOutPath(<&str>::read(data).into()),
             "timebase-frequency" => Self::TimeBaseFrequency(match data.len() {
                 4 => u32::read(data) as u64,
                 8 => u64::read(data),
@@ -576,29 +577,35 @@ impl<'a> Iterator for Strings<'a> {
     }
 }
 
-trait Reader {
-    fn read(data: &[u8]) -> Self;
+trait Reader<'a> {
+    fn read(data: &'a [u8]) -> Self;
 }
 
-impl<const N: usize> Reader for [u8; N] {
+impl<const N: usize> Reader<'_> for [u8; N] {
     fn read(data: &[u8]) -> Self {
         data.iter().copied().array_chunks::<N>().next().unwrap()
     }
 }
 
-impl Reader for String {
-    fn read(data: &[u8]) -> Self {
-        str::from_utf8(&data[..data.len() - 1]).unwrap().to_string()
+impl<'a> Reader<'a> for &'a str {
+    fn read(data: &'a [u8]) -> Self {
+        str::from_utf8(&data[..data.len() - 1]).unwrap()
     }
 }
 
-impl Reader for Vec<u8> {
+impl Reader<'_> for String {
+    fn read(data: &[u8]) -> Self {
+        <&str>::read(data).to_string()
+    }
+}
+
+impl Reader<'_> for Vec<u8> {
     fn read(data: &[u8]) -> Self {
         data.to_vec()
     }
 }
 
-impl Reader for Vec<u32> {
+impl Reader<'_> for Vec<u32> {
     fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
@@ -608,7 +615,7 @@ impl Reader for Vec<u32> {
     }
 }
 
-impl Reader for Vec<String> {
+impl Reader<'_> for Vec<String> {
     fn read(data: &[u8]) -> Self {
         Strings::new(data)
             .map(|string| string.to_string())
@@ -616,7 +623,7 @@ impl Reader for Vec<String> {
     }
 }
 
-impl Reader for u32 {
+impl Reader<'_> for u32 {
     fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
@@ -627,7 +634,7 @@ impl Reader for u32 {
     }
 }
 
-impl Reader for u64 {
+impl Reader<'_> for u64 {
     fn read(data: &[u8]) -> Self {
         data.iter()
             .copied()
