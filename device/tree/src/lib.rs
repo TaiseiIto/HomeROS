@@ -30,6 +30,14 @@ pub struct Analyzed {
 }
 
 impl Analyzed {
+    pub fn uart(&self) -> Vec<&Node> {
+        self.root
+            .find_from_name("pl011")
+            .into_iter()
+            .chain(self.root.find_from_name("serial"))
+            .collect()
+    }
+
     fn memory_regions(&self) -> Regions<u128> {
         let Self {
             root,

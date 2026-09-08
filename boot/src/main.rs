@@ -75,6 +75,8 @@ fn main(global: firmware::Global) {
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     uart::dbg!(tree::ROOT.lock().get().unwrap());
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    uart::dbg!(tree::ROOT.lock().get().unwrap().uart());
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     uart::dbg!(tree::memory_regions());
     unimplemented!();
 }

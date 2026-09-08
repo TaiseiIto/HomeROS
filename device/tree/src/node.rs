@@ -21,7 +21,19 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn memories(&self) -> Vec<&Node> {
+    pub fn find_from_name(&self, name: &str) -> Vec<&Self> {
+        let mut nodes: Vec<&Self> = self
+            .children
+            .iter()
+            .flat_map(|child| child.find_from_name(name).into_iter())
+            .collect();
+        if self.is_ok() && self.name.name.as_str() == name {
+            nodes.push(self);
+        }
+        nodes
+    }
+
+    pub fn memories(&self) -> Vec<&Self> {
         if let Some("memory") = self.device_type() {
             vec![self]
         } else {
@@ -51,7 +63,7 @@ impl Node {
                 .sum::<Regions<u128>>()
     }
 
-    pub fn reserved_memories(&self) -> Vec<&Node> {
+    pub fn reserved_memories(&self) -> Vec<&Self> {
         if let "reserved-memory" = self.name.name.as_str() {
             vec![self]
         } else {
