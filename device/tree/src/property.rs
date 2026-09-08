@@ -1,6 +1,7 @@
 mod alignment;
 mod alloc_ranges;
 mod clocks;
+mod compatible;
 mod dma;
 mod interrupt;
 mod map;
@@ -18,6 +19,7 @@ use {
     },
     alloc_ranges::AllocRanges,
     clocks::Clocks,
+    compatible::Compatible,
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,
@@ -81,11 +83,11 @@ pub enum Property {
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.1.2 Miscellaneous Properties
     ClockFrequency(u64),
+    Clocks(Clocks),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.1 Serial Class Binding
-    Clocks(Clocks),
-    Compatible(Vec<String>),
+    Compatible(Vec<Compatible>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     CpuReleaseAddr(u64),
@@ -347,7 +349,12 @@ impl Property {
                 _ => panic!(),
             }),
             "clocks" => Self::Clocks(Clocks::Raw(Vec::<u32>::read(data))),
-            "compatible" => Self::Compatible(Vec::<String>::read(data)),
+            "compatible" => Self::Compatible(
+                Vec::<&str>::read(data)
+                    .into_iter()
+                    .map(|compatible| compatible.into())
+                    .collect(),
+            ),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
             "current-speed" => Self::CurrentSpeed(u32::read(data)),
             "d-cache-block-size" => Self::DCacheBlockSize(u32::read(data)),
@@ -592,15 +599,15 @@ impl<const N: usize> Reader<'_> for [u8; N] {
     }
 }
 
-impl<'a> Reader<'a> for &'a str {
-    fn read(data: &'a [u8]) -> Self {
-        str::from_utf8(&data[..data.len() - 1]).unwrap()
-    }
-}
-
 impl Reader<'_> for String {
     fn read(data: &[u8]) -> Self {
         <&str>::read(data).to_string()
+    }
+}
+
+impl<'a> Reader<'a> for &'a str {
+    fn read(data: &'a [u8]) -> Self {
+        str::from_utf8(&data[..data.len() - 1]).unwrap()
     }
 }
 
@@ -625,6 +632,12 @@ impl Reader<'_> for Vec<String> {
         Strings::new(data)
             .map(|string| string.to_string())
             .collect()
+    }
+}
+
+impl<'a> Reader<'a> for Vec<&'a str> {
+    fn read(data: &'a [u8]) -> Self {
+        Strings::new(data).collect()
     }
 }
 
