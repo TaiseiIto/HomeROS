@@ -8,3 +8,6 @@ path = "../../macro/endian"
 
 [dependencies.memory]
 path = "../../memory"
+
+[dependencies.sync]
+path = "../../sync"

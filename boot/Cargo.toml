@@ -16,6 +16,6 @@ path = "../firmware"
 [dependencies.uart]
 path = "../device/uart"
 
-[target.'cfg(target_arch = "riscv64")'.dependencies.tree]
+[target.'cfg(any(target_arch = "aarch64", target_arch = "riscv64"))'.dependencies.tree]
 path = "../device/tree"
 

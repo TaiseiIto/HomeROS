@@ -63,6 +63,11 @@ impl Global {
         self.boot_heap_head
     }
 
+    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    pub fn device_tree(&self) -> &tree::Header {
+        self.device_tree
+    }
+
     /// # Safety
     /// This function dereferences raw pointers.
     /// Caller must pass valid pointers.
