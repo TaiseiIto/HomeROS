@@ -55,6 +55,12 @@
 
 #### Character set `S`
 
+|Expression|Semantic|
+|-|-|
+|`a`|Character set `{a}`|
+|`a-b`|Characters from `a` to `b`|
+|`AB`|Union of character set `A` and `B`|
+
 ### Repeater
 
 |Expression|Semantic|
