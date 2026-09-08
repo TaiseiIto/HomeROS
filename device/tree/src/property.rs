@@ -297,6 +297,10 @@ pub enum Property {
         name: String,
         data: Vec<u8>,
     },
+    UnknownStrings {
+        name: String,
+        strings: Vec<String>,
+    },
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
     TimeBaseFrequency(u64),
@@ -467,6 +471,11 @@ impl Property {
                 } else if let Some(cat) = name.strip_prefix("power-isa-") {
                     Self::PowerIsa {
                         cat: cat.to_string(),
+                    }
+                } else if data.iter().all(|byte| *byte == 0x00 || byte.is_ascii()) {
+                    Self::UnknownStrings {
+                        name: name.to_string(),
+                        strings: Vec::<String>::read(data),
                     }
                 } else {
                     Self::Unknown {
