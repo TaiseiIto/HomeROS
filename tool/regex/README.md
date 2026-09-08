@@ -32,7 +32,7 @@
 |`\t`|`t`|
 |`\xXX`|An arbitrary byte of 2-digit hexadecimal|
 |`\{`|`{`|
-|`\|`|`|`|
+|`\\|`|`\|`|
 |`\}`|`}`|
 
 ### Arbitrary character specifier
