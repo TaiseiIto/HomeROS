@@ -162,6 +162,20 @@ impl Node {
         }
     }
 
+    fn names(&self, specifier: &str) -> Option<Vec<String>> {
+        self.properties.iter().find_map(|property| {
+            if let Property::Names {
+                specifier: property_specifier,
+                names,
+            } = property
+            {
+                (property_specifier.as_str() == specifier).then_some(names.clone())
+            } else {
+                None
+            }
+        })
+    }
+
     fn phandle(&self) -> Option<u32> {
         self.properties.iter().find_map(|property| {
             if let Property::PHandle(phandle) = property {
@@ -303,6 +317,11 @@ impl<'a> SecondAnalyzer<'a> {
     pub fn phandle_interrupt_cells(&self, phandle: u32) -> Option<usize> {
         self.node_from_phandle(phandle)
             .and_then(|node| node.interrupt_cells())
+    }
+
+    pub fn phandle_names(&self, phandle: u32, specifier: &str) -> Option<Vec<String>> {
+        self.node_from_phandle(phandle)
+            .and_then(|node| node.names(specifier))
     }
 
     pub fn phandle_specifier_cells(&self, phandle: u32, specifier: &str) -> Option<usize> {

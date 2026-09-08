@@ -1,5 +1,6 @@
 mod alignment;
 mod alloc_ranges;
+mod clocks;
 mod dma;
 mod interrupt;
 mod map;
@@ -16,6 +17,7 @@ use {
         vec::Vec,
     },
     alloc_ranges::AllocRanges,
+    clocks::Clocks,
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,
@@ -82,6 +84,7 @@ pub enum Property {
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.1 compatible
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 4.2.1 Serial Class Binding
+    Clocks(Clocks),
     Compatible(Vec<String>),
     /// # References
     /// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 3.8.1 General Properties of /cpus/cpu* nodes
@@ -343,6 +346,7 @@ impl Property {
                 8 => u64::read(data),
                 _ => panic!(),
             }),
+            "clocks" => Self::Clocks(Clocks::Raw(Vec::<u32>::read(data))),
             "compatible" => Self::Compatible(Vec::<String>::read(data)),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
             "current-speed" => Self::CurrentSpeed(u32::read(data)),
@@ -498,6 +502,7 @@ impl SecondAnalyzed for Property {
             Self::AllocRanges(alloc_ranges) => {
                 Self::AllocRanges(second_analyzer.second_analyze(alloc_ranges))
             }
+            Self::Clocks(clocks) => Self::Clocks(second_analyzer.second_analyze(clocks)),
             Self::DmaRanges(dma_ranges) => {
                 Self::DmaRanges(second_analyzer.second_analyze(dma_ranges))
             }
