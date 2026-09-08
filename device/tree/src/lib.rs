@@ -15,6 +15,14 @@ use {alloc::vec::Vec, core::cell::OnceCell, memory::Regions, sync::spin::Lock};
 
 pub static ROOT: Lock<OnceCell<Analyzed>> = Lock::new(OnceCell::new());
 
+pub fn set(header: &Header) {
+    ROOT.lock().set(header.into()).unwrap();
+}
+
+pub fn memory_regions() -> Regions<u128> {
+    ROOT.lock().get().unwrap().memory_regions()
+}
+
 #[derive(Debug)]
 pub struct Analyzed {
     root: node::Node,
@@ -50,12 +58,4 @@ impl From<&Header> for Analyzed {
             reserved_memory_entries: header.reserved_memory_entries(),
         }
     }
-}
-
-pub fn set(header: &Header) {
-    ROOT.lock().set(header.into()).unwrap();
-}
-
-pub fn memory_regions() -> Regions<u128> {
-    ROOT.lock().get().unwrap().memory_regions()
 }
