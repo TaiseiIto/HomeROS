@@ -8,6 +8,7 @@ members = [
 	"firmware/sbi",
 	"firmware/tfa",
 	"firmware/uefi",
+	"macro/endian",
 	"macro/io",
 	"memory",
 	"memory/allocator",
