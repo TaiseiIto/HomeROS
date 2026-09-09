@@ -328,6 +328,7 @@ enum Digit {
 }
 
 #[derive(Parser)]
+#[terminal = '0']
 struct Zero;
 
 #[derive(Parser)]
