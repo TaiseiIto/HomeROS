@@ -81,11 +81,21 @@
 ## Internal specification
 
 ```
-<line> ::= <body> | "^" <body>
-<body> ::= <expression> | <expression> "$"
-<expression> ::= <term> | <expression> "|" <term>
-<term> ::= <power> | <term> <power>
-<power> ::= <base> | <base> <exponent>
-<exponent> ::= "*" | "+" | "?" | "{" <exponent-range> "}"
-<exponent-range> ::= <natural> | <natural> "," | <natural> "," <natural>
+expression = term['|'expression];
+term = power[term];
+power = base[exponent];
+base = character + '['['^']set']' + '('expression')';
+character = '^' + '$' + '.' + '\'escaped + unescaped;
+escaped = '$' + '(' + ')' + '*' + '+' + '.' + '/' + '?' + 'D' + 'L' + 'S' + 'U' + 'W' + '[' + '\' + ']' + '^' + 'd' + 'f' + 'l' + 'n' + 'r' + 's' + 't' + 'u' + 'w' + 'x'byte + '{' + '|' + '}';
+byte = hexadecimal hexadecimal;
+hexadecimal = digit + 'a' + 'b' + 'c' + 'd' + 'e' + 'f' + 'A' + 'B' + 'C' + 'D' + 'E' + 'F';
+unescaped = digit + lowercase + uppercase;
+digit = '0' + '1' + '2' + '3' + '4' + '5' + '6' + '7' + '8' + '9';
+lowercase = 'a' + 'b' + 'c' + 'd' + 'e' + 'f' + 'g' + 'h' + 'i' + 'j' + 'k' + 'l' + 'm' + 'n' + 'o' + 'p' + 'q' + 'r' + 's' + 't' + 'u' + 'v' + 'w' + 'x' + 'y' + 'z';
+uppercase = 'A' + 'B' + 'C' + 'D' + 'E' + 'F' + 'G' + 'H' + 'I' + 'J' + 'K' + 'L' + 'M' + 'N' + 'O' + 'P' + 'Q' + 'R' + 'S' + 'T' + 'U' + 'V' + 'W' + 'X' + 'Y' + 'Z';
+set = range[set];
+range = element['-'element];
+element = ;
+exponent = '*' + '+' + '?' + '{'number[,[number]]'}';
+number = digit[number];
 ```
