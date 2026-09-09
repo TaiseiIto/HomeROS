@@ -12,6 +12,7 @@ members = [
 	"memory",
 	"memory/allocator",
 	"sync",
+	"tool/regex",
 	"xtask"
 ]
 resolver = "3"
