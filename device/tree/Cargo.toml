@@ -9,5 +9,8 @@ path = "../../macro/endian"
 [dependencies.memory]
 path = "../../memory"
 
+[dependencies.regex]
+path = "../../tool/regex"
+
 [dependencies.sync]
 path = "../../sync"
