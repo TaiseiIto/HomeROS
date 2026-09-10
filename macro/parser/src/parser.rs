@@ -52,3 +52,19 @@ impl From<Symbol> for TokenStream {
         quote! {}
     }
 }
+
+pub enum Component {
+    Array {
+        unit: Box<Component>,
+        size: usize,
+    },
+    Box(Box<Component>),
+    Enum(Vec<Component>),
+    Option(Box<Component>),
+    Part(Ident),
+    Tuple {
+        name: Option<Ident>,
+        elements: Vec<Component>,
+    },
+    Vec(Box<Component>),
+}
