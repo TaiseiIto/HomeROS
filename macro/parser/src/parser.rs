@@ -1,11 +1,12 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{DeriveInput, Ident},
+    syn::{Attribute, DeriveInput, Expr, ExprLit, Ident, Lit, Meta, MetaNameValue},
 };
 
 pub struct Symbol {
     name: Ident,
+    terminal: Option<char>,
 }
 
 impl From<DeriveInput> for Symbol {
@@ -17,7 +18,32 @@ impl From<DeriveInput> for Symbol {
             generics,
             data,
         } = symbol;
-        Self { name: ident }
+        Self {
+            name: ident,
+            terminal: attrs.into_iter().find_map(|attribute| {
+                if let Attribute {
+                    pound_token,
+                    style,
+                    bracket_token,
+                    meta:
+                        Meta::NameValue(MetaNameValue {
+                            path,
+                            eq_token,
+                            value:
+                                Expr::Lit(ExprLit {
+                                    attrs,
+                                    lit: Lit::Char(lit_char),
+                                }),
+                        }),
+                } = attribute
+                    && path.is_ident("terminal")
+                {
+                    Some(lit_char.value())
+                } else {
+                    None
+                }
+            }),
+        }
     }
 }
 
