@@ -18,25 +18,25 @@ impl From<DeriveInput> for Symbol {
     fn from(symbol: DeriveInput) -> Self {
         let DeriveInput {
             attrs,
-            vis,
+            vis: _,
             ident,
-            generics,
+            generics: _,
             data,
         } = symbol;
         Self {
             name: ident.clone(),
             terminal: attrs.into_iter().find_map(|attribute| {
                 if let Attribute {
-                    pound_token,
-                    style,
-                    bracket_token,
+                    pound_token: _,
+                    style: _,
+                    bracket_token: _,
                     meta:
                         Meta::NameValue(MetaNameValue {
                             path,
-                            eq_token,
+                            eq_token: _,
                             value:
                                 Expr::Lit(ExprLit {
-                                    attrs,
+                                    attrs: _,
                                     lit: Lit::Char(lit_char),
                                 }),
                         }),
@@ -50,12 +50,12 @@ impl From<DeriveInput> for Symbol {
             }),
             definition: match data {
                 Data::Struct(DataStruct {
-                    struct_token,
+                    struct_token: _,
                     fields,
-                    semi_token,
+                    semi_token: _,
                 }) => match fields {
                     Fields::Unnamed(FieldsUnnamed {
-                        paren_token,
+                        paren_token: _,
                         unnamed,
                     }) => Component::Tuple {
                         name: None,
@@ -65,8 +65,8 @@ impl From<DeriveInput> for Symbol {
                     fields => panic!("Unknown fields={:#x?}", fields),
                 },
                 Data::Enum(DataEnum {
-                    enum_token,
-                    brace_token,
+                    enum_token: _,
+                    brace_token: _,
                     variants,
                 }) => Component::Enum(variants.into_iter().map(|variant| variant.into()).collect()),
                 data => panic!("Unknown data={:#x?}", data),
@@ -101,21 +101,21 @@ impl From<Type> for Component {
     fn from(ty: Type) -> Self {
         match ty {
             Type::Array(TypeArray {
-                attrs,
-                bracket_token,
+                attrs: _,
+                bracket_token: _,
                 elem,
-                semi_token,
+                semi_token: _,
                 len,
             }) => Self::Array {
                 unit: Box::map(elem, |ty| ty.into()),
                 size: len,
             },
             Type::Path(TypePath {
-                attrs,
-                qself,
+                attrs: _,
+                qself: _,
                 path:
                     Path {
-                        leading_colon,
+                        leading_colon: _,
                         mut segments,
                     },
             }) => {
@@ -124,10 +124,10 @@ impl From<Type> for Component {
                 match ident.to_string().as_str() {
                     ident @ ("Box" | "Option" | "Vec") => match arguments {
                         PathArguments::AngleBracketed(AngleBracketedGenericArguments {
-                            colon2_token,
-                            lt_token,
+                            colon2_token: _,
+                            lt_token: _,
                             mut args,
-                            gt_token,
+                            gt_token: _,
                         }) => {
                             if let GenericArgument::Type(ty) = args.pop().unwrap() {
                                 assert!(args.is_empty());
@@ -148,8 +148,8 @@ impl From<Type> for Component {
                 }
             }
             Type::Tuple(TypeTuple {
-                attrs,
-                paren_token,
+                attrs: _,
+                paren_token: _,
                 elems,
             }) => Self::Tuple {
                 name: None,
@@ -163,14 +163,14 @@ impl From<Type> for Component {
 impl From<Variant> for Component {
     fn from(variant: Variant) -> Self {
         if let Variant {
-            attrs,
+            attrs: _,
             ident,
             fields:
                 Fields::Unnamed(FieldsUnnamed {
-                    paren_token,
+                    paren_token: _,
                     unnamed,
                 }),
-            discriminant,
+            discriminant: _,
         } = variant
         {
             Self::Tuple {
