@@ -2,13 +2,16 @@
 
 extern crate alloc;
 
-use {alloc::boxed::Box, parser::Parser};
+use {
+    alloc::{boxed::Box, vec::Vec},
+    parser::Parser,
+};
 
 #[derive(Parser)]
-struct Expression(Term, Option<(VerticalBar, Box<Expression>)>);
+struct Expression(Term, Vec<(VerticalBar, Term)>);
 
 #[derive(Parser)]
-struct Term(Power, Option<Box<Term>>);
+struct Term(Vec<Power>);
 
 #[derive(Parser)]
 struct Power(Base, Option<Exponent>);
@@ -170,7 +173,7 @@ enum UnescapedCharacter {
 }
 
 #[derive(Parser)]
-struct Set(Range, Option<Box<Set>>);
+struct Set(Vec<Range>);
 
 #[derive(Parser)]
 struct Range(Element, Option<(Hyphen, Element)>);
@@ -312,7 +315,7 @@ enum Exponent {
 }
 
 #[derive(Parser)]
-struct Number(Digit, Option<Box<Number>>);
+struct Number(Vec<Digit>);
 
 #[derive(Parser)]
 enum Digit {
