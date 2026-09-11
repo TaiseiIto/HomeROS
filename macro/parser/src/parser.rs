@@ -68,7 +68,10 @@ impl From<DeriveInput> for Symbol {
                     enum_token: _,
                     brace_token: _,
                     variants,
-                }) => Component::Enum(variants.into_iter().map(|variant| variant.into()).collect()),
+                }) => Component::Enum {
+                    name: ident.clone(),
+                    variants: variants.into_iter().map(|variant| variant.into()).collect(),
+                },
                 data => panic!("Unknown data={:#x?}", data),
             },
         }
@@ -87,7 +90,10 @@ pub enum Component {
         size: Expr,
     },
     Box(Box<Component>),
-    Enum(Vec<Component>),
+    Enum {
+        name: Ident,
+        variants: Vec<Component>,
+    },
     Option(Box<Component>),
     Part(Ident),
     Tuple {
