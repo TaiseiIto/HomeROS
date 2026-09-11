@@ -268,12 +268,10 @@ impl Component {
                     })
                     .unzip();
                 quote! {
-                    {
-                        if #(#lets)&&* {
-                            Some((#name(#(#symbols),*), string))
-                        } else {
-                            None
-                        }
+                    if #(#lets)&&* {
+                        Some((#name(#(#symbols),*), string))
+                    } else {
+                        None
                     }
                 }
             }
