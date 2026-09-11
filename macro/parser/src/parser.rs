@@ -28,7 +28,7 @@ impl Symbol {
     fn parse(&self) -> TokenStream {
         let value: TokenStream = self.value();
         quote! {
-            fn parse(string: &str) -> Option<(Self, &str)> {
+            pub fn parse(string: &str) -> Option<(Self, &str)> {
                 #value
             }
         }

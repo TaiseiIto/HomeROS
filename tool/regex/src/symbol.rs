@@ -3,23 +3,23 @@ use {
     parser::Parser,
 };
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Expression(Term, Vec<(VerticalBar, Term)>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Term(Vec<Power>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Power(Base, Option<Exponent>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Base {
     Character(Character),
     Expression(LeftParenthesis, Box<Expression>, RightParenthesis),
     Set(LeftBracket, Option<Circumflex>, Set, RightBracket),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Character {
     Circumflex(Circumflex),
     Dollar(Dollar),
@@ -28,7 +28,7 @@ pub enum Character {
     UnescapedCharacter(UnescapedCharacter),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum EscapedCharacter {
     Asterisk(Asterisk),
     Backslash(Backslash),
@@ -62,10 +62,10 @@ pub enum EscapedCharacter {
     VerticalBar(VerticalBar),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Byte([Hexadecimal; 2]);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Hexadecimal {
     Zero(Zero),
     One(One),
@@ -85,7 +85,7 @@ pub enum Hexadecimal {
     UpperF(UpperF),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum UnescapedCharacter {
     Zero(Zero),
     One(One),
@@ -168,19 +168,19 @@ pub enum UnescapedCharacter {
     Underscore(Underscore),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Set(Vec<Range>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Element {
     EscapedElement(Backslash, EscapedElement),
     UnescapedElement(UnescapedElement),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum EscapedElement {
     Asterisk(Asterisk),
     Backslash(Backslash),
@@ -215,7 +215,7 @@ pub enum EscapedElement {
     VerticalBar(VerticalBar),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum UnescapedElement {
     Zero(Zero),
     One(One),
@@ -297,7 +297,7 @@ pub enum UnescapedElement {
     Underscore(Underscore),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Exponent {
     Asterisk(Asterisk),
     Plus(Plus),
@@ -310,10 +310,10 @@ pub enum Exponent {
     ),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub struct Number(Vec<Digit>);
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 pub enum Digit {
     One(One),
     Two(Two),
@@ -326,378 +326,378 @@ pub enum Digit {
     Nine(Nine),
 }
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '0']
 pub struct Zero;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '1']
 pub struct One;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '2']
 pub struct Two;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '3']
 pub struct Three;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '4']
 pub struct Four;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '5']
 pub struct Five;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '6']
 pub struct Six;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '7']
 pub struct Seven;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '8']
 pub struct Eight;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '9']
 pub struct Nine;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'a']
 pub struct LowerA;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'b']
 pub struct LowerB;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'c']
 pub struct LowerC;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'd']
 pub struct LowerD;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'e']
 pub struct LowerE;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'f']
 pub struct LowerF;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'g']
 pub struct LowerG;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'h']
 pub struct LowerH;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'i']
 pub struct LowerI;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'j']
 pub struct LowerJ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'k']
 pub struct LowerK;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'l']
 pub struct LowerL;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'm']
 pub struct LowerM;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'n']
 pub struct LowerN;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'o']
 pub struct LowerO;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'p']
 pub struct LowerP;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'q']
 pub struct LowerQ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'r']
 pub struct LowerR;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 's']
 pub struct LowerS;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 't']
 pub struct LowerT;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'u']
 pub struct LowerU;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'v']
 pub struct LowerV;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'w']
 pub struct LowerW;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'x']
 pub struct LowerX;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'y']
 pub struct LowerY;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'z']
 pub struct LowerZ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'A']
 pub struct UpperA;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'B']
 pub struct UpperB;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'C']
 pub struct UpperC;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'D']
 pub struct UpperD;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'E']
 pub struct UpperE;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'F']
 pub struct UpperF;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'G']
 pub struct UpperG;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'H']
 pub struct UpperH;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'I']
 pub struct UpperI;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'J']
 pub struct UpperJ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'K']
 pub struct UpperK;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'L']
 pub struct UpperL;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'M']
 pub struct UpperM;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'N']
 pub struct UpperN;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'O']
 pub struct UpperO;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'P']
 pub struct UpperP;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'Q']
 pub struct UpperQ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'R']
 pub struct UpperR;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'S']
 pub struct UpperS;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'T']
 pub struct UpperT;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'U']
 pub struct UpperU;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'V']
 pub struct UpperV;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'W']
 pub struct UpperW;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'X']
 pub struct UpperX;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'Y']
 pub struct UpperY;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = 'Z']
 pub struct UpperZ;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '&']
 pub struct Ampersand;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '\'']
 pub struct Apostrophe;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '*']
 pub struct Asterisk;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '@']
 pub struct At;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '\\']
 pub struct Backslash;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '^']
 pub struct Circumflex;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = ':']
 pub struct Colon;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = ',']
 pub struct Comma;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '$']
 pub struct Dollar;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '=']
 pub struct Equal;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '!']
 pub struct Exclamation;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '`']
 pub struct Grave;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '>']
 pub struct GreaterThan;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '#']
 pub struct Hash;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '-']
 pub struct Hyphen;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '{']
 pub struct LeftBrace;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '[']
 pub struct LeftBracket;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '(']
 pub struct LeftParenthesis;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '<']
 pub struct LessThan;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '%']
 pub struct Percent;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '.']
 pub struct Period;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '+']
 pub struct Plus;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '?']
 pub struct Question;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '"']
 pub struct Quotation;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '}']
 pub struct RightBrace;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = ']']
 pub struct RightBracket;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = ')']
 pub struct RightParenthesis;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = ';']
 pub struct Semicolon;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '/']
 pub struct Slash;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '~']
 pub struct Tilde;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '_']
 pub struct Underscore;
 
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[terminal = '|']
 pub struct VerticalBar;
