@@ -2,4 +2,5 @@
 
 extern crate alloc;
 
+mod automata;
 mod symbol;
