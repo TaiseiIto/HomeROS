@@ -1,18 +1,20 @@
-use {super::symbol, alloc::collections::btree_set::BTreeSet};
+use {
+    crate::symbol,
+    alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
+};
 
-struct Character {
-    set: BTreeSet<char>,
-    accept: Accept,
-}
-
-impl Character {
-    fn accept(&self, character: &char) -> bool {
-        let Self { set, accept } = self;
-        match accept {
-            Accept::Complement => !set.contains(character),
-            Accept::Set => set.contains(character),
-        }
-    }
+enum Automata {
+    Character {
+        set: BTreeSet<char>,
+        accept: Accept,
+    },
+    Repetition {
+        body: Box<Automata>,
+        min: Option<usize>,
+        max: Option<usize>,
+    },
+    Selection(Vec<Automata>),
+    Sequence(Vec<Automata>),
 }
 
 enum Accept {
