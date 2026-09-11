@@ -207,11 +207,46 @@ impl Component {
                     #value.map(|(symbol, string)| (Box::new(symbol), string))
                 }
             }
-            Self::Enum { name, variants } => unimplemented!(),
+            Self::Enum { name, variants } => {
+                let variants: Vec<TokenStream> = variants
+                    .iter()
+                    .map(|variant| {
+                        if let Self::Tuple { name, elements } = variant {
+                            let (lets, symbols): (Vec<TokenStream>, Vec<Ident>) = elements
+                                .iter()
+                                .enumerate()
+                                .map(|(index, element)| {
+                                    let symbol: Ident =
+                                        Ident::new(&format!("symbol{}", index), Span::call_site());
+                                    let element_value: TokenStream = element.value();
+                                    let let_statement: TokenStream = quote! {
+                                        let Some((#symbol, string)) = #element_value
+                                    };
+                                    (let_statement, symbol)
+                                })
+                                .unzip();
+                            quote! {
+                                if #(#lets)&&* {
+                                    Some((Self::#name(#(#symbols),*), string))
+                                }
+                            }
+                        } else {
+                            panic!();
+                        }
+                    })
+                    .collect();
+                quote! {
+                    #(#variants)else* else { None }
+                }
+            }
             Self::Option(component) => {
                 let value: TokenStream = component.value();
                 quote! {
-                    #value.map(|(symbol, string)| (Some(symbol), string))
+                    Some(if let Some((symbol, string)) = #value {
+                        (Some(symbol), string)
+                    } else {
+                        (None, string)
+                    })
                 }
             }
             Self::Part(ident) => quote! { #ident::parse(string) },
@@ -222,16 +257,18 @@ impl Component {
                     .map(|(index, element)| {
                         let symbol: Ident =
                             Ident::new(&format!("symbol{}", index), Span::call_site());
-                        let element_type: TokenStream = element.ty();
+                        let element_value: TokenStream = element.value();
                         let let_statement: TokenStream = quote! {
-                            let Some((#symbol, string)) = #element_type::parse(string)
+                            let Some((#symbol, string)) = #element_value::parse(string)
                         };
                         (let_statement, symbol)
                     })
                     .unzip();
                 quote! {
                     if #(#lets)&&* {
-                        Some(#name(#(#symbols),*), string)
+                        Some((#name(#(#symbols),*), string))
+                    } else {
+                        None
                     }
                 }
             }
