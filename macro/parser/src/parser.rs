@@ -1,5 +1,5 @@
 use {
-    proc_macro2::TokenStream,
+    proc_macro2::{Span, TokenStream},
     quote::quote,
     syn::{
         AngleBracketedGenericArguments, Attribute, Data, DataEnum, DataStruct, DeriveInput, Expr,
@@ -12,6 +12,48 @@ pub struct Symbol {
     name: Ident,
     terminal: Option<char>,
     definition: Component,
+}
+
+impl Symbol {
+    fn implement(&self) -> TokenStream {
+        let name: &Ident = &self.name;
+        let parse: TokenStream = self.parse();
+        quote! {
+            impl #name {
+                #parse
+            }
+        }
+    }
+
+    fn parse(&self) -> TokenStream {
+        let value: TokenStream = self.value();
+        quote! {
+            fn parse(string: &str) -> Option<(Self, &str)> {
+                #value
+            }
+        }
+    }
+
+    fn value(&self) -> TokenStream {
+        let Self {
+            name: _,
+            terminal,
+            definition,
+        } = self;
+        if let Some(terminal) = terminal
+            && let Component::Part(ident) = definition
+        {
+            quote! {
+                let mut string: ::core::str::Chars<'_> = string.chars();
+                string
+                    .next()
+                    .and_then(|character| (character == #terminal)
+                        .then_some((Self, string.as_str())))
+            }
+        } else {
+            definition.value()
+        }
+    }
 }
 
 impl From<DeriveInput> for Symbol {
@@ -101,6 +143,114 @@ pub enum Component {
         elements: Vec<Component>,
     },
     Vec(Box<Component>),
+}
+
+impl Component {
+    fn ty(&self) -> TokenStream {
+        match self {
+            Self::Array { unit, size } => {
+                let unit: TokenStream = unit.ty();
+                quote! { [#unit; #size] }
+            }
+            Self::Box(component) => {
+                let component: TokenStream = component.ty();
+                quote! { Box<#component> }
+            }
+            Self::Enum { name, variants } => quote! { #name },
+            Self::Option(component) => {
+                let component: TokenStream = component.ty();
+                quote! { Option<#component> }
+            }
+            Self::Part(ty) => quote! { #ty },
+            Self::Tuple { name, elements } => {
+                if let Some(name) = name {
+                    quote! { #name }
+                } else {
+                    let elements: Vec<TokenStream> =
+                        elements.iter().map(|element| element.ty()).collect();
+                    quote! { (#(#elements),*) }
+                }
+            }
+            Self::Vec(component) => {
+                let component: TokenStream = component.ty();
+                quote! { Vec<#component> }
+            }
+        }
+    }
+
+    fn value(&self) -> TokenStream {
+        let ty: TokenStream = self.ty();
+        match self {
+            Self::Array { unit, size } => {
+                let value: TokenStream = unit.value();
+                let unit_type: TokenStream = unit.ty();
+                quote! {
+                    {
+                        let mut symbols: Vec<#unit_type> = Vec::new();
+                        let mut string: &str = string;
+                        for _ in 0..#size {
+                            if let Some((symbol, remaining_string)) = #value {
+                                symbols.push(symbol);
+                                string = remaining_string;
+                            }
+                        }
+                        symbols
+                            .try_into()
+                            .ok()
+                            .map(|symbols| (symbols, string))
+                    }
+                }
+            }
+            Self::Box(component) => {
+                let value: TokenStream = component.value();
+                quote! {
+                    #value.map(|(symbol, string)| (Box::new(symbol), string))
+                }
+            }
+            Self::Enum { name, variants } => unimplemented!(),
+            Self::Option(component) => {
+                let value: TokenStream = component.value();
+                quote! {
+                    #value.map(|(symbol, string)| (Some(symbol), string))
+                }
+            }
+            Self::Part(ident) => quote! { #ident::parse(string) },
+            Self::Tuple { name, elements } => {
+                let (lets, symbols): (Vec<TokenStream>, Vec<Ident>) = elements
+                    .iter()
+                    .enumerate()
+                    .map(|(index, element)| {
+                        let symbol: Ident =
+                            Ident::new(&format!("symbol{}", index), Span::call_site());
+                        let element_type: TokenStream = element.ty();
+                        let let_statement: TokenStream = quote! {
+                            let Some((#symbol, string)) = #element_type::parse(string)
+                        };
+                        (let_statement, symbol)
+                    })
+                    .unzip();
+                quote! {
+                    if #(#lets)&&* {
+                        Some(#name(#(#symbols),*), string)
+                    }
+                }
+            }
+            Self::Vec(component) => {
+                let value: TokenStream = component.value();
+                quote! {
+                    {
+                        let mut symbols: #ty = Vec::new();
+                        let mut string = string;
+                        while let Some((symbol, remaining_string)) = #value {
+                            symbols.push(symbol);
+                            string = remaining_string;
+                        }
+                        Some((symbols, string))
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl From<Type> for Component {
