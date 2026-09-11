@@ -100,7 +100,7 @@ impl From<DeriveInput> for Symbol {
                         paren_token: _,
                         unnamed,
                     }) => Component::Tuple {
-                        name: None,
+                        name: Some(ident.clone()),
                         elements: unnamed.into_iter().map(|field| field.ty.into()).collect(),
                     },
                     Fields::Unit => Component::Part(ident),
@@ -122,7 +122,10 @@ impl From<DeriveInput> for Symbol {
 
 impl From<Symbol> for TokenStream {
     fn from(symbol: Symbol) -> Self {
-        quote! {}
+        let implement: TokenStream = symbol.implement();
+        quote! {
+            #implement
+        }
     }
 }
 
@@ -259,16 +262,18 @@ impl Component {
                             Ident::new(&format!("symbol{}", index), Span::call_site());
                         let element_value: TokenStream = element.value();
                         let let_statement: TokenStream = quote! {
-                            let Some((#symbol, string)) = #element_value::parse(string)
+                            let Some((#symbol, string)) = #element_value
                         };
                         (let_statement, symbol)
                     })
                     .unzip();
                 quote! {
-                    if #(#lets)&&* {
-                        Some((#name(#(#symbols),*), string))
-                    } else {
-                        None
+                    {
+                        if #(#lets)&&* {
+                            Some((#name(#(#symbols),*), string))
+                        } else {
+                            None
+                        }
                     }
                 }
             }
