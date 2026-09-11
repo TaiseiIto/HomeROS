@@ -76,7 +76,7 @@
 
 |Expression|Semantic|
 |-|-|
-|`A|B`|Selection of block `A` or `B`|
+|`A\|B`|Selection of block `A` or `B`|
 
 ## Internal specification
 
