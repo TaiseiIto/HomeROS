@@ -1,17 +1,17 @@
 use {
     crate::{Acceptance, Automata},
     alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
-    core::iter::once,
+    core::{iter::once, str::FromStr},
     parser::Parser,
 };
 
 #[derive(Debug, Parser)]
 pub struct Expression(Term, Vec<(VerticalBar, Term)>);
 
-impl TryFrom<&str> for Expression {
-    type Error = ();
+impl FromStr for Expression {
+    type Err = ();
 
-    fn try_from(string: &str) -> Result<Self, Self::Error> {
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
         Self::parse(string)
             .and_then(|(expression, remaining_string)| {
                 remaining_string.is_empty().then_some(expression)

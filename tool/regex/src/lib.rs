@@ -35,8 +35,9 @@ impl FromStr for Automata {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
-        let expression: Result<Expression, ()> = string.try_into();
-        expression.map(|expression| expression.into())
+        string
+            .parse()
+            .map(|expression: Expression| expression.into())
     }
 }
 
