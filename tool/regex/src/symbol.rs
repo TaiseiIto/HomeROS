@@ -106,12 +106,12 @@ impl From<Character> for Automata {
                 EscapedCharacter::LeftBrace(left_brace) => left_brace.into(),
                 EscapedCharacter::LeftBracket(left_bracket) => left_bracket.into(),
                 EscapedCharacter::LeftParenthesis(left_parenthesis) => left_parenthesis.into(),
-                EscapedCharacter::LowerD(LowerD) => r"[0-9]".parse().unwrap(),
+                EscapedCharacter::LowerD(LowerD) => r"[\d]".parse().unwrap(),
                 EscapedCharacter::LowerF(LowerF) => Self::Character {
                     set: once('\x0C').collect(),
                     acceptance: Acceptance::Set,
                 },
-                EscapedCharacter::LowerL(LowerL) => r"[a-z]".parse().unwrap(),
+                EscapedCharacter::LowerL(LowerL) => r"[\l]".parse().unwrap(),
                 EscapedCharacter::LowerN(LowerN) => Self::Character {
                     set: once('\n').collect(),
                     acceptance: Acceptance::Set,
@@ -120,13 +120,13 @@ impl From<Character> for Automata {
                     set: once('\r').collect(),
                     acceptance: Acceptance::Set,
                 },
-                EscapedCharacter::LowerS(LowerS) => r"[ \f\n\r\t]".parse().unwrap(),
+                EscapedCharacter::LowerS(LowerS) => r"[\s]".parse().unwrap(),
                 EscapedCharacter::LowerT(LowerT) => Self::Character {
                     set: once('\t').collect(),
                     acceptance: Acceptance::Set,
                 },
-                EscapedCharacter::LowerU(LowerU) => r"[A-Z]".parse().unwrap(),
-                EscapedCharacter::LowerW(LowerW) => r"[\d\l\u_]".parse().unwrap(),
+                EscapedCharacter::LowerU(LowerU) => r"[\u]".parse().unwrap(),
+                EscapedCharacter::LowerW(LowerW) => r"[\w]".parse().unwrap(),
                 EscapedCharacter::LowerX(LowerX, byte) => Self::Character {
                     set: once({
                         let byte: u8 = byte.into();
@@ -142,11 +142,11 @@ impl From<Character> for Automata {
                 EscapedCharacter::RightBracket(right_bracket) => right_bracket.into(),
                 EscapedCharacter::RightParenthesis(right_parenthesis) => right_parenthesis.into(),
                 EscapedCharacter::Slash(slash) => slash.into(),
-                EscapedCharacter::UpperD(UpperD) => r"[^\d]".parse().unwrap(),
-                EscapedCharacter::UpperL(UpperL) => r"[^\l]".parse().unwrap(),
-                EscapedCharacter::UpperU(UpperU) => r"[^\u]".parse().unwrap(),
-                EscapedCharacter::UpperS(UpperS) => r"[^\s]".parse().unwrap(),
-                EscapedCharacter::UpperW(UpperW) => r"[^\w]".parse().unwrap(),
+                EscapedCharacter::UpperD(UpperD) => r"[\D]".parse().unwrap(),
+                EscapedCharacter::UpperL(UpperL) => r"[\L]".parse().unwrap(),
+                EscapedCharacter::UpperU(UpperU) => r"[\U]".parse().unwrap(),
+                EscapedCharacter::UpperS(UpperS) => r"[\S]".parse().unwrap(),
+                EscapedCharacter::UpperW(UpperW) => r"[\W]".parse().unwrap(),
                 EscapedCharacter::VerticalBar(vertical_bar) => vertical_bar.into(),
             },
             Character::Period(Period) => r"[^]".parse().unwrap(),
