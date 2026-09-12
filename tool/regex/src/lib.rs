@@ -4,7 +4,10 @@ extern crate alloc;
 
 mod symbol;
 
-use alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec};
+use {
+    alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
+    core::iter::once,
+};
 
 pub enum Acceptance {
     Complement,
@@ -25,6 +28,18 @@ pub enum Automata {
     Selection(Vec<Automata>),
     Sequence(Vec<Automata>),
     StartOfLine,
+}
+
+impl<T> From<T> for Automata
+where
+    T: Into<char>,
+{
+    fn from(character: T) -> Self {
+        Self::Character {
+            set: once(character.into()).collect(),
+            acceptance: Acceptance::Set,
+        }
+    }
 }
 
 #[cfg(test)]
