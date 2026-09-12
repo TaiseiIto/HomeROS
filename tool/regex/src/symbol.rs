@@ -445,7 +445,14 @@ pub struct Range(Element, Option<(Hyphen, Element)>);
 
 impl From<Range> for BTreeSet<char> {
     fn from(range: Range) -> Self {
-        unimplemented!();
+        let Range(start, end) = range;
+        if let Some((Hyphen, end)) = end {
+            let start: u8 = start.into();
+            let end: u8 = end.into();
+            (start..=end).map(|character| character as char).collect()
+        } else {
+            start.into()
+        }
     }
 }
 
@@ -453,6 +460,18 @@ impl From<Range> for BTreeSet<char> {
 pub enum Element {
     EscapedElement(Backslash, EscapedElement),
     UnescapedElement(UnescapedElement),
+}
+
+impl From<Element> for BTreeSet<char> {
+    fn from(element: Element) -> Self {
+        unimplemented!();
+    }
+}
+
+impl From<Element> for u8 {
+    fn from(element: Element) -> Self {
+        unimplemented!();
+    }
 }
 
 #[derive(Debug, Parser)]
