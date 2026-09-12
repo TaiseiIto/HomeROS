@@ -13,7 +13,7 @@ impl From<Expression> for Automata {
         let Expression(term, terms) = expression;
         Self::Selection(
             once(term)
-                .chain(terms.into_iter().map(|(vertical_bar, term)| term))
+                .chain(terms.into_iter().map(|(VerticalBar, term)| term))
                 .map(|term| term.into())
                 .collect(),
         )
@@ -358,7 +358,7 @@ impl From<Exponent> for (usize, Option<usize>) {
             Exponent::Asterisk(_) => (0, None),
             Exponent::Plus(_) => (1, None),
             Exponent::Question(_) => (0, Some(1)),
-            Exponent::Range(left_brace, min, max, right_brace) => (
+            Exponent::Range(LeftBrace, min, max, RightBrace) => (
                 min.into(),
                 max.and_then(|(_, max)| max.map(|max| max.into())),
             ),
@@ -371,12 +371,17 @@ pub struct Number(Vec<Digit>);
 
 impl From<Number> for usize {
     fn from(number: Number) -> Self {
-        unimplemented!();
+        number
+            .0
+            .into_iter()
+            .map(|digit| digit.into())
+            .fold(0, |number, digit: usize| 10 * number + digit)
     }
 }
 
 #[derive(Debug, Parser)]
 pub enum Digit {
+    Zero(Zero),
     One(One),
     Two(Two),
     Three(Three),
@@ -386,6 +391,23 @@ pub enum Digit {
     Seven(Seven),
     Eight(Eight),
     Nine(Nine),
+}
+
+impl From<Digit> for usize {
+    fn from(digit: Digit) -> usize {
+        match digit {
+            Digit::Zero(_) => 0,
+            Digit::One(_) => 1,
+            Digit::Two(_) => 2,
+            Digit::Three(_) => 3,
+            Digit::Four(_) => 4,
+            Digit::Five(_) => 5,
+            Digit::Six(_) => 6,
+            Digit::Seven(_) => 7,
+            Digit::Eight(_) => 8,
+            Digit::Nine(_) => 9,
+        }
+    }
 }
 
 #[derive(Debug, Parser)]
