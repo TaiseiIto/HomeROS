@@ -25,6 +25,25 @@ impl Symbol {
         }
     }
 
+    fn into_char(&self) -> Option<TokenStream> {
+        if let Self {
+            name,
+            terminal: Some(terminal),
+            definition: _,
+        } = self
+        {
+            Some(quote! {
+                impl From<#name> for char {
+                    fn from(_: #name) -> Self {
+                        #terminal
+                    }
+                }
+            })
+        } else {
+            None
+        }
+    }
+
     fn parse(&self) -> TokenStream {
         let value: TokenStream = self.value();
         quote! {
@@ -123,8 +142,10 @@ impl From<DeriveInput> for Symbol {
 impl From<Symbol> for TokenStream {
     fn from(symbol: Symbol) -> Self {
         let implement: TokenStream = symbol.implement();
+        let into_char: Option<TokenStream> = symbol.into_char();
         quote! {
             #implement
+            #into_char
         }
     }
 }
