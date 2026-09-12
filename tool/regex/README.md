@@ -97,8 +97,8 @@ symbol = "'" + '!' + '"' + '#' + '%' + '&' + ',' + '-' + ':' + ';' + '<' + '=' +
 set = {range};
 range = element['-'element];
 element = digit + lowercase + uppercase + '\'element_escaped + element_symbol;
-element_escaped = '$' + '(' + ')' + '*' + '+' + '-' + '.' + '/' + '?' + 'D' + 'L' + 'S' + 'U' + 'W' + '[' + '\' + ']' + '^' + 'd' + 'f' + 'l' + 'n' + 'r' + 's' + 't' + 'u' + 'w' + 'x'byte + '{' + '|' + '}';
-element_symbol = "'" + '!' + '"' + '#' + '%' + '&' + ',' + ':' + ';' + '<' + '=' + '>' + '@' + '_' + '`' + '~';
+element_escaped = 'D' + 'L' + 'S' + 'U' + 'W' + '\' + ']' + '^' + 'd' + 'f' + 'l' + 'n' + 'r' + 's' + 't' + 'u' + 'w' + 'x'byte;
+element_symbol = "'" + '!' + '"' + '#' + '$' + '%' + '&' + '(' + ')' + '*' + '+' + ',' + '-' + '.' + '/' + ':' + ';' + '<' + '=' + '>' + '?' + '@' + '[' + '_' + '`' + '{' + '|' + '}' + '~';
 exponent = '*' + '+' + '?' + '{'number[,[number]]'}';
 number = {digit};
 ```
