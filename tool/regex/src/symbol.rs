@@ -1,13 +1,33 @@
 use {
+    crate::Automata,
     alloc::{boxed::Box, vec::Vec},
+    core::iter::once,
     parser::Parser,
 };
 
 #[derive(Debug, Parser)]
 pub struct Expression(Term, Vec<(VerticalBar, Term)>);
 
+impl From<Expression> for Automata {
+    fn from(expression: Expression) -> Self {
+        let Expression(term, terms) = expression;
+        Self::Selection(
+            once(term)
+                .chain(terms.into_iter().map(|(vertical_bar, term)| term))
+                .map(|term| term.into())
+                .collect(),
+        )
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct Term(Vec<Power>);
+
+impl From<Term> for Automata {
+    fn from(term: Term) -> Self {
+        unimplemented!();
+    }
+}
 
 #[derive(Debug, Parser)]
 pub struct Power(Base, Option<Exponent>);
