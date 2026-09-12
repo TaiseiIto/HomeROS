@@ -414,12 +414,18 @@ pub struct Set(Vec<Range>);
 
 impl From<Set> for character::Set {
     fn from(set: Set) -> Self {
-        unimplemented!();
+        set.0.into_iter().map(Into::<Self>::into).sum()
     }
 }
 
 #[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
+
+impl From<Range> for character::Set {
+    fn from(range: Range) -> Self {
+        unimplemented!();
+    }
+}
 
 #[derive(Debug, Parser)]
 pub enum Element {

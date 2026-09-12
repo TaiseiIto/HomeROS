@@ -1,11 +1,12 @@
 use {
     alloc::{collections::btree_set::BTreeSet, vec::Vec},
     core::{
-        iter::once,
+        iter::{Sum, once},
         ops::{Add, Neg, Not, Sub},
     },
 };
 
+#[derive(Default)]
 pub struct Set {
     acceptance: Acceptance,
     subsets: Vec<Subset>,
@@ -42,6 +43,12 @@ impl Sub for Set {
 
     fn sub(self, other: Self) -> Self::Output {
         self + (-other)
+    }
+}
+
+impl Sum for Set {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::default(), |sum, element| sum + element)
     }
 }
 
@@ -89,6 +96,12 @@ impl FromIterator<char> for Subset {
 enum Acceptance {
     Complement,
     Set,
+}
+
+impl Default for Acceptance {
+    fn default() -> Self {
+        Self::Set
+    }
 }
 
 impl Not for Acceptance {
