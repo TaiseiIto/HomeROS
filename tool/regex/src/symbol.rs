@@ -107,12 +107,24 @@ impl From<Character> for Automata {
                 EscapedCharacter::LeftBracket(left_bracket) => left_bracket.into(),
                 EscapedCharacter::LeftParenthesis(left_parenthesis) => left_parenthesis.into(),
                 EscapedCharacter::LowerD(LowerD) => r"[0-9]".parse().unwrap(),
-                EscapedCharacter::LowerF(lower_f) => lower_f.into(),
+                EscapedCharacter::LowerF(LowerF) => Self::Character {
+                    set: once('\x0C').collect(),
+                    acceptance: Acceptance::Set,
+                },
                 EscapedCharacter::LowerL(LowerL) => r"[a-z]".parse().unwrap(),
-                EscapedCharacter::LowerN(lower_n) => lower_n.into(),
-                EscapedCharacter::LowerR(lower_r) => lower_r.into(),
+                EscapedCharacter::LowerN(LowerN) => Self::Character {
+                    set: once('\n').collect(),
+                    acceptance: Acceptance::Set,
+                },
+                EscapedCharacter::LowerR(LowerR) => Self::Character {
+                    set: once('\r').collect(),
+                    acceptance: Acceptance::Set,
+                },
                 EscapedCharacter::LowerS(LowerS) => r"[ \f\n\r\t]".parse().unwrap(),
-                EscapedCharacter::LowerT(lower_t) => lower_t.into(),
+                EscapedCharacter::LowerT(LowerT) => Self::Character {
+                    set: once('\t').collect(),
+                    acceptance: Acceptance::Set,
+                },
                 EscapedCharacter::LowerU(LowerU) => r"[A-Z]".parse().unwrap(),
                 EscapedCharacter::LowerW(LowerW) => r"[\d\l\u_]".parse().unwrap(),
                 EscapedCharacter::LowerX(LowerX, byte) => Self::Character {
