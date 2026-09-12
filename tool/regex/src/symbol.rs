@@ -25,18 +25,40 @@ pub struct Term(Vec<Power>);
 
 impl From<Term> for Automata {
     fn from(term: Term) -> Self {
-        unimplemented!();
+        Self::Sequence(term.0.into_iter().map(|power| power.into()).collect())
     }
 }
 
 #[derive(Debug, Parser)]
 pub struct Power(Base, Option<Exponent>);
 
+impl From<Power> for Automata {
+    fn from(power: Power) -> Self {
+        let Power(base, exponent) = power;
+        if let Some(exponent) = exponent {
+            let (min, max): (usize, Option<usize>) = exponent.into();
+            Self::Repetition {
+                body: Box::new(base.into()),
+                min,
+                max,
+            }
+        } else {
+            base.into()
+        }
+    }
+}
+
 #[derive(Debug, Parser)]
 pub enum Base {
     Character(Character),
     Expression(LeftParenthesis, Box<Expression>, RightParenthesis),
     Set(LeftBracket, Option<Circumflex>, Set, RightBracket),
+}
+
+impl From<Base> for Automata {
+    fn from(base: Base) -> Self {
+        unimplemented!();
+    }
 }
 
 #[derive(Debug, Parser)]
@@ -330,8 +352,28 @@ pub enum Exponent {
     ),
 }
 
+impl From<Exponent> for (usize, Option<usize>) {
+    fn from(exponent: Exponent) -> Self {
+        match exponent {
+            Exponent::Asterisk(_) => (0, None),
+            Exponent::Plus(_) => (1, None),
+            Exponent::Question(_) => (0, Some(1)),
+            Exponent::Range(left_brace, min, max, right_brace) => (
+                min.into(),
+                max.and_then(|(_, max)| max.map(|max| max.into())),
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct Number(Vec<Digit>);
+
+impl From<Number> for usize {
+    fn from(number: Number) -> Self {
+        unimplemented!();
+    }
+}
 
 #[derive(Debug, Parser)]
 pub enum Digit {

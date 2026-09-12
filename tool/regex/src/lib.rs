@@ -18,7 +18,7 @@ pub enum Automata {
     },
     Repetition {
         body: Box<Automata>,
-        min: Option<usize>,
+        min: usize,
         max: Option<usize>,
     },
     Selection(Vec<Automata>),
