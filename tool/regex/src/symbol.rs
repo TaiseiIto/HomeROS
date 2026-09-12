@@ -84,10 +84,20 @@ pub enum Character {
 impl From<Character> for Automata {
     fn from(character: Character) -> Self {
         match character {
-            Character::Circumflex(Circumflex) => Automata::StartOfLine,
-            Character::Dollar(Dollar) => Automata::EndOfLine,
-            Character::EscapedCharacter(Backslack, escaped_character) => unimplemented!(),
-            Character::Period(Period) => Automata::Character {
+            Character::Circumflex(Circumflex) => Self::StartOfLine,
+            Character::Dollar(Dollar) => Self::EndOfLine,
+            Character::EscapedCharacter(Backslack, escaped_character) => match escaped_character {
+                EscapedCharacter::LowerX(LowerX, byte) => Self::Character {
+                    set: once({
+                        let byte: u8 = byte.into();
+                        byte as char
+                    })
+                    .collect(),
+                    acceptance: Acceptance::Set,
+                },
+                _ => unimplemented!(),
+            },
+            Character::Period(Period) => Self::Character {
                 set: BTreeSet::default(),
                 acceptance: Acceptance::Complement,
             },
@@ -133,6 +143,15 @@ pub enum EscapedCharacter {
 #[derive(Debug, Parser)]
 pub struct Byte([Hexadecimal; 2]);
 
+impl From<Byte> for u8 {
+    fn from(byte: Byte) -> Self {
+        let Byte([high_nibble, low_nibble]) = byte;
+        let high_nibble: u8 = high_nibble.into();
+        let low_nibble: u8 = low_nibble.into();
+        0x10 * high_nibble + low_nibble
+    }
+}
+
 #[derive(Debug, Parser)]
 pub enum Hexadecimal {
     Zero(Zero),
@@ -151,6 +170,29 @@ pub enum Hexadecimal {
     UpperD(UpperD),
     UpperE(UpperE),
     UpperF(UpperF),
+}
+
+impl From<Hexadecimal> for u8 {
+    fn from(hexadecimal: Hexadecimal) -> Self {
+        match hexadecimal {
+            Hexadecimal::Zero(Zero) => 0x00,
+            Hexadecimal::One(One) => 0x01,
+            Hexadecimal::Two(Two) => 0x02,
+            Hexadecimal::Three(Three) => 0x03,
+            Hexadecimal::Four(Four) => 0x04,
+            Hexadecimal::Five(Five) => 0x05,
+            Hexadecimal::Six(Six) => 0x06,
+            Hexadecimal::Seven(Seven) => 0x07,
+            Hexadecimal::Eight(Eight) => 0x08,
+            Hexadecimal::Nine(Nine) => 0x09,
+            Hexadecimal::UpperA(UpperA) => 0x0a,
+            Hexadecimal::UpperB(UpperB) => 0x0b,
+            Hexadecimal::UpperC(UpperC) => 0x0c,
+            Hexadecimal::UpperD(UpperD) => 0x0d,
+            Hexadecimal::UpperE(UpperE) => 0x0e,
+            Hexadecimal::UpperF(UpperF) => 0x0f,
+        }
+    }
 }
 
 #[derive(Debug, Parser)]
