@@ -1,5 +1,5 @@
 use {
-    crate::{Acceptance, Automata},
+    crate::{Automata, character},
     alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
@@ -72,14 +72,10 @@ impl From<Base> for Automata {
         match base {
             Base::Character(character) => character.into(),
             Base::Expression(LeftParenthesis, expression, RightParenthesis) => (*expression).into(),
-            Base::Set(LeftBracket, circumflex, set, RightBracket) => Self::Character {
-                set: set.into(),
-                acceptance: if circumflex.is_some() {
-                    Acceptance::Complement
-                } else {
-                    Acceptance::Set
-                },
-            },
+            Base::Set(LeftBracket, circumflex, set, RightBracket) => Self::Character({
+                let set: character::Set = set.into();
+                if circumflex.is_some() { -set } else { set }
+            }),
         }
     }
 }
@@ -107,34 +103,15 @@ impl From<Character> for Automata {
                 EscapedCharacter::LeftBracket(left_bracket) => left_bracket.into(),
                 EscapedCharacter::LeftParenthesis(left_parenthesis) => left_parenthesis.into(),
                 EscapedCharacter::LowerD(LowerD) => r"[\d]".parse().unwrap(),
-                EscapedCharacter::LowerF(LowerF) => Self::Character {
-                    set: once('\x0C').collect(),
-                    acceptance: Acceptance::Set,
-                },
+                EscapedCharacter::LowerF(LowerF) => Self::Character('\x0C'.into()),
                 EscapedCharacter::LowerL(LowerL) => r"[\l]".parse().unwrap(),
-                EscapedCharacter::LowerN(LowerN) => Self::Character {
-                    set: once('\n').collect(),
-                    acceptance: Acceptance::Set,
-                },
-                EscapedCharacter::LowerR(LowerR) => Self::Character {
-                    set: once('\r').collect(),
-                    acceptance: Acceptance::Set,
-                },
+                EscapedCharacter::LowerN(LowerN) => Self::Character('\n'.into()),
+                EscapedCharacter::LowerR(LowerR) => Self::Character('\r'.into()),
                 EscapedCharacter::LowerS(LowerS) => r"[\s]".parse().unwrap(),
-                EscapedCharacter::LowerT(LowerT) => Self::Character {
-                    set: once('\t').collect(),
-                    acceptance: Acceptance::Set,
-                },
+                EscapedCharacter::LowerT(LowerT) => Self::Character('\t'.into()),
                 EscapedCharacter::LowerU(LowerU) => r"[\u]".parse().unwrap(),
                 EscapedCharacter::LowerW(LowerW) => r"[\w]".parse().unwrap(),
-                EscapedCharacter::LowerX(LowerX, byte) => Self::Character {
-                    set: once({
-                        let byte: u8 = byte.into();
-                        byte as char
-                    })
-                    .collect(),
-                    acceptance: Acceptance::Set,
-                },
+                EscapedCharacter::LowerX(LowerX, byte) => Self::Character(byte.into()),
                 EscapedCharacter::Period(period) => period.into(),
                 EscapedCharacter::Plus(plus) => plus.into(),
                 EscapedCharacter::Question(question) => question.into(),
@@ -191,6 +168,13 @@ pub enum EscapedCharacter {
 
 #[derive(Debug, Parser)]
 pub struct Byte([Hexadecimal; 2]);
+
+impl From<Byte> for char {
+    fn from(byte: Byte) -> Self {
+        let byte: u8 = byte.into();
+        byte as char
+    }
+}
 
 impl From<Byte> for u8 {
     fn from(byte: Byte) -> Self {
@@ -428,50 +412,19 @@ impl From<UnescapedCharacter> for Automata {
 #[derive(Debug, Parser)]
 pub struct Set(Vec<Range>);
 
-impl From<Set> for BTreeSet<char> {
+impl From<Set> for character::Set {
     fn from(set: Set) -> Self {
-        let Set(ranges) = set;
-        ranges
-            .into_iter()
-            .map(|range| range.into())
-            .fold(Self::new(), |set, range: Self| {
-                set.into_iter().chain(range).collect()
-            })
+        unimplemented!();
     }
 }
 
 #[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
 
-impl From<Range> for BTreeSet<char> {
-    fn from(range: Range) -> Self {
-        let Range(start, end) = range;
-        if let Some((Hyphen, end)) = end {
-            let start: u8 = start.into();
-            let end: u8 = end.into();
-            (start..=end).map(|character| character as char).collect()
-        } else {
-            start.into()
-        }
-    }
-}
-
 #[derive(Debug, Parser)]
 pub enum Element {
     EscapedElement(Backslash, EscapedElement),
     UnescapedElement(UnescapedElement),
-}
-
-impl From<Element> for BTreeSet<char> {
-    fn from(element: Element) -> Self {
-        unimplemented!();
-    }
-}
-
-impl From<Element> for u8 {
-    fn from(element: Element) -> Self {
-        unimplemented!();
-    }
 }
 
 #[derive(Debug, Parser)]

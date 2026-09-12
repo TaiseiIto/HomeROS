@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+mod character;
 mod symbol;
 
 use {
@@ -10,16 +11,8 @@ use {
     symbol::Expression,
 };
 
-pub enum Acceptance {
-    Complement,
-    Set,
-}
-
 pub enum Automata {
-    Character {
-        set: BTreeSet<char>,
-        acceptance: Acceptance,
-    },
+    Character(character::Set),
     EndOfLine,
     Repetition {
         body: Box<Automata>,
@@ -46,10 +39,7 @@ where
     T: Into<char>,
 {
     fn from(character: T) -> Self {
-        Self::Character {
-            set: once(character.into()).collect(),
-            acceptance: Acceptance::Set,
-        }
+        Self::Character(character.into().into())
     }
 }
 
