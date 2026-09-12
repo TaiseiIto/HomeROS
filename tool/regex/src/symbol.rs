@@ -83,7 +83,16 @@ pub enum Character {
 
 impl From<Character> for Automata {
     fn from(character: Character) -> Self {
-        unimplemented!();
+        match character {
+            Character::Circumflex(Circumflex) => Automata::StartOfLine,
+            Character::Dollar(Dollar) => Automata::EndOfLine,
+            Character::EscapedCharacter(Backslack, escaped_character) => unimplemented!(),
+            Character::Period(Period) => Automata::Character {
+                set: BTreeSet::default(),
+                acceptance: Acceptance::Complement,
+            },
+            Character::UnescapedCharacter(character) => unimplemented!(),
+        }
     }
 }
 

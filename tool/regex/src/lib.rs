@@ -16,6 +16,7 @@ pub enum Automata {
         set: BTreeSet<char>,
         acceptance: Acceptance,
     },
+    EndOfLine,
     Repetition {
         body: Box<Automata>,
         min: usize,
@@ -23,6 +24,7 @@ pub enum Automata {
     },
     Selection(Vec<Automata>),
     Sequence(Vec<Automata>),
+    StartOfLine,
 }
 
 #[cfg(test)]
