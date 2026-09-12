@@ -1,6 +1,6 @@
 use {
-    crate::Automata,
-    alloc::{boxed::Box, vec::Vec},
+    crate::{Acceptance, Automata},
+    alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
     core::iter::once,
     parser::Parser,
 };
@@ -57,7 +57,18 @@ pub enum Base {
 
 impl From<Base> for Automata {
     fn from(base: Base) -> Self {
-        unimplemented!();
+        match base {
+            Base::Character(character) => character.into(),
+            Base::Expression(LeftParenthesis, expression, RightParenthesis) => (*expression).into(),
+            Base::Set(LeftBracket, circumflex, set, RightBracket) => Self::Character {
+                set: set.into(),
+                acceptance: if circumflex.is_some() {
+                    Acceptance::Complement
+                } else {
+                    Acceptance::Set
+                },
+            },
+        }
     }
 }
 
@@ -68,6 +79,12 @@ pub enum Character {
     EscapedCharacter(Backslash, EscapedCharacter),
     Period(Period),
     UnescapedCharacter(UnescapedCharacter),
+}
+
+impl From<Character> for Automata {
+    fn from(character: Character) -> Self {
+        unimplemented!();
+    }
 }
 
 #[derive(Debug, Parser)]
@@ -212,6 +229,12 @@ pub enum UnescapedCharacter {
 
 #[derive(Debug, Parser)]
 pub struct Set(Vec<Range>);
+
+impl From<Set> for BTreeSet<char> {
+    fn from(set: Set) -> Self {
+        unimplemented!();
+    }
+}
 
 #[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
