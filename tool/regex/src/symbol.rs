@@ -8,6 +8,18 @@ use {
 #[derive(Debug, Parser)]
 pub struct Expression(Term, Vec<(VerticalBar, Term)>);
 
+impl TryFrom<&str> for Expression {
+    type Error = ();
+
+    fn try_from(string: &str) -> Result<Self, Self::Error> {
+        Self::parse(string)
+            .and_then(|(expression, remaining_string)| {
+                remaining_string.is_empty().then_some(expression)
+            })
+            .ok_or(())
+    }
+}
+
 impl From<Expression> for Automata {
     fn from(expression: Expression) -> Self {
         let Expression(term, terms) = expression;
@@ -97,10 +109,7 @@ impl From<Character> for Automata {
                 },
                 _ => unimplemented!(),
             },
-            Character::Period(Period) => Self::Character {
-                set: BTreeSet::default(),
-                acceptance: Acceptance::Complement,
-            },
+            Character::Period(Period) => "[^]".parse().unwrap(),
             Character::UnescapedCharacter(character) => character.into(),
         }
     }
