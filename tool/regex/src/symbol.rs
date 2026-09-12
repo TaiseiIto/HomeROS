@@ -430,12 +430,24 @@ pub struct Set(Vec<Range>);
 
 impl From<Set> for BTreeSet<char> {
     fn from(set: Set) -> Self {
-        unimplemented!();
+        let Set(ranges) = set;
+        ranges
+            .into_iter()
+            .map(|range| range.into())
+            .fold(Self::new(), |set, range: Self| {
+                set.into_iter().chain(range).collect()
+            })
     }
 }
 
 #[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
+
+impl From<Range> for BTreeSet<char> {
+    fn from(range: Range) -> Self {
+        unimplemented!();
+    }
+}
 
 #[derive(Debug, Parser)]
 pub enum Element {
