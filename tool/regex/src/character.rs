@@ -52,15 +52,9 @@ impl Sum for Set {
     }
 }
 
-impl<T> From<T> for Set
-where
-    T: Into<char>,
-{
-    fn from(character: T) -> Self {
-        Self {
-            acceptance: Acceptance::Set,
-            subsets: once(character.into().into()).collect(),
-        }
+impl From<char> for Set {
+    fn from(character: char) -> Self {
+        once(character).collect()
     }
 }
 
@@ -78,12 +72,9 @@ enum Subset {
     Characters(BTreeSet<char>),
 }
 
-impl<T> From<T> for Subset
-where
-    T: Into<char>,
-{
-    fn from(character: T) -> Self {
-        Self::Characters(once(character.into()).collect())
+impl From<char> for Subset {
+    fn from(character: char) -> Self {
+        once(character).collect()
     }
 }
 

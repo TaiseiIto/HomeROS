@@ -24,6 +24,12 @@ pub enum Automata {
     StartOfLine,
 }
 
+impl From<char> for Automata {
+    fn from(character: char) -> Self {
+        Self::Character(character.into())
+    }
+}
+
 impl FromStr for Automata {
     type Err = ();
 
@@ -31,15 +37,6 @@ impl FromStr for Automata {
         string
             .parse()
             .map(|expression: Expression| expression.into())
-    }
-}
-
-impl<T> From<T> for Automata
-where
-    T: Into<char>,
-{
-    fn from(character: T) -> Self {
-        Self::Character(character.into().into())
     }
 }
 

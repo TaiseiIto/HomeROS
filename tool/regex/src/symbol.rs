@@ -95,13 +95,17 @@ impl From<Character> for Automata {
             Character::Circumflex(Circumflex) => Self::StartOfLine,
             Character::Dollar(Dollar) => Self::EndOfLine,
             Character::EscapedCharacter(Backslack, escaped_character) => match escaped_character {
-                EscapedCharacter::Asterisk(asterisk) => asterisk.into(),
-                EscapedCharacter::Backslash(backslash) => backslash.into(),
-                EscapedCharacter::Circumflex(circumflex) => circumflex.into(),
-                EscapedCharacter::Dollar(dollar) => dollar.into(),
-                EscapedCharacter::LeftBrace(left_brace) => left_brace.into(),
-                EscapedCharacter::LeftBracket(left_bracket) => left_bracket.into(),
-                EscapedCharacter::LeftParenthesis(left_parenthesis) => left_parenthesis.into(),
+                EscapedCharacter::Asterisk(asterisk) => Into::<char>::into(asterisk).into(),
+                EscapedCharacter::Backslash(backslash) => Into::<char>::into(backslash).into(),
+                EscapedCharacter::Circumflex(circumflex) => Into::<char>::into(circumflex).into(),
+                EscapedCharacter::Dollar(dollar) => Into::<char>::into(dollar).into(),
+                EscapedCharacter::LeftBrace(left_brace) => Into::<char>::into(left_brace).into(),
+                EscapedCharacter::LeftBracket(left_bracket) => {
+                    Into::<char>::into(left_bracket).into()
+                }
+                EscapedCharacter::LeftParenthesis(left_parenthesis) => {
+                    Into::<char>::into(left_parenthesis).into()
+                }
                 EscapedCharacter::LowerD(LowerD) => r"[\d]".parse().unwrap(),
                 EscapedCharacter::LowerF(LowerF) => Self::Character('\x0C'.into()),
                 EscapedCharacter::LowerL(LowerL) => r"[\l]".parse().unwrap(),
@@ -111,20 +115,28 @@ impl From<Character> for Automata {
                 EscapedCharacter::LowerT(LowerT) => Self::Character('\t'.into()),
                 EscapedCharacter::LowerU(LowerU) => r"[\u]".parse().unwrap(),
                 EscapedCharacter::LowerW(LowerW) => r"[\w]".parse().unwrap(),
-                EscapedCharacter::LowerX(LowerX, byte) => Self::Character(byte.into()),
-                EscapedCharacter::Period(period) => period.into(),
-                EscapedCharacter::Plus(plus) => plus.into(),
-                EscapedCharacter::Question(question) => question.into(),
-                EscapedCharacter::RightBrace(right_brace) => right_brace.into(),
-                EscapedCharacter::RightBracket(right_bracket) => right_bracket.into(),
-                EscapedCharacter::RightParenthesis(right_parenthesis) => right_parenthesis.into(),
-                EscapedCharacter::Slash(slash) => slash.into(),
+                EscapedCharacter::LowerX(LowerX, byte) => {
+                    Self::Character(Into::<char>::into(byte).into())
+                }
+                EscapedCharacter::Period(period) => Into::<char>::into(period).into(),
+                EscapedCharacter::Plus(plus) => Into::<char>::into(plus).into(),
+                EscapedCharacter::Question(question) => Into::<char>::into(question).into(),
+                EscapedCharacter::RightBrace(right_brace) => Into::<char>::into(right_brace).into(),
+                EscapedCharacter::RightBracket(right_bracket) => {
+                    Into::<char>::into(right_bracket).into()
+                }
+                EscapedCharacter::RightParenthesis(right_parenthesis) => {
+                    Into::<char>::into(right_parenthesis).into()
+                }
+                EscapedCharacter::Slash(slash) => Into::<char>::into(slash).into(),
                 EscapedCharacter::UpperD(UpperD) => r"[\D]".parse().unwrap(),
                 EscapedCharacter::UpperL(UpperL) => r"[\L]".parse().unwrap(),
                 EscapedCharacter::UpperU(UpperU) => r"[\U]".parse().unwrap(),
                 EscapedCharacter::UpperS(UpperS) => r"[\S]".parse().unwrap(),
                 EscapedCharacter::UpperW(UpperW) => r"[\W]".parse().unwrap(),
-                EscapedCharacter::VerticalBar(vertical_bar) => vertical_bar.into(),
+                EscapedCharacter::VerticalBar(vertical_bar) => {
+                    Into::<char>::into(vertical_bar).into()
+                }
             },
             Character::Period(Period) => r"[^]".parse().unwrap(),
             Character::NakedCharacter(character) => character.into(),
@@ -324,6 +336,13 @@ pub enum NakedCharacter {
 }
 
 impl From<NakedCharacter> for Automata {
+    fn from(character: NakedCharacter) -> Self {
+        let character: char = character.into();
+        Automata::Character(character.into())
+    }
+}
+
+impl From<NakedCharacter> for char {
     fn from(character: NakedCharacter) -> Self {
         match character {
             NakedCharacter::Zero(zero) => zero.into(),
