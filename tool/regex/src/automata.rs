@@ -1,3 +1,4 @@
+pub mod input;
 mod stack;
 
 use {
@@ -23,7 +24,7 @@ pub enum Automata {
 
 impl Automata {
     pub fn input<'a>(&'a self, input: &'a str) -> Vec<state::Transition<'a>> {
-        unimplemented!();
+        state::Transition::simulate(self.into(), input.into())
     }
 }
 
