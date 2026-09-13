@@ -501,7 +501,32 @@ pub enum EscapedElement {
 
 impl From<EscapedElement> for character::Set {
     fn from(escaped_element: EscapedElement) -> Self {
-        unimplemented!();
+        match escaped_element {
+            EscapedElement::Backslash(backslash) => Into::<char>::into(backslash).into(),
+            EscapedElement::Hyphen(hyphen) => Into::<char>::into(hyphen).into(),
+            EscapedElement::LowerD(LowerD) => "0123456789".chars().collect(),
+            EscapedElement::LowerF(LowerF) => '\x0C'.into(),
+            EscapedElement::LowerL(LowerL) => "abcdefghijklmnopqrstuvwxyz".chars().collect(),
+            EscapedElement::LowerN(LowerN) => '\n'.into(),
+            EscapedElement::LowerR(LowerR) => '\r'.into(),
+            EscapedElement::LowerS(LowerS) => " \x0C\n\r\t".chars().collect(),
+            EscapedElement::LowerT(LowerT) => '\t'.into(),
+            EscapedElement::LowerU(LowerU) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect(),
+            EscapedElement::LowerW(LowerW) => {
+                let lower_d: Self = EscapedElement::LowerD(LowerD).into();
+                let lower_l: Self = EscapedElement::LowerL(LowerL).into();
+                let lower_u: Self = EscapedElement::LowerU(LowerU).into();
+                let underscore: Self = NakedElement::Underscore(Underscore).into();
+                lower_d + lower_l + lower_u + underscore
+            }
+            EscapedElement::LowerX(LowerX, byte) => Into::<char>::into(byte).into(),
+            EscapedElement::RightBracket(right_bracket) => Into::<char>::into(right_bracket).into(),
+            EscapedElement::UpperD(UpperD) => -Into::<Self>::into(EscapedElement::LowerD(LowerD)),
+            EscapedElement::UpperL(UpperL) => -Into::<Self>::into(EscapedElement::LowerL(LowerL)),
+            EscapedElement::UpperS(UpperS) => -Into::<Self>::into(EscapedElement::LowerS(LowerS)),
+            EscapedElement::UpperU(UpperU) => -Into::<Self>::into(EscapedElement::LowerU(LowerU)),
+            EscapedElement::UpperW(UpperW) => -Into::<Self>::into(EscapedElement::LowerW(LowerW)),
+        }
     }
 }
 
