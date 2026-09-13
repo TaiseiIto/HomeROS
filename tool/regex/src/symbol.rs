@@ -1,5 +1,5 @@
 use {
-    crate::{Automata, RepetitionNumber, character},
+    crate::{Automata, automata, character},
     alloc::{boxed::Box, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
@@ -772,7 +772,7 @@ pub enum Exponent {
     ),
 }
 
-impl From<Exponent> for RepetitionNumber {
+impl From<Exponent> for automata::RepetitionNumber {
     fn from(exponent: Exponent) -> Self {
         match exponent {
             Exponent::Asterisk(_) => Self::From(0),
