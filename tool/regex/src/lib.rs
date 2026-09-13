@@ -46,6 +46,8 @@ mod test {
 
     #[test]
     fn test() {
-        let _: Automata = r"^\d(\l+|\u*)\w{2,3}$".parse().unwrap();
+        let _: Automata = r"^\d(\l+|\u*)[^a-d0-3_{}]{2,3}[^\w()*]{3}$"
+            .parse()
+            .unwrap();
     }
 }
