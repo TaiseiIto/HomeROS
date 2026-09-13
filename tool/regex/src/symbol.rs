@@ -459,7 +459,7 @@ pub enum Element {
     NakedElement(NakedElement),
 }
 
-impl From<Element> for u8 {
+impl From<Element> for character::Set {
     fn from(element: Element) -> Self {
         match element {
             Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
@@ -468,9 +468,12 @@ impl From<Element> for u8 {
     }
 }
 
-impl From<Element> for character::Set {
+impl From<Element> for u8 {
     fn from(element: Element) -> Self {
-        unimplemented!();
+        match element {
+            Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
+            Element::NakedElement(naked_element) => naked_element.into(),
+        }
     }
 }
 
@@ -494,6 +497,12 @@ pub enum EscapedElement {
     UpperS(UpperS),
     UpperU(UpperU),
     UpperW(UpperW),
+}
+
+impl From<EscapedElement> for character::Set {
+    fn from(escaped_element: EscapedElement) -> Self {
+        unimplemented!();
+    }
 }
 
 impl From<EscapedElement> for char {
@@ -613,6 +622,12 @@ pub enum NakedElement {
     Tilde(Tilde),
     Underscore(Underscore),
     VerticalBar(VerticalBar),
+}
+
+impl From<NakedElement> for character::Set {
+    fn from(naked_element: NakedElement) -> Self {
+        unimplemented!();
+    }
 }
 
 impl From<NakedElement> for char {
