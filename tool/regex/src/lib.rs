@@ -6,8 +6,8 @@ mod character;
 mod symbol;
 
 use {
-    alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
-    core::{iter::once, str::FromStr},
+    alloc::{boxed::Box, vec::Vec},
+    core::str::FromStr,
     symbol::Expression,
 };
 
@@ -40,12 +40,12 @@ impl FromStr for Automata {
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use super::*;
-//
-//     #[test]
-//     fn test() {
-//         let _: Automata = r"^\d(\l+|\u*)\w{2,3}$".parse().unwrap();
-//     }
-// }
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test() {
+        let _: Automata = r"^\d(\l+|\u*)\w{2,3}$".parse().unwrap();
+    }
+}

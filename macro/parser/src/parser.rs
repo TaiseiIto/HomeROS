@@ -60,7 +60,7 @@ impl Symbol {
             definition,
         } = self;
         if let Some(terminal) = terminal
-            && let Component::Part(ident) = definition
+            && let Component::Part(_) = definition
         {
             quote! {
                 let mut string: ::core::str::Chars<'_> = string.chars();
@@ -180,7 +180,7 @@ impl Component {
                 let component: TokenStream = component.ty();
                 quote! { Box<#component> }
             }
-            Self::Enum { name, variants } => quote! { #name },
+            Self::Enum { name, variants: _ } => quote! { #name },
             Self::Option(component) => {
                 let component: TokenStream = component.ty();
                 quote! { Option<#component> }
@@ -231,7 +231,7 @@ impl Component {
                     #value.map(|(symbol, string)| (Box::new(symbol), string))
                 }
             }
-            Self::Enum { name, variants } => {
+            Self::Enum { name: _, variants } => {
                 let variants: Vec<TokenStream> = variants
                     .iter()
                     .map(|variant| {

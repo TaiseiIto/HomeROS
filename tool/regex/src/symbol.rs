@@ -1,6 +1,6 @@
 use {
     crate::{Automata, character},
-    alloc::{boxed::Box, collections::btree_set::BTreeSet, vec::Vec},
+    alloc::{boxed::Box, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
 };
@@ -94,7 +94,7 @@ impl From<Character> for Automata {
         match character {
             Character::Circumflex(Circumflex) => Self::StartOfLine,
             Character::Dollar(Dollar) => Self::EndOfLine,
-            Character::EscapedCharacter(Backslack, escaped_character) => match escaped_character {
+            Character::EscapedCharacter(Backslash, escaped_character) => match escaped_character {
                 EscapedCharacter::Asterisk(asterisk) => Into::<char>::into(asterisk).into(),
                 EscapedCharacter::Backslash(backslash) => Into::<char>::into(backslash).into(),
                 EscapedCharacter::Circumflex(circumflex) => Into::<char>::into(circumflex).into(),
