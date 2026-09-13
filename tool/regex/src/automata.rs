@@ -1,8 +1,9 @@
 pub mod input;
 mod stack;
+mod state;
 
 use {
-    crate::{character, state, symbol::Expression},
+    crate::{character, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
 };

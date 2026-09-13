@@ -1,5 +1,6 @@
 use {
-    crate::{Automata, automata, character},
+    super::{Automata, Stack, input},
+    crate::character,
     alloc::vec::Vec,
 };
 
@@ -9,7 +10,7 @@ pub struct Transition<'a> {
 }
 
 impl<'a> Transition<'a> {
-    pub fn simulate(automata: automata::Stack<'a>, input: automata::input::String) -> Vec<Self> {
+    pub fn simulate(stack: Stack<'a>, input: input::String) -> Vec<Self> {
         unimplemented!();
     }
 }
