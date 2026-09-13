@@ -13,18 +13,29 @@ impl<'a> From<&'a Automata> for Stack<'a> {
 
 struct Frame<'a> {
     automata: &'a Automata,
-    repetition_count: Option<usize>,
+    phase: Phase,
 }
 
 impl<'a> From<&'a Automata> for Frame<'a> {
     fn from(automata: &'a Automata) -> Self {
         Self {
             automata,
-            repetition_count: if let Automata::Repetition { body, number } = automata {
-                Some(0)
-            } else {
-                None
-            },
+            phase: Phase::BeforeStart,
         }
     }
+}
+
+enum Phase {
+    BeforeStart,
+    Processing(Progress),
+    AfterEnd,
+}
+
+enum Progress {
+    Character,
+    EndOfLine,
+    Repetition { repetition_count: usize },
+    Selection,
+    Sequence { processing_element_index: usize },
+    StartOfLine,
 }
