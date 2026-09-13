@@ -626,7 +626,8 @@ pub enum NakedElement {
 
 impl From<NakedElement> for character::Set {
     fn from(naked_element: NakedElement) -> Self {
-        unimplemented!();
+        let naked_element: char = naked_element.into();
+        naked_element.into()
     }
 }
 
