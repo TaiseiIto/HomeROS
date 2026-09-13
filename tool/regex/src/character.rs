@@ -6,7 +6,7 @@ use {
     },
 };
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Set {
     acceptance: Acceptance,
     subsets: Vec<Subset>,
@@ -67,6 +67,7 @@ impl FromIterator<char> for Set {
     }
 }
 
+#[derive(Debug)]
 enum Subset {
     Set(Set),
     Characters(BTreeSet<char>),
@@ -84,6 +85,7 @@ impl FromIterator<char> for Subset {
     }
 }
 
+#[derive(Debug)]
 enum Acceptance {
     Complement,
     Set,

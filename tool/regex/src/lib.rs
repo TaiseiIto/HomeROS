@@ -11,6 +11,7 @@ use {
     symbol::Expression,
 };
 
+#[derive(Debug)]
 pub enum Automata {
     Character(character::Set),
     EndOfLine,
