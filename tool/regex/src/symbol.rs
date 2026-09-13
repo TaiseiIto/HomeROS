@@ -442,7 +442,10 @@ pub enum Element {
 
 impl From<Element> for u8 {
     fn from(element: Element) -> Self {
-        unimplemented!();
+        match element {
+            Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
+            Element::NakedElement(naked_element) => naked_element.into(),
+        }
     }
 }
 
@@ -472,6 +475,30 @@ pub enum EscapedElement {
     UpperS(UpperS),
     UpperU(UpperU),
     UpperW(UpperW),
+}
+
+impl From<EscapedElement> for char {
+    fn from(escaped_element: EscapedElement) -> Self {
+        match escaped_element {
+            EscapedElement::Backslash(backslash) => backslash.into(),
+            EscapedElement::Hyphen(hyphen) => hyphen.into(),
+            EscapedElement::LowerX(LowerX, byte) => byte.into(),
+            EscapedElement::RightBracket(right_bracket) => right_bracket.into(),
+            _ => panic!(),
+        }
+    }
+}
+
+impl From<EscapedElement> for u8 {
+    fn from(escaped_element: EscapedElement) -> Self {
+        match escaped_element {
+            EscapedElement::LowerX(LowerX, byte) => byte.into(),
+            escaped_element => {
+                let escaped_element: char = escaped_element.into();
+                escaped_element as Self
+            }
+        }
+    }
 }
 
 #[derive(Debug, Parser)]
@@ -567,6 +594,111 @@ pub enum NakedElement {
     Tilde(Tilde),
     Underscore(Underscore),
     VerticalBar(VerticalBar),
+}
+
+impl From<NakedElement> for char {
+    fn from(naked_element: NakedElement) -> Self {
+        match naked_element {
+            NakedElement::Zero(zero) => zero.into(),
+            NakedElement::One(one) => one.into(),
+            NakedElement::Two(two) => two.into(),
+            NakedElement::Three(three) => three.into(),
+            NakedElement::Four(four) => four.into(),
+            NakedElement::Five(five) => five.into(),
+            NakedElement::Six(six) => six.into(),
+            NakedElement::Seven(seven) => seven.into(),
+            NakedElement::Eight(eight) => eight.into(),
+            NakedElement::Nine(nine) => nine.into(),
+            NakedElement::LowerA(lower_a) => lower_a.into(),
+            NakedElement::LowerB(lower_b) => lower_b.into(),
+            NakedElement::LowerC(lower_c) => lower_c.into(),
+            NakedElement::LowerD(lower_d) => lower_d.into(),
+            NakedElement::LowerE(lower_e) => lower_e.into(),
+            NakedElement::LowerF(lower_f) => lower_f.into(),
+            NakedElement::LowerG(lower_g) => lower_g.into(),
+            NakedElement::LowerH(lower_h) => lower_h.into(),
+            NakedElement::LowerI(lower_i) => lower_i.into(),
+            NakedElement::LowerJ(lower_j) => lower_j.into(),
+            NakedElement::LowerK(lower_k) => lower_k.into(),
+            NakedElement::LowerL(lower_l) => lower_l.into(),
+            NakedElement::LowerM(lower_m) => lower_m.into(),
+            NakedElement::LowerN(lower_n) => lower_n.into(),
+            NakedElement::LowerO(lower_o) => lower_o.into(),
+            NakedElement::LowerP(lower_p) => lower_p.into(),
+            NakedElement::LowerQ(lower_q) => lower_q.into(),
+            NakedElement::LowerR(lower_r) => lower_r.into(),
+            NakedElement::LowerS(lower_s) => lower_s.into(),
+            NakedElement::LowerT(lower_t) => lower_t.into(),
+            NakedElement::LowerU(lower_u) => lower_u.into(),
+            NakedElement::LowerV(lower_v) => lower_v.into(),
+            NakedElement::LowerW(lower_w) => lower_w.into(),
+            NakedElement::LowerX(lower_x) => lower_x.into(),
+            NakedElement::LowerY(lower_y) => lower_y.into(),
+            NakedElement::LowerZ(lower_z) => lower_z.into(),
+            NakedElement::UpperA(upper_a) => upper_a.into(),
+            NakedElement::UpperB(upper_b) => upper_b.into(),
+            NakedElement::UpperC(upper_c) => upper_c.into(),
+            NakedElement::UpperD(upper_d) => upper_d.into(),
+            NakedElement::UpperE(upper_e) => upper_e.into(),
+            NakedElement::UpperF(upper_f) => upper_f.into(),
+            NakedElement::UpperG(upper_g) => upper_g.into(),
+            NakedElement::UpperH(upper_h) => upper_h.into(),
+            NakedElement::UpperI(upper_i) => upper_i.into(),
+            NakedElement::UpperJ(upper_j) => upper_j.into(),
+            NakedElement::UpperK(upper_k) => upper_k.into(),
+            NakedElement::UpperL(upper_l) => upper_l.into(),
+            NakedElement::UpperM(upper_m) => upper_m.into(),
+            NakedElement::UpperN(upper_n) => upper_n.into(),
+            NakedElement::UpperO(upper_o) => upper_o.into(),
+            NakedElement::UpperP(upper_p) => upper_p.into(),
+            NakedElement::UpperQ(upper_q) => upper_q.into(),
+            NakedElement::UpperR(upper_r) => upper_r.into(),
+            NakedElement::UpperS(upper_s) => upper_s.into(),
+            NakedElement::UpperT(upper_t) => upper_t.into(),
+            NakedElement::UpperU(upper_u) => upper_u.into(),
+            NakedElement::UpperV(upper_v) => upper_v.into(),
+            NakedElement::UpperW(upper_w) => upper_w.into(),
+            NakedElement::UpperX(upper_x) => upper_x.into(),
+            NakedElement::UpperY(upper_y) => upper_y.into(),
+            NakedElement::UpperZ(upper_z) => upper_z.into(),
+            NakedElement::Ampersand(ampersand) => ampersand.into(),
+            NakedElement::Apostrophe(apostrophe) => apostrophe.into(),
+            NakedElement::Asterisk(asterisk) => asterisk.into(),
+            NakedElement::At(at) => at.into(),
+            NakedElement::Circumflex(circumflex) => circumflex.into(),
+            NakedElement::Colon(colon) => colon.into(),
+            NakedElement::Comma(comma) => comma.into(),
+            NakedElement::Dollar(dollar) => dollar.into(),
+            NakedElement::Equal(equal) => equal.into(),
+            NakedElement::Exclamation(exclamation) => exclamation.into(),
+            NakedElement::Grave(grave) => grave.into(),
+            NakedElement::GreaterThan(greater_than) => greater_than.into(),
+            NakedElement::Hash(hash) => hash.into(),
+            NakedElement::LeftBrace(left_brace) => left_brace.into(),
+            NakedElement::LeftBracket(left_bracket) => left_bracket.into(),
+            NakedElement::LeftParenthesis(left_parenthesis) => left_parenthesis.into(),
+            NakedElement::LessThan(less_than) => less_than.into(),
+            NakedElement::Percent(percent) => percent.into(),
+            NakedElement::Period(period) => period.into(),
+            NakedElement::Plus(plus) => plus.into(),
+            NakedElement::Question(question) => question.into(),
+            NakedElement::Quotation(quotation) => quotation.into(),
+            NakedElement::RightBrace(right_brace) => right_brace.into(),
+            NakedElement::RightParenthesis(right_parenthesis) => right_parenthesis.into(),
+            NakedElement::Semicolon(semicolon) => semicolon.into(),
+            NakedElement::Slash(slash) => slash.into(),
+            NakedElement::Tilde(tilde) => tilde.into(),
+            NakedElement::Underscore(underscore) => underscore.into(),
+            NakedElement::VerticalBar(vertical_bar) => vertical_bar.into(),
+        }
+    }
+}
+
+impl From<NakedElement> for u8 {
+    fn from(naked_element: NakedElement) -> Self {
+        let naked_element: char = naked_element.into();
+        naked_element as Self
+    }
 }
 
 #[derive(Debug, Parser)]
