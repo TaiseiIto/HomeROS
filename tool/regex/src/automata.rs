@@ -1,8 +1,12 @@
+mod stack;
+
 use {
     crate::{character, state, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
 };
+
+pub use stack::Stack;
 
 #[derive(Debug)]
 pub enum Automata {
