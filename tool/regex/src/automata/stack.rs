@@ -5,9 +5,9 @@ use {
 
 pub struct Stack<'a>(Vec<Frame<'a>>);
 
-impl<'a> From<&'a Automata> for Stack<'a> {
-    fn from(automata: &'a Automata) -> Self {
-        Self(vec![automata.into()])
+impl<'a> Stack<'a> {
+    pub fn initialize(automata: &'a Automata) -> Self {
+        Self(vec![Frame::initialize(automata)])
     }
 }
 
@@ -16,11 +16,11 @@ struct Frame<'a> {
     progress: Progress,
 }
 
-impl<'a> From<&'a Automata> for Frame<'a> {
-    fn from(automata: &'a Automata) -> Self {
+impl<'a> Frame<'a> {
+    fn initialize(automata: &'a Automata) -> Self {
         Self {
             automata,
-            progress: automata.into(),
+            progress: Progress::initialize(automata),
         }
     }
 }
@@ -34,8 +34,8 @@ enum Progress {
     StartOfLine,
 }
 
-impl From<&Automata> for Progress {
-    fn from(automata: &Automata) -> Self {
+impl Progress {
+    fn initialize(automata: &Automata) -> Self {
         match automata {
             Automata::Character(_) => Self::Character,
             Automata::EndOfLine => Self::EndOfLine,
