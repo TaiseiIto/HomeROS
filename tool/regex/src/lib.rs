@@ -3,6 +3,7 @@
 extern crate alloc;
 
 mod character;
+mod state;
 mod symbol;
 
 use {
@@ -16,12 +17,18 @@ pub enum Automata {
     Character(character::Set),
     EndOfLine,
     Repetition {
-        body: Box<Automata>,
+        body: Box<Self>,
         number: RepetitionNumber,
     },
-    Selection(Vec<Automata>),
-    Sequence(Vec<Automata>),
+    Selection(Vec<Self>),
+    Sequence(Vec<Self>),
     StartOfLine,
+}
+
+impl Automata {
+    pub fn input<'a>(&'a self, input: &'a str) -> Vec<state::Transition<'a>> {
+        unimplemented!();
+    }
 }
 
 impl From<char> for Automata {
