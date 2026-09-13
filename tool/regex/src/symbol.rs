@@ -1,5 +1,5 @@
 use {
-    crate::{Automata, character},
+    crate::{Automata, RepetitionNumber, character},
     alloc::{boxed::Box, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
@@ -48,11 +48,9 @@ impl From<Power> for Automata {
     fn from(power: Power) -> Self {
         let Power(base, exponent) = power;
         if let Some(exponent) = exponent {
-            let (min, max): (usize, Option<usize>) = exponent.into();
             Self::Repetition {
                 body: Box::new(base.into()),
-                min,
-                max,
+                number: exponent.into(),
             }
         } else {
             base.into()
@@ -774,16 +772,21 @@ pub enum Exponent {
     ),
 }
 
-impl From<Exponent> for (usize, Option<usize>) {
+impl From<Exponent> for RepetitionNumber {
     fn from(exponent: Exponent) -> Self {
         match exponent {
-            Exponent::Asterisk(_) => (0, None),
-            Exponent::Plus(_) => (1, None),
-            Exponent::Question(_) => (0, Some(1)),
-            Exponent::Range(LeftBrace, min, max, RightBrace) => (
-                min.into(),
-                max.and_then(|(_, max)| max.map(|max| max.into())),
-            ),
+            Exponent::Asterisk(_) => Self::From(0),
+            Exponent::Plus(_) => Self::From(1),
+            Exponent::Question(_) => Self::FromTo(0, 1),
+            Exponent::Range(LeftBrace, constant, None, RightBrace) => {
+                Self::Constant(constant.into())
+            }
+            Exponent::Range(LeftBrace, min, Some((Comma, None)), RightBrace) => {
+                Self::From(min.into())
+            }
+            Exponent::Range(LeftBrace, min, Some((Comma, Some(max))), RightBrace) => {
+                Self::FromTo(min.into(), max.into())
+            }
         }
     }
 }

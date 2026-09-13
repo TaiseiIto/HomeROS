@@ -17,8 +17,7 @@ pub enum Automata {
     EndOfLine,
     Repetition {
         body: Box<Automata>,
-        min: usize,
-        max: Option<usize>,
+        number: RepetitionNumber,
     },
     Selection(Vec<Automata>),
     Sequence(Vec<Automata>),
@@ -39,6 +38,13 @@ impl FromStr for Automata {
             .parse()
             .map(|expression: Expression| expression.into())
     }
+}
+
+#[derive(Debug)]
+pub enum RepetitionNumber {
+    Constant(usize),
+    From(usize),
+    FromTo(usize, usize),
 }
 
 #[cfg(test)]
