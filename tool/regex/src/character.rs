@@ -1,5 +1,5 @@
 use {
-    crate::automata::{input::Character, state::CharacterAcceptance},
+    crate::automata::{input::Character, state},
     alloc::{collections::btree_set::BTreeSet, vec::Vec},
     core::{
         iter::{Sum, once},
@@ -14,8 +14,8 @@ pub struct Acceptor {
 }
 
 impl Acceptor {
-    pub fn accept<'a>(&'a self, character: &Character) -> Option<CharacterAcceptance<'a>> {
-        CharacterAcceptance::accept(self, character)
+    pub fn accept<'a>(&'a self, character: &Character) -> Option<state::Acceptance<'a>> {
+        state::Acceptance::accept(self, character)
     }
 
     pub fn accepts(&self, character: char) -> bool {

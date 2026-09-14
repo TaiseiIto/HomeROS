@@ -5,7 +5,7 @@ use {
 };
 
 pub struct Transition<'a> {
-    character_acceptance: CharacterAcceptance<'a>,
+    acceptance: Acceptance<'a>,
     next: Vec<Self>,
 }
 
@@ -16,12 +16,10 @@ impl<'a> Transition<'a> {
                 .next_acceptors()
                 .into_iter()
                 .filter_map(|(stack, acceptor)| {
-                    acceptor
-                        .accept(&character)
-                        .map(|character_acceptance| Self {
-                            character_acceptance,
-                            next: Self::simulate(stack, input.clone()),
-                        })
+                    acceptor.accept(&character).map(|acceptance| Self {
+                        acceptance,
+                        next: Self::simulate(stack, input.clone()),
+                    })
                 })
                 .collect()
         } else {
@@ -30,13 +28,13 @@ impl<'a> Transition<'a> {
     }
 }
 
-pub struct CharacterAcceptance<'a> {
+pub struct Acceptance<'a> {
     acceptor: &'a Acceptor,
     character: char,
     index: usize,
 }
 
-impl<'a> CharacterAcceptance<'a> {
+impl<'a> Acceptance<'a> {
     pub fn accept(acceptor: &'a Acceptor, character: &input::Character) -> Option<Self> {
         acceptor.accepts(character.character()).then_some(Self {
             acceptor,
