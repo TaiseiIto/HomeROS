@@ -20,7 +20,40 @@ impl<'a> Stack<'a> {
     }
 
     pub fn next_states(&self) -> Vec<Self> {
-        unimplemented!();
+        if let Some(frame) = self.0.last() {
+            match frame {
+                Frame {
+                    automata: Automata::Character(acceptor),
+                    progress: Progress::Character,
+                } => unimplemented!(),
+                Frame {
+                    automata: Automata::EndOfLine,
+                    progress: Progress::EndOfLine,
+                } => unimplemented!(),
+                Frame {
+                    automata: Automata::Repetition { body, number },
+                    progress: Progress::Repetition { repetition_count },
+                } => unimplemented!(),
+                Frame {
+                    automata: Automata::Selection(options),
+                    progress: Progress::Selection { executed },
+                } => unimplemented!(),
+                Frame {
+                    automata: Automata::Sequence(elements),
+                    progress:
+                        Progress::Sequence {
+                            processing_element_index,
+                        },
+                } => unimplemented!(),
+                Frame {
+                    automata: Automata::StartOfLine,
+                    progress: Progress::StartOfLine,
+                } => unimplemented!(),
+                _ => panic!(),
+            }
+        } else {
+            Vec::default()
+        }
     }
 }
 
@@ -42,7 +75,7 @@ enum Progress {
     Character,
     EndOfLine,
     Repetition { repetition_count: usize },
-    Selection,
+    Selection { executed: bool },
     Sequence { processing_element_index: usize },
     StartOfLine,
 }
@@ -55,7 +88,7 @@ impl Progress {
             Automata::Repetition { body: _, number: _ } => Self::Repetition {
                 repetition_count: 0,
             },
-            Automata::Selection(_) => Self::Selection,
+            Automata::Selection(_) => Self::Selection { executed: false },
             Automata::Sequence(_) => Self::Sequence {
                 processing_element_index: 0,
             },
