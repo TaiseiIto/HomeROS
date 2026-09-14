@@ -1,4 +1,5 @@
 use {
+    crate::automata::{input::Character, state::CharacterAcceptance},
     alloc::{collections::btree_set::BTreeSet, vec::Vec},
     core::{
         iter::{Sum, once},
@@ -10,6 +11,25 @@ use {
 pub struct Set {
     acceptance: Acceptance,
     characters: BTreeSet<char>,
+}
+
+impl Set {
+    pub fn accept<'a>(&'a self, character: &Character) -> Option<CharacterAcceptance<'a>> {
+        CharacterAcceptance::accept(self, character)
+    }
+
+    pub fn accepts(&self, character: char) -> bool {
+        match self {
+            Self {
+                acceptance: Acceptance::Set,
+                characters,
+            } => characters.contains(&character),
+            Self {
+                acceptance: Acceptance::Complement,
+                characters,
+            } => !characters.contains(&character),
+        }
+    }
 }
 
 impl Add for Set {

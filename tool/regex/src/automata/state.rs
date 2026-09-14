@@ -10,13 +10,32 @@ pub struct Transition<'a> {
 }
 
 impl<'a> Transition<'a> {
-    pub fn simulate(stack: Stack<'a>, input: input::String) -> Vec<Self> {
-        unimplemented!();
+    pub fn simulate(stack: Stack<'a>, mut input: input::String) -> Vec<Self> {
+        if let Some(character) = input.pop_front() {
+            let character_acceptance: Vec<CharacterAcceptance<'a>> = stack
+                .next_acceptors()
+                .into_iter()
+                .filter_map(|acceptor| acceptor.accept(&character))
+                .collect();
+            unimplemented!();
+        } else {
+            Vec::default()
+        }
     }
 }
 
-struct CharacterAcceptance<'a> {
+pub struct CharacterAcceptance<'a> {
     acceptor: &'a character::Set,
     character: char,
     index: usize,
+}
+
+impl<'a> CharacterAcceptance<'a> {
+    pub fn accept(acceptor: &'a character::Set, character: &input::Character) -> Option<Self> {
+        acceptor.accepts(character.character()).then_some(Self {
+            acceptor,
+            character: character.character(),
+            index: character.index(),
+        })
+    }
 }

@@ -1,6 +1,6 @@
 pub mod input;
 mod stack;
-mod state;
+pub mod state;
 
 use {
     crate::{character, symbol::Expression},
