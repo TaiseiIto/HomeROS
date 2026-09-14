@@ -23,12 +23,16 @@ impl FromStr for Expression {
 impl From<Expression> for Automata {
     fn from(expression: Expression) -> Self {
         let Expression(term, terms) = expression;
-        Self::Selection(
-            once(term)
-                .chain(terms.into_iter().map(|(VerticalBar, term)| term))
-                .map(|term| term.into())
-                .collect(),
-        )
+        if terms.is_empty() {
+            term.into()
+        } else {
+            Self::Selection(
+                once(term)
+                    .chain(terms.into_iter().map(|(VerticalBar, term)| term))
+                    .map(|term| term.into())
+                    .collect(),
+            )
+        }
     }
 }
 
@@ -37,7 +41,12 @@ pub struct Term(Vec<Power>);
 
 impl From<Term> for Automata {
     fn from(term: Term) -> Self {
-        Self::Sequence(term.0.into_iter().map(|power| power.into()).collect())
+        let Term(mut powers) = term;
+        if powers.len() == 1 {
+            powers.pop().unwrap().into()
+        } else {
+            Self::Sequence(powers.into_iter().map(|power| power.into()).collect())
+        }
     }
 }
 
