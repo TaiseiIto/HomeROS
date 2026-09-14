@@ -11,7 +11,7 @@ impl<'a> Stack<'a> {
         Self(vec![Frame::initialize(automata)])
     }
 
-    pub fn next_acceptors(&self) -> Vec<&'a Acceptor> {
+    pub fn next_acceptors(&self) -> (Vec<(Self, &'a Acceptor)>) {
         unimplemented!();
     }
 }

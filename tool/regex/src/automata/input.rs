@@ -1,5 +1,6 @@
 use alloc::collections::vec_deque::VecDeque;
 
+#[derive(Clone)]
 pub struct String(VecDeque<Character>);
 
 impl String {
@@ -19,6 +20,7 @@ impl From<&str> for String {
     }
 }
 
+#[derive(Clone)]
 pub struct Character {
     character: char,
     index: usize,

@@ -12,12 +12,18 @@ pub struct Transition<'a> {
 impl<'a> Transition<'a> {
     pub fn simulate(stack: Stack<'a>, mut input: input::String) -> Vec<Self> {
         if let Some(character) = input.pop_front() {
-            let character_acceptance: Vec<CharacterAcceptance<'a>> = stack
+            stack
                 .next_acceptors()
                 .into_iter()
-                .filter_map(|acceptor| acceptor.accept(&character))
-                .collect();
-            unimplemented!();
+                .filter_map(|(stack, acceptor)| {
+                    acceptor
+                        .accept(&character)
+                        .map(|character_acceptance| Self {
+                            character_acceptance,
+                            next: Self::simulate(stack, input.clone()),
+                        })
+                })
+                .collect()
         } else {
             Vec::default()
         }
