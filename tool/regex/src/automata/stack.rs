@@ -57,7 +57,18 @@ impl<'a> Stack<'a> {
                         Progress::Sequence {
                             processing_element_index,
                         },
-                } => unimplemented!(),
+                } => {
+                    if *processing_element_index < elements.len() {
+                        let next_frame: Frame =
+                            Frame::initialize(&elements[*processing_element_index]);
+                        *processing_element_index += 1;
+                        next_stack.0.push(next_frame);
+                        next_stack.next_states()
+                    } else {
+                        next_stack.0.pop();
+                        next_stack.next_states()
+                    }
+                }
                 Frame {
                     automata: Automata::StartOfLine,
                     progress: Progress::StartOfLine,
