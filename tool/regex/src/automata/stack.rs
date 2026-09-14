@@ -25,12 +25,24 @@ impl<'a> Stack<'a> {
             match frame {
                 Frame {
                     automata: Automata::Character(acceptor),
-                    progress: Progress::Character,
-                } => self.popped().next_states(),
+                    progress: Progress::Character { executed },
+                } => {
+                    if *executed {
+                        self.popped().next_states()
+                    } else {
+                        unimplemented!();
+                    }
+                }
                 Frame {
                     automata: Automata::EndOfLine,
-                    progress: Progress::EndOfLine,
-                } => self.popped().next_states(),
+                    progress: Progress::EndOfLine { executed },
+                } => {
+                    if *executed {
+                        self.popped().next_states()
+                    } else {
+                        unimplemented!();
+                    }
+                }
                 Frame {
                     automata: Automata::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
@@ -48,8 +60,14 @@ impl<'a> Stack<'a> {
                 } => unimplemented!(),
                 Frame {
                     automata: Automata::StartOfLine,
-                    progress: Progress::StartOfLine,
-                } => self.popped().next_states(),
+                    progress: Progress::StartOfLine { executed },
+                } => {
+                    if *executed {
+                        self.popped().next_states()
+                    } else {
+                        unimplemented!();
+                    }
+                }
                 _ => panic!(),
             }
         } else {
@@ -79,19 +97,19 @@ impl<'a> Frame<'a> {
 
 #[derive(Clone)]
 enum Progress {
-    Character,
-    EndOfLine,
+    Character { executed: bool },
+    EndOfLine { executed: bool },
     Repetition { repetition_count: usize },
     Selection { executed: bool },
     Sequence { processing_element_index: usize },
-    StartOfLine,
+    StartOfLine { executed: bool },
 }
 
 impl Progress {
     fn initialize(automata: &Automata) -> Self {
         match automata {
-            Automata::Character(_) => Self::Character,
-            Automata::EndOfLine => Self::EndOfLine,
+            Automata::Character(_) => Self::Character { executed: false },
+            Automata::EndOfLine => Self::EndOfLine { executed: false },
             Automata::Repetition { body: _, number: _ } => Self::Repetition {
                 repetition_count: 0,
             },
@@ -99,7 +117,7 @@ impl Progress {
             Automata::Sequence(_) => Self::Sequence {
                 processing_element_index: 0,
             },
-            Automata::StartOfLine => Self::StartOfLine,
+            Automata::StartOfLine => Self::StartOfLine { executed: false },
         }
     }
 }
