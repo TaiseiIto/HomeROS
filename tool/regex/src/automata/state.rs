@@ -1,6 +1,6 @@
 use {
     super::{Automata, Stack, input},
-    crate::character,
+    crate::character::Acceptor,
     alloc::vec::Vec,
 };
 
@@ -25,13 +25,13 @@ impl<'a> Transition<'a> {
 }
 
 pub struct CharacterAcceptance<'a> {
-    acceptor: &'a character::Acceptor,
+    acceptor: &'a Acceptor,
     character: char,
     index: usize,
 }
 
 impl<'a> CharacterAcceptance<'a> {
-    pub fn accept(acceptor: &'a character::Acceptor, character: &input::Character) -> Option<Self> {
+    pub fn accept(acceptor: &'a Acceptor, character: &input::Character) -> Option<Self> {
         acceptor.accepts(character.character()).then_some(Self {
             acceptor,
             character: character.character(),

@@ -1,6 +1,6 @@
 use {
     super::Automata,
-    crate::character,
+    crate::character::Acceptor,
     alloc::{vec, vec::Vec},
 };
 
@@ -11,7 +11,7 @@ impl<'a> Stack<'a> {
         Self(vec![Frame::initialize(automata)])
     }
 
-    pub fn next_acceptors(&self) -> Vec<&'a character::Acceptor> {
+    pub fn next_acceptors(&self) -> Vec<&'a Acceptor> {
         unimplemented!();
     }
 }

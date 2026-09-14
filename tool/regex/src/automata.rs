@@ -3,7 +3,7 @@ mod stack;
 pub mod state;
 
 use {
-    crate::{character, symbol::Expression},
+    crate::{character::Acceptor, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
 };
@@ -12,7 +12,7 @@ pub use stack::Stack;
 
 #[derive(Debug)]
 pub enum Automata {
-    Character(character::Acceptor),
+    Character(Acceptor),
     EndOfLine,
     Repetition {
         body: Box<Self>,
