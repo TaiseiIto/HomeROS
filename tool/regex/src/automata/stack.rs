@@ -22,7 +22,7 @@ impl<'a> Stack<'a> {
 
     pub fn next_states(&self) -> Vec<Self> {
         let mut next_stack: Self = self.clone();
-        if let Some(frame) = self.0.last() {
+        if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
                     automata: Automata::Character(acceptor),
@@ -31,13 +31,9 @@ impl<'a> Stack<'a> {
                     if *executed {
                         next_stack.0.pop();
                         next_stack.next_states()
-                    } else if let Progress::Character { mut executed } =
-                        next_stack.0.last_mut().unwrap().progress
-                    {
-                        executed = true;
-                        vec![next_stack]
                     } else {
-                        panic!();
+                        *executed = true;
+                        vec![next_stack]
                     }
                 }
                 Frame {
