@@ -50,7 +50,22 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::Selection(options),
                     progress: Progress::Selection { executed },
-                } => unimplemented!(),
+                } => {
+                    if *executed {
+                        next_stack.0.pop();
+                        next_stack.next_states()
+                    } else {
+                        *executed = true;
+                        options
+                            .iter()
+                            .flat_map(|option| {
+                                let mut next_stack: Self = next_stack.clone();
+                                next_stack.0.push(Frame::initialize(option));
+                                next_stack.next_states()
+                            })
+                            .collect()
+                    }
+                }
                 Frame {
                     automata: Automata::Sequence(elements),
                     progress:
