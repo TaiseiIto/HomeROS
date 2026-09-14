@@ -25,13 +25,13 @@ impl<'a> Transition<'a> {
 }
 
 pub struct CharacterAcceptance<'a> {
-    acceptor: &'a character::Set,
+    acceptor: &'a character::Acceptor,
     character: char,
     index: usize,
 }
 
 impl<'a> CharacterAcceptance<'a> {
-    pub fn accept(acceptor: &'a character::Set, character: &input::Character) -> Option<Self> {
+    pub fn accept(acceptor: &'a character::Acceptor, character: &input::Character) -> Option<Self> {
         acceptor.accepts(character.character()).then_some(Self {
             acceptor,
             character: character.character(),

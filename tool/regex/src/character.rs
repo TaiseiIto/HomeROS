@@ -8,12 +8,12 @@ use {
 };
 
 #[derive(Debug, Default)]
-pub struct Set {
+pub struct Acceptor {
     acceptance: Acceptance,
     characters: BTreeSet<char>,
 }
 
-impl Set {
+impl Acceptor {
     pub fn accept<'a>(&'a self, character: &Character) -> Option<CharacterAcceptance<'a>> {
         CharacterAcceptance::accept(self, character)
     }
@@ -32,7 +32,7 @@ impl Set {
     }
 }
 
-impl Add for Set {
+impl Add for Acceptor {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
@@ -68,7 +68,7 @@ impl Add for Set {
     }
 }
 
-impl Neg for Set {
+impl Neg for Acceptor {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -83,7 +83,7 @@ impl Neg for Set {
     }
 }
 
-impl Sub for Set {
+impl Sub for Acceptor {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -91,19 +91,19 @@ impl Sub for Set {
     }
 }
 
-impl Sum for Set {
+impl Sum for Acceptor {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::default(), |sum, element| sum + element)
     }
 }
 
-impl From<char> for Set {
+impl From<char> for Acceptor {
     fn from(character: char) -> Self {
         once(character).collect()
     }
 }
 
-impl FromIterator<char> for Set {
+impl FromIterator<char> for Acceptor {
     fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
         Self {
             acceptance: Acceptance::Set,

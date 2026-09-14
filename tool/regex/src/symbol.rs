@@ -1,5 +1,5 @@
 use {
-    crate::{Automata, automata, character},
+    crate::{Automata, automata, character::Acceptor},
     alloc::{boxed::Box, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
@@ -80,7 +80,7 @@ impl From<Base> for Automata {
             Base::Character(character) => character.into(),
             Base::Expression(LeftParenthesis, expression, RightParenthesis) => (*expression).into(),
             Base::Set(LeftBracket, circumflex, set, RightBracket) => Self::Character({
-                let set: character::Set = set.into();
+                let set: Acceptor = set.into();
                 if circumflex.is_some() { -set } else { set }
             }),
         }
@@ -438,7 +438,7 @@ impl From<NakedCharacter> for char {
 #[derive(Debug, Parser)]
 pub struct Set(Vec<Range>);
 
-impl From<Set> for character::Set {
+impl From<Set> for Acceptor {
     fn from(set: Set) -> Self {
         set.0.into_iter().map(Into::<Self>::into).sum()
     }
@@ -447,7 +447,7 @@ impl From<Set> for character::Set {
 #[derive(Debug, Parser)]
 pub struct Range(Element, Option<(Hyphen, Element)>);
 
-impl From<Range> for character::Set {
+impl From<Range> for Acceptor {
     fn from(range: Range) -> Self {
         let Range(start, end) = range;
         if let Some((Hyphen, end)) = end {
@@ -466,7 +466,7 @@ pub enum Element {
     NakedElement(NakedElement),
 }
 
-impl From<Element> for character::Set {
+impl From<Element> for Acceptor {
     fn from(element: Element) -> Self {
         match element {
             Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
@@ -506,7 +506,7 @@ pub enum EscapedElement {
     UpperW(UpperW),
 }
 
-impl From<EscapedElement> for character::Set {
+impl From<EscapedElement> for Acceptor {
     fn from(escaped_element: EscapedElement) -> Self {
         match escaped_element {
             EscapedElement::Backslash(backslash) => Into::<char>::into(backslash).into(),
@@ -656,7 +656,7 @@ pub enum NakedElement {
     VerticalBar(VerticalBar),
 }
 
-impl From<NakedElement> for character::Set {
+impl From<NakedElement> for Acceptor {
     fn from(naked_element: NakedElement) -> Self {
         let naked_element: char = naked_element.into();
         naked_element.into()

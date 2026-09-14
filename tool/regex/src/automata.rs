@@ -12,7 +12,7 @@ pub use stack::Stack;
 
 #[derive(Debug)]
 pub enum Automata {
-    Character(character::Set),
+    Character(character::Acceptor),
     EndOfLine,
     Repetition {
         body: Box<Self>,
