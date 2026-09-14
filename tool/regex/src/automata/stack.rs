@@ -4,6 +4,7 @@ use {
     alloc::{vec, vec::Vec},
 };
 
+#[derive(Clone)]
 pub struct Stack<'a>(Vec<Frame<'a>>);
 
 impl<'a> Stack<'a> {
@@ -25,11 +26,11 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::Character(acceptor),
                     progress: Progress::Character,
-                } => unimplemented!(),
+                } => self.popped().next_states(),
                 Frame {
                     automata: Automata::EndOfLine,
                     progress: Progress::EndOfLine,
-                } => unimplemented!(),
+                } => self.popped().next_states(),
                 Frame {
                     automata: Automata::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
@@ -48,15 +49,20 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::StartOfLine,
                     progress: Progress::StartOfLine,
-                } => unimplemented!(),
+                } => self.popped().next_states(),
                 _ => panic!(),
             }
         } else {
             Vec::default()
         }
     }
+
+    fn popped(&self) -> Self {
+        Self(self.0.iter().rev().skip(1).rev().cloned().collect())
+    }
 }
 
+#[derive(Clone)]
 struct Frame<'a> {
     automata: &'a Automata,
     progress: Progress,
@@ -71,6 +77,7 @@ impl<'a> Frame<'a> {
     }
 }
 
+#[derive(Clone)]
 enum Progress {
     Character,
     EndOfLine,
