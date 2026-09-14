@@ -25,7 +25,7 @@ pub enum Automata {
 
 impl Automata {
     pub fn input<'a>(&'a self, input: &'a str) -> Vec<state::Transition<'a>> {
-        state::Transition::simulate(Stack::initialize(self), input.into())
+        state::Transition::execute(Stack::initialize(self), input.into())
     }
 }
 
