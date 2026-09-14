@@ -9,16 +9,41 @@ use {
 #[derive(Debug, Default)]
 pub struct Set {
     acceptance: Acceptance,
-    subsets: Vec<Subset>,
+    characters: BTreeSet<char>,
 }
 
 impl Add for Set {
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
-        Self {
-            acceptance: Acceptance::Set,
-            subsets: [self, other].into_iter().map(Subset::Set).collect(),
+        let Self {
+            acceptance: self_acceptance,
+            characters: self_characters,
+        } = self;
+        let Self {
+            acceptance: other_acceptance,
+            characters: other_characters,
+        } = other;
+        match (self_acceptance, other_acceptance) {
+            (Acceptance::Set, Acceptance::Set) => Self {
+                acceptance: Acceptance::Set,
+                characters: &self_characters | &other_characters,
+            },
+            (Acceptance::Set, Acceptance::Complement) => Self {
+                acceptance: Acceptance::Complement,
+                characters: &other_characters - &self_characters,
+            },
+            (Acceptance::Complement, Acceptance::Set) => Self {
+                acceptance: Acceptance::Complement,
+                characters: &self_characters - &other_characters,
+            },
+            (Acceptance::Complement, Acceptance::Complement) => Self {
+                acceptance: Acceptance::Complement,
+                characters: self_characters
+                    .intersection(&other_characters)
+                    .cloned()
+                    .collect(),
+            },
         }
     }
 }
@@ -29,11 +54,11 @@ impl Neg for Set {
     fn neg(self) -> Self::Output {
         let Self {
             acceptance,
-            subsets,
+            characters,
         } = self;
         Self {
             acceptance: !acceptance,
-            subsets,
+            characters,
         }
     }
 }
@@ -62,26 +87,8 @@ impl FromIterator<char> for Set {
     fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
         Self {
             acceptance: Acceptance::Set,
-            subsets: once(iter.into_iter().collect()).collect(),
+            characters: iter.into_iter().collect(),
         }
-    }
-}
-
-#[derive(Debug)]
-enum Subset {
-    Set(Set),
-    Characters(BTreeSet<char>),
-}
-
-impl From<char> for Subset {
-    fn from(character: char) -> Self {
-        once(character).collect()
-    }
-}
-
-impl FromIterator<char> for Subset {
-    fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
-        Self::Characters(iter.into_iter().collect())
     }
 }
 
