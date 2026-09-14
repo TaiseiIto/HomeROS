@@ -13,10 +13,10 @@ impl<'a> Transition<'a> {
     pub fn simulate(stack: Stack<'a>, mut input: input::String) -> Vec<Self> {
         if let Some(character) = input.pop_front() {
             stack
-                .next_acceptors()
+                .next_states()
                 .into_iter()
-                .filter_map(|(stack, acceptor)| {
-                    acceptor.accept(&character).map(|acceptance| Self {
+                .filter_map(|stack| {
+                    stack.acceptor().accept(&character).map(|acceptance| Self {
                         acceptance,
                         next: Self::simulate(stack, input.clone()),
                     })

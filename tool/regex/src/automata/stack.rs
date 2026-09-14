@@ -7,11 +7,19 @@ use {
 pub struct Stack<'a>(Vec<Frame<'a>>);
 
 impl<'a> Stack<'a> {
+    pub fn acceptor(&self) -> &'a Acceptor {
+        if let Automata::Character(acceptor) = self.0.last().unwrap().automata {
+            &acceptor
+        } else {
+            panic!();
+        }
+    }
+
     pub fn initialize(automata: &'a Automata) -> Self {
         Self(vec![Frame::initialize(automata)])
     }
 
-    pub fn next_acceptors(&self) -> Vec<(Self, &'a Acceptor)> {
+    pub fn next_states(&self) -> Vec<Self> {
         unimplemented!();
     }
 }
