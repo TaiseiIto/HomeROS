@@ -21,27 +21,26 @@ impl<'a> Stack<'a> {
     }
 
     pub fn next_states(&self) -> Vec<Self> {
-        if let Some(frame) = self.0.last() {
+        let mut next_stack: Self = self.clone();
+        if let Some(frame) = next_stack.0.last() {
             match frame {
                 Frame {
                     automata: Automata::Character(acceptor),
                     progress: Progress::Character { executed },
                 } => {
                     if *executed {
-                        self.popped().next_states()
+                        next_stack.0.pop();
+                        next_stack.next_states()
                     } else {
                         unimplemented!();
                     }
                 }
                 Frame {
                     automata: Automata::EndOfLine,
-                    progress: Progress::EndOfLine { executed },
+                    progress: Progress::EndOfLine,
                 } => {
-                    if *executed {
-                        self.popped().next_states()
-                    } else {
-                        unimplemented!();
-                    }
+                    next_stack.0.pop();
+                    next_stack.next_states()
                 }
                 Frame {
                     automata: Automata::Repetition { body, number },
@@ -60,23 +59,16 @@ impl<'a> Stack<'a> {
                 } => unimplemented!(),
                 Frame {
                     automata: Automata::StartOfLine,
-                    progress: Progress::StartOfLine { executed },
+                    progress: Progress::StartOfLine,
                 } => {
-                    if *executed {
-                        self.popped().next_states()
-                    } else {
-                        unimplemented!();
-                    }
+                    next_stack.0.pop();
+                    next_stack.next_states()
                 }
                 _ => panic!(),
             }
         } else {
             Vec::default()
         }
-    }
-
-    fn popped(&self) -> Self {
-        Self(self.0.iter().rev().skip(1).rev().cloned().collect())
     }
 }
 
@@ -98,18 +90,18 @@ impl<'a> Frame<'a> {
 #[derive(Clone)]
 enum Progress {
     Character { executed: bool },
-    EndOfLine { executed: bool },
+    EndOfLine,
     Repetition { repetition_count: usize },
     Selection { executed: bool },
     Sequence { processing_element_index: usize },
-    StartOfLine { executed: bool },
+    StartOfLine,
 }
 
 impl Progress {
     fn initialize(automata: &Automata) -> Self {
         match automata {
             Automata::Character(_) => Self::Character { executed: false },
-            Automata::EndOfLine => Self::EndOfLine { executed: false },
+            Automata::EndOfLine => Self::EndOfLine,
             Automata::Repetition { body: _, number: _ } => Self::Repetition {
                 repetition_count: 0,
             },
@@ -117,7 +109,7 @@ impl Progress {
             Automata::Sequence(_) => Self::Sequence {
                 processing_element_index: 0,
             },
-            Automata::StartOfLine => Self::StartOfLine { executed: false },
+            Automata::StartOfLine => Self::StartOfLine,
         }
     }
 }
