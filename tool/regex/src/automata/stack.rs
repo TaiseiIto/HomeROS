@@ -53,33 +53,28 @@ impl<'a> Stack<'a> {
                 } => {
                     let repetition_count: usize = *repetition_count;
                     [
-                        number
-                            .can_break(repetition_count)
-                            .then_some({
-                                let mut next_stack: Self = next_stack.clone();
-                                next_stack.0.pop();
+                        number.can_break(repetition_count).then_some({
+                            let mut next_stack: Self = next_stack.clone();
+                            next_stack.0.pop();
+                            next_stack.next_states(start_of_line, end_of_line)
+                        }),
+                        number.can_continue(repetition_count).then_some({
+                            let mut next_stack: Self = next_stack.clone();
+                            if let Frame {
+                                automata: _,
+                                progress: Progress::Repetition { repetition_count },
+                            } = next_stack.0.last_mut().unwrap()
+                            {
+                                *repetition_count += 1;
+                                next_stack.0.push(Frame::initialize(body));
                                 next_stack.next_states(start_of_line, end_of_line)
-                            })
-                            .unwrap_or(Vec::default()),
-                        number
-                            .can_continue(repetition_count)
-                            .then_some({
-                                let mut next_stack: Self = next_stack.clone();
-                                if let Frame {
-                                    automata: _,
-                                    progress: Progress::Repetition { repetition_count },
-                                } = next_stack.0.last_mut().unwrap()
-                                {
-                                    *repetition_count += 1;
-                                    next_stack.0.push(Frame::initialize(body));
-                                    next_stack.next_states(start_of_line, end_of_line)
-                                } else {
-                                    panic!();
-                                }
-                            })
-                            .unwrap_or(Vec::default()),
+                            } else {
+                                panic!();
+                            }
+                        }),
                     ]
                     .into_iter()
+                    .flatten()
                     .flatten()
                     .collect()
                 }
