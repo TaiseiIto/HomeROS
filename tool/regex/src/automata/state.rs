@@ -4,6 +4,7 @@ use {
     alloc::vec::Vec,
 };
 
+#[derive(Debug)]
 pub struct Transition<'a> {
     acceptance: Acceptance<'a>,
     next: Vec<Self>,
@@ -28,6 +29,7 @@ impl<'a> Transition<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct Acceptance<'a> {
     acceptor: &'a Acceptor,
     character: char,
