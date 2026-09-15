@@ -4,6 +4,10 @@ use alloc::collections::vec_deque::VecDeque;
 pub struct String(VecDeque<Character>);
 
 impl String {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub fn pop_front(&mut self) -> Option<Character> {
         self.0.pop_front()
     }

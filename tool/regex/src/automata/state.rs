@@ -14,7 +14,7 @@ impl<'a> Transition<'a> {
     pub fn execute(stack: Stack<'a>, mut input: input::String) -> Vec<Self> {
         if let Some(character) = input.pop_front() {
             stack
-                .next_states()
+                .next_states(character.index() == 0, input.is_empty())
                 .into_iter()
                 .filter_map(|stack| {
                     stack.acceptor().accept(&character).map(|acceptance| Self {

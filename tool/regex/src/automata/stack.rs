@@ -20,7 +20,7 @@ impl<'a> Stack<'a> {
         Self(vec![Frame::initialize(automata)])
     }
 
-    pub fn next_states(&self) -> Vec<Self> {
+    pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
         let mut next_stack: Self = self.clone();
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
@@ -30,7 +30,7 @@ impl<'a> Stack<'a> {
                 } => {
                     if *executed {
                         next_stack.0.pop();
-                        next_stack.next_states()
+                        next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
                         vec![next_stack]
@@ -39,7 +39,14 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::EndOfLine,
                     progress: Progress::EndOfLine,
-                } => unimplemented!(),
+                } => {
+                    if end_of_line {
+                        next_stack.0.pop();
+                        next_stack.next_states(start_of_line, end_of_line)
+                    } else {
+                        Vec::default()
+                    }
+                }
                 Frame {
                     automata: Automata::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
@@ -51,9 +58,9 @@ impl<'a> Stack<'a> {
                             .then_some({
                                 let mut next_stack: Self = next_stack.clone();
                                 next_stack.0.pop();
-                                next_stack.next_states()
+                                next_stack.next_states(start_of_line, end_of_line)
                             })
-                            .unwrap_or(Vec::new()),
+                            .unwrap_or(Vec::default()),
                         number
                             .can_continue(repetition_count)
                             .then_some({
@@ -65,12 +72,12 @@ impl<'a> Stack<'a> {
                                 {
                                     *repetition_count += 1;
                                     next_stack.0.push(Frame::initialize(body));
-                                    next_stack.next_states()
+                                    next_stack.next_states(start_of_line, end_of_line)
                                 } else {
                                     panic!();
                                 }
                             })
-                            .unwrap_or(Vec::new()),
+                            .unwrap_or(Vec::default()),
                     ]
                     .into_iter()
                     .flatten()
@@ -82,7 +89,7 @@ impl<'a> Stack<'a> {
                 } => {
                     if *executed {
                         next_stack.0.pop();
-                        next_stack.next_states()
+                        next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
                         options
@@ -90,7 +97,7 @@ impl<'a> Stack<'a> {
                             .flat_map(|option| {
                                 let mut next_stack: Self = next_stack.clone();
                                 next_stack.0.push(Frame::initialize(option));
-                                next_stack.next_states()
+                                next_stack.next_states(start_of_line, end_of_line)
                             })
                             .collect()
                     }
@@ -107,16 +114,23 @@ impl<'a> Stack<'a> {
                             Frame::initialize(&elements[*processing_element_index]);
                         *processing_element_index += 1;
                         next_stack.0.push(next_frame);
-                        next_stack.next_states()
+                        next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         next_stack.0.pop();
-                        next_stack.next_states()
+                        next_stack.next_states(start_of_line, end_of_line)
                     }
                 }
                 Frame {
                     automata: Automata::StartOfLine,
                     progress: Progress::StartOfLine,
-                } => unimplemented!(),
+                } => {
+                    if start_of_line {
+                        next_stack.0.pop();
+                        next_stack.next_states(start_of_line, end_of_line)
+                    } else {
+                        Vec::default()
+                    }
+                }
                 _ => panic!(),
             }
         } else {
