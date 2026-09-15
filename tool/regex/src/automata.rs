@@ -52,6 +52,24 @@ pub enum RepetitionNumber {
     FromTo(usize, usize),
 }
 
+impl RepetitionNumber {
+    pub fn can_continue(&self, current: usize) -> bool {
+        match self {
+            Self::Constant(constant) => current < *constant,
+            Self::From(_) => true,
+            Self::FromTo(_, to) => current < *to,
+        }
+    }
+
+    pub fn can_break(&self, current: usize) -> bool {
+        match self {
+            Self::Constant(constant) => *constant <= current,
+            Self::From(from) => *from <= current,
+            Self::FromTo(from, _) => *from <= current,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

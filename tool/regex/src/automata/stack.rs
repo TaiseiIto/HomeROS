@@ -46,7 +46,39 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
-                } => unimplemented!(),
+                } => {
+                    let repetition_count: usize = *repetition_count;
+                    [
+                        number
+                            .can_break(repetition_count)
+                            .then_some({
+                                let mut next_stack: Self = next_stack.clone();
+                                next_stack.0.pop();
+                                next_stack.next_states()
+                            })
+                            .unwrap_or(Vec::new()),
+                        number
+                            .can_continue(repetition_count)
+                            .then_some({
+                                let mut next_stack: Self = next_stack.clone();
+                                if let Frame {
+                                    automata: _,
+                                    progress: Progress::Repetition { repetition_count },
+                                } = next_stack.0.last_mut().unwrap()
+                                {
+                                    *repetition_count += 1;
+                                    next_stack.0.push(Frame::initialize(body));
+                                    next_stack.next_states()
+                                } else {
+                                    panic!();
+                                }
+                            })
+                            .unwrap_or(Vec::new()),
+                    ]
+                    .into_iter()
+                    .flatten()
+                    .collect()
+                }
                 Frame {
                     automata: Automata::Selection(options),
                     progress: Progress::Selection { executed },
