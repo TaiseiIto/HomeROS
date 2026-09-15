@@ -39,10 +39,7 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::EndOfLine,
                     progress: Progress::EndOfLine,
-                } => {
-                    next_stack.0.pop();
-                    next_stack.next_states()
-                }
+                } => unimplemented!(),
                 Frame {
                     automata: Automata::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
@@ -119,10 +116,7 @@ impl<'a> Stack<'a> {
                 Frame {
                     automata: Automata::StartOfLine,
                     progress: Progress::StartOfLine,
-                } => {
-                    next_stack.0.pop();
-                    next_stack.next_states()
-                }
+                } => unimplemented!(),
                 _ => panic!(),
             }
         } else {
