@@ -108,16 +108,11 @@ impl FromIterator<char> for Acceptor {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 enum Acceptance {
     Complement,
+    #[default]
     Set,
-}
-
-impl Default for Acceptance {
-    fn default() -> Self {
-        Self::Set
-    }
 }
 
 impl Not for Acceptance {

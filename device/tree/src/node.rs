@@ -168,10 +168,7 @@ impl Node {
     }
 
     fn is_ok(&self) -> bool {
-        match self.status() {
-            Some(Status::Okay) | None => true,
-            _ => false,
-        }
+        matches!(self.status(), Some(Status::Okay) | None)
     }
 
     fn names(&self, specifier: &str) -> Option<Vec<String>> {
