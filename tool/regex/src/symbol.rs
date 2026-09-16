@@ -23,7 +23,7 @@ impl FromStr for Expression {
 impl From<Expression> for Automata {
     fn from(expression: Expression) -> Self {
         let terms: Vec<Term> = expression.into();
-        Self::Selection(terms.into_iter().map(|term| term.into()).collect())
+        Self::Selection(terms.into_iter().map(Into::into).collect())
     }
 }
 
@@ -46,7 +46,7 @@ impl From<Term> for Automata {
         if powers.len() == 1 {
             powers.pop().unwrap().into()
         } else {
-            Self::Sequence(powers.into_iter().map(|power| power.into()).collect())
+            Self::Sequence(powers.into_iter().map(Into::into).collect())
         }
     }
 }
@@ -809,7 +809,7 @@ impl From<Number> for usize {
         number
             .0
             .into_iter()
-            .map(|digit| digit.into())
+            .map(Into::into)
             .fold(0, |number, digit: usize| 10 * number + digit)
     }
 }

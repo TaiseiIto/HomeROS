@@ -346,7 +346,7 @@ impl From<ItemUnion> for Registers {
                     named,
                 },
         } = item_union;
-        let elements: Vec<Element> = named.into_iter().map(|field| field.into()).collect();
+        let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
         Self {
             elements,
             ident,

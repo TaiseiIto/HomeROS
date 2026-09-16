@@ -131,7 +131,7 @@ impl From<DeriveInput> for Symbol {
                     variants,
                 }) => Component::Enum {
                     name: ident.clone(),
-                    variants: variants.into_iter().map(|variant| variant.into()).collect(),
+                    variants: variants.into_iter().map(Into::into).collect(),
                 },
                 data => panic!("Unknown data={:#x?}", data),
             },
@@ -324,7 +324,7 @@ impl From<Type> for Component {
                 semi_token: _,
                 len,
             }) => Self::Array {
-                unit: Box::map(elem, |ty| ty.into()),
+                unit: Box::map(elem, Into::into),
                 size: len,
             },
             Type::Path(TypePath {
@@ -370,7 +370,7 @@ impl From<Type> for Component {
                 elems,
             }) => Self::Tuple {
                 name: None,
-                elements: elems.into_iter().map(|ty| ty.into()).collect(),
+                elements: elems.into_iter().map(Into::into).collect(),
             },
             _ => panic!("Unknown type"),
         }
