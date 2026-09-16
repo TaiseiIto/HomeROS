@@ -1,15 +1,15 @@
 use alloc::collections::vec_deque::VecDeque;
 
 #[derive(Clone)]
-pub struct SearchPoint(VecDeque<Character>);
+pub struct Point(VecDeque<Character>);
 
-impl SearchPoint {
+impl Point {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 }
 
-impl From<&str> for SearchPoint {
+impl From<&str> for Point {
     fn from(string: &str) -> Self {
         Self(
             string
@@ -20,7 +20,7 @@ impl From<&str> for SearchPoint {
     }
 }
 
-impl Iterator for SearchPoint {
+impl Iterator for Point {
     type Item = Character;
 
     fn next(&mut self) -> Option<Self::Item> {

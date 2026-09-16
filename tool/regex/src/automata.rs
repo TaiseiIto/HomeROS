@@ -1,4 +1,4 @@
-pub mod input;
+pub mod search;
 mod stack;
 pub mod state;
 

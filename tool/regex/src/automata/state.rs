@@ -1,5 +1,8 @@
 use {
-    super::{Automata, Stack, input},
+    super::{
+        Automata, Stack,
+        search::{Character, Point},
+    },
     crate::character::Acceptor,
     alloc::vec::Vec,
 };
@@ -11,7 +14,7 @@ pub struct Transition<'a> {
 }
 
 impl<'a> Transition<'a> {
-    pub fn execute(stack: Stack<'a>, mut input: input::SearchPoint) -> Vec<Self> {
+    pub fn execute(stack: Stack<'a>, mut input: Point) -> Vec<Self> {
         if let Some(character) = input.next() {
             stack
                 .next_states(character.index() == 0, input.is_empty())
@@ -37,7 +40,7 @@ pub struct Acceptance<'a> {
 }
 
 impl<'a> Acceptance<'a> {
-    pub fn accept(acceptor: &'a Acceptor, character: &input::Character) -> Option<Self> {
+    pub fn accept(acceptor: &'a Acceptor, character: &Character) -> Option<Self> {
         acceptor.accepts(character.character()).then_some(Self {
             acceptor,
             character: character.character(),
