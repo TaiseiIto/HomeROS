@@ -160,20 +160,23 @@ impl<'a> Frame<'a> {
                 progress: Progress::EndOfLine,
             } => true,
             Self {
-                automata: Automata::Repetition { body: _, number },
+                automata: Automata::Repetition { body, number },
                 progress: Progress::Repetition { repetition_count },
-            } => number.can_break(*repetition_count),
+            } => number.can_break(*repetition_count) || body.accepts_empty_string(),
             Self {
-                automata: _,
+                automata,
                 progress: Progress::Selection { executed },
-            } => *executed,
+            } => *executed || automata.accepts_empty_string(),
             Self {
                 automata: Automata::Sequence(elements),
                 progress:
                     Progress::Sequence {
                         processing_element_index,
                     },
-            } => *processing_element_index == elements.len(),
+            } => elements
+                .iter()
+                .skip(*processing_element_index)
+                .all(|element| element.accepts_empty_string()),
             Self {
                 automata: _,
                 progress: Progress::StartOfLine,

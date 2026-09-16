@@ -26,6 +26,19 @@ pub enum Automata {
 }
 
 impl Automata {
+    pub fn accepts_empty_string(&self) -> bool {
+        match self {
+            Self::Character(_) => false,
+            Self::EndOfLine => true,
+            Self::Repetition { body, number } => number.can_break(0) || body.accepts_empty_string(),
+            Self::Selection(options) => options.iter().any(|option| option.accepts_empty_string()),
+            Self::Sequence(elements) => elements
+                .iter()
+                .all(|element| element.accepts_empty_string()),
+            Self::StartOfLine => true,
+        }
+    }
+
     pub fn input<'a>(&'a self, input: &str) -> Vec<Line<'a>> {
         let mut input: Target = input.into();
         let trees: Vec<Tree<'a>> = input
