@@ -40,7 +40,7 @@ impl<'a> Tree<'a> {
                 .next_states(character.index() == 0, input.is_empty())
                 .into_iter()
                 .filter_map(|stack| {
-                    stack.acceptor().accept(&character).map(|acceptance| Self {
+                    stack.accept(&character).map(|acceptance| Self {
                         acceptance,
                         next: Self::execute(stack, input.clone()),
                     })

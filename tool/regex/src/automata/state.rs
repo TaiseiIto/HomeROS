@@ -1,20 +1,26 @@
 pub mod transition;
 
-use {super::search::Character, crate::character::Acceptor};
+use {
+    super::{Stack, search::Character},
+    crate::character::Acceptor,
+};
 
 #[derive(Clone, Debug)]
 pub struct Acceptance<'a> {
-    acceptor: &'a Acceptor,
     character: char,
     index: usize,
+    stack: Stack<'a>,
 }
 
 impl<'a> Acceptance<'a> {
-    pub fn accept(acceptor: &'a Acceptor, character: &Character) -> Option<Self> {
-        acceptor.accepts(character.character()).then_some(Self {
-            acceptor,
-            character: character.character(),
-            index: character.index(),
-        })
+    pub fn accept(stack: &Stack<'a>, character: &Character) -> Option<Self> {
+        stack
+            .acceptor()
+            .accepts(character.character())
+            .then_some(Self {
+                character: character.character(),
+                index: character.index(),
+                stack: stack.clone(),
+            })
     }
 }

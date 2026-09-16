@@ -1,13 +1,17 @@
 use {
-    super::Automata,
+    super::{Automata, search::Character, state::Acceptance},
     crate::character::Acceptor,
     alloc::{vec, vec::Vec},
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Stack<'a>(Vec<Frame<'a>>);
 
 impl<'a> Stack<'a> {
+    pub fn accept(&self, character: &Character) -> Option<Acceptance<'a>> {
+        Acceptance::accept(self, character)
+    }
+
     pub fn acceptor(&self) -> &'a Acceptor {
         if let Automata::Character(acceptor) = self.0.last().unwrap().automata {
             &acceptor
@@ -134,7 +138,7 @@ impl<'a> Stack<'a> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Frame<'a> {
     automata: &'a Automata,
     progress: Progress,
@@ -149,7 +153,7 @@ impl<'a> Frame<'a> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum Progress {
     Character { executed: bool },
     EndOfLine,
