@@ -3,7 +3,7 @@ use {
         super::{Stack, search::Point},
         Acceptance,
     },
-    alloc::vec::Vec,
+    alloc::{vec, vec::Vec},
     core::iter::once,
 };
 
@@ -13,13 +13,18 @@ pub struct Line<'a>(Vec<Acceptance<'a>>);
 impl<'a> From<Tree<'a>> for Vec<Line<'a>> {
     fn from(tree: Tree<'a>) -> Self {
         let Tree { acceptance, next } = tree;
-        next.into_iter()
-            .flat_map(|next| {
-                let next: Vec<Line<'a>> = next.into();
-                next.into_iter()
-                    .map(|next| Line(once(acceptance.clone()).chain(next.0.into_iter()).collect()))
-            })
-            .collect()
+        if next.is_empty() {
+            vec![Line(vec![acceptance])]
+        } else {
+            next.into_iter()
+                .flat_map(|next| {
+                    let next: Vec<Line<'a>> = next.into();
+                    next.into_iter().map(|next| {
+                        Line(once(acceptance.clone()).chain(next.0.into_iter()).collect())
+                    })
+                })
+                .collect()
+        }
     }
 }
 
