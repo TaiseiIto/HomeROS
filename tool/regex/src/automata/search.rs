@@ -1,6 +1,22 @@
 use alloc::collections::vec_deque::VecDeque;
 
 #[derive(Clone)]
+pub struct Character {
+    character: char,
+    index: usize,
+}
+
+impl Character {
+    pub fn character(&self) -> char {
+        self.character
+    }
+
+    pub fn index(&self) -> usize {
+        self.index
+    }
+}
+
+#[derive(Clone)]
 pub struct Point(VecDeque<Character>);
 
 impl Point {
@@ -29,17 +45,19 @@ impl Iterator for Point {
 }
 
 #[derive(Clone)]
-pub struct Character {
-    character: char,
-    index: usize,
+pub struct Target(Point);
+
+impl From<&str> for Target {
+    fn from(string: &str) -> Self {
+        Self(string.into())
+    }
 }
 
-impl Character {
-    pub fn character(&self) -> char {
-        self.character
-    }
+impl Iterator for Target {
+    type Item = Point;
 
-    pub fn index(&self) -> usize {
-        self.index
+    fn next(&mut self) -> Option<Self::Item> {
+        let next: Point = self.0.clone();
+        self.0.next().is_some().then_some(next)
     }
 }
