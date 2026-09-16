@@ -62,9 +62,7 @@ impl FromStr for Automata {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
-        string
-            .parse()
-            .map(|expression: Expression| expression.into())
+        string.parse::<Expression>().map(Into::into)
     }
 }
 
