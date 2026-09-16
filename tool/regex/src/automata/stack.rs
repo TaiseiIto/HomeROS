@@ -18,7 +18,7 @@ impl<'a> Stack<'a> {
 
     pub fn acceptor(&self) -> &'a Acceptor {
         if let Automata::Character(acceptor) = self.0.last().unwrap().automata {
-            &acceptor
+            acceptor
         } else {
             panic!();
         }
