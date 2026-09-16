@@ -45,7 +45,7 @@ impl SecondAnalyzed for Extended {
 }
 
 #[derive(Clone, Debug)]
-struct Entry {
+pub struct Entry {
     phandle: u32,
     specifier: u128,
 }

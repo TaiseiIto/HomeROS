@@ -63,7 +63,7 @@ impl SecondAnalyzedWithSpecifier for Map {
 }
 
 #[derive(Clone, Debug)]
-struct Entry {
+pub struct Entry {
     child_specifier: u128,
     specifier_parent: u32,
     parent_specifier: u128,

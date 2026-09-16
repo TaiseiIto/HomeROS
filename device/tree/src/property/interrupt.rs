@@ -73,7 +73,7 @@ impl SecondAnalyzed for Map {
 }
 
 #[derive(Clone, Debug)]
-struct Entry {
+pub struct Entry {
     child_unit_address: u128,
     child_interrupt_specifier: u128,
     interrupt_parent: u32,

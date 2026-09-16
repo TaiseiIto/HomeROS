@@ -68,7 +68,7 @@ impl SecondAnalyzed for Ranges {
 }
 
 #[derive(Clone, Debug)]
-struct Range {
+pub struct Range {
     child_bus_address: u128,
     parent_bus_address: u128,
     length: u128,
