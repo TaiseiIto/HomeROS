@@ -7,10 +7,6 @@ impl SearchPoint {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
-
-    pub fn pop_front(&mut self) -> Option<Character> {
-        self.0.pop_front()
-    }
 }
 
 impl From<&str> for SearchPoint {
@@ -21,6 +17,14 @@ impl From<&str> for SearchPoint {
                 .map(|(index, character)| Character { character, index })
                 .collect(),
         )
+    }
+}
+
+impl Iterator for SearchPoint {
+    type Item = Character;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.pop_front()
     }
 }
 
