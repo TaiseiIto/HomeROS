@@ -10,6 +10,14 @@ use {
 #[derive(Debug)]
 pub struct Line<'a>(Vec<Acceptance<'a>>);
 
+impl Line<'_> {
+    pub fn accepted(&self) -> bool {
+        self.0
+            .last()
+            .is_some_and(|acceptance| acceptance.accepted())
+    }
+}
+
 impl<'a> From<Tree<'a>> for Vec<Line<'a>> {
     fn from(tree: Tree<'a>) -> Self {
         let Tree { acceptance, next } = tree;

@@ -12,6 +12,10 @@ impl<'a> Stack<'a> {
         Acceptance::accept(self, character)
     }
 
+    pub fn accepted(&self) -> bool {
+        self.0.iter().all(|frame| frame.accepted())
+    }
+
     pub fn acceptor(&self) -> &'a Acceptor {
         if let Automata::Character(acceptor) = self.0.last().unwrap().automata {
             &acceptor
@@ -145,6 +149,39 @@ struct Frame<'a> {
 }
 
 impl<'a> Frame<'a> {
+    fn accepted(&self) -> bool {
+        match self {
+            Self {
+                automata: _,
+                progress: Progress::Character { executed },
+            } => *executed,
+            Self {
+                automata: _,
+                progress: Progress::EndOfLine,
+            } => true,
+            Self {
+                automata: Automata::Repetition { body: _, number },
+                progress: Progress::Repetition { repetition_count },
+            } => number.can_break(*repetition_count),
+            Self {
+                automata: _,
+                progress: Progress::Selection { executed },
+            } => *executed,
+            Self {
+                automata: Automata::Sequence(elements),
+                progress:
+                    Progress::Sequence {
+                        processing_element_index,
+                    },
+            } => *processing_element_index == elements.len(),
+            Self {
+                automata: _,
+                progress: Progress::StartOfLine,
+            } => true,
+            _ => panic!(),
+        }
+    }
+
     fn initialize(automata: &'a Automata) -> Self {
         Self {
             automata,

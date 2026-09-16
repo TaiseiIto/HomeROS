@@ -34,6 +34,7 @@ impl Automata {
         trees
             .into_iter()
             .flat_map(Into::<Vec<Line<'a>>>::into)
+            .filter(|line| line.accepted())
             .collect()
     }
 }

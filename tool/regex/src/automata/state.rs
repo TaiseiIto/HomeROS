@@ -23,4 +23,8 @@ impl<'a> Acceptance<'a> {
                 stack: stack.clone(),
             })
     }
+
+    pub fn accepted(&self) -> bool {
+        self.stack.accepted()
+    }
 }
