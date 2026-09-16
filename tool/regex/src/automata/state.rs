@@ -1,9 +1,6 @@
 pub mod transition;
 
-use {
-    super::{Stack, search::Character},
-    crate::character::Acceptor,
-};
+use super::{Stack, search::Character};
 
 #[derive(Clone, Debug)]
 pub struct Acceptance<'a> {

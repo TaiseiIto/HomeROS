@@ -40,7 +40,7 @@ impl Automata {
     }
 
     pub fn input<'a>(&'a self, input: &str) -> Vec<Line<'a>> {
-        let mut input: Target = input.into();
+        let input: Target = input.into();
         let trees: Vec<Tree<'a>> = input
             .flat_map(|search_point| Tree::execute(Stack::initialize(self), search_point))
             .collect();

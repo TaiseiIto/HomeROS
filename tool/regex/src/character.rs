@@ -1,6 +1,5 @@
 use {
-    crate::automata::{Stack, search::Character, state},
-    alloc::{collections::btree_set::BTreeSet, vec::Vec},
+    alloc::collections::btree_set::BTreeSet,
     core::{
         iter::{Sum, once},
         ops::{Add, Neg, Not, Sub},

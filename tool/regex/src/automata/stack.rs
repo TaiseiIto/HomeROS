@@ -33,7 +33,7 @@ impl<'a> Stack<'a> {
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
-                    automata: Automata::Character(acceptor),
+                    automata: Automata::Character(_),
                     progress: Progress::Character { executed },
                 } => {
                     if *executed {

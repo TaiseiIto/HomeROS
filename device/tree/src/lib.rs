@@ -53,8 +53,9 @@ impl Analyzed {
                 .map(|node| node.regions())
                 .sum::<Regions<u128>>()
                 + reserved_memory_entries
-                    .into_iter()
-                    .map(|reserved_memory_entry| reserved_memory_entry.clone().into())
+                    .iter()
+                    .cloned()
+                    .map(Into::into)
                     .sum::<Regions<u128>>())
     }
 }
