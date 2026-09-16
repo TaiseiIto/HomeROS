@@ -7,6 +7,7 @@ use {
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
     search::Target,
+    state::transition::Tree,
 };
 
 pub use stack::Stack;
@@ -25,12 +26,10 @@ pub enum Automata {
 }
 
 impl Automata {
-    pub fn input<'a>(&'a self, input: &str) -> Vec<state::Transition<'a>> {
+    pub fn input<'a>(&'a self, input: &str) -> Vec<Tree<'a>> {
         let mut input: Target = input.into();
         input
-            .flat_map(|search_point| {
-                state::Transition::execute(Stack::initialize(self), search_point)
-            })
+            .flat_map(|search_point| Tree::execute(Stack::initialize(self), search_point))
             .collect()
     }
 }
