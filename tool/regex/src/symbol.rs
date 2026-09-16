@@ -6,7 +6,7 @@ use {
 };
 
 #[derive(Debug, Parser)]
-pub struct Expression(Term, Vec<(VerticalBar, Term)>);
+pub struct Expression(Option<Term>, Vec<(VerticalBar, Term)>);
 
 impl FromStr for Expression {
     type Err = ();
@@ -22,17 +22,18 @@ impl FromStr for Expression {
 
 impl From<Expression> for Automata {
     fn from(expression: Expression) -> Self {
+        let terms: Vec<Term> = expression.into();
+        Self::Selection(terms.into_iter().map(|term| term.into()).collect())
+    }
+}
+
+impl From<Expression> for Vec<Term> {
+    fn from(expression: Expression) -> Self {
         let Expression(term, terms) = expression;
-        if terms.is_empty() {
-            term.into()
-        } else {
-            Self::Selection(
-                once(term)
-                    .chain(terms.into_iter().map(|(VerticalBar, term)| term))
-                    .map(|term| term.into())
-                    .collect(),
-            )
-        }
+        once(term)
+            .flatten()
+            .chain(terms.into_iter().map(|(_, term)| term))
+            .collect()
     }
 }
 
