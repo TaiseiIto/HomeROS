@@ -352,7 +352,7 @@ impl Property {
             "compatible" => Self::Compatible(
                 Vec::<&str>::read(data)
                     .into_iter()
-                    .map(|compatible| compatible.into())
+                    .map(Into::into)
                     .collect(),
             ),
             "cpu-release-addr" => Self::CpuReleaseAddr(u64::read(data)),
