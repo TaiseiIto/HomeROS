@@ -33,10 +33,7 @@ impl Automata {
             .collect();
         trees
             .into_iter()
-            .flat_map(|tree| {
-                let lines: Vec<Line<'a>> = tree.into();
-                lines.into_iter()
-            })
+            .flat_map(Into::<Vec<Line<'a>>>::into)
             .collect()
     }
 }

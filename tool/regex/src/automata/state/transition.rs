@@ -19,9 +19,8 @@ impl<'a> From<Tree<'a>> for Vec<Line<'a>> {
             next.into_iter()
                 .flat_map(|next| {
                     let next: Vec<Line<'a>> = next.into();
-                    next.into_iter().map(|next| {
-                        Line(once(acceptance.clone()).chain(next.0.into_iter()).collect())
-                    })
+                    next.into_iter()
+                        .map(|next| Line(once(acceptance.clone()).chain(next.0).collect()))
                 })
                 .collect()
         }
