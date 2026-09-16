@@ -6,6 +6,7 @@ use {
     crate::{character::Acceptor, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
+    search::Target,
 };
 
 pub use stack::Stack;
@@ -24,8 +25,13 @@ pub enum Automata {
 }
 
 impl Automata {
-    pub fn input<'a>(&'a self, input: &'a str) -> Vec<state::Transition<'a>> {
-        state::Transition::execute(Stack::initialize(self), input.into())
+    pub fn input<'a>(&'a self, input: &str) -> Vec<state::Transition<'a>> {
+        let mut input: Target = input.into();
+        input
+            .flat_map(|search_point| {
+                state::Transition::execute(Stack::initialize(self), search_point)
+            })
+            .collect()
     }
 }
 
