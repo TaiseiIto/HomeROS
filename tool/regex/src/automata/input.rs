@@ -1,9 +1,9 @@
 use alloc::collections::vec_deque::VecDeque;
 
 #[derive(Clone)]
-pub struct String(VecDeque<Character>);
+pub struct SearchPoint(VecDeque<Character>);
 
-impl String {
+impl SearchPoint {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -13,7 +13,7 @@ impl String {
     }
 }
 
-impl From<&str> for String {
+impl From<&str> for SearchPoint {
     fn from(string: &str) -> Self {
         Self(
             string

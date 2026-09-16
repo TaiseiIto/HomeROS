@@ -11,7 +11,7 @@ pub struct Transition<'a> {
 }
 
 impl<'a> Transition<'a> {
-    pub fn execute(stack: Stack<'a>, mut input: input::String) -> Vec<Self> {
+    pub fn execute(stack: Stack<'a>, mut input: input::SearchPoint) -> Vec<Self> {
         if let Some(character) = input.pop_front() {
             stack
                 .next_states(character.index() == 0, input.is_empty())
