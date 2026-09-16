@@ -2,7 +2,7 @@ pub mod transition;
 
 use {super::search::Character, crate::character::Acceptor};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Acceptance<'a> {
     acceptor: &'a Acceptor,
     character: char,

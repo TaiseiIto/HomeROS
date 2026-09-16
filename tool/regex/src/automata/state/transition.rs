@@ -4,7 +4,24 @@ use {
         Acceptance,
     },
     alloc::vec::Vec,
+    core::iter::once,
 };
+
+#[derive(Debug)]
+pub struct Line<'a>(Vec<Acceptance<'a>>);
+
+impl<'a> From<Tree<'a>> for Vec<Line<'a>> {
+    fn from(tree: Tree<'a>) -> Self {
+        let Tree { acceptance, next } = tree;
+        next.into_iter()
+            .flat_map(|next| {
+                let next: Vec<Line<'a>> = next.into();
+                next.into_iter()
+                    .map(|next| Line(once(acceptance.clone()).chain(next.0.into_iter()).collect()))
+            })
+            .collect()
+    }
+}
 
 #[derive(Debug)]
 pub struct Tree<'a> {
