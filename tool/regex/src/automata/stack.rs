@@ -156,10 +156,6 @@ impl<'a> Frame<'a> {
                 progress: Progress::Character { executed },
             } => *executed,
             Self {
-                automata: _,
-                progress: Progress::EndOfLine,
-            } => true,
-            Self {
                 automata: Automata::Repetition { body, number },
                 progress: Progress::Repetition { repetition_count },
             } => number.can_break(*repetition_count) || body.accepts_empty_string(),
@@ -177,10 +173,6 @@ impl<'a> Frame<'a> {
                 .iter()
                 .skip(*processing_element_index)
                 .all(|element| element.accepts_empty_string()),
-            Self {
-                automata: _,
-                progress: Progress::StartOfLine,
-            } => true,
             _ => panic!(),
         }
     }
