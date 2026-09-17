@@ -47,7 +47,7 @@ impl<'a> Stack<'a> {
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
-                    automaton: Automaton::Capturer(_),
+                    automaton: Automaton::Capturer(capturer),
                     progress: Progress::Capturer { executed },
                 } => {
                     if *executed {
@@ -55,7 +55,9 @@ impl<'a> Stack<'a> {
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
-                        vec![next_stack]
+                        let mut next_stack: Self = next_stack.clone();
+                        next_stack.0.push(Frame::initialize(capturer));
+                        next_stack.next_states(start_of_line, end_of_line)
                     }
                 }
                 Frame {

@@ -31,7 +31,7 @@ pub enum Automaton {
 impl Automaton {
     pub fn accepts_empty_string(&self) -> bool {
         match self {
-            Self::Capturer(inner) => inner.accepts_empty_string(),
+            Self::Capturer(capturer) => capturer.accepts_empty_string(),
             Self::Character(_) => false,
             Self::EndOfLine => true,
             Self::Repetition { body, number } => number.can_break(0) || body.accepts_empty_string(),
