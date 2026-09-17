@@ -8,7 +8,6 @@ use {
 
 #[derive(Clone, Debug)]
 pub struct Acceptance<'a> {
-    character: char,
     index: usize,
     stack: Stack<'a>,
 }
@@ -19,7 +18,6 @@ impl<'a> Acceptance<'a> {
             .acceptor()
             .accepts(character.character())
             .then_some(Self {
-                character: character.character(),
                 index: character.index(),
                 stack: stack.clone(),
             })

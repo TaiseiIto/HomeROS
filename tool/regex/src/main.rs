@@ -1,7 +1,7 @@
 use regex::*;
 
 fn main() {
-    let automaton: Automaton = dbg!(r"^clk(\d+)([kmgtpxzyrq])hz$".parse().unwrap());
+    let automaton: Automaton = r"^clk(\d+)([kmgtpxzyrq])hz$".parse().unwrap();
     let matches: Vec<Match> = automaton.input("clk24mhz");
     let captures: Vec<Capture> = matches
         .iter()
