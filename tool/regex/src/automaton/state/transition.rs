@@ -1,9 +1,6 @@
 use {
-    super::{
-        super::{Automaton, Stack},
-        Acceptance,
-    },
-    crate::search::Point,
+    super::{super::Stack, Acceptance},
+    crate::{Automaton, search::Point},
     alloc::{vec, vec::Vec},
     core::iter::once,
     core::ptr::eq,
