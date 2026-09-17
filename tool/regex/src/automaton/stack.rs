@@ -47,6 +47,18 @@ impl<'a> Stack<'a> {
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
+                    automaton: Automaton::Capturer(_),
+                    progress: Progress::Capturer { executed },
+                } => {
+                    if *executed {
+                        next_stack.0.pop();
+                        next_stack.next_states(start_of_line, end_of_line)
+                    } else {
+                        *executed = true;
+                        vec![next_stack]
+                    }
+                }
+                Frame {
                     automaton: Automaton::Character(_),
                     progress: Progress::Character { executed },
                 } => {
@@ -167,6 +179,10 @@ impl<'a> Frame<'a> {
         match self {
             Self {
                 automaton: _,
+                progress: Progress::Capturer { executed },
+            } => *executed,
+            Self {
+                automaton: _,
                 progress: Progress::Character { executed },
             } => *executed,
             Self {
@@ -201,6 +217,7 @@ impl<'a> Frame<'a> {
 
 #[derive(Clone, Debug)]
 enum Progress {
+    Capturer { executed: bool },
     Character { executed: bool },
     EndOfLine,
     Repetition { repetition_count: usize },
@@ -212,6 +229,7 @@ enum Progress {
 impl Progress {
     fn initialize(automaton: &Automaton) -> Self {
         match automaton {
+            Automaton::Capturer(_) => Self::Capturer { executed: false },
             Automaton::Character(_) => Self::Character { executed: false },
             Automaton::EndOfLine => Self::EndOfLine,
             Automaton::Repetition { body: _, number: _ } => Self::Repetition {

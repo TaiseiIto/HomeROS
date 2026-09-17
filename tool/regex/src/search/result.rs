@@ -14,7 +14,7 @@ impl<'a> From<&'a Match<'a>> for Vec<Capture<'a>> {
         mat.automaton_state_transition
             .first_call_ordered_automata()
             .into_iter()
-            .filter(|automaton| matches!(automaton, Automaton::Selection(_)))
+            .filter(|automaton| matches!(automaton, Automaton::Capturer(_)))
             .map(|automaton| Capture { mat, automaton })
             .collect()
     }
