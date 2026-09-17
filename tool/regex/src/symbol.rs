@@ -127,15 +127,25 @@ impl From<Character> for Automaton {
                 EscapedCharacter::LeftParenthesis(left_parenthesis) => {
                     Into::<char>::into(left_parenthesis).into()
                 }
-                EscapedCharacter::LowerD(LowerD) => r"[\d]".parse().unwrap(),
+                EscapedCharacter::LowerD(LowerD) => {
+                    Self::Character(EscapedElement::LowerD(LowerD).into())
+                }
                 EscapedCharacter::LowerF(LowerF) => Self::Character('\x0C'.into()),
-                EscapedCharacter::LowerL(LowerL) => r"[\l]".parse().unwrap(),
+                EscapedCharacter::LowerL(LowerL) => {
+                    Self::Character(EscapedElement::LowerL(LowerL).into())
+                }
                 EscapedCharacter::LowerN(LowerN) => Self::Character('\n'.into()),
                 EscapedCharacter::LowerR(LowerR) => Self::Character('\r'.into()),
-                EscapedCharacter::LowerS(LowerS) => r"[\s]".parse().unwrap(),
+                EscapedCharacter::LowerS(LowerS) => {
+                    Self::Character(EscapedElement::LowerS(LowerS).into())
+                }
                 EscapedCharacter::LowerT(LowerT) => Self::Character('\t'.into()),
-                EscapedCharacter::LowerU(LowerU) => r"[\u]".parse().unwrap(),
-                EscapedCharacter::LowerW(LowerW) => r"[\w]".parse().unwrap(),
+                EscapedCharacter::LowerU(LowerU) => {
+                    Self::Character(EscapedElement::LowerU(LowerU).into())
+                }
+                EscapedCharacter::LowerW(LowerW) => {
+                    Self::Character(EscapedElement::LowerW(LowerW).into())
+                }
                 EscapedCharacter::LowerX(LowerX, byte) => {
                     Self::Character(Into::<char>::into(byte).into())
                 }
@@ -150,16 +160,26 @@ impl From<Character> for Automaton {
                     Into::<char>::into(right_parenthesis).into()
                 }
                 EscapedCharacter::Slash(slash) => Into::<char>::into(slash).into(),
-                EscapedCharacter::UpperD(UpperD) => r"[\D]".parse().unwrap(),
-                EscapedCharacter::UpperL(UpperL) => r"[\L]".parse().unwrap(),
-                EscapedCharacter::UpperU(UpperU) => r"[\U]".parse().unwrap(),
-                EscapedCharacter::UpperS(UpperS) => r"[\S]".parse().unwrap(),
-                EscapedCharacter::UpperW(UpperW) => r"[\W]".parse().unwrap(),
+                EscapedCharacter::UpperD(UpperD) => {
+                    Self::Character(EscapedElement::UpperD(UpperD).into())
+                }
+                EscapedCharacter::UpperL(UpperL) => {
+                    Self::Character(EscapedElement::UpperL(UpperL).into())
+                }
+                EscapedCharacter::UpperU(UpperU) => {
+                    Self::Character(EscapedElement::UpperU(UpperU).into())
+                }
+                EscapedCharacter::UpperS(UpperS) => {
+                    Self::Character(EscapedElement::UpperS(UpperS).into())
+                }
+                EscapedCharacter::UpperW(UpperW) => {
+                    Self::Character(EscapedElement::UpperW(UpperW).into())
+                }
                 EscapedCharacter::VerticalBar(vertical_bar) => {
                     Into::<char>::into(vertical_bar).into()
                 }
             },
-            Character::Period(Period) => r"[^]".parse().unwrap(),
+            Character::Period(Period) => Self::Character("".chars().collect()),
             Character::NakedCharacter(character) => character.into(),
         }
     }
