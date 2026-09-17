@@ -22,8 +22,12 @@ impl FromStr for Expression {
 
 impl From<Expression> for Automaton {
     fn from(expression: Expression) -> Self {
-        let terms: Vec<Term> = expression.into();
-        Self::Selection(terms.into_iter().map(Into::into).collect())
+        let mut terms: Vec<Term> = expression.into();
+        if terms.len() == 1 {
+            terms.pop().unwrap().into()
+        } else {
+            Self::Selection(terms.into_iter().map(Into::into).collect())
+        }
     }
 }
 
