@@ -1,7 +1,7 @@
 pub mod transition;
 
 use {
-    super::{Automata, Stack},
+    super::{Automaton, Stack},
     crate::search::Character,
     alloc::vec::Vec,
 };
@@ -29,7 +29,7 @@ impl<'a> Acceptance<'a> {
         self.stack.accepted()
     }
 
-    pub fn automata_layers(&'a self) -> Vec<&'a Automata> {
-        self.stack.automata_layers()
+    pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
+        self.stack.automaton_layers()
     }
 }

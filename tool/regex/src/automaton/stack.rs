@@ -1,5 +1,5 @@
 use {
-    super::{Automata, state::Acceptance},
+    super::{Automaton, state::Acceptance},
     crate::{character::Acceptor, search::Character},
     alloc::{vec, vec::Vec},
 };
@@ -17,19 +17,19 @@ impl<'a> Stack<'a> {
     }
 
     pub fn acceptor(&self) -> &'a Acceptor {
-        if let Automata::Character(acceptor) = self.0.last().unwrap().automata {
+        if let Automaton::Character(acceptor) = self.0.last().unwrap().automaton {
             acceptor
         } else {
             panic!();
         }
     }
 
-    pub fn automata_layers(&'a self) -> Vec<&'a Automata> {
-        self.0.iter().map(|frame| frame.automata).collect()
+    pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
+        self.0.iter().map(|frame| frame.automaton).collect()
     }
 
-    pub fn initialize(automata: &'a Automata) -> Self {
-        Self(vec![Frame::initialize(automata)])
+    pub fn initialize(automaton: &'a Automaton) -> Self {
+        Self(vec![Frame::initialize(automaton)])
     }
 
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
@@ -37,7 +37,7 @@ impl<'a> Stack<'a> {
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
-                    automata: Automata::Character(_),
+                    automaton: Automaton::Character(_),
                     progress: Progress::Character { executed },
                 } => {
                     if *executed {
@@ -49,7 +49,7 @@ impl<'a> Stack<'a> {
                     }
                 }
                 Frame {
-                    automata: Automata::EndOfLine,
+                    automaton: Automaton::EndOfLine,
                     progress: Progress::EndOfLine,
                 } => {
                     if end_of_line {
@@ -60,7 +60,7 @@ impl<'a> Stack<'a> {
                     }
                 }
                 Frame {
-                    automata: Automata::Repetition { body, number },
+                    automaton: Automaton::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
                 } => {
                     let repetition_count: usize = *repetition_count;
@@ -73,7 +73,7 @@ impl<'a> Stack<'a> {
                         number.can_continue(repetition_count).then_some({
                             let mut next_stack: Self = next_stack.clone();
                             if let Frame {
-                                automata: _,
+                                automaton: _,
                                 progress: Progress::Repetition { repetition_count },
                             } = next_stack.0.last_mut().unwrap()
                             {
@@ -91,7 +91,7 @@ impl<'a> Stack<'a> {
                     .collect()
                 }
                 Frame {
-                    automata: Automata::Selection(options),
+                    automaton: Automaton::Selection(options),
                     progress: Progress::Selection { executed },
                 } => {
                     if *executed {
@@ -110,7 +110,7 @@ impl<'a> Stack<'a> {
                     }
                 }
                 Frame {
-                    automata: Automata::Sequence(elements),
+                    automaton: Automaton::Sequence(elements),
                     progress:
                         Progress::Sequence {
                             processing_element_index,
@@ -128,7 +128,7 @@ impl<'a> Stack<'a> {
                     }
                 }
                 Frame {
-                    automata: Automata::StartOfLine,
+                    automaton: Automaton::StartOfLine,
                     progress: Progress::StartOfLine,
                 } => {
                     if start_of_line {
@@ -148,7 +148,7 @@ impl<'a> Stack<'a> {
 
 #[derive(Clone, Debug)]
 struct Frame<'a> {
-    automata: &'a Automata,
+    automaton: &'a Automaton,
     progress: Progress,
 }
 
@@ -156,19 +156,19 @@ impl<'a> Frame<'a> {
     fn accepted(&self) -> bool {
         match self {
             Self {
-                automata: _,
+                automaton: _,
                 progress: Progress::Character { executed },
             } => *executed,
             Self {
-                automata: Automata::Repetition { body, number },
+                automaton: Automaton::Repetition { body, number },
                 progress: Progress::Repetition { repetition_count },
             } => number.can_break(*repetition_count) || body.accepts_empty_string(),
             Self {
-                automata,
+                automaton,
                 progress: Progress::Selection { executed },
-            } => *executed || automata.accepts_empty_string(),
+            } => *executed || automaton.accepts_empty_string(),
             Self {
-                automata: Automata::Sequence(elements),
+                automaton: Automaton::Sequence(elements),
                 progress:
                     Progress::Sequence {
                         processing_element_index,
@@ -181,10 +181,10 @@ impl<'a> Frame<'a> {
         }
     }
 
-    fn initialize(automata: &'a Automata) -> Self {
+    fn initialize(automaton: &'a Automaton) -> Self {
         Self {
-            automata,
-            progress: Progress::initialize(automata),
+            automaton,
+            progress: Progress::initialize(automaton),
         }
     }
 }
@@ -200,18 +200,18 @@ enum Progress {
 }
 
 impl Progress {
-    fn initialize(automata: &Automata) -> Self {
-        match automata {
-            Automata::Character(_) => Self::Character { executed: false },
-            Automata::EndOfLine => Self::EndOfLine,
-            Automata::Repetition { body: _, number: _ } => Self::Repetition {
+    fn initialize(automaton: &Automaton) -> Self {
+        match automaton {
+            Automaton::Character(_) => Self::Character { executed: false },
+            Automaton::EndOfLine => Self::EndOfLine,
+            Automaton::Repetition { body: _, number: _ } => Self::Repetition {
                 repetition_count: 0,
             },
-            Automata::Selection(_) => Self::Selection { executed: false },
-            Automata::Sequence(_) => Self::Sequence {
+            Automaton::Selection(_) => Self::Selection { executed: false },
+            Automaton::Sequence(_) => Self::Sequence {
                 processing_element_index: 0,
             },
-            Automata::StartOfLine => Self::StartOfLine,
+            Automaton::StartOfLine => Self::StartOfLine,
         }
     }
 }

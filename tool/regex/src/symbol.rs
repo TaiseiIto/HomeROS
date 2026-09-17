@@ -1,5 +1,5 @@
 use {
-    crate::{Automata, automata, character::Acceptor},
+    crate::{Automaton, automaton, character::Acceptor},
     alloc::{boxed::Box, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
@@ -20,7 +20,7 @@ impl FromStr for Expression {
     }
 }
 
-impl From<Expression> for Automata {
+impl From<Expression> for Automaton {
     fn from(expression: Expression) -> Self {
         let terms: Vec<Term> = expression.into();
         Self::Selection(terms.into_iter().map(Into::into).collect())
@@ -39,7 +39,7 @@ impl From<Expression> for Vec<Term> {
 #[derive(Debug, Parser)]
 pub struct Term(Vec<Power>);
 
-impl From<Term> for Automata {
+impl From<Term> for Automaton {
     fn from(term: Term) -> Self {
         let Term(mut powers) = term;
         if powers.len() == 1 {
@@ -53,7 +53,7 @@ impl From<Term> for Automata {
 #[derive(Debug, Parser)]
 pub struct Power(Base, Option<Exponent>);
 
-impl From<Power> for Automata {
+impl From<Power> for Automaton {
     fn from(power: Power) -> Self {
         let Power(base, exponent) = power;
         if let Some(exponent) = exponent {
@@ -74,7 +74,7 @@ pub enum Base {
     Set(LeftBracket, Option<Circumflex>, Set, RightBracket),
 }
 
-impl From<Base> for Automata {
+impl From<Base> for Automaton {
     fn from(base: Base) -> Self {
         match base {
             Base::Character(character) => character.into(),
@@ -96,7 +96,7 @@ pub enum Character {
     NakedCharacter(NakedCharacter),
 }
 
-impl From<Character> for Automata {
+impl From<Character> for Automaton {
     fn from(character: Character) -> Self {
         match character {
             Character::Circumflex(Circumflex) => Self::StartOfLine,
@@ -342,10 +342,10 @@ pub enum NakedCharacter {
     Underscore(Underscore),
 }
 
-impl From<NakedCharacter> for Automata {
+impl From<NakedCharacter> for Automaton {
     fn from(character: NakedCharacter) -> Self {
         let character: char = character.into();
-        Automata::Character(character.into())
+        Automaton::Character(character.into())
     }
 }
 
@@ -781,7 +781,7 @@ pub enum Exponent {
     ),
 }
 
-impl From<Exponent> for automata::RepetitionNumber {
+impl From<Exponent> for automaton::RepetitionNumber {
     fn from(exponent: Exponent) -> Self {
         match exponent {
             Exponent::Asterisk(_) => Self::From(0),

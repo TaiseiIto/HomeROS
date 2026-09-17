@@ -15,7 +15,7 @@ use {
 pub use stack::Stack;
 
 #[derive(Debug)]
-pub enum Automata {
+pub enum Automaton {
     Character(Acceptor),
     EndOfLine,
     Repetition {
@@ -27,7 +27,7 @@ pub enum Automata {
     StartOfLine,
 }
 
-impl Automata {
+impl Automaton {
     pub fn accepts_empty_string(&self) -> bool {
         match self {
             Self::Character(_) => false,
@@ -55,13 +55,13 @@ impl Automata {
     }
 }
 
-impl From<char> for Automata {
+impl From<char> for Automaton {
     fn from(character: char) -> Self {
         Self::Character(character.into())
     }
 }
 
-impl FromStr for Automata {
+impl FromStr for Automaton {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {

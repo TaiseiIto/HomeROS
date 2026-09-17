@@ -2,12 +2,12 @@
 
 extern crate alloc;
 
-mod automata;
+mod automaton;
 mod character;
 pub mod search;
 mod symbol;
 
-pub use automata::Automata;
+pub use automaton::Automaton;
 
 #[cfg(test)]
 mod test {
@@ -15,7 +15,7 @@ mod test {
 
     #[test]
     fn test() {
-        let _: Automata = r"^\d(\l+|\u*)[^a-d0-3_{}]{2,3}[^\w()*]{3}$"
+        let _: Automaton = r"^\d(\l+|\u*)[^a-d0-3_{}]{2,3}[^\w()*]{3}$"
             .parse()
             .unwrap();
     }
