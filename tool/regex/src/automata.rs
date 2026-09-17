@@ -3,7 +3,7 @@ mod stack;
 pub mod state;
 
 use {
-    crate::{character::Acceptor, symbol::Expression},
+    crate::{Match, character::Acceptor, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
     search::Target,
@@ -39,15 +39,16 @@ impl Automata {
         }
     }
 
-    pub fn input<'a>(&'a self, input: &str) -> Vec<Line<'a>> {
-        let input: Target = input.into();
-        let trees: Vec<Tree<'a>> = input
+    pub fn input<'a>(&'a self, input: &'a str) -> Vec<Match<'a>> {
+        let target: Target = input.into();
+        let trees: Vec<Tree<'a>> = target
             .flat_map(|search_point| Tree::execute(Stack::initialize(self), search_point))
             .collect();
         trees
             .into_iter()
             .flat_map(Into::<Vec<Line<'a>>>::into)
             .filter(|line| line.accepted())
+            .map(|line| Match::new(input, line))
             .collect()
     }
 }
