@@ -3,6 +3,7 @@ use {
     crate::{Automaton, search::Point},
     alloc::{vec, vec::Vec},
     core::iter::once,
+    core::ops::RangeInclusive,
     core::ptr::eq,
 };
 
@@ -14,6 +15,18 @@ impl Line<'_> {
         self.0
             .last()
             .is_some_and(|acceptance| acceptance.accepted())
+    }
+
+    pub fn index_range(&self, automaton: &Automaton) -> RangeInclusive<usize> {
+        let indices: Vec<usize> = self
+            .0
+            .iter()
+            .filter(|acceptance| acceptance.accepted_in(automaton))
+            .map(|acceptance| acceptance.index())
+            .collect();
+        let max: usize = *indices.iter().max().unwrap();
+        let min: usize = *indices.iter().min().unwrap();
+        min..=max
     }
 }
 

@@ -29,7 +29,15 @@ impl<'a> Acceptance<'a> {
         self.stack.accepted()
     }
 
+    pub fn accepted_in(&self, automaton: &Automaton) -> bool {
+        self.stack.contains(automaton)
+    }
+
     pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
         self.stack.automaton_layers()
+    }
+
+    pub fn index(&self) -> usize {
+        self.index
     }
 }

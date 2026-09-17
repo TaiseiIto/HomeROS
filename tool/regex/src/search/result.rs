@@ -20,6 +20,13 @@ impl<'a> From<&'a Match<'a>> for Vec<Capture<'a>> {
     }
 }
 
+impl<'a> From<&'a Capture<'a>> for &'a str {
+    fn from(capture: &'a Capture<'a>) -> Self {
+        let Capture { mat, automaton } = capture;
+        mat.capture(automaton)
+    }
+}
+
 #[derive(Debug)]
 pub struct Match<'a> {
     input: &'a str,
@@ -36,5 +43,13 @@ impl<'a> Match<'a> {
             input,
             automaton_state_transition,
         }
+    }
+
+    fn capture(&'a self, automaton: &'a Automaton) -> &'a str {
+        let Self {
+            input,
+            automaton_state_transition,
+        } = self;
+        &input[automaton_state_transition.index_range(automaton)]
     }
 }

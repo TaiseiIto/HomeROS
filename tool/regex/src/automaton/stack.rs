@@ -2,6 +2,7 @@ use {
     super::{Automaton, state::Acceptance},
     crate::{character::Acceptor, search::Character},
     alloc::{vec, vec::Vec},
+    core::ptr::eq,
 };
 
 #[derive(Clone, Debug)]
@@ -26,6 +27,15 @@ impl<'a> Stack<'a> {
 
     pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
         self.0.iter().map(|frame| frame.automaton).collect()
+    }
+
+    pub fn contains(&self, automaton: &Automaton) -> bool {
+        self.0.iter().any(|frame| {
+            eq(
+                frame.automaton as *const Automaton,
+                automaton as *const Automaton,
+            )
+        })
     }
 
     pub fn initialize(automaton: &'a Automaton) -> Self {
