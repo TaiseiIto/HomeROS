@@ -5,7 +5,7 @@ use {
     crate::{
         character::Acceptor,
         search::{Target, result::Match},
-        symbol::Expression,
+        symbol::Capturer,
     },
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
@@ -67,7 +67,7 @@ impl FromStr for Automaton {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
-        string.parse::<Expression>().map(Into::into)
+        string.parse::<Capturer>().map(Into::into)
     }
 }
 

@@ -81,10 +81,11 @@
 ## Internal specification
 
 ```
+capturer = expression;
 expression = term{'|'term};
 term = {power};
 power = base[exponent];
-base = character + '['['^']set']' + '('expression')';
+base = character + '['['^']set']' + '('capturer')';
 character = '^' + '$' + '.' + '\'escaped + naked;
 escaped = '$' + '(' + ')' + '*' + '+' + '.' + '/' + '?' + 'D' + 'L' + 'S' + 'U' + 'W' + '[' + '\' + ']' + '^' + 'd' + 'f' + 'l' + 'n' + 'r' + 's' + 't' + 'u' + 'w' + 'x'byte + '{' + '|' + '}';
 byte = hexadecimal hexadecimal;

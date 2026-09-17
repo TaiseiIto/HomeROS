@@ -6,28 +6,38 @@ use {
 };
 
 #[derive(Debug, Parser)]
-pub struct Expression(Term, Vec<(VerticalBar, Term)>);
+pub struct Capturer(Expression);
 
-impl FromStr for Expression {
+impl From<Capturer> for Automaton {
+    fn from(capturer: Capturer) -> Self {
+        let Capturer(expression) = capturer;
+        Self::Capturer(Box::new(expression.into()))
+    }
+}
+
+impl FromStr for Capturer {
     type Err = ();
 
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         Self::parse(string)
-            .and_then(|(expression, remaining_string)| {
-                remaining_string.is_empty().then_some(expression)
+            .and_then(|(capturer, remaining_string)| {
+                remaining_string.is_empty().then_some(capturer)
             })
             .ok_or(())
     }
 }
 
+#[derive(Debug, Parser)]
+pub struct Expression(Term, Vec<(VerticalBar, Term)>);
+
 impl From<Expression> for Automaton {
     fn from(expression: Expression) -> Self {
         let mut terms: Vec<Term> = expression.into();
-        Self::Capturer(Box::new(if terms.len() == 1 {
+        if terms.len() == 1 {
             terms.pop().unwrap().into()
         } else {
             Self::Selection(terms.into_iter().map(Into::into).collect())
-        }))
+        }
     }
 }
 
@@ -73,16 +83,16 @@ impl From<Power> for Automaton {
 
 #[derive(Debug, Parser)]
 pub enum Base {
+    Capturer(LeftParenthesis, Box<Capturer>, RightParenthesis),
     Character(Character),
-    Expression(LeftParenthesis, Box<Expression>, RightParenthesis),
     Set(LeftBracket, Option<Circumflex>, Set, RightBracket),
 }
 
 impl From<Base> for Automaton {
     fn from(base: Base) -> Self {
         match base {
+            Base::Capturer(LeftParenthesis, capturer, RightParenthesis) => (*capturer).into(),
             Base::Character(character) => character.into(),
-            Base::Expression(LeftParenthesis, expression, RightParenthesis) => (*expression).into(),
             Base::Set(LeftBracket, circumflex, set, RightBracket) => Self::Character({
                 let set: Acceptor = set.into();
                 if circumflex.is_some() { -set } else { set }
