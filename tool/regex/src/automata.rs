@@ -1,12 +1,10 @@
-pub mod search;
 mod stack;
 pub mod state;
 
 use {
-    crate::{Match, character::Acceptor, symbol::Expression},
+    crate::{Match, character::Acceptor, search::Target, symbol::Expression},
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
-    search::Target,
     state::transition::{Line, Tree},
 };
 

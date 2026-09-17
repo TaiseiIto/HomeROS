@@ -1,8 +1,6 @@
 use {
-    super::{
-        super::{Stack, search::Point},
-        Acceptance,
-    },
+    super::{super::Stack, Acceptance},
+    crate::search::Point,
     alloc::{vec, vec::Vec},
     core::iter::once,
 };

@@ -1,6 +1,6 @@
 use {
-    super::{Automata, search::Character, state::Acceptance},
-    crate::character::Acceptor,
+    super::{Automata, state::Acceptance},
+    crate::{character::Acceptor, search::Character},
     alloc::{vec, vec::Vec},
 };
 

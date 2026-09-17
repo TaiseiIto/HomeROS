@@ -4,6 +4,7 @@ extern crate alloc;
 
 mod automata;
 mod character;
+pub mod search;
 mod symbol;
 
 pub use automata::Automata;
