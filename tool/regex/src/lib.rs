@@ -7,7 +7,10 @@ mod character;
 pub mod search;
 mod symbol;
 
-pub use automaton::Automaton;
+pub use {
+    automaton::Automaton,
+    search::result::{Capture, Match},
+};
 
 #[cfg(test)]
 mod test {
