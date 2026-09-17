@@ -34,7 +34,7 @@ impl<'a> Line<'a> {
     pub fn first_call_ordered_automata(&'a self) -> Vec<&'a Automaton> {
         self.0
             .iter()
-            .flat_map(|acceptance| acceptance.automaton_layers().into_iter())
+            .flat_map(|acceptance| acceptance.automaton_layers())
             .fold(Vec::default(), |mut automata, new_automaton| {
                 if automata.iter().all(|automaton| {
                     !eq(

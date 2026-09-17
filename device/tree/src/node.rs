@@ -25,7 +25,7 @@ impl Node {
         let mut nodes: Vec<&Self> = self
             .children
             .iter()
-            .flat_map(|child| child.find_from_name(name).into_iter())
+            .flat_map(|child| child.find_from_name(name))
             .collect();
         if self.is_ok() && self.name.name.as_str() == name {
             nodes.push(self);
@@ -40,7 +40,7 @@ impl Node {
             self.children
                 .iter()
                 .filter(|child| child.is_ok())
-                .flat_map(|child| child.memories().into_iter())
+                .flat_map(|child| child.memories())
                 .collect()
         }
     }
@@ -69,7 +69,7 @@ impl Node {
         } else {
             self.children
                 .iter()
-                .flat_map(|child| child.reserved_memories().into_iter())
+                .flat_map(|child| child.reserved_memories())
                 .collect()
         }
     }
