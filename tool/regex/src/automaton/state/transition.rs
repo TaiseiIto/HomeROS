@@ -1,8 +1,12 @@
 use {
-    super::{super::Stack, Acceptance},
+    super::{
+        super::{Automaton, Stack},
+        Acceptance,
+    },
     crate::search::Point,
     alloc::{vec, vec::Vec},
     core::iter::once,
+    core::ptr::eq,
 };
 
 #[derive(Debug)]
@@ -13,6 +17,25 @@ impl Line<'_> {
         self.0
             .last()
             .is_some_and(|acceptance| acceptance.accepted())
+    }
+}
+
+impl<'a> Line<'a> {
+    pub fn first_call_ordered_automata(&'a self) -> Vec<&'a Automaton> {
+        self.0
+            .iter()
+            .flat_map(|acceptance| acceptance.automaton_layers().into_iter())
+            .fold(Vec::default(), |mut automata, new_automaton| {
+                if automata.iter().all(|automaton| {
+                    !eq(
+                        *automaton as *const Automaton,
+                        new_automaton as *const Automaton,
+                    )
+                }) {
+                    automata.push(new_automaton);
+                }
+                automata
+            })
     }
 }
 
