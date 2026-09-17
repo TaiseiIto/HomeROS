@@ -81,7 +81,7 @@
 ## Internal specification
 
 ```
-expression = [term]{'|'term};
+expression = term{'|'term};
 term = {power};
 power = base[exponent];
 base = character + '['['^']set']' + '('expression')';

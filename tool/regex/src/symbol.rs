@@ -6,7 +6,7 @@ use {
 };
 
 #[derive(Debug, Parser)]
-pub struct Expression(Option<Term>, Vec<(VerticalBar, Term)>);
+pub struct Expression(Term, Vec<(VerticalBar, Term)>);
 
 impl FromStr for Expression {
     type Err = ();
@@ -31,7 +31,6 @@ impl From<Expression> for Vec<Term> {
     fn from(expression: Expression) -> Self {
         let Expression(term, terms) = expression;
         once(term)
-            .flatten()
             .chain(terms.into_iter().map(|(_, term)| term))
             .collect()
     }
