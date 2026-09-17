@@ -24,6 +24,10 @@ impl<'a> Stack<'a> {
         }
     }
 
+    pub fn automata_layers(&'a self) -> Vec<&'a Automata> {
+        self.0.iter().map(|frame| frame.automata).collect()
+    }
+
     pub fn initialize(automata: &'a Automata) -> Self {
         Self(vec![Frame::initialize(automata)])
     }

@@ -1,6 +1,10 @@
 pub mod transition;
 
-use {super::Stack, crate::search::Character};
+use {
+    super::{Automata, Stack},
+    crate::search::Character,
+    alloc::vec::Vec,
+};
 
 #[derive(Clone, Debug)]
 pub struct Acceptance<'a> {
@@ -23,5 +27,9 @@ impl<'a> Acceptance<'a> {
 
     pub fn accepted(&self) -> bool {
         self.stack.accepted()
+    }
+
+    pub fn automata_layers(&'a self) -> Vec<&'a Automata> {
+        self.stack.automata_layers()
     }
 }
