@@ -1,3 +1,5 @@
+pub mod result;
+
 use alloc::collections::vec_deque::VecDeque;
 
 #[derive(Clone)]

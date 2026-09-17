@@ -2,7 +2,11 @@ mod stack;
 pub mod state;
 
 use {
-    crate::{Match, character::Acceptor, search::Target, symbol::Expression},
+    crate::{
+        character::Acceptor,
+        search::{Target, result::Match},
+        symbol::Expression,
+    },
     alloc::{boxed::Box, vec::Vec},
     core::str::FromStr,
     state::transition::{Line, Tree},
