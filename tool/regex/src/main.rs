@@ -7,5 +7,6 @@ fn main() {
         .iter()
         .flat_map(|mat| mat.captures().into_iter())
         .collect();
+    let captures: Vec<&str> = captures.iter().map(Into::into).collect();
     dbg!(captures);
 }
