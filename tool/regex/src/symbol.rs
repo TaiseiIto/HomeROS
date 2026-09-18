@@ -105,9 +105,9 @@ impl From<Base> for Automaton {
 pub enum Character {
     Circumflex(Circumflex),
     Dollar(Dollar),
-    EscapedCharacter(Backslash, EscapedCharacter),
+    Escaped(Backslash, EscapedCharacter),
     Period(Period),
-    NakedCharacter(NakedCharacter),
+    Naked(NakedCharacter),
 }
 
 impl From<Character> for Automaton {
@@ -115,7 +115,7 @@ impl From<Character> for Automaton {
         match character {
             Character::Circumflex(Circumflex) => Self::StartOfLine,
             Character::Dollar(Dollar) => Self::EndOfLine,
-            Character::EscapedCharacter(Backslash, escaped_character) => match escaped_character {
+            Character::Escaped(Backslash, escaped_character) => match escaped_character {
                 EscapedCharacter::Asterisk(asterisk) => Into::<char>::into(asterisk).into(),
                 EscapedCharacter::Backslash(backslash) => Into::<char>::into(backslash).into(),
                 EscapedCharacter::Circumflex(circumflex) => Into::<char>::into(circumflex).into(),
@@ -180,7 +180,7 @@ impl From<Character> for Automaton {
                 }
             },
             Character::Period(Period) => Self::Character("".chars().collect()),
-            Character::NakedCharacter(character) => character.into(),
+            Character::Naked(character) => character.into(),
         }
     }
 }
@@ -496,15 +496,15 @@ impl From<Range> for Acceptor {
 
 #[derive(Debug, Parser)]
 pub enum Element {
-    EscapedElement(Backslash, EscapedElement),
-    NakedElement(NakedElement),
+    Escaped(Backslash, EscapedElement),
+    Naked(NakedElement),
 }
 
 impl From<Element> for Acceptor {
     fn from(element: Element) -> Self {
         match element {
-            Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
-            Element::NakedElement(naked_element) => naked_element.into(),
+            Element::Escaped(Backslash, escaped_element) => escaped_element.into(),
+            Element::Naked(naked_element) => naked_element.into(),
         }
     }
 }
@@ -512,8 +512,8 @@ impl From<Element> for Acceptor {
 impl From<Element> for u8 {
     fn from(element: Element) -> Self {
         match element {
-            Element::EscapedElement(Backslash, escaped_element) => escaped_element.into(),
-            Element::NakedElement(naked_element) => naked_element.into(),
+            Element::Escaped(Backslash, escaped_element) => escaped_element.into(),
+            Element::Naked(naked_element) => naked_element.into(),
         }
     }
 }

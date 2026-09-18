@@ -68,7 +68,7 @@ impl<'a> Stack<'a> {
                     let mut popped_previous: Self = previous.clone();
                     popped_previous.0.pop().unwrap();
                     once(previous)
-                        .chain(popped_previous.history_to(&next))
+                        .chain(popped_previous.history_to(next))
                         .collect()
                 }
                 Less => {
