@@ -88,6 +88,12 @@ impl<'a> Stack<'a> {
         Self(vec![Frame::initialize(automaton)])
     }
 
+    pub fn is_start_of_capture(&self) -> bool {
+        self.0.last().map_or(false, |frame| {
+            matches!(frame.automaton, Automaton::Capturer(_))
+        })
+    }
+
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
         let mut next_stack: Self = self.clone();
         if let Some(frame) = next_stack.0.last_mut() {

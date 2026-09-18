@@ -48,7 +48,7 @@ impl<'a> Line<'a> {
             })
     }
 
-    pub fn stack_history(&'a self) -> Vec<Stack<'a>> {
+    pub fn captures(&'a self) -> Vec<Stack<'a>> {
         once(None)
             .chain(self.0.iter().map(Some))
             .zip(self.0.iter().map(Some).chain(once(None)))
@@ -57,6 +57,7 @@ impl<'a> Line<'a> {
                     .into_iter()
                     .skip(1)
             })
+            .filter(|stack| stack.is_start_of_capture())
             .collect()
     }
 }
