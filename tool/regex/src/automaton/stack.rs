@@ -58,7 +58,7 @@ impl<'a> Stack<'a> {
                         let mut popped_next: Self = next.clone();
                         popped_next.0.pop().unwrap();
                         once(previous)
-                            .chain(popped_previous.history_to(&popped_next).into_iter())
+                            .chain(popped_previous.history_to(&popped_next))
                             .chain(once(next))
                             .collect()
                     }
@@ -68,7 +68,7 @@ impl<'a> Stack<'a> {
                     let mut popped_previous: Self = previous.clone();
                     popped_previous.0.pop().unwrap();
                     once(previous)
-                        .chain(popped_previous.history_to(&next).into_iter())
+                        .chain(popped_previous.history_to(&next))
                         .collect()
                 }
                 Less => {
@@ -96,9 +96,9 @@ impl<'a> Stack<'a> {
     }
 
     pub fn is_start_of_capture(&self) -> bool {
-        self.0.last().map_or(false, |frame| {
-            matches!(frame.automaton, Automaton::Capturer(_))
-        })
+        self.0
+            .last()
+            .is_some_and(|frame| matches!(frame.automaton, Automaton::Capturer(_)))
     }
 
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
