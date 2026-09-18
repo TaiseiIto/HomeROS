@@ -170,7 +170,7 @@ impl<'a> Stack<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 struct Frame<'a> {
     automaton: &'a Automaton,
     progress: Progress,
@@ -214,17 +214,6 @@ impl<'a> Frame<'a> {
             automaton,
             progress: Progress::initialize(automaton),
         }
-    }
-}
-
-impl Eq for Frame<'_> {}
-
-impl PartialEq for Frame<'_> {
-    fn eq(&self, other: &Self) -> bool {
-        eq(
-            self.automaton as *const Automaton,
-            other.automaton as *const Automaton,
-        ) && self.progress == other.progress
     }
 }
 

@@ -14,7 +14,7 @@ use {
 
 pub use stack::Stack;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Automaton {
     Capturer(Box<Self>),
     Character(Acceptor),
@@ -71,7 +71,7 @@ impl FromStr for Automaton {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum RepetitionNumber {
     Constant(usize),
     From(usize),

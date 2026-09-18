@@ -6,7 +6,7 @@ use {
     },
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Eq, PartialEq)]
 pub struct Acceptor {
     acceptance: Acceptance,
     characters: BTreeSet<char>,
@@ -107,7 +107,7 @@ impl FromIterator<char> for Acceptor {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Eq, PartialEq)]
 enum Acceptance {
     Complement,
     #[default]
