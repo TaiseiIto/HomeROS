@@ -39,7 +39,12 @@ impl<'a> Line<'a> {
                     .skip(1)
             })
             .filter(|stack| stack.is_start_of_capture())
-            .collect()
+            .fold(Vec::default(), |mut stacks, stack| {
+                if !stacks.contains(&stack) {
+                    stacks.push(stack);
+                }
+                stacks
+            })
     }
 }
 
