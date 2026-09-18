@@ -88,6 +88,13 @@ impl<'a> Stack<'a> {
         Self(vec![Frame::initialize(automaton)])
     }
 
+    pub fn is_based_on(&self, base: &Self) -> bool {
+        self.0
+            .iter()
+            .zip(base.0.iter())
+            .all(|(my_frame, base_frame)| my_frame == base_frame)
+    }
+
     pub fn is_start_of_capture(&self) -> bool {
         self.0.last().map_or(false, |frame| {
             matches!(frame.automaton, Automaton::Capturer(_))

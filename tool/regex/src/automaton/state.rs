@@ -27,8 +27,8 @@ impl<'a> Acceptance<'a> {
         self.stack.accepted()
     }
 
-    pub fn accepted_in(&self, automaton: &Automaton) -> bool {
-        self.stack.contains(automaton)
+    pub fn accepted_in(&self, stack: &Stack) -> bool {
+        self.stack.is_based_on(stack)
     }
 
     pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {

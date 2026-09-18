@@ -17,11 +17,11 @@ impl Line<'_> {
             .is_some_and(|acceptance| acceptance.accepted())
     }
 
-    pub fn index_range(&self, automaton: &Automaton) -> RangeInclusive<usize> {
+    pub fn index_range(&self, stack: &Stack) -> RangeInclusive<usize> {
         let indices: Vec<usize> = self
             .0
             .iter()
-            .filter(|acceptance| acceptance.accepted_in(automaton))
+            .filter(|acceptance| acceptance.accepted_in(stack))
             .map(|acceptance| acceptance.index())
             .collect();
         let max: usize = *indices.iter().max().unwrap();

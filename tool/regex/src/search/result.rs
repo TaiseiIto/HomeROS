@@ -1,29 +1,28 @@
 use {
-    crate::{Automaton, automaton::state::transition::Line},
+    crate::automaton::{Stack, state::transition::Line},
     alloc::vec::Vec,
 };
 
 #[derive(Debug)]
 pub struct Capture<'a> {
     mat: &'a Match<'a>,
-    automaton: &'a Automaton,
+    stack: Stack<'a>,
 }
 
 impl<'a> From<&'a Match<'a>> for Vec<Capture<'a>> {
     fn from(mat: &'a Match<'a>) -> Self {
         mat.automaton_state_transition
-            .first_call_ordered_automata()
+            .captures()
             .into_iter()
-            .filter(|automaton| matches!(automaton, Automaton::Capturer(_)))
-            .map(|automaton| Capture { mat, automaton })
+            .map(|stack| Capture { mat, stack })
             .collect()
     }
 }
 
 impl<'a> From<&'a Capture<'a>> for &'a str {
     fn from(capture: &'a Capture<'a>) -> Self {
-        let Capture { mat, automaton } = capture;
-        mat.capture(automaton)
+        let Capture { mat, stack } = capture;
+        mat.capture(stack)
     }
 }
 
@@ -45,11 +44,11 @@ impl<'a> Match<'a> {
         }
     }
 
-    fn capture(&'a self, automaton: &'a Automaton) -> &'a str {
+    fn capture(&'a self, stack: &'a Stack) -> &'a str {
         let Self {
             input,
             automaton_state_transition,
         } = self;
-        &input[automaton_state_transition.index_range(automaton)]
+        &input[automaton_state_transition.index_range(stack)]
     }
 }
