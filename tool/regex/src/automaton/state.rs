@@ -38,4 +38,10 @@ impl<'a> Acceptance<'a> {
     pub fn index(&self) -> usize {
         self.index
     }
+
+    pub fn stack_history(previous: Option<&Self>, next: Option<&Self>) -> Vec<Stack<'a>> {
+        previous
+            .map_or_default(|previous| previous.stack.clone())
+            .history_to(&next.map_or_default(|next| next.stack.clone()))
+    }
 }

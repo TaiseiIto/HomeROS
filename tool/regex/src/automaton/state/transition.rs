@@ -47,6 +47,18 @@ impl<'a> Line<'a> {
                 automata
             })
     }
+
+    pub fn stack_history(&'a self) -> Vec<Stack<'a>> {
+        once(None)
+            .chain(self.0.iter().map(Some))
+            .zip(self.0.iter().map(Some).chain(once(None)))
+            .flat_map(|(previous_acceptance, next_acceptance)| {
+                Acceptance::stack_history(previous_acceptance, next_acceptance)
+                    .into_iter()
+                    .skip(1)
+            })
+            .collect()
+    }
 }
 
 impl<'a> From<Tree<'a>> for Vec<Line<'a>> {

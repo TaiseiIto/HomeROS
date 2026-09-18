@@ -3,9 +3,13 @@ use {
     crate::{character::Acceptor, search::Character},
     alloc::{vec, vec::Vec},
     core::ptr::eq,
+    core::{
+        cmp::Ordering::{Equal, Greater, Less},
+        iter::once,
+    },
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Stack<'a>(Vec<Frame<'a>>);
 
 impl<'a> Stack<'a> {
@@ -38,6 +42,48 @@ impl<'a> Stack<'a> {
         })
     }
 
+    pub fn history_to(&self, next: &Self) -> Vec<Self> {
+        if self == next {
+            vec![self.clone()]
+        } else {
+            match self.0.len().cmp(&next.0.len()) {
+                Equal => {
+                    if self.0.is_empty() {
+                        Vec::default()
+                    } else {
+                        let previous: Self = self.clone();
+                        let mut popped_previous: Self = previous.clone();
+                        popped_previous.0.pop().unwrap();
+                        let next: Self = next.clone();
+                        let mut popped_next: Self = next.clone();
+                        popped_next.0.pop().unwrap();
+                        once(previous)
+                            .chain(popped_previous.history_to(&popped_next).into_iter())
+                            .chain(once(next))
+                            .collect()
+                    }
+                }
+                Greater => {
+                    let previous: Self = self.clone();
+                    let mut popped_previous: Self = previous.clone();
+                    popped_previous.0.pop().unwrap();
+                    once(previous)
+                        .chain(popped_previous.history_to(&next).into_iter())
+                        .collect()
+                }
+                Less => {
+                    let next: Self = next.clone();
+                    let mut popped_next: Self = next.clone();
+                    popped_next.0.pop().unwrap();
+                    self.history_to(&popped_next)
+                        .into_iter()
+                        .chain(once(next))
+                        .collect()
+                }
+            }
+        }
+    }
+
     pub fn initialize(automaton: &'a Automaton) -> Self {
         Self(vec![Frame::initialize(automaton)])
     }
@@ -51,7 +97,7 @@ impl<'a> Stack<'a> {
                     progress: Progress::Capturer { executed },
                 } => {
                     if *executed {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
@@ -65,7 +111,7 @@ impl<'a> Stack<'a> {
                     progress: Progress::Character { executed },
                 } => {
                     if *executed {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
@@ -77,7 +123,7 @@ impl<'a> Stack<'a> {
                     progress: Progress::EndOfLine,
                 } => {
                     if end_of_line {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         Vec::default()
@@ -91,7 +137,7 @@ impl<'a> Stack<'a> {
                     [
                         number.can_break(repetition_count).then_some({
                             let mut next_stack: Self = next_stack.clone();
-                            next_stack.0.pop();
+                            next_stack.0.pop().unwrap();
                             next_stack.next_states(start_of_line, end_of_line)
                         }),
                         number.can_continue(repetition_count).then_some({
@@ -119,7 +165,7 @@ impl<'a> Stack<'a> {
                     progress: Progress::Selection { executed },
                 } => {
                     if *executed {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         *executed = true;
@@ -147,7 +193,7 @@ impl<'a> Stack<'a> {
                         next_stack.0.push(next_frame);
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     }
                 }
@@ -156,7 +202,7 @@ impl<'a> Stack<'a> {
                     progress: Progress::StartOfLine,
                 } => {
                     if start_of_line {
-                        next_stack.0.pop();
+                        next_stack.0.pop().unwrap();
                         next_stack.next_states(start_of_line, end_of_line)
                     } else {
                         Vec::default()
