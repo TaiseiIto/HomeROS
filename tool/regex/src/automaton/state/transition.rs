@@ -1,10 +1,8 @@
 use {
     super::{super::Stack, Acceptance},
-    crate::{Automaton, search::Point},
+    crate::search::Point,
     alloc::{vec, vec::Vec},
-    core::iter::once,
-    core::ops::RangeInclusive,
-    core::ptr::eq,
+    core::{iter::once, ops::RangeInclusive},
 };
 
 #[derive(Debug)]
@@ -31,23 +29,6 @@ impl Line<'_> {
 }
 
 impl<'a> Line<'a> {
-    pub fn first_call_ordered_automata(&'a self) -> Vec<&'a Automaton> {
-        self.0
-            .iter()
-            .flat_map(|acceptance| acceptance.automaton_layers())
-            .fold(Vec::default(), |mut automata, new_automaton| {
-                if automata.iter().all(|automaton| {
-                    !eq(
-                        *automaton as *const Automaton,
-                        new_automaton as *const Automaton,
-                    )
-                }) {
-                    automata.push(new_automaton);
-                }
-                automata
-            })
-    }
-
     pub fn captures(&'a self) -> Vec<Stack<'a>> {
         once(None)
             .chain(self.0.iter().map(Some))

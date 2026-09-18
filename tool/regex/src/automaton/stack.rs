@@ -2,7 +2,6 @@ use {
     super::{Automaton, state::Acceptance},
     crate::{character::Acceptor, search::Character},
     alloc::{vec, vec::Vec},
-    core::ptr::eq,
     core::{
         cmp::Ordering::{Equal, Greater, Less},
         iter::once,
@@ -31,15 +30,6 @@ impl<'a> Stack<'a> {
 
     pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
         self.0.iter().map(|frame| frame.automaton).collect()
-    }
-
-    pub fn contains(&self, automaton: &Automaton) -> bool {
-        self.0.iter().any(|frame| {
-            eq(
-                frame.automaton as *const Automaton,
-                automaton as *const Automaton,
-            )
-        })
     }
 
     pub fn history_to(&self, next: &Self) -> Vec<Self> {
