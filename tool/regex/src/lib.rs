@@ -14,12 +14,17 @@ pub use {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use {
+        super::*,
+        alloc::{vec, vec::Vec},
+    };
 
     #[test]
     fn test() {
-        let _: Automaton = r"^\d(\l+|\u*)[^a-d0-3_{}]{2,3}[^\w()*]{3}$"
-            .parse()
-            .unwrap();
+        let automaton: Automaton = r"^clk(\d+)([kmgtpxzyrq])hz$".parse().unwrap();
+        let matches: Vec<Match> = automaton.input("clk24mhz");
+        let captures: Vec<Capture> = matches.iter().flat_map(|mat| mat.captures()).collect();
+        let captures: Vec<&str> = captures.iter().map(Into::into).collect();
+        assert_eq!(captures, vec!["clk24mhz", "24", "m"]);
     }
 }
