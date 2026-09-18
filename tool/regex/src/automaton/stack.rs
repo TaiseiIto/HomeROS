@@ -217,7 +217,18 @@ impl<'a> Frame<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+impl Eq for Frame<'_> {}
+
+impl PartialEq for Frame<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        eq(
+            self.automaton as *const Automaton,
+            other.automaton as *const Automaton,
+        ) && self.progress == other.progress
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 enum Progress {
     Capturer { executed: bool },
     Character { executed: bool },
