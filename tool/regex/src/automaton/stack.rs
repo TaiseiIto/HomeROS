@@ -86,9 +86,9 @@ impl<'a> Stack<'a> {
     }
 
     pub fn is_start_of_capture(&self) -> bool {
-        self.0
-            .last()
-            .is_some_and(|frame| matches!(frame.automaton, Automaton::Capturer { body, name }))
+        self.0.last().is_some_and(|frame| {
+            matches!(frame.automaton, Automaton::Capturer { body: _, name: _ })
+        })
     }
 
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
