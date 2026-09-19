@@ -1,6 +1,12 @@
 use {
     crate::automaton::{Stack, state::transition::Line},
-    alloc::{collections::btree_map::BTreeMap, format, string::String, vec, vec::Vec},
+    alloc::{
+        collections::btree_map::BTreeMap,
+        format,
+        string::{String, ToString},
+        vec,
+        vec::Vec,
+    },
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -40,6 +46,13 @@ impl<'a> From<&'a Capture<'a>> for &'a str {
     fn from(capture: &'a Capture<'a>) -> Self {
         let Capture { mat, stack } = capture;
         mat.capture(stack)
+    }
+}
+
+impl ToString for Capture<'_> {
+    fn to_string(&self) -> String {
+        let capture: &str = self.into();
+        capture.to_string()
     }
 }
 
