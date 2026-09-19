@@ -81,7 +81,10 @@
 ## Internal specification
 
 ```
-capturer = expression;
+capturer = [capturer_name]expression;
+capturer_name = '?<' name '>';
+name = {name_character};
+name_character = digit + lowercase + uppercase + '_';
 expression = term{'|'term};
 term = {power};
 power = base[exponent];

@@ -6,11 +6,11 @@ use {
 };
 
 #[derive(Debug, Parser)]
-pub struct Capturer(Expression);
+pub struct Capturer(Option<CapturerName>, Expression);
 
 impl From<Capturer> for Automaton {
     fn from(capturer: Capturer) -> Self {
-        let Capturer(expression) = capturer;
+        let Capturer(_, expression) = capturer;
         Self::Capturer(Box::new(expression.into()))
     }
 }
@@ -25,6 +25,20 @@ impl FromStr for Capturer {
             })
             .ok_or(())
     }
+}
+
+#[derive(Debug, Parser)]
+pub struct CapturerName(Question, LessThan, Name, GreaterThan);
+
+#[derive(Debug, Parser)]
+pub struct Name(Vec<NameCharacter>);
+
+#[derive(Debug, Parser)]
+pub enum NameCharacter {
+    Digit(Digit),
+    Lowercase(Lowercase),
+    Uppercase(Uppercase),
+    Underscore(Underscore),
 }
 
 #[derive(Debug, Parser)]
@@ -876,6 +890,66 @@ impl From<Digit> for usize {
             Digit::Nine(_) => 9,
         }
     }
+}
+
+#[derive(Debug, Parser)]
+pub enum Lowercase {
+    LowerA(LowerA),
+    LowerB(LowerB),
+    LowerC(LowerC),
+    LowerD(LowerD),
+    LowerE(LowerE),
+    LowerF(LowerF),
+    LowerG(LowerG),
+    LowerH(LowerH),
+    LowerI(LowerI),
+    LowerJ(LowerJ),
+    LowerK(LowerK),
+    LowerL(LowerL),
+    LowerM(LowerM),
+    LowerN(LowerN),
+    LowerO(LowerO),
+    LowerP(LowerP),
+    LowerQ(LowerQ),
+    LowerR(LowerR),
+    LowerS(LowerS),
+    LowerT(LowerT),
+    LowerU(LowerU),
+    LowerV(LowerV),
+    LowerW(LowerW),
+    LowerX(LowerX),
+    LowerY(LowerY),
+    LowerZ(LowerZ),
+}
+
+#[derive(Debug, Parser)]
+pub enum Uppercase {
+    UpperA(UpperA),
+    UpperB(UpperB),
+    UpperC(UpperC),
+    UpperD(UpperD),
+    UpperE(UpperE),
+    UpperF(UpperF),
+    UpperG(UpperG),
+    UpperH(UpperH),
+    UpperI(UpperI),
+    UpperJ(UpperJ),
+    UpperK(UpperK),
+    UpperL(UpperL),
+    UpperM(UpperM),
+    UpperN(UpperN),
+    UpperO(UpperO),
+    UpperP(UpperP),
+    UpperQ(UpperQ),
+    UpperR(UpperR),
+    UpperS(UpperS),
+    UpperT(UpperT),
+    UpperU(UpperU),
+    UpperV(UpperV),
+    UpperW(UpperW),
+    UpperX(UpperX),
+    UpperY(UpperY),
+    UpperZ(UpperZ),
 }
 
 #[derive(Debug, Parser)]
