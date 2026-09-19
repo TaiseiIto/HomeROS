@@ -1,6 +1,6 @@
 use {
     crate::automaton::{Stack, state::transition::Line},
-    alloc::{collections::btree_map::BTreeMap, string::String, vec, vec::Vec},
+    alloc::{collections::btree_map::BTreeMap, format, string::String, vec, vec::Vec},
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -11,7 +11,8 @@ pub struct Capture<'a> {
 
 impl Debug for Capture<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter.write_str(self.into())
+        let capture: &str = self.into();
+        formatter.write_str(&format!("{:#x?}", capture))
     }
 }
 
