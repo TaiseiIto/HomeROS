@@ -7,18 +7,19 @@ use {
         vec,
         vec::Vec,
     },
-    core::fmt::{Debug, Formatter, Result},
+    core::fmt::{Debug, Display, Formatter, Result},
 };
 
+#[derive(Debug)]
 pub struct Capture<'a> {
     mat: &'a Match<'a>,
     stack: Stack<'a>,
 }
 
-impl Debug for Capture<'_> {
+impl Display for Capture<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         let capture: &str = self.into();
-        formatter.write_str(&format!("{:#x?}", capture))
+        formatter.write_str(capture)
     }
 }
 
@@ -46,13 +47,6 @@ impl<'a> From<&'a Capture<'a>> for &'a str {
     fn from(capture: &'a Capture<'a>) -> Self {
         let Capture { mat, stack } = capture;
         mat.capture(stack)
-    }
-}
-
-impl ToString for Capture<'_> {
-    fn to_string(&self) -> String {
-        let capture: &str = self.into();
-        capture.to_string()
     }
 }
 
