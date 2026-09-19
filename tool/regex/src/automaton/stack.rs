@@ -1,7 +1,7 @@
 use {
     super::{Automaton, state::Acceptance},
     crate::{character::Acceptor, search::Character},
-    alloc::{vec, vec::Vec},
+    alloc::{string::String, vec, vec::Vec},
     core::{
         cmp::Ordering::{Equal, Greater, Less},
         iter::once,
@@ -30,6 +30,13 @@ impl<'a> Stack<'a> {
 
     pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
         self.0.iter().map(|frame| frame.automaton).collect()
+    }
+
+    pub fn capture_name(&'a self) -> Option<String> {
+        self.0.last().and_then(|frame| match frame.automaton {
+            Automaton::Capturer { body: _, name } => Some(name.clone()),
+            _ => None,
+        })
     }
 
     pub fn history_to(&self, next: &Self) -> Vec<Self> {
@@ -83,12 +90,6 @@ impl<'a> Stack<'a> {
             .iter()
             .zip(base.0.iter())
             .all(|(my_frame, base_frame)| my_frame == base_frame)
-    }
-
-    pub fn is_start_of_capture(&self) -> bool {
-        self.0.last().is_some_and(|frame| {
-            matches!(frame.automaton, Automaton::Capturer { body: _, name: _ })
-        })
     }
 
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {

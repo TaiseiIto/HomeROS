@@ -1,7 +1,7 @@
 use {
     super::{super::Stack, Acceptance},
     crate::search::Point,
-    alloc::{vec, vec::Vec},
+    alloc::{string::String, vec, vec::Vec},
     core::{iter::once, ops::RangeInclusive},
 };
 
@@ -29,7 +29,7 @@ impl Line<'_> {
 }
 
 impl<'a> Line<'a> {
-    pub fn captures(&'a self) -> Vec<Stack<'a>> {
+    pub fn captures(&'a self) -> Vec<(String, Stack<'a>)> {
         once(None)
             .chain(self.0.iter().map(Some))
             .zip(self.0.iter().map(Some).chain(once(None)))
@@ -38,12 +38,16 @@ impl<'a> Line<'a> {
                     .into_iter()
                     .skip(1)
             })
-            .filter(|stack| stack.is_start_of_capture())
-            .fold(Vec::default(), |mut stacks, stack| {
-                if !stacks.contains(&stack) {
-                    stacks.push(stack);
+            .filter_map(|stack| {
+                stack
+                    .capture_name()
+                    .map(|capture_name| (capture_name, stack))
+            })
+            .fold(Vec::default(), |mut captures, capture| {
+                if !captures.contains(&capture) {
+                    captures.push(capture);
                 }
-                stacks
+                captures
             })
     }
 }

@@ -1,10 +1,11 @@
 use {
     crate::automaton::{Stack, state::transition::Line},
-    alloc::vec::Vec,
+    alloc::{string::String, vec::Vec},
 };
 
 #[derive(Debug)]
 pub struct Capture<'a> {
+    name: String,
     mat: &'a Match<'a>,
     stack: Stack<'a>,
 }
@@ -14,14 +15,18 @@ impl<'a> From<&'a Match<'a>> for Vec<Capture<'a>> {
         mat.automaton_state_transition
             .captures()
             .into_iter()
-            .map(|stack| Capture { mat, stack })
+            .map(|(name, stack)| Capture { name, mat, stack })
             .collect()
     }
 }
 
 impl<'a> From<&'a Capture<'a>> for &'a str {
     fn from(capture: &'a Capture<'a>) -> Self {
-        let Capture { mat, stack } = capture;
+        let Capture {
+            name: _,
+            mat,
+            stack,
+        } = capture;
         mat.capture(stack)
     }
 }
