@@ -31,10 +31,6 @@ impl<'a> Acceptance<'a> {
         self.stack.is_based_on(stack)
     }
 
-    pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
-        self.stack.automaton_layers()
-    }
-
     pub fn index(&self) -> usize {
         self.index
     }

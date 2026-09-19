@@ -28,10 +28,6 @@ impl<'a> Stack<'a> {
         }
     }
 
-    pub fn automaton_layers(&'a self) -> Vec<&'a Automaton> {
-        self.0.iter().map(|frame| frame.automaton).collect()
-    }
-
     pub fn capture_name(&'a self) -> Option<String> {
         self.0.last().and_then(|frame| match frame.automaton {
             Automaton::Capturer { body: _, name } => Some(name.clone()),
