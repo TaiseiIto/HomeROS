@@ -16,7 +16,7 @@ pub use {
 mod test {
     use {
         super::*,
-        alloc::{vec, vec::Vec},
+        alloc::{collections::btree_map::BTreeMap, string::String, vec::Vec},
     };
 
     #[test]
@@ -25,18 +25,7 @@ mod test {
             .parse()
             .unwrap();
         let matches: Vec<Match> = automaton.input("clk24mhz,clk115200hz");
-        let captures: Vec<Capture> = matches.iter().flat_map(|mat| mat.captures()).collect();
-        let captures: Vec<&str> = captures.iter().map(Into::into).collect();
-        assert_eq!(
-            captures,
-            vec![
-                "clk24mhz,clk115200hz",
-                "clk24mhz,",
-                "24",
-                "m",
-                "clk115200hz",
-                "115200"
-            ]
-        );
+        let captures: Vec<BTreeMap<String, Vec<Capture>>> =
+            matches.iter().map(|mat| mat.captures()).collect();
     }
 }

@@ -1,32 +1,43 @@
 use {
     crate::automaton::{Stack, state::transition::Line},
-    alloc::{string::String, vec::Vec},
+    alloc::{collections::btree_map::BTreeMap, string::String, vec, vec::Vec},
+    core::fmt::{Debug, Formatter, Result},
 };
 
-#[derive(Debug)]
 pub struct Capture<'a> {
-    name: String,
     mat: &'a Match<'a>,
     stack: Stack<'a>,
 }
 
-impl<'a> From<&'a Match<'a>> for Vec<Capture<'a>> {
+impl Debug for Capture<'_> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.write_str(self.into())
+    }
+}
+
+impl<'a> From<&'a Match<'a>> for BTreeMap<String, Vec<Capture<'a>>> {
     fn from(mat: &'a Match<'a>) -> Self {
-        mat.automaton_state_transition
-            .captures()
-            .into_iter()
-            .map(|(name, stack)| Capture { name, mat, stack })
-            .collect()
+        mat.automaton_state_transition.captures().into_iter().fold(
+            BTreeMap::new(),
+            |mut name2captures, (name, stack)| {
+                let capture: Capture = Capture { mat, stack };
+                match name2captures.get_mut(&name) {
+                    Some(captures) => {
+                        captures.push(capture);
+                    }
+                    None => {
+                        name2captures.insert(name, vec![capture]);
+                    }
+                }
+                name2captures
+            },
+        )
     }
 }
 
 impl<'a> From<&'a Capture<'a>> for &'a str {
     fn from(capture: &'a Capture<'a>) -> Self {
-        let Capture {
-            name: _,
-            mat,
-            stack,
-        } = capture;
+        let Capture { mat, stack } = capture;
         mat.capture(stack)
     }
 }
@@ -38,7 +49,7 @@ pub struct Match<'a> {
 }
 
 impl<'a> Match<'a> {
-    pub fn captures(&'a self) -> Vec<Capture<'a>> {
+    pub fn captures(&'a self) -> BTreeMap<String, Vec<Capture<'a>>> {
         self.into()
     }
 
