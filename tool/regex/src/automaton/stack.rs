@@ -88,7 +88,7 @@ impl<'a> Stack<'a> {
     pub fn is_start_of_capture(&self) -> bool {
         self.0
             .last()
-            .is_some_and(|frame| matches!(frame.automaton, Automaton::Capturer(_)))
+            .is_some_and(|frame| matches!(frame.automaton, Automaton::Capturer { body, name }))
     }
 
     pub fn next_states(&self, start_of_line: bool, end_of_line: bool) -> Vec<Self> {
@@ -96,7 +96,7 @@ impl<'a> Stack<'a> {
         if let Some(frame) = next_stack.0.last_mut() {
             match frame {
                 Frame {
-                    automaton: Automaton::Capturer(capturer),
+                    automaton: Automaton::Capturer { body, name: _ },
                     progress: Progress::Capturer { executed },
                 } => {
                     if *executed {
@@ -105,7 +105,7 @@ impl<'a> Stack<'a> {
                     } else {
                         *executed = true;
                         let mut next_stack: Self = next_stack.clone();
-                        next_stack.0.push(Frame::initialize(capturer));
+                        next_stack.0.push(Frame::initialize(body));
                         next_stack.next_states(start_of_line, end_of_line)
                     }
                 }
@@ -280,7 +280,7 @@ enum Progress {
 impl Progress {
     fn initialize(automaton: &Automaton) -> Self {
         match automaton {
-            Automaton::Capturer(_) => Self::Capturer { executed: false },
+            Automaton::Capturer { body: _, name: _ } => Self::Capturer { executed: false },
             Automaton::Character(_) => Self::Character { executed: false },
             Automaton::EndOfLine => Self::EndOfLine,
             Automaton::Repetition { body: _, number: _ } => Self::Repetition {

@@ -7,7 +7,7 @@ use {
         search::{Target, result::Match},
         symbol::Capturer,
     },
-    alloc::{boxed::Box, vec::Vec},
+    alloc::{boxed::Box, string::String, vec::Vec},
     core::str::FromStr,
     state::transition::{Line, Tree},
 };
@@ -16,7 +16,10 @@ pub use stack::Stack;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Automaton {
-    Capturer(Box<Self>),
+    Capturer {
+        body: Box<Self>,
+        name: String,
+    },
     Character(Acceptor),
     EndOfLine,
     Repetition {
@@ -31,7 +34,7 @@ pub enum Automaton {
 impl Automaton {
     pub fn accepts_empty_string(&self) -> bool {
         match self {
-            Self::Capturer(capturer) => capturer.accepts_empty_string(),
+            Self::Capturer { body, name: _ } => body.accepts_empty_string(),
             Self::Character(_) => false,
             Self::EndOfLine => true,
             Self::Repetition { body, number } => number.can_break(0) || body.accepts_empty_string(),

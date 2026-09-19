@@ -1,6 +1,6 @@
 use {
     crate::{Automaton, automaton, character::Acceptor},
-    alloc::{boxed::Box, vec::Vec},
+    alloc::{boxed::Box, string::String, vec::Vec},
     core::{iter::once, str::FromStr},
     parser::Parser,
 };
@@ -10,8 +10,11 @@ pub struct Capturer(Option<CapturerName>, Expression);
 
 impl From<Capturer> for Automaton {
     fn from(capturer: Capturer) -> Self {
-        let Capturer(_, expression) = capturer;
-        Self::Capturer(Box::new(expression.into()))
+        let Capturer(name, expression) = capturer;
+        Self::Capturer {
+            body: Box::new(expression.into()),
+            name: name.map_or(String::default(), |name| name.into()),
+        }
     }
 }
 
@@ -30,8 +33,20 @@ impl FromStr for Capturer {
 #[derive(Debug, Parser)]
 pub struct CapturerName(Question, LessThan, Name, GreaterThan);
 
+impl From<CapturerName> for String {
+    fn from(capturer_name: CapturerName) -> Self {
+        capturer_name.2.into()
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct Name(Vec<NameCharacter>);
+
+impl From<Name> for String {
+    fn from(name: Name) -> Self {
+        name.0.into_iter().map(Into::<char>::into).collect()
+    }
+}
 
 #[derive(Debug, Parser)]
 pub enum NameCharacter {
@@ -39,6 +54,17 @@ pub enum NameCharacter {
     Lowercase(Lowercase),
     Uppercase(Uppercase),
     Underscore(Underscore),
+}
+
+impl From<NameCharacter> for char {
+    fn from(name_character: NameCharacter) -> Self {
+        match name_character {
+            NameCharacter::Digit(digit) => digit.into(),
+            NameCharacter::Lowercase(lowercase) => lowercase.into(),
+            NameCharacter::Uppercase(uppercase) => uppercase.into(),
+            NameCharacter::Underscore(underscore) => underscore.into(),
+        }
+    }
 }
 
 #[derive(Debug, Parser)]
@@ -775,8 +801,25 @@ pub enum Digit {
     Nine(Nine),
 }
 
+impl From<Digit> for char {
+    fn from(digit: Digit) -> Self {
+        match digit {
+            Digit::Zero(zero) => zero.into(),
+            Digit::One(one) => one.into(),
+            Digit::Two(two) => two.into(),
+            Digit::Three(three) => three.into(),
+            Digit::Four(four) => four.into(),
+            Digit::Five(five) => five.into(),
+            Digit::Six(six) => six.into(),
+            Digit::Seven(seven) => seven.into(),
+            Digit::Eight(eight) => eight.into(),
+            Digit::Nine(nine) => nine.into(),
+        }
+    }
+}
+
 impl From<Digit> for usize {
-    fn from(digit: Digit) -> usize {
+    fn from(digit: Digit) -> Self {
         match digit {
             Digit::Zero(_) => 0,
             Digit::One(_) => 1,
