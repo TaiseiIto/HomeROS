@@ -45,6 +45,8 @@ impl Structure {
         }
     }
 
+    /// # TODO
+    /// * Change prettify function to From trait implement.
     fn implement(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
         let bits_reads: Vec<TokenStream> = self.bits_reads();
@@ -177,6 +179,8 @@ impl Structure {
         }
     }
 
+    /// # TODO
+    /// * Change unprettify function to From trait implement.
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
