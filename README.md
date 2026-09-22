@@ -41,7 +41,7 @@ Then you can connect to `localhost:5900` with VNC and operate HomeROS.
 ### Build development environment
 
 ```
-/somewhere/HomeROS$ cargo xtask environment
+/somewhere/HomeROS$ cargo xtask develop
 ```
 
 This command builds development environment as a docker container and enter the container.
@@ -49,13 +49,13 @@ This command builds development environment as a docker container and enter the 
 ### Delete development environment
 
 ```
-/somewhere/HomeROS$ cargo xtask environment delete
+/somewhere/HomeROS$ cargo xtask develop delete
 ```
 
 ### Rebuild development environment
 
 ```
-/somewhere/HomeROS$ cargo xtask environment rebuild
+/somewhere/HomeROS$ cargo xtask develop rebuild
 ```
 
 ### Privilege development environment
@@ -63,7 +63,7 @@ This command builds development environment as a docker container and enter the 
 If you have push permission to this repository, this command make you able to push commits in the development environment.
 
 ```
-/somewhere/HomeROS$ cargo xtask environment privilege --gpg-key /path/to/gpgkey --ssh-key /path/to/sshkey
+/somewhere/HomeROS$ cargo xtask develop privilege --gpg-key /path/to/gpgkey --ssh-key /path/to/sshkey
 ```
 
 ### Lint

@@ -1,9 +1,7 @@
 mod command;
+mod develop;
 mod disassemble;
 mod docker;
-/// TODO
-/// * Change environment to develop
-mod environment;
 mod firmware;
 mod format;
 mod git;
@@ -21,7 +19,7 @@ pub use {docker::in_container, format::format, lint::lint, test::test};
 pub enum Command {
     Build,
     Disassemble(disassemble::Command),
-    Environment(environment::Command),
+    Environment(develop::Command),
     Lint,
     PreCommit,
     Run(run::Command),
@@ -35,7 +33,7 @@ impl Command {
                 if in_container() {
                     product::build()
                 } else {
-                    environment::build_in_container();
+                    develop::build_in_container();
                 }
             }
             Self::Disassemble(command) => {
@@ -56,7 +54,7 @@ impl Command {
                 if in_container() {
                     command.run();
                 } else {
-                    environment::run_in_container(command);
+                    develop::run_in_container(command);
                 }
             }
             Self::Test => test(),
@@ -70,7 +68,7 @@ impl From<Args> for Command {
         match args.next().unwrap().as_str() {
             "build" => Self::Build,
             "disassemble" => Self::Disassemble(args.into()),
-            "environment" => Self::Environment(args.into()),
+            "develop" => Self::Environment(args.into()),
             "lint" => Self::Lint,
             "precommit" => Self::PreCommit,
             "run" => Self::Run(args.into()),
