@@ -18,16 +18,19 @@ impl Registers {
     fn prettify(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         let reader_type: Ident = self.reader_ident();
+        let true_type: Ident = self.true_type();
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
             .map(|element| element.prettify())
             .collect();
         quote! {
-            pub fn prettify(self) -> #pretty_type {
-                #pretty_type::Reader(#reader_type {
-                    #(#elements),*
-                })
+            impl From<#true_type> for #pretty_type {
+                fn from(value: #true_type) -> Self {
+                    Self::Reader(#reader_type {
+                        #(#elements),*
+                    })
+                }
             }
         }
     }
@@ -50,18 +53,14 @@ impl Registers {
         self.ident.clone()
     }
 
-    /// # TODO
-    /// * Change unprettify function to From trait implement.
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_ident();
         let pretty_reads: Vec<TokenStream> = self.pretty_reads();
         let pretty_writes: Vec<TokenStream> = self.pretty_writes();
-        let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_type {
                 #(#pretty_reads)*
                 #(#pretty_writes)*
-                #unprettify
             }
         }
     }
@@ -109,7 +108,7 @@ impl Registers {
             pub unsafe fn read_memory(&self) -> #pretty_type {
                 unsafe {
                     ::core::ptr::read_volatile(self as *const Self)
-                }.prettify()
+                }.into()
             }
         }
     }
@@ -125,21 +124,21 @@ impl Registers {
                         unsafe {
                             ::core::arch::asm!("in al, dx", out("al") buffer, in("dx") port);
                             ::core::ptr::read_volatile((&buffer as *const u8) as *const Self)
-                        }.prettify()
+                        }.into()
                     },
                     2 => {
                         let mut buffer: u16;
                         unsafe {
                             ::core::arch::asm!("in ax, dx", out("ax") buffer, in("dx") port);
                             ::core::ptr::read_volatile((&buffer as *const u16) as *const Self)
-                        }.prettify()
+                        }.into()
                     },
                     4 => {
                         let mut buffer: u32;
                         unsafe {
                             ::core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") port);
                             ::core::ptr::read_volatile((&buffer as *const u32) as *const Self)
-                        }.prettify()
+                        }.into()
                     },
                     8 => {
                         let mut buffer: u64 = 0;
@@ -154,7 +153,7 @@ impl Registers {
                         }
                         unsafe {
                             ::core::ptr::read_volatile((&buffer as *const u64) as *const Self)
-                        }.prettify()
+                        }.into()
                     },
                     16 => {
                         let mut buffer: u128 = 0;
@@ -169,7 +168,7 @@ impl Registers {
                         }
                         unsafe {
                             ::core::ptr::read_volatile((&buffer as *const u128) as *const Self)
-                        }.prettify()
+                        }.into()
                     },
                     _ => panic!(),
                 }
@@ -193,8 +192,6 @@ impl Registers {
         }
     }
 
-    /// # TODO
-    /// * Change prettify function to From trait implement.
     fn true_implement(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
         let prettify: TokenStream = self.prettify();
@@ -204,7 +201,6 @@ impl Registers {
         let write_port: TokenStream = self.write_port();
         quote! {
             impl #true_type {
-                #prettify
                 #read_memory
                 #read_port
                 #write_memory
@@ -231,13 +227,15 @@ impl Registers {
             .map(|element| element.unprettify(self))
             .collect();
         quote! {
-            pub fn unprettify(self) -> #true_type {
-                if let #pretty_type::Writer(writer) = self {
-                    match writer {
-                        #(#elements),*
+            impl From<#pretty_type> for #true_type {
+                fn from(value: #pretty_type) -> #true_type {
+                    if let #pretty_type::Writer(writer) = value {
+                        match writer {
+                            #(#elements),*
+                        }
+                    } else {
+                        panic!();
                     }
-                } else {
-                    panic!();
                 }
             }
         }
@@ -248,7 +246,7 @@ impl Registers {
         quote! {
             pub unsafe fn write_memory(&mut self, value: #pretty_type) {
                 unsafe {
-                    ::core::ptr::write_volatile(self as *mut Self, value.unprettify());
+                    ::core::ptr::write_volatile(self as *mut Self, value.into());
                 }
             }
         }
@@ -259,7 +257,7 @@ impl Registers {
         quote! {
             #[cfg(target_arch = "x86_64")]
             pub unsafe fn write_port(port: u16, value: #pretty_type) {
-                let value: *const Self = (&value.unprettify()) as *const Self;
+                let value: *const Self = (&value.into()) as *const Self;
                 match ::core::mem::size_of::<Self>() {
                     1 => {
                         let value: *const u8 = value as *const u8;
@@ -363,16 +361,20 @@ impl From<Registers> for TokenStream {
     fn from(registers: Registers) -> Self {
         let pretty_declaration: TokenStream = registers.pretty_declaration();
         let pretty_implement: TokenStream = registers.pretty_implement();
+        let prettify: TokenStream = registers.prettify();
         let reader_declaration: TokenStream = registers.reader_declaration();
         let true_declaration: TokenStream = registers.true_declaration();
         let true_implement: TokenStream = registers.true_implement();
+        let unprettify: TokenStream = registers.unprettify();
         let writer_declaration: TokenStream = registers.writer_declaration();
         quote! {
             #pretty_declaration
             #pretty_implement
+            #prettify
             #reader_declaration
             #true_declaration
             #true_implement
+            #unprettify
             #writer_declaration
         }
     }
@@ -392,7 +394,7 @@ impl Element {
     fn prettify(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         quote! {
-            #ident: unsafe {self.#ident.read_memory()}
+            #ident: unsafe {value.#ident.read_memory()}
         }
     }
 
@@ -488,7 +490,7 @@ impl Element {
         let writer_type: Ident = registers.writer_ident();
         quote! {
             #writer_type::#writer(writer) => #true_type {
-                #element_ident : ::core::mem::ManuallyDrop::new(writer.unprettify())
+                #element_ident : ::core::mem::ManuallyDrop::new(writer.into())
             }
         }
     }

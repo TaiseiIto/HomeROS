@@ -45,8 +45,6 @@ impl Structure {
         }
     }
 
-    /// # TODO
-    /// * Change prettify function to From trait implement.
     fn implement(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
         let bits_reads: Vec<TokenStream> = self.bits_reads();
@@ -54,7 +52,6 @@ impl Structure {
         let lengths: Vec<TokenStream> = self.lengths();
         let masks: Vec<TokenStream> = self.masks();
         let offsets: Vec<TokenStream> = self.offsets();
-        let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
         let read_port: TokenStream = self.read_port();
         let write_memory: TokenStream = self.write_memory();
@@ -66,7 +63,6 @@ impl Structure {
                 #(#lengths)*
                 #(#masks)*
                 #(#offsets)*
-                #prettify
                 #read_memory
                 #read_port
                 #write_memory
@@ -103,6 +99,7 @@ impl Structure {
     }
 
     fn prettify(&self) -> TokenStream {
+        let true_type: Ident = self.true_type();
         let pretty_type: Ident = self.pretty_type();
         let prettify_elements: Vec<TokenStream> = self
             .elements
@@ -110,9 +107,11 @@ impl Structure {
             .map(|element| element.prettify())
             .collect();
         quote! {
-            pub fn prettify(self) -> #pretty_type {
-                #pretty_type {
-                    #(#prettify_elements),*
+            impl From<#true_type> for #pretty_type {
+                fn from(value: #true_type) -> Self {
+                    Self {
+                        #(#prettify_elements),*
+                    }
                 }
             }
         }
@@ -179,8 +178,6 @@ impl Structure {
         }
     }
 
-    /// # TODO
-    /// * Change unprettify function to From trait implement.
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
@@ -193,7 +190,6 @@ impl Structure {
         let pretty_shift_updates: Vec<TokenStream> = self.pretty_shift_updates();
         let pretty_uint_reads: Vec<TokenStream> = self.pretty_uint_reads();
         let pretty_uint_updates: Vec<TokenStream> = self.pretty_uint_updates();
-        let unprettify: TokenStream = self.unprettify();
         quote! {
             impl #pretty_type {
                 #(#pretty_bit_reads)*
@@ -206,7 +202,6 @@ impl Structure {
                 #(#pretty_shift_updates)*
                 #(#pretty_uint_reads)*
                 #(#pretty_uint_updates)*
-                #unprettify
             }
         }
     }
@@ -291,14 +286,17 @@ impl Structure {
 
     fn unprettify(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
+        let pretty_type: Ident = self.pretty_type();
         let unprettifies: Vec<TokenStream> = self
             .elements
             .iter()
             .filter_map(|element| element.unprettify())
             .collect();
         quote! {
-            pub fn unprettify(self) -> #true_type {
-                #true_type::default().#(#unprettifies).*
+            impl From<#pretty_type> for #true_type {
+                fn from(value: #pretty_type) -> Self {
+                    Self::default().#(#unprettifies).*
+                }
             }
         }
     }
@@ -341,7 +339,7 @@ impl Structure {
             pub unsafe fn read_port(port: u16) -> #pretty_type {
                 let mut value: #inner_type = 0;
                 #read
-                #structure(value).prettify()
+                #structure(value).into()
             }
         }
     }
@@ -352,7 +350,7 @@ impl Structure {
             pub unsafe fn read_memory(&self) -> #pretty_type {
                 unsafe {
                     ::core::ptr::read_volatile(self as *const Self)
-                }.prettify()
+                }.into()
             }
         }
     }
@@ -360,6 +358,7 @@ impl Structure {
     fn write_port(&self) -> TokenStream {
         let inner_type: Ident = self.inner_type();
         let pretty_type: Ident = self.pretty_type();
+        let true_type: Ident = self.true_type();
         let write: TokenStream = match inner_type.to_string().as_str() {
             "u8" => quote! {
                 unsafe {
@@ -391,7 +390,8 @@ impl Structure {
         quote! {
             #[cfg(target_arch = "x86_64")]
             pub unsafe fn write_port(port: u16, value: #pretty_type) {
-                let value: #inner_type = value.unprettify().0;
+                let value: #true_type = value.into();
+                let value: #inner_type = value.0;
                 #write
             }
         }
@@ -401,7 +401,7 @@ impl Structure {
         let pretty_type: Ident = self.pretty_type();
         quote! {
             pub unsafe fn write_memory(&mut self, value: #pretty_type) {
-                let value: Self = value.unprettify();
+                let value: Self = value.into();
                 unsafe {
                     ::core::ptr::write_volatile(self as *mut Self, value);
                 }
@@ -447,16 +447,20 @@ impl From<Structure> for TokenStream {
         let true_declaration: TokenStream = structure.true_declaration();
         let implement: TokenStream = structure.implement();
         let debug: TokenStream = structure.debug();
+        let prettify: TokenStream = structure.prettify();
         let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_declaration: TokenStream = structure.pretty_declaration();
         let pretty_debug: TokenStream = structure.pretty_debug();
+        let unprettify: TokenStream = structure.unprettify();
         quote! {
             #true_declaration
             #implement
             #debug
+            #prettify
             #pretty_declaration
             #pretty_implement
             #pretty_debug
+            #unprettify
         }
     }
 }
@@ -628,7 +632,7 @@ impl Element {
         let ident: &Ident = &self.ident;
         let bits_read: Ident = self.bits_read_ident();
         quote! {
-            #ident: self.#bits_read()
+            #ident: value.#bits_read()
         }
     }
 
@@ -963,7 +967,7 @@ impl Element {
             reserved,
         } = self;
         (!reserved).then_some(quote! {
-            #bits_update(self.#ident)
+            #bits_update(value.#ident)
         })
     }
 }
