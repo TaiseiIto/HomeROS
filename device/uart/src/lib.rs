@@ -1,13 +1,7 @@
 #![no_std]
 
-#[cfg(uart = "pl011")]
 mod pl011;
-#[cfg(uart = "pl011")]
-use pl011::RegistersAccessor;
-#[cfg(uart = "16550")]
 mod standard16550;
-#[cfg(uart = "16550")]
-use standard16550::RegistersAccessor;
 
 use {
     arch::pause,
@@ -56,12 +50,18 @@ pub enum Parity {
 }
 
 pub fn initialize() {
-    RegistersAccessor::new().set();
+    Device::new().set();
 }
 
-pub static GLOBAL: Lock<OnceCell<RegistersAccessor>> = Lock::new(OnceCell::new());
+pub static GLOBAL: Lock<OnceCell<Device>> = Lock::new(OnceCell::new());
 
-impl RegistersAccessor {
+#[derive(Debug)]
+pub enum Device {
+    Pl011(pl011::RegistersAccessor),
+    Standard16550(standard16550::RegistersAccessor),
+}
+
+impl Device {
     pub fn write_format(&mut self, arguments: Arguments) {
         self.write_fmt(arguments).unwrap();
     }
@@ -70,11 +70,15 @@ impl RegistersAccessor {
     /// * Get address from device tree
     fn new() -> Self {
         #[cfg(target_arch = "aarch64")]
-        let mut accessor: Self = unsafe { Self::new_address(0x09000000) }; // Device tree node name "pl011"
+        let mut accessor: Self =
+            Self::Pl011(unsafe { pl011::RegistersAccessor::new_address(0x09000000) }); // Device tree node name "pl011"
         #[cfg(target_arch = "riscv64")]
-        let mut accessor: Self = unsafe { Self::new_address(0x10000000) }; // Device tree node name "serial"
+        let mut accessor: Self = Self::Standard16550(unsafe {
+            standard16550::RegistersAccessor::new_address(0x10000000)
+        }); // Device tree node name "serial"
         #[cfg(target_arch = "x86_64")]
-        let mut accessor: Self = unsafe { Self::new_port(0x02f8) };
+        let mut accessor: Self =
+            Self::Standard16550(unsafe { standard16550::RegistersAccessor::new_port(0x02f8) });
         let baud_rate: usize = 9600;
         let enable_fifo: bool = true;
         let parity: Option<Parity> = None;
@@ -92,14 +96,59 @@ impl RegistersAccessor {
         accessor
     }
 
+    fn registers(&self) -> &dyn Driver {
+        match self {
+            Self::Pl011(driver) => driver,
+            Self::Standard16550(driver) => driver,
+        }
+    }
+
+    fn registers_mut(&mut self) -> &mut dyn Driver {
+        match self {
+            Self::Pl011(driver) => driver,
+            Self::Standard16550(driver) => driver,
+        }
+    }
+
     fn set(self) {
         GLOBAL.lock().set(self).unwrap();
     }
 }
 
-unsafe impl Sync for RegistersAccessor {}
+impl Driver for Device {
+    fn can_send_byte(&self) -> bool {
+        self.registers().can_send_byte()
+    }
 
-impl Write for RegistersAccessor {
+    fn initialize(
+        &mut self,
+        baud_rate: usize,
+        enable_fifo: bool,
+        parity: Option<Parity>,
+        send_break: bool,
+        stop_bits: u8,
+        word_bits: u8,
+    ) {
+        self.registers_mut().initialize(
+            baud_rate,
+            enable_fifo,
+            parity,
+            send_break,
+            stop_bits,
+            word_bits,
+        );
+    }
+
+    unsafe fn send_byte_unchecked(&mut self, data: u8) {
+        unsafe {
+            self.registers_mut().send_byte(data);
+        }
+    }
+}
+
+unsafe impl Sync for Device {}
+
+impl Write for Device {
     fn write_str(&mut self, string: &str) -> Result {
         self.write_string(string);
         Ok(())
