@@ -15,6 +15,7 @@ members = [
 	"memory/allocator",
 	"sync",
 	"tool/regex",
+	"tool/unit",
 	"xtask"
 ]
 resolver = "3"

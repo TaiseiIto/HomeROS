@@ -1,0 +1,21 @@
+pub const KILO: u128 = 10_u128.pow(3).pow(1);
+pub const MEGA: u128 = 10_u128.pow(3).pow(2);
+pub const GIGA: u128 = 10_u128.pow(3).pow(3);
+pub const TERA: u128 = 10_u128.pow(3).pow(4);
+pub const PETA: u128 = 10_u128.pow(3).pow(5);
+pub const EXA: u128 = 10_u128.pow(3).pow(6);
+pub const ZETTA: u128 = 10_u128.pow(3).pow(7);
+pub const YOTTA: u128 = 10_u128.pow(3).pow(8);
+pub const RONNA: u128 = 10_u128.pow(3).pow(9);
+pub const QUETTA: u128 = 10_u128.pow(3).pow(10);
+
+pub const KIBI: u128 = 2_u128.pow(10).pow(1);
+pub const MEBI: u128 = 2_u128.pow(10).pow(2);
+pub const GIBI: u128 = 2_u128.pow(10).pow(3);
+pub const TEBI: u128 = 2_u128.pow(10).pow(4);
+pub const PEBI: u128 = 2_u128.pow(10).pow(5);
+pub const EXBI: u128 = 2_u128.pow(10).pow(6);
+pub const ZEBI: u128 = 2_u128.pow(10).pow(7);
+pub const YOBI: u128 = 2_u128.pow(10).pow(8);
+pub const ROBI: u128 = 2_u128.pow(10).pow(9);
+pub const QUEBI: u128 = 2_u128.pow(10).pow(10);
