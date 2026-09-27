@@ -1,10 +1,6 @@
 pub mod transition;
 
-use {
-    super::{Automaton, Stack},
-    crate::search::Character,
-    alloc::vec::Vec,
-};
+use {super::Stack, crate::search::Character, alloc::vec::Vec};
 
 #[derive(Clone, Debug)]
 pub struct Acceptance<'a> {

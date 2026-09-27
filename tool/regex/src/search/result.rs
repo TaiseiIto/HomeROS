@@ -1,12 +1,6 @@
 use {
     crate::automaton::{Stack, state::transition::Line},
-    alloc::{
-        collections::btree_map::BTreeMap,
-        format,
-        string::{String, ToString},
-        vec,
-        vec::Vec,
-    },
+    alloc::{collections::btree_map::BTreeMap, string::String, vec, vec::Vec},
     core::fmt::{Debug, Display, Formatter, Result},
 };
 

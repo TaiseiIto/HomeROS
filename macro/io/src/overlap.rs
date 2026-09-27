@@ -194,7 +194,6 @@ impl Registers {
 
     fn true_implement(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
-        let prettify: TokenStream = self.prettify();
         let read_memory: TokenStream = self.read_memory();
         let read_port: TokenStream = self.read_port();
         let write_memory: TokenStream = self.write_memory();
