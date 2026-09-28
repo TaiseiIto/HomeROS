@@ -285,9 +285,11 @@ impl SecondAnalyzed for Node {
 
 impl From<&Node> for Vec<uart::Information> {
     fn from(node: &Node) -> Self {
-        once(node)
-            .chain(node.children.iter())
-            .filter_map(|node| node.try_into().ok())
+        node.children
+            .iter()
+            .map(Into::<Self>::into)
+            .flat_map(|uarts| uarts.into_iter())
+            .chain(node.try_into().ok())
             .collect()
     }
 }
