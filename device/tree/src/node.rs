@@ -328,9 +328,10 @@ impl<'a> SecondAnalyzer<'a> {
             .and_then(|node| node.interrupt_cells())
     }
 
-    pub fn phandle_names(&self, phandle: u32, specifier: &str) -> Option<Vec<String>> {
+    pub fn phandle_names(&self, phandle: u32, specifier: &str) -> Vec<String> {
         self.node_from_phandle(phandle)
             .and_then(|node| node.names(specifier))
+            .unwrap_or_default()
     }
 
     pub fn phandle_specifier_cells(&self, phandle: u32, specifier: &str) -> Option<usize> {
