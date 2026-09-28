@@ -9,7 +9,7 @@ use {
 #[derive(Clone)]
 pub enum Clocks {
     Raw(Vec<u32>),
-    Pretty(Vec<Vec<u128>>),
+    Pretty(Vec<u128>),
 }
 
 impl Debug for Clocks {
@@ -27,7 +27,7 @@ impl SecondAnalyzed for Clocks {
             Self::Pretty(
                 phandles
                     .iter()
-                    .map(|phandle| {
+                    .flat_map(|phandle| {
                         second_analyzer
                             .phandle_names(*phandle, "clock-output")
                             .into_iter()
@@ -60,7 +60,6 @@ impl SecondAnalyzed for Clocks {
                                 };
                                 unit_prefix * value
                             })
-                            .collect()
                     })
                     .collect(),
             )

@@ -1,11 +1,11 @@
 use {
     crate::{
         Property, Structure,
-        property::{Compatible, status::Status},
+        property::{Clocks, Compatible, status::Status},
         uart,
     },
     alloc::{
-        collections::vec_deque::VecDeque,
+        collections::{btree_map::BTreeMap, vec_deque::VecDeque},
         string::{String, ToString},
         vec,
         vec::Vec,
@@ -59,6 +59,21 @@ impl Node {
                 .flat_map(|child| child.memories())
                 .collect()
         }
+    }
+
+    pub fn name2clock(&self) -> BTreeMap<String, u128> {
+        let names: Option<&[String]> = self.properties.iter().find_map(|property| match property {
+            Property::Names { specifier, names } if specifier == "clock" => Some(names.as_slice()),
+            _ => None,
+        });
+        let clocks: Option<&[u128]> = self.properties.iter().find_map(|property| match property {
+            Property::Clocks(Clocks::Pretty(clocks)) => Some(clocks.as_slice()),
+            _ => None,
+        });
+        names
+            .zip(clocks)
+            .map(|(names, clocks)| names.iter().cloned().zip(clocks.iter().cloned()).collect())
+            .unwrap_or_default()
     }
 
     pub fn regions(&self) -> Regions<u128> {

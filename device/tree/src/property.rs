@@ -10,7 +10,7 @@ mod reg;
 mod standard;
 pub mod status;
 
-pub use compatible::Compatible;
+pub use {clocks::Clocks, compatible::Compatible};
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
@@ -20,7 +20,6 @@ use {
         vec::Vec,
     },
     alloc_ranges::AllocRanges,
-    clocks::Clocks,
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,
