@@ -8,6 +8,7 @@ mod node;
 mod property;
 mod reserved_memory;
 mod structure;
+mod uart;
 
 pub use {header::Header, node::Node};
 
@@ -30,12 +31,8 @@ pub struct Analyzed {
 }
 
 impl Analyzed {
-    pub fn uart(&self) -> Vec<&Node> {
-        self.root
-            .find_from_name("pl011")
-            .into_iter()
-            .chain(self.root.find_from_name("serial"))
-            .collect()
+    pub fn uart(&self) -> Option<uart::Information> {
+        (&self.root).try_into().ok()
     }
 
     fn memory_regions(&self) -> Regions<u128> {

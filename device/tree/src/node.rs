@@ -1,6 +1,6 @@
 use {
     crate::{
-        property::{Property, status::Status},
+        property::{Compatible, Property, status::Status},
         structure::Structure,
     },
     alloc::{
@@ -21,6 +21,21 @@ pub struct Node {
 }
 
 impl Node {
+    pub fn children(&self) -> &[Self] {
+        self.children.as_slice()
+    }
+
+    pub fn compatibles(&self) -> Vec<&Compatible> {
+        self.properties
+            .iter()
+            .filter_map(|property| match property {
+                Property::Compatible(compatibles) => Some(compatibles.iter()),
+                _ => None,
+            })
+            .flatten()
+            .collect()
+    }
+
     pub fn find_from_name(&self, name: &str) -> Vec<&Self> {
         let mut nodes: Vec<&Self> = self
             .children

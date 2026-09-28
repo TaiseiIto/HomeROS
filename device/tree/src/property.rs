@@ -1,7 +1,7 @@
 mod alignment;
 mod alloc_ranges;
 mod clocks;
-mod compatible;
+pub mod compatible;
 mod dma;
 mod interrupt;
 mod map;
@@ -9,6 +9,8 @@ mod ranges;
 mod reg;
 mod standard;
 pub mod status;
+
+pub use compatible::Compatible;
 
 use {
     crate::node::{SecondAnalyzed, SecondAnalyzer},
@@ -19,7 +21,6 @@ use {
     },
     alloc_ranges::AllocRanges,
     clocks::Clocks,
-    compatible::Compatible,
     core::{
         fmt::{Debug, Formatter, Result},
         mem::size_of,

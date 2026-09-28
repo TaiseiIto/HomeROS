@@ -12,6 +12,12 @@ pub struct Compatible {
     device: String,
 }
 
+impl Compatible {
+    pub fn device(&self) -> &str {
+        self.device.as_str()
+    }
+}
+
 impl From<&str> for Compatible {
     fn from(compatible: &str) -> Self {
         let mut compatible: Split<'_, char> = compatible.split(',');
