@@ -50,18 +50,18 @@ pub enum Parity {
 }
 
 pub fn initialize() {
-    Device::new().set();
+    Abstract::new().set();
 }
 
-pub static GLOBAL: Lock<OnceCell<Device>> = Lock::new(OnceCell::new());
+pub static GLOBAL: Lock<OnceCell<Abstract>> = Lock::new(OnceCell::new());
 
 #[derive(Debug)]
-pub enum Device {
+pub enum Abstract {
     Pl011(pl011::RegistersAccessor),
     Standard16550(standard16550::RegistersAccessor),
 }
 
-impl Device {
+impl Abstract {
     pub fn write_format(&mut self, arguments: Arguments) {
         self.write_fmt(arguments).unwrap();
     }
@@ -115,7 +115,7 @@ impl Device {
     }
 }
 
-impl Driver for Device {
+impl Driver for Abstract {
     fn can_send_byte(&self) -> bool {
         self.registers().can_send_byte()
     }
@@ -146,9 +146,9 @@ impl Driver for Device {
     }
 }
 
-unsafe impl Sync for Device {}
+unsafe impl Sync for Abstract {}
 
-impl Write for Device {
+impl Write for Abstract {
     fn write_str(&mut self, string: &str) -> Result {
         self.write_string(string);
         Ok(())
