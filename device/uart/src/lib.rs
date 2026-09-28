@@ -1,7 +1,7 @@
 #![no_std]
 
+mod ns16550a;
 mod pl011;
-mod standard16550;
 
 use {
     arch::pause,
@@ -58,7 +58,7 @@ pub static GLOBAL: Lock<OnceCell<Abstract>> = Lock::new(OnceCell::new());
 #[derive(Debug)]
 pub enum Abstract {
     Pl011(pl011::RegistersAccessor),
-    Standard16550(standard16550::RegistersAccessor),
+    Ns16550a(ns16550a::RegistersAccessor),
 }
 
 impl Abstract {
@@ -73,12 +73,11 @@ impl Abstract {
         let mut accessor: Self =
             Self::Pl011(unsafe { pl011::RegistersAccessor::new_address(0x09000000) }); // Device tree node name "pl011"
         #[cfg(target_arch = "riscv64")]
-        let mut accessor: Self = Self::Standard16550(unsafe {
-            standard16550::RegistersAccessor::new_address(0x10000000)
-        }); // Device tree node name "serial"
+        let mut accessor: Self =
+            Self::Ns16550a(unsafe { ns16550a::RegistersAccessor::new_address(0x10000000) }); // Device tree node name "serial"
         #[cfg(target_arch = "x86_64")]
         let mut accessor: Self =
-            Self::Standard16550(unsafe { standard16550::RegistersAccessor::new_port(0x02f8) });
+            Self::Ns16550a(unsafe { ns16550a::RegistersAccessor::new_port(0x02f8) });
         let baud_rate: usize = 9600;
         let enable_fifo: bool = true;
         let parity: Option<Parity> = None;
@@ -98,15 +97,15 @@ impl Abstract {
 
     fn registers(&self) -> &dyn Driver {
         match self {
+            Self::Ns16550a(driver) => driver,
             Self::Pl011(driver) => driver,
-            Self::Standard16550(driver) => driver,
         }
     }
 
     fn registers_mut(&mut self) -> &mut dyn Driver {
         match self {
+            Self::Ns16550a(driver) => driver,
             Self::Pl011(driver) => driver,
-            Self::Standard16550(driver) => driver,
         }
     }
 
