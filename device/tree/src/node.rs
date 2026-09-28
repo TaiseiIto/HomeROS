@@ -2,6 +2,7 @@ use {
     crate::{
         Property, Structure,
         property::{Compatible, status::Status},
+        uart,
     },
     alloc::{
         collections::vec_deque::VecDeque,
@@ -279,6 +280,15 @@ impl SecondAnalyzed for Node {
             properties,
             children,
         }
+    }
+}
+
+impl From<&Node> for Vec<uart::Information> {
+    fn from(node: &Node) -> Self {
+        once(node)
+            .chain(node.children.iter())
+            .filter_map(|node| node.try_into().ok())
+            .collect()
     }
 }
 

@@ -36,8 +36,8 @@ pub struct Analyzed {
 }
 
 impl Analyzed {
-    pub fn uart(&self) -> Option<uart::Information> {
-        (&self.root).try_into().ok()
+    pub fn uarts(&self) -> Vec<uart::Information> {
+        (&self.root).into()
     }
 
     fn memory_regions(&self) -> Regions<u128> {
