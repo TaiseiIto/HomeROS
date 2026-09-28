@@ -5,8 +5,8 @@ use {
 
 #[derive(Debug)]
 pub struct Information {
-    // frequency_hz: u128,
     base_address: usize,
+    frequency_hz: u128,
     standard: Standard,
 }
 
@@ -18,6 +18,10 @@ impl TryFrom<&Node> for Information {
             .regions()
             .min()
             .map(|base_address| base_address as usize);
+        let frequency_hz: Option<u128> = node
+            .clock_frequency()
+            .map(|clock_frequency| clock_frequency as u128)
+            .or(node.name2clock().get("uartclk").copied());
         let standard: Option<Standard> =
             node.compatibles()
                 .into_iter()
@@ -26,14 +30,14 @@ impl TryFrom<&Node> for Information {
                     "ns16550a" => Some(Standard::Ns16550a),
                     _ => None,
                 });
-        base_address
-            .zip(standard)
-            .map(|(base_address, standard)| Self {
-                // frequency_hz,
+        match (base_address, frequency_hz, standard) {
+            (Some(base_address), Some(frequency_hz), Some(standard)) => Ok(Self {
                 base_address,
+                frequency_hz,
                 standard,
-            })
-            .ok_or(())
+            }),
+            _ => Err(()),
+        }
     }
 }
 

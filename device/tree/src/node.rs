@@ -26,6 +26,13 @@ impl Node {
         self.children.as_slice()
     }
 
+    pub fn clock_frequency(&self) -> Option<u64> {
+        self.properties.iter().find_map(|property| match property {
+            Property::ClockFrequency(clock_frequency) => Some(*clock_frequency),
+            _ => None,
+        })
+    }
+
     pub fn compatibles(&self) -> Vec<&Compatible> {
         self.properties
             .iter()
