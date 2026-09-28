@@ -1,8 +1,8 @@
 use {
     crate::{
+        StructureIterator,
         node::Node,
         reserved_memory::{Entry, EntryIterator},
-        structure::StructureIterator,
     },
     alloc::vec::Vec,
     core::{fmt::Debug, slice::from_raw_parts},

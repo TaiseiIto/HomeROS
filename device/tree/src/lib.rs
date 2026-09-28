@@ -10,7 +10,12 @@ mod reserved_memory;
 mod structure;
 mod uart;
 
-pub use {header::Header, node::Node, property::Property, structure::Structure};
+pub use {
+    header::Header,
+    node::Node,
+    property::Property,
+    structure::{Structure, StructureIterator},
+};
 
 use {alloc::vec::Vec, core::cell::OnceCell, memory::Regions, sync::spin::Lock};
 

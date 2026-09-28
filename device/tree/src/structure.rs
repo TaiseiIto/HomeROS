@@ -1,5 +1,5 @@
 use {
-    crate::{header::Header, node::Name, property::Property},
+    crate::{Property, header::Header, node::Name},
     alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
