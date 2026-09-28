@@ -6,7 +6,7 @@ use {
 #[derive(Debug)]
 pub struct Information {
     // frequency_hz: u128,
-    // memory_region: Range<u128>,
+    base_address: usize,
     standard: Standard,
 }
 
@@ -18,6 +18,10 @@ impl TryFrom<&Node> for Information {
             .iter()
             .find_map(|child| child.try_into().ok())
             .or({
+                let base_address: Option<usize> = node
+                    .regions()
+                    .min()
+                    .map(|base_address| base_address as usize);
                 let standard: Option<Standard> =
                     node.compatibles().into_iter().find_map(|compatible| {
                         match compatible.device() {
@@ -26,14 +30,13 @@ impl TryFrom<&Node> for Information {
                             _ => None,
                         }
                     });
-                match standard {
-                    Some(standard) => Some(Self {
+                base_address
+                    .zip(standard)
+                    .map(|(base_address, standard)| Self {
                         // frequency_hz,
-                        // memory_region,
+                        base_address,
                         standard,
-                    }),
-                    _ => None,
-                }
+                    })
             })
             .ok_or(())
     }

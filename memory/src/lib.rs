@@ -136,6 +136,10 @@ impl<T: UnsignedInt> TryFrom<Range<T>> for Region<T> {
 pub struct Regions<T: UnsignedInt>(Vec<Region<T>>);
 
 impl<T: UnsignedInt> Regions<T> {
+    pub fn min(&self) -> Option<T> {
+        self.0.iter().map(|region| region.0.start).min()
+    }
+
     fn deduplicate(&mut self) {
         if let Some(head) = self.0.pop() {
             self.deduplicate();
