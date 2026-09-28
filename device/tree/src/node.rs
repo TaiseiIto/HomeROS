@@ -1,7 +1,7 @@
 use {
     crate::{
-        property::{Compatible, Property, status::Status},
-        structure::Structure,
+        Property, Structure,
+        property::{Compatible, status::Status},
     },
     alloc::{
         collections::vec_deque::VecDeque,
