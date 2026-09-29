@@ -6,6 +6,7 @@ use {
 
 /// # References
 /// * [EFI_MEMORY_DESCRIPTOR](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
+#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct Descriptor {
     memory_type: u32,
@@ -28,6 +29,13 @@ pub struct Map {
 }
 
 impl Map {
+    pub fn iter(&self) -> Descriptors {
+        Descriptors {
+            map: self,
+            index: 0,
+        }
+    }
+
     pub fn key(&self) -> usize {
         self.key
     }
@@ -38,5 +46,35 @@ impl Map {
             descriptors,
             descriptor_size,
         }
+    }
+}
+
+pub struct Descriptors<'a> {
+    map: &'a Map,
+    index: usize,
+}
+
+impl<'a> Iterator for Descriptors<'a> {
+    type Item = Descriptor;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let Self {
+            map:
+                Map {
+                    key: _,
+                    descriptors,
+                    descriptor_size,
+                },
+            index,
+        } = self;
+        descriptors
+            .as_slice()
+            .get(*index * descriptor_size)
+            .map(|descriptor| {
+                *index += 1;
+                let descriptor: *const u8 = descriptor as *const u8;
+                let descriptor: *const Self::Item = descriptor as *const Self::Item;
+                unsafe { &*descriptor }.clone()
+            })
     }
 }
