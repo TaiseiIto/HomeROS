@@ -6,7 +6,7 @@ pub type Exit = extern "efiapi" fn(Handle, Status, usize, *const Char16) -> Stat
 
 /// # References
 /// * [ExitBootServices](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-exitbootservices)
-pub type ExitServices = extern "efiapi" fn(Handle, usize) -> Status;
+pub type ExitBootServices = extern "efiapi" fn(Handle, usize) -> Status;
 
 /// # References
 /// * [LoadImage](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-loadimage)

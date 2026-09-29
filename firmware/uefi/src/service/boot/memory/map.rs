@@ -28,6 +28,10 @@ pub struct Map {
 }
 
 impl Map {
+    pub fn key(&self) -> usize {
+        self.key
+    }
+
     pub fn new(key: usize, descriptors: Vec<u8>, descriptor_size: usize) -> Self {
         Self {
             key,

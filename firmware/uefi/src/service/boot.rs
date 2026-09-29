@@ -8,7 +8,7 @@ mod task;
 mod timer;
 
 use {
-    crate::{Char16, Status, Void, table},
+    crate::{Char16, Handle, Status, Void, table},
     alloc::vec::Vec,
     core::ptr::null_mut,
 };
@@ -45,7 +45,7 @@ pub struct Table {
     start_image: image::Start,
     exit: image::Exit,
     unload_image: image::Unload,
-    exit_services: image::ExitServices,
+    exit_boot_services: image::ExitBootServices,
     get_next_monotonic_count: GetNextMonotonicCount,
     stall: Stall,
     set_watchdog_timer: SetWatchdogTimer,
@@ -66,7 +66,24 @@ pub struct Table {
 }
 
 impl Table {
-    pub fn get_memory_map(&self) -> memory::Map {
+    pub fn exit_boot_services(&mut self, image: Handle) -> memory::Map {
+        let memory_map: memory::Map = self.get_memory_map();
+        (self.exit_boot_services)(image, memory_map.key()).assert();
+        memory_map
+    }
+
+    fn allocate_pool(&self, size: usize) -> Vec<u8> {
+        let mut buffer: *mut Void = null_mut();
+        (self.allocate_pool)(
+            memory::Type::Conventional,
+            size,
+            (&mut buffer) as *mut *mut Void,
+        )
+        .assert();
+        unsafe { Vec::<u8>::from_raw_parts(buffer as *mut u8, size, size) }
+    }
+
+    fn get_memory_map(&self) -> memory::Map {
         let mut size: usize = 2 * self.get_memory_map_size();
         let mut descriptors: Vec<u8> = self.allocate_pool(size);
         let mut key: usize = 0;
@@ -82,17 +99,6 @@ impl Table {
         .assert();
         descriptors.truncate(size);
         memory::Map::new(key, descriptors, descriptor_size)
-    }
-
-    fn allocate_pool(&self, size: usize) -> Vec<u8> {
-        let mut buffer: *mut Void = null_mut();
-        (self.allocate_pool)(
-            memory::Type::Conventional,
-            size,
-            (&mut buffer) as *mut *mut Void,
-        )
-        .assert();
-        unsafe { Vec::<u8>::from_raw_parts(buffer as *mut u8, size, size) }
     }
 
     fn get_memory_map_size(&self) -> usize {
