@@ -4,7 +4,7 @@ extern crate alloc;
 
 mod configuration;
 mod protocol;
-mod service;
+pub mod service;
 pub mod system;
 mod table;
 

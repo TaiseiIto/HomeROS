@@ -68,6 +68,12 @@ impl Global {
         self.device_tree
     }
 
+    #[cfg(firmware = "uefi")]
+    pub fn exit_boot_services(&mut self) -> uefi::service::boot::memory::Map {
+        self.system_table
+            .exit_boot_services(self.image_handle as uefi::Handle)
+    }
+
     /// # Safety
     /// This function dereferences raw pointers.
     /// Caller must pass valid pointers.
