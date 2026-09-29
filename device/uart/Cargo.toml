@@ -2,6 +2,7 @@
 name = "uart"
 version = "0.1.0"
 edition = "2024"
+build = "../../firmware/build.rs"
 
 [dependencies.arch]
 path = "../../arch"
@@ -11,3 +12,6 @@ path = "../../macro/io"
 
 [dependencies.sync]
 path = "../../sync"
+
+[dependencies.tree]
+path = "../tree"

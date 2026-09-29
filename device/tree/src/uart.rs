@@ -4,13 +4,27 @@ use {
 };
 
 #[derive(Debug)]
-pub struct Information {
+pub struct Uart {
     base_address: usize,
     frequency_hz: u128,
     standard: Standard,
 }
 
-impl TryFrom<&Node> for Information {
+impl Uart {
+    pub fn base_address(&self) -> usize {
+        self.base_address
+    }
+
+    pub fn frequency_hz(&self) -> u128 {
+        self.frequency_hz
+    }
+
+    pub fn standard(&self) -> Standard {
+        self.standard.clone()
+    }
+}
+
+impl TryFrom<&Node> for Uart {
     type Error = ();
 
     fn try_from(node: &Node) -> Result<Self, Self::Error> {
@@ -41,7 +55,7 @@ impl TryFrom<&Node> for Information {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Standard {
     Pl011,
     Ns16550a,

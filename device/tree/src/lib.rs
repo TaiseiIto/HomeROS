@@ -8,13 +8,14 @@ mod node;
 mod property;
 mod reserved_memory;
 mod structure;
-mod uart;
+pub mod uart;
 
 pub use {
     header::Header,
     node::Node,
     property::Property,
     structure::{Structure, StructureIterator},
+    uart::Uart,
 };
 
 use {alloc::vec::Vec, core::cell::OnceCell, memory::Regions, sync::spin::Lock};
@@ -36,7 +37,7 @@ pub struct Analyzed {
 }
 
 impl Analyzed {
-    pub fn uarts(&self) -> Vec<uart::Information> {
+    pub fn uarts(&self) -> Vec<Uart> {
         (&self.root).into()
     }
 

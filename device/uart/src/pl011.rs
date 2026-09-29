@@ -135,10 +135,9 @@ impl RegistersAccessor {
         }
     }
 
-    fn set_baud_rate(&mut self, baud_rate: usize) {
-        let frequency: usize = 24000000;
-        let integer_baud_rate: usize = frequency / (16 * baud_rate);
-        let fractional_baud_rate: usize = 4 * frequency / baud_rate - 64 * integer_baud_rate;
+    fn set_baud_rate(&mut self, baud_rate: usize, frequency_hz: usize) {
+        let integer_baud_rate: usize = frequency_hz / (16 * baud_rate);
+        let fractional_baud_rate: usize = 4 * frequency_hz / baud_rate - 64 * integer_baud_rate;
         unsafe {
             self.write_integer_baud_rate(baud_rate::integer::Register::new(
                 integer_baud_rate as u16,
@@ -187,6 +186,7 @@ impl Driver for RegistersAccessor {
         &mut self,
         baud_rate: usize,
         enable_fifo: bool,
+        frequency_hz: usize,
         parity: Option<Parity>,
         send_break: bool,
         stop_bits: u8,
@@ -209,7 +209,7 @@ impl Driver for RegistersAccessor {
         self.disable();
         self.disable_all_interrupts();
         self.clear_all_interrupts();
-        self.set_baud_rate(baud_rate);
+        self.set_baud_rate(baud_rate, frequency_hz);
         self.set_line_control(enable_fifo, parity, send_break, stop_bits, word_bits);
         self.set_fifo(transmit_ratio_8times, receive_ratio_8times);
         unsafe {

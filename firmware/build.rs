@@ -11,4 +11,11 @@ fn main() {
             _ => unimplemented!(),
         }
     );
+    println!("cargo:rustc-check-cfg=cfg(has_device_tree)");
+    if matches!(
+        var("CARGO_CFG_TARGET_ARCH").unwrap().as_str(),
+        "aarch64" | "riscv64"
+    ) {
+        println!("cargo:rustc-cfg=has_device_tree");
+    }
 }

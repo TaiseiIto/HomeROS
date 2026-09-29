@@ -1,8 +1,7 @@
 use {
     crate::{
-        Property, Structure,
+        Property, Structure, Uart,
         property::{Clocks, Compatible, status::Status},
-        uart,
     },
     alloc::{
         collections::{btree_map::BTreeMap, vec_deque::VecDeque},
@@ -305,7 +304,7 @@ impl SecondAnalyzed for Node {
     }
 }
 
-impl From<&Node> for Vec<uart::Information> {
+impl From<&Node> for Vec<Uart> {
     fn from(node: &Node) -> Self {
         node.children
             .iter()

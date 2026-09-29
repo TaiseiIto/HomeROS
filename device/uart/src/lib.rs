@@ -10,6 +10,7 @@ use {
         fmt::{Arguments, Result, Write},
     },
     sync::spin::Lock,
+    tree::{Uart, uart::Standard},
 };
 
 #[macro_export]
@@ -49,8 +50,12 @@ pub enum Parity {
     Odd,
 }
 
-pub fn initialize() {
-    Abstract::new().set();
+pub fn initialize(#[cfg(has_device_tree)] uart: Uart) {
+    Abstract::new(
+        #[cfg(has_device_tree)]
+        uart,
+    )
+    .set();
 }
 
 pub static GLOBAL: Lock<OnceCell<Abstract>> = Lock::new(OnceCell::new());
@@ -68,18 +73,25 @@ impl Abstract {
 
     /// # TODO
     /// * Get address from device tree
-    fn new() -> Self {
-        #[cfg(target_arch = "aarch64")]
-        let mut accessor: Self =
-            Self::Pl011(unsafe { pl011::RegistersAccessor::new_address(0x09000000) }); // Device tree node name "pl011"
-        #[cfg(target_arch = "riscv64")]
-        let mut accessor: Self =
-            Self::Ns16550a(unsafe { ns16550a::RegistersAccessor::new_address(0x10000000) }); // Device tree node name "serial"
+    fn new(#[cfg(has_device_tree)] uart: Uart) -> Self {
+        #[cfg(has_device_tree)]
+        let mut accessor: Self = match uart.standard() {
+            Standard::Pl011 => {
+                Self::Pl011(unsafe { pl011::RegistersAccessor::new_address(uart.base_address()) })
+            }
+            Standard::Ns16550a => Self::Ns16550a(unsafe {
+                ns16550a::RegistersAccessor::new_address(uart.base_address())
+            }),
+        };
         #[cfg(target_arch = "x86_64")]
         let mut accessor: Self =
             Self::Ns16550a(unsafe { ns16550a::RegistersAccessor::new_port(0x02f8) });
         let baud_rate: usize = 9600;
         let enable_fifo: bool = true;
+        #[cfg(has_device_tree)]
+        let frequency_hz: usize = uart.frequency_hz() as usize;
+        #[cfg(target_arch = "x86_64")]
+        let frequency_hz: usize = 115200;
         let parity: Option<Parity> = None;
         let send_break: bool = false;
         let stop_bits: u8 = 1;
@@ -87,6 +99,7 @@ impl Abstract {
         accessor.initialize(
             baud_rate,
             enable_fifo,
+            frequency_hz,
             parity,
             send_break,
             stop_bits,
@@ -123,6 +136,7 @@ impl Driver for Abstract {
         &mut self,
         baud_rate: usize,
         enable_fifo: bool,
+        frequency_hz: usize,
         parity: Option<Parity>,
         send_break: bool,
         stop_bits: u8,
@@ -131,6 +145,7 @@ impl Driver for Abstract {
         self.registers_mut().initialize(
             baud_rate,
             enable_fifo,
+            frequency_hz,
             parity,
             send_break,
             stop_bits,
@@ -161,6 +176,7 @@ trait Driver {
         &mut self,
         baud_rate: usize,
         enable_fifo: bool,
+        frequency_hz: usize,
         parity: Option<Parity>,
         send_break: bool,
         stop_bits: u8,

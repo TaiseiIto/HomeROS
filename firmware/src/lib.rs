@@ -47,7 +47,7 @@ pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 pub struct Global {
     #[cfg(firmware = "sbi")]
     hartid: usize,
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(has_device_tree)]
     device_tree: &'static tree::Header,
     #[cfg(any(firmware = "sbi", firmware = "tfa"))]
     boot_heap_head: usize,
@@ -63,7 +63,7 @@ impl Global {
         self.boot_heap_head
     }
 
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(has_device_tree)]
     pub fn device_tree(&self) -> &tree::Header {
         self.device_tree
     }

@@ -136,6 +136,7 @@ dependencies = [
  "arch",
  "io",
  "sync",
+ "tree",
 ]
 
 [[package]]

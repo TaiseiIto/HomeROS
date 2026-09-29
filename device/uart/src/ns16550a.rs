@@ -51,9 +51,8 @@ impl RegistersAccessor {
         unsafe { self.read_line_control() }.read_divisor_latch_access_bit()
     }
 
-    fn set_baud_rate(&mut self, baud_rate: usize) {
-        let frequency: usize = 115200;
-        let divisor: u16 = (frequency / baud_rate) as u16;
+    fn set_baud_rate(&mut self, baud_rate: usize, frequency_hz: usize) {
+        let divisor: u16 = (frequency_hz / baud_rate) as u16;
         if !self.is_baud_rate_setting_mode() {
             self.set_baud_rate_setting_mode(true);
         }
@@ -138,6 +137,7 @@ impl Driver for RegistersAccessor {
         &mut self,
         baud_rate: usize,
         enable_fifo: bool,
+        frequency_hz: usize,
         parity: Option<Parity>,
         send_break: bool,
         stop_bits: u8,
@@ -168,7 +168,7 @@ impl Driver for RegistersAccessor {
             enable_sleep_mode_interrupt,
             enable_low_power_mode_interrupt,
         );
-        self.set_baud_rate(baud_rate);
+        self.set_baud_rate(baud_rate, frequency_hz);
         self.set_line(parity, send_break, stop_bits, word_bits);
         self.set_fifo(
             enable_fifo,

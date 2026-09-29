@@ -62,21 +62,29 @@ extern "efiapi" fn efi_main(
 
 fn main(global: firmware::Global) {
     global.set();
-    uart::initialize();
     allocator::temporize(
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
         firmware::GLOBAL.lock().get().unwrap().boot_heap_head(),
     );
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(has_device_tree)]
     tree::set(firmware::GLOBAL.lock().get().unwrap().device_tree());
+    uart::initialize(
+        #[cfg(has_device_tree)]
+        tree::ROOT
+            .lock()
+            .get()
+            .unwrap()
+            .uarts()
+            .into_iter()
+            .min_by_key(|uart| uart.base_address())
+            .unwrap(),
+    );
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(has_device_tree)]
     uart::dbg!(tree::ROOT.lock().get().unwrap());
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
-    uart::dbg!(tree::ROOT.lock().get().unwrap().uarts());
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(has_device_tree)]
     uart::dbg!(tree::memory_regions());
     unimplemented!();
 }
