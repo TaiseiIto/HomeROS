@@ -75,7 +75,7 @@ impl Table {
     fn allocate_pool(&self, size: usize) -> Vec<u8> {
         let mut buffer: *mut Void = null_mut();
         (self.allocate_pool)(
-            memory::Type::Conventional,
+            memory::Type::LoaderData,
             size,
             (&mut buffer) as *mut *mut Void,
         )
