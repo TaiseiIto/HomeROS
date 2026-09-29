@@ -30,7 +30,7 @@ impl Status {
     /// # References
     /// * [Status Codes](https://uefi.org/specs/UEFI/2.11/Apx_D_Status_Codes.html)
     const SUCCESS: Self = Self(0);
-    const BUFFER_TOO_SMALL: Self = Self(5);
+    const BUFFER_TOO_SMALL: Self = Self((1 << (usize::BITS - 1)) + 5);
 
     pub fn assert(self) {
         assert_eq!(self, Self::SUCCESS);
