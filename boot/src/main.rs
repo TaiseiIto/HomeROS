@@ -86,6 +86,14 @@ fn main(global: firmware::Global) {
     uart::dbg!(tree::ROOT.lock().get().unwrap());
     #[cfg(has_device_tree)]
     uart::dbg!(tree::memory_regions());
+    #[cfg(firmware = "uefi")]
+    uart::dbg!(
+        firmware::GLOBAL
+            .lock()
+            .get_mut()
+            .unwrap()
+            .exit_boot_services()
+    );
     unimplemented!();
 }
 
