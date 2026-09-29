@@ -64,13 +64,13 @@ pub struct Table {
 impl Table {
     fn get_memory_map_size(&self) -> usize {
         let mut memory_map_size: usize = 0;
-        let mut memory_map: u8 = 0;
+        let mut memory_map: memory::map::Descriptor = memory::map::Descriptor::default();
         let mut memory_map_key: usize = 0;
         let mut descriptor_size: usize = 0;
         let mut descriptor_version: u32 = 0;
         (self.get_memory_map)(
             (&mut memory_map_size) as *mut usize,
-            (&mut memory_map) as *mut u8,
+            (&mut memory_map) as *mut memory::map::Descriptor,
             (&mut memory_map_key) as *mut usize,
             (&mut descriptor_size) as *mut usize,
             (&mut descriptor_version) as *mut u32,

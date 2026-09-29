@@ -6,6 +6,7 @@ use {
 
 /// # References
 /// * [EFI_MEMORY_DESCRIPTOR](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
+#[derive(Default)]
 #[repr(C)]
 pub struct Descriptor {
     memory_type: u32,
@@ -17,7 +18,8 @@ pub struct Descriptor {
 
 /// Refeernces
 /// * [GetMemoryMap](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
-pub type Get = extern "efiapi" fn(*mut usize, *mut u8, *mut usize, *mut usize, *mut u32) -> Status;
+pub type Get =
+    extern "efiapi" fn(*mut usize, *mut Descriptor, *mut usize, *mut usize, *mut u32) -> Status;
 
 pub struct Map {
     descriptors: Vec<u8>,
