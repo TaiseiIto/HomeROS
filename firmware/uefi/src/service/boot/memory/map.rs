@@ -29,7 +29,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn iter(&self) -> Descriptors {
+    pub fn iter<'a>(&'a self) -> Descriptors<'a> {
         Descriptors {
             map: self,
             index: 0,

@@ -87,13 +87,15 @@ fn main(global: firmware::Global) {
     #[cfg(has_device_tree)]
     uart::dbg!(tree::memory_regions());
     #[cfg(firmware = "uefi")]
-    uart::dbg!(
-        firmware::GLOBAL
-            .lock()
-            .get_mut()
-            .unwrap()
-            .exit_boot_services()
-    );
+    for memory_map_descriptor in firmware::GLOBAL
+        .lock()
+        .get_mut()
+        .unwrap()
+        .exit_boot_services()
+        .iter()
+    {
+        uart::dbg!(memory_map_descriptor);
+    }
     unimplemented!();
 }
 
