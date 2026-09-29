@@ -25,12 +25,16 @@ pub struct Table {
     standard_error_handle: Handle,
     std_err: *const output::Functions,
     runtime_services: *const runtime::Table,
-    boot_services: *const boot::Table,
+    boot_services: *mut boot::Table,
     number_of_table_entries: usize,
     configuration_table: *const configuration::Table,
 }
 
 impl Table {
+    pub fn exit_boot_services(&mut self, image: Handle) -> boot::memory::Map {
+        unsafe { &mut *self.boot_services }.exit_boot_services(image)
+    }
+
     pub fn write(&self, string: &str) {
         unsafe { &*self.con_out }.write_string(string);
     }
