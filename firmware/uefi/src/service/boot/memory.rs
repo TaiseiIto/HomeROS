@@ -3,6 +3,8 @@ pub mod map;
 pub mod page;
 pub mod pool;
 
+pub use map::Map;
+
 use crate::{Status, Void};
 
 /// # References

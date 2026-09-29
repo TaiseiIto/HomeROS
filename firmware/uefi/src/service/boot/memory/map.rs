@@ -1,6 +1,7 @@
 use {
     super::address::{Physical, Virtual},
     crate::Status,
+    alloc::vec::Vec,
 };
 
 /// # References
@@ -16,5 +17,10 @@ pub struct Descriptor {
 
 /// Refeernces
 /// * [GetMemoryMap](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
-pub type Get =
-    extern "efiapi" fn(*mut usize, *mut Descriptor, *mut usize, *mut usize, *mut u32) -> Status;
+pub type Get = extern "efiapi" fn(*mut usize, *mut u8, *mut usize, *mut usize, *mut u32) -> Status;
+
+pub struct Map {
+    descriptors: Vec<u8>,
+    descriptor_size: usize,
+    key: usize,
+}

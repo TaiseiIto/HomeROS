@@ -61,6 +61,25 @@ pub struct Table {
     create_event_ex: event::CreateEx,
 }
 
+impl Table {
+    fn get_memory_map_size(&self) -> usize {
+        let mut memory_map_size: usize = 0;
+        let mut memory_map: u8 = 0;
+        let mut memory_map_key: usize = 0;
+        let mut descriptor_size: usize = 0;
+        let mut descriptor_version: u32 = 0;
+        (self.get_memory_map)(
+            (&mut memory_map_size) as *mut usize,
+            (&mut memory_map) as *mut u8,
+            (&mut memory_map_key) as *mut usize,
+            (&mut descriptor_size) as *mut usize,
+            (&mut descriptor_version) as *mut u32,
+        )
+        .assert_buffer_too_small();
+        memory_map_size
+    }
+}
+
 /// # References
 /// * [CalculateCrc32](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-calculatecrc32)
 pub type CalculateCrc32 = extern "efiapi" fn(*const Void, usize, *mut u32) -> Status;
