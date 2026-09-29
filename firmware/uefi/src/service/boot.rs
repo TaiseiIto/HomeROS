@@ -7,7 +7,11 @@ mod protocol;
 mod task;
 mod timer;
 
-use crate::{Char16, Status, Void, table};
+use {
+    crate::{Char16, Status, Void, table},
+    alloc::vec::Vec,
+    core::ptr::null_mut,
+};
 
 /// # References
 /// * [EFI_BOOT_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-boot-services)
@@ -62,15 +66,25 @@ pub struct Table {
 }
 
 impl Table {
+    fn allocate_pool(&self, size: usize) -> Vec<u8> {
+        let mut buffer: *mut Void = null_mut();
+        (self.allocate_pool)(
+            memory::Type::Conventional,
+            size,
+            (&mut buffer) as *mut *mut Void,
+        )
+        .assert();
+        unsafe { Vec::<u8>::from_raw_parts(buffer as *mut u8, size, size) }
+    }
+
     fn get_memory_map_size(&self) -> usize {
         let mut memory_map_size: usize = 0;
-        let mut memory_map: memory::map::Descriptor = memory::map::Descriptor::default();
         let mut memory_map_key: usize = 0;
         let mut descriptor_size: usize = 0;
         let mut descriptor_version: u32 = 0;
         (self.get_memory_map)(
             (&mut memory_map_size) as *mut usize,
-            (&mut memory_map) as *mut memory::map::Descriptor,
+            null_mut(),
             (&mut memory_map_key) as *mut usize,
             (&mut descriptor_size) as *mut usize,
             (&mut descriptor_version) as *mut u32,
