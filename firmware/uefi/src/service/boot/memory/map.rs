@@ -20,8 +20,19 @@ pub struct Descriptor {
 pub type Get =
     extern "efiapi" fn(*mut usize, *mut Descriptor, *mut usize, *mut usize, *mut u32) -> Status;
 
+#[derive(Debug)]
 pub struct Map {
+    key: usize,
     descriptors: Vec<u8>,
     descriptor_size: usize,
-    key: usize,
+}
+
+impl Map {
+    pub fn new(key: usize, descriptors: Vec<u8>, descriptor_size: usize) -> Self {
+        Self {
+            key,
+            descriptors,
+            descriptor_size,
+        }
+    }
 }

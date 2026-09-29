@@ -66,6 +66,24 @@ pub struct Table {
 }
 
 impl Table {
+    pub fn get_memory_map(&self) -> memory::Map {
+        let mut size: usize = 2 * self.get_memory_map_size();
+        let mut descriptors: Vec<u8> = self.allocate_pool(size);
+        let mut key: usize = 0;
+        let mut descriptor_size: usize = 0;
+        let mut descriptor_version: u32 = 0;
+        (self.get_memory_map)(
+            (&mut size) as *mut usize,
+            descriptors.as_mut_ptr() as *mut memory::map::Descriptor,
+            (&mut key) as *mut usize,
+            (&mut descriptor_size) as *mut usize,
+            (&mut descriptor_version) as *mut u32,
+        )
+        .assert();
+        descriptors.truncate(size);
+        memory::Map::new(key, descriptors, descriptor_size)
+    }
+
     fn allocate_pool(&self, size: usize) -> Vec<u8> {
         let mut buffer: *mut Void = null_mut();
         (self.allocate_pool)(
@@ -78,19 +96,19 @@ impl Table {
     }
 
     fn get_memory_map_size(&self) -> usize {
-        let mut memory_map_size: usize = 0;
-        let mut memory_map_key: usize = 0;
+        let mut size: usize = 0;
+        let mut key: usize = 0;
         let mut descriptor_size: usize = 0;
         let mut descriptor_version: u32 = 0;
         (self.get_memory_map)(
-            (&mut memory_map_size) as *mut usize,
+            (&mut size) as *mut usize,
             null_mut(),
-            (&mut memory_map_key) as *mut usize,
+            (&mut key) as *mut usize,
             (&mut descriptor_size) as *mut usize,
             (&mut descriptor_version) as *mut u32,
         )
         .assert_buffer_too_small();
-        memory_map_size
+        size
     }
 }
 
