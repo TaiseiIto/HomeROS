@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-#[cfg(any(firmware = "sbi", firmware = "tfa"))]
+#[cfg(use_temporary_memory_allocator)]
 mod linked;
 
 use {
@@ -29,9 +29,9 @@ pub fn stabilize(
     );
 }
 
-pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
+pub fn temporize(#[cfg(use_temporary_memory_allocator)] head: usize) {
     GLOBAL.temporize(
-        #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+        #[cfg(use_temporary_memory_allocator)]
         head,
     );
 }
@@ -59,9 +59,9 @@ impl Global {
         );
     }
 
-    fn temporize(&self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
+    fn temporize(&self, #[cfg(use_temporary_memory_allocator)] head: usize) {
         unsafe { &mut *self.0.lock().get() }.temporize(
-            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            #[cfg(use_temporary_memory_allocator)]
             head,
         );
     }
@@ -87,7 +87,7 @@ enum Allocator {
         #[cfg(has_device_tree)] Regions<usize>,
         #[cfg(firmware = "uefi")] Map,
     ),
-    Temporary(#[cfg(any(firmware = "sbi", firmware = "tfa"))] linked::List),
+    Temporary(#[cfg(use_temporary_memory_allocator)] linked::List),
     Uninitialized,
 }
 
@@ -109,9 +109,9 @@ impl Allocator {
         );
     }
 
-    fn temporize(&mut self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
+    fn temporize(&mut self, #[cfg(use_temporary_memory_allocator)] head: usize) {
         *self = Self::Temporary(
-            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            #[cfg(use_temporary_memory_allocator)]
             linked::List::new(head),
         );
     }
@@ -124,7 +124,7 @@ unsafe impl GlobalAlloc for Allocator {
             Self::Stable(regions) => unimplemented!(),
             #[cfg(firmware = "uefi")]
             Self::Stable(map) => unimplemented!(),
-            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
             #[cfg(firmware = "uefi")]
             Self::Temporary() => panic!(),
@@ -138,7 +138,7 @@ unsafe impl GlobalAlloc for Allocator {
             Self::Stable(regions) => unimplemented!(),
             #[cfg(firmware = "uefi")]
             Self::Stable(map) => unimplemented!(),
-            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe {
                 linked_list.dealloc(address, layout);
             },

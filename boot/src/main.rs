@@ -63,7 +63,7 @@ extern "efiapi" fn efi_main(
 fn main(global: firmware::Global) {
     global.set();
     allocator::temporize(
-        #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+        #[cfg(use_temporary_memory_allocator)]
         firmware::GLOBAL.lock().get().unwrap().boot_heap_head(),
     );
     #[cfg(has_device_tree)]

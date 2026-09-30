@@ -12,10 +12,12 @@ fn main() {
         }
     );
     println!("cargo:rustc-check-cfg=cfg(has_device_tree)");
+    println!("cargo:rustc-check-cfg=cfg(use_temporary_memory_allocator)");
     if matches!(
         var("CARGO_CFG_TARGET_ARCH").unwrap().as_str(),
         "aarch64" | "riscv64"
     ) {
         println!("cargo:rustc-cfg=has_device_tree");
+        println!("cargo:rustc-cfg=use_temporary_memory_allocator");
     }
 }
