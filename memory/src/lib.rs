@@ -26,6 +26,56 @@ impl<T: UnsignedInt> Region<T> {
         Some(Region(start..end))
     }
 
+    fn subtract(&self, other: &Self) -> impl Iterator<Item = Self> {
+        let Self(Range {
+            start: self_start,
+            end: self_end,
+        }) = self;
+        let Self(Range {
+            start: other_start,
+            end: other_end,
+        }) = other;
+        let self_start: T = *self_start;
+        let self_end: T = *self_end;
+        let other_start: T = *other_start;
+        let other_end: T = *other_end;
+        if self_start < other_start {
+            if self_end < other_start {
+                // self_start < self_end < other_start < other_end
+                [Some(self.clone()), None]
+            } else {
+                // self_start < other_start <= self_end
+                if self_end < other_end {
+                    // self_start < other_start <= self_end < other_end
+                    [Some((self_start..other_start).try_into().unwrap()), None]
+                } else {
+                    // self_start < other_start < other_end <= self_end
+                    [
+                        Some((self_start..other_start).try_into().unwrap()),
+                        (other_end..self_end).try_into().ok(),
+                    ]
+                }
+            }
+        } else {
+            // other_start <= self_start
+            if other_end < self_start {
+                // other_start < other_end < self_start < self_end
+                [Some(self.clone()), None]
+            } else {
+                // other_start <= self_start <= other_end
+                if other_end < self_end {
+                    // other_start <= self_start <= other_end < self_end
+                    [Some((other_end..self_end).try_into().unwrap()), None]
+                } else {
+                    // other_start <= self_start < self_end <= other_end
+                    [None, None]
+                }
+            }
+        }
+        .into_iter()
+        .flatten()
+    }
+
     fn try_merge(&self, other: &Self) -> Option<Self> {
         let Self(Range {
             start: self_start,
@@ -88,46 +138,7 @@ impl<T: UnsignedInt> Sub for Region<T> {
     type Output = Regions<T>;
 
     fn sub(self, other: Self) -> Self::Output {
-        let Self(Range {
-            start: self_start,
-            end: self_end,
-        }) = self;
-        let Self(Range {
-            start: other_start,
-            end: other_end,
-        }) = other;
-        if self_start < other_start {
-            if self_end < other_start {
-                // self_start < self_end < other_start < other_end
-                (self_start..self_end).try_into().unwrap()
-            } else {
-                // self_start < other_start <= self_end
-                if self_end < other_end {
-                    // self_start < other_start <= self_end < other_end
-                    (self_start..other_start).try_into().unwrap()
-                } else {
-                    // self_start < other_start < other_end <= self_end
-                    [self_start..other_start, other_end..self_end]
-                        .as_slice()
-                        .into()
-                }
-            }
-        } else {
-            // other_start <= self_start
-            if other_end < self_start {
-                // other_start < other_end < self_start < self_end
-                (self_start..self_end).try_into().unwrap()
-            } else {
-                // other_start <= self_start <= other_end
-                if other_end < self_end {
-                    // other_start <= self_start <= other_end < self_end
-                    (other_end..self_end).try_into().unwrap()
-                } else {
-                    // other_start <= self_start < self_end <= other_end
-                    Self::Output::default()
-                }
-            }
-        }
+        Regions(self.subtract(&other).collect())
     }
 }
 
