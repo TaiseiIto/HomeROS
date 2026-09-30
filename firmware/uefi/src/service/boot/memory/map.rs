@@ -19,6 +19,12 @@ pub struct Descriptor {
     attribute: AttributeRaw,
 }
 
+impl Descriptor {
+    pub fn is_allocatable(&self) -> bool {
+        matches!(self.memory_type.into(), Type::Conventional)
+    }
+}
+
 impl Debug for Descriptor {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         let Self {

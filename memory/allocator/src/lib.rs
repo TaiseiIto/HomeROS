@@ -195,7 +195,10 @@ impl Debug for Allocator {
                 .field("boot_loader", boot_loader)
                 .finish(),
             #[cfg(firmware = "uefi")]
-            Self::Stable { map } => formatter.debug_list().entries(map.iter()).finish(),
+            Self::Stable { map } => formatter
+                .debug_list()
+                .entries(map.iter().filter(|descriptor| descriptor.is_allocatable()))
+                .finish(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => formatter
                 .debug_tuple("Temporary")
