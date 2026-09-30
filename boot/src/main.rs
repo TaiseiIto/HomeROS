@@ -96,7 +96,7 @@ fn main(global: firmware::Global) {
     }
     allocator::stabilize(
         #[cfg(has_device_tree)]
-        tree::memory_regions(),
+        tree::memory_regions().try_cast().unwrap(),
     );
     unimplemented!();
 }

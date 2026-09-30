@@ -21,7 +21,7 @@ pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
     );
 }
 
-pub fn stabilize(#[cfg(has_device_tree)] regions: Regions<u128>) {
+pub fn stabilize(#[cfg(has_device_tree)] regions: Regions<usize>) {
     GLOBAL.stabilize(
         #[cfg(has_device_tree)]
         regions,
@@ -38,7 +38,7 @@ impl Global {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
     }
 
-    fn stabilize(&self, #[cfg(has_device_tree)] regions: Regions<u128>) {
+    fn stabilize(&self, #[cfg(has_device_tree)] regions: Regions<usize>) {
         unsafe { &mut *self.0.lock().get() }.stabilize(
             #[cfg(has_device_tree)]
             regions,
@@ -69,7 +69,7 @@ unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
 enum Allocator {
-    Stable(#[cfg(has_device_tree)] Regions<u128>),
+    Stable(#[cfg(has_device_tree)] Regions<usize>),
     Temporary(#[cfg(any(firmware = "sbi", firmware = "tfa"))] linked::List),
     Uninitialized,
 }
@@ -79,7 +79,7 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn stabilize(&mut self, #[cfg(has_device_tree)] regions: Regions<u128>) {
+    fn stabilize(&mut self, #[cfg(has_device_tree)] regions: Regions<usize>) {
         *self = Self::Stable(
             #[cfg(has_device_tree)]
             regions,
