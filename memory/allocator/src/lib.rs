@@ -15,7 +15,7 @@ use {
 use uefi::service::boot::memory::Map;
 
 #[cfg(has_device_tree)]
-use memory::Regions;
+use memory::{Region, Regions};
 
 pub fn stabilize(
     #[cfg(has_device_tree)] regions: Regions<usize>,
@@ -89,10 +89,14 @@ unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
 enum Allocator {
-    Stable(
-        #[cfg(has_device_tree)] Regions<usize>,
-        #[cfg(firmware = "uefi")] Map,
-    ),
+    Stable {
+        #[cfg(has_device_tree)]
+        regions: Regions<usize>,
+        #[cfg(all(start_with_assembly, use_temporary_memory_allocator))]
+        boot_loader: Region<usize>,
+        #[cfg(firmware = "uefi")]
+        map: Map,
+    },
     Temporary(#[cfg(use_temporary_memory_allocator)] linked::List),
     Uninitialized,
 }
@@ -108,12 +112,20 @@ impl Allocator {
         #[cfg(start_with_assembly)] boot_loader_head: usize,
         #[cfg(firmware = "uefi")] map: Map,
     ) {
-        *self = Self::Stable(
+        #[cfg(use_temporary_memory_allocator)]
+        let linked_list: &linked::List = if let Self::Temporary(linked_list) = self {
+            linked_list
+        } else {
+            panic!();
+        };
+        *self = Self::Stable {
             #[cfg(has_device_tree)]
             regions,
+            #[cfg(all(start_with_assembly, use_temporary_memory_allocator))]
+            boot_loader: (boot_loader_head..linked_list.tail()).try_into().unwrap(),
             #[cfg(firmware = "uefi")]
             map,
-        );
+        };
     }
 
     fn temporize(&mut self, #[cfg(use_temporary_memory_allocator)] head: usize) {
@@ -128,9 +140,12 @@ unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
             #[cfg(has_device_tree)]
-            Self::Stable(regions) => unimplemented!(),
+            Self::Stable {
+                regions,
+                boot_loader,
+            } => unimplemented!(),
             #[cfg(firmware = "uefi")]
-            Self::Stable(map) => unimplemented!(),
+            Self::Stable { map } => unimplemented!(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
             #[cfg(firmware = "uefi")]
@@ -142,9 +157,12 @@ unsafe impl GlobalAlloc for Allocator {
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         match self {
             #[cfg(has_device_tree)]
-            Self::Stable(regions) => unimplemented!(),
+            Self::Stable {
+                regions,
+                boot_loader,
+            } => unimplemented!(),
             #[cfg(firmware = "uefi")]
-            Self::Stable(map) => unimplemented!(),
+            Self::Stable { map } => unimplemented!(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe {
                 linked_list.dealloc(address, layout);

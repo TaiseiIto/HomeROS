@@ -17,6 +17,10 @@ impl List {
             head: Node::new(head),
         }
     }
+
+    pub fn tail(&self) -> usize {
+        unsafe { &*self.head }.tail()
+    }
 }
 
 unsafe impl GlobalAlloc for List {
@@ -196,5 +200,11 @@ impl Node {
 
     fn previous_mut(&mut self) -> Option<&mut Self> {
         self.previous.map(|previous| unsafe { &mut *previous })
+    }
+
+    fn tail(&self) -> usize {
+        self.next()
+            .map(|next| next.tail())
+            .unwrap_or(self.available_head())
     }
 }
