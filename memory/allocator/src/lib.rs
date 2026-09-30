@@ -121,7 +121,10 @@ impl Allocator {
             Self::Stable {
                 regions,
                 boot_loader,
-            } => regions.ranges(),
+            } => regions
+                .iter()
+                .flat_map(|region| region.subtract(boot_loader))
+                .map(|region| region.range()),
             #[cfg(firmware = "uefi")]
             Self::Stable { map } => map
                 .iter()

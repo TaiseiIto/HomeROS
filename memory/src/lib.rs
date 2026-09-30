@@ -19,14 +19,7 @@ impl<T: UnsignedInt> Region<T> {
         self.0.clone()
     }
 
-    fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Region<U>> {
-        let Self(Range { start, end }) = self;
-        let start: U = start.try_into().ok()?;
-        let end: U = end.try_into().ok()?;
-        Some(Region(start..end))
-    }
-
-    fn subtract(&self, other: &Self) -> impl Iterator<Item = Self> {
+    pub fn subtract(&self, other: &Self) -> impl Iterator<Item = Self> + use<T> {
         let Self(Range {
             start: self_start,
             end: self_end,
@@ -74,6 +67,13 @@ impl<T: UnsignedInt> Region<T> {
         }
         .into_iter()
         .flatten()
+    }
+
+    fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Region<U>> {
+        let Self(Range { start, end }) = self;
+        let start: U = start.try_into().ok()?;
+        let end: U = end.try_into().ok()?;
+        Some(Region(start..end))
     }
 
     fn try_merge(&self, other: &Self) -> Option<Self> {
@@ -162,8 +162,8 @@ impl<T: UnsignedInt> Regions<T> {
         self.0.iter().map(|region| region.0.start).min()
     }
 
-    pub fn ranges(&self) -> impl Iterator<Item = Range<T>> {
-        self.0.iter().map(|range| range.range())
+    pub fn iter(&self) -> impl Iterator<Item = Region<T>> {
+        self.0.iter().cloned()
     }
 
     pub fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Regions<U>> {
