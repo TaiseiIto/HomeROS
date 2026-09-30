@@ -1,7 +1,4 @@
-use {
-    crate::{Analyzed, Node},
-    core::ops::Range,
-};
+use crate::Node;
 
 #[derive(Debug)]
 pub struct Uart {

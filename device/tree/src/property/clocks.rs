@@ -39,7 +39,7 @@ impl SecondAnalyzed for Clocks {
                                 let mat: Match =
                                     automaton.input(clock.as_str()).into_iter().next().unwrap();
                                 let captures: BTreeMap<String, Vec<Capture>> = mat.captures();
-                                let value: &str = captures["value"].iter().next().unwrap().into();
+                                let value: &str = captures["value"].first().unwrap().into();
                                 let value: u128 = value.parse().unwrap();
                                 let unit_prefix: u128 = match captures
                                     .get("unit_prefix")
