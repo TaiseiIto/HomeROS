@@ -18,13 +18,15 @@ unsafe extern "C" fn _start() -> ! {
     naked_asm!(
         "ldr x0, =_stack_bottom",
         "mov sp, x0",
-        "ldr x0, =_heap_head",
+        "ldr x0, =.text._start",
+        "ldr x1, =_heap_head",
         "b initialize_global"
     );
     #[cfg(target_arch = "riscv64")]
     naked_asm!(
         "la sp, _stack_bottom",
-        "la a2, _heap_head",
+        "la a2, .text._start",
+        "la a3, _heap_head",
         "j initialize_global"
     );
 }
@@ -34,6 +36,7 @@ unsafe extern "C" fn _start() -> ! {
 fn initialize_global(
     #[cfg(firmware = "sbi")] hartid: usize,
     #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
+    boot_loader_head: usize,
     heap_head: usize,
 ) {
     main(unsafe {
@@ -42,6 +45,7 @@ fn initialize_global(
             hartid,
             #[cfg(firmware = "sbi")]
             device_tree,
+            boot_loader_head,
             heap_head,
         )
     });
