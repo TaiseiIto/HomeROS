@@ -97,6 +97,8 @@ fn main(global: firmware::Global) {
             .exit_boot_services(),
         #[cfg(has_device_tree)]
         tree::memory_regions().try_cast().unwrap(),
+        #[cfg(start_with_assembly)]
+        firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
     unimplemented!();
 }

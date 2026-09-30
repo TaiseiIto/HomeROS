@@ -19,11 +19,14 @@ use memory::Regions;
 
 pub fn stabilize(
     #[cfg(has_device_tree)] regions: Regions<usize>,
+    #[cfg(start_with_assembly)] boot_loader_head: usize,
     #[cfg(firmware = "uefi")] map: Map,
 ) {
     GLOBAL.stabilize(
         #[cfg(has_device_tree)]
         regions,
+        #[cfg(start_with_assembly)]
+        boot_loader_head,
         #[cfg(firmware = "uefi")]
         map,
     );
@@ -49,11 +52,14 @@ impl Global {
     fn stabilize(
         &self,
         #[cfg(has_device_tree)] regions: Regions<usize>,
+        #[cfg(start_with_assembly)] boot_loader_head: usize,
         #[cfg(firmware = "uefi")] map: Map,
     ) {
         unsafe { &mut *self.0.lock().get() }.stabilize(
             #[cfg(has_device_tree)]
             regions,
+            #[cfg(start_with_assembly)]
+            boot_loader_head,
             #[cfg(firmware = "uefi")]
             map,
         );
@@ -99,6 +105,7 @@ impl Allocator {
     fn stabilize(
         &mut self,
         #[cfg(has_device_tree)] regions: Regions<usize>,
+        #[cfg(start_with_assembly)] boot_loader_head: usize,
         #[cfg(firmware = "uefi")] map: Map,
     ) {
         *self = Self::Stable(

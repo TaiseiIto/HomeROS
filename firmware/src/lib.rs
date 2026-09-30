@@ -65,6 +65,11 @@ impl Global {
         self.boot_heap_head
     }
 
+    #[cfg(start_with_assembly)]
+    pub fn boot_loader_head(&self) -> usize {
+        self.boot_loader_head
+    }
+
     #[cfg(has_device_tree)]
     pub fn device_tree(&self) -> &tree::Header {
         self.device_tree
