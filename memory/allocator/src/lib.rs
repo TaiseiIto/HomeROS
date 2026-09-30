@@ -189,11 +189,7 @@ impl Debug for Allocator {
             Self::Stable {
                 regions,
                 boot_loader,
-            } => formatter
-                .debug_struct("Stable")
-                .field("regions", regions)
-                .field("boot_loader", boot_loader)
-                .finish(),
+            } => formatter.debug_list().entries(regions.ranges()).finish(),
             #[cfg(firmware = "uefi")]
             Self::Stable { map } => formatter
                 .debug_list()

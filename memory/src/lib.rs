@@ -15,6 +15,10 @@ use {
 pub struct Region<T: UnsignedInt>(Range<T>);
 
 impl<T: UnsignedInt> Region<T> {
+    pub fn range(&self) -> Range<T> {
+        self.0.clone()
+    }
+
     fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Region<U>> {
         let Self(Range { start, end }) = self;
         let start: U = start.try_into().ok()?;
@@ -145,6 +149,10 @@ pub struct Regions<T: UnsignedInt>(Vec<Region<T>>);
 impl<T: UnsignedInt> Regions<T> {
     pub fn min(&self) -> Option<T> {
         self.0.iter().map(|region| region.0.start).min()
+    }
+
+    pub fn ranges(&self) -> impl Iterator<Item = Range<T>> {
+        self.0.iter().map(|range| range.range())
     }
 
     pub fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Regions<U>> {
