@@ -15,6 +15,13 @@ use {
 pub struct Region<T: UnsignedInt>(Range<T>);
 
 impl<T: UnsignedInt> Region<T> {
+    fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Region<U>> {
+        let Self(Range { start, end }) = self;
+        let start: U = start.try_into().ok()?;
+        let end: U = end.try_into().ok()?;
+        Some(Region(start..end))
+    }
+
     fn try_merge(&self, other: &Self) -> Option<Self> {
         let Self(Range {
             start: self_start,
@@ -138,6 +145,14 @@ pub struct Regions<T: UnsignedInt>(Vec<Region<T>>);
 impl<T: UnsignedInt> Regions<T> {
     pub fn min(&self) -> Option<T> {
         self.0.iter().map(|region| region.0.start).min()
+    }
+
+    pub fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Regions<U>> {
+        self.0
+            .into_iter()
+            .map(|region| region.try_cast())
+            .collect::<Option<Vec<Region<U>>>>()
+            .map(|regions| Regions(regions))
     }
 
     fn deduplicate(&mut self) {
