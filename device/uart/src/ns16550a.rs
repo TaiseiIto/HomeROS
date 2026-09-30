@@ -5,7 +5,7 @@ mod interrupt;
 mod line;
 mod modem;
 
-use super::{Driver, Parity};
+use super::{Driver, Parity, Setting};
 
 /// # References
 /// * [Table of Registers](https://www.lookrs232.com/rs232/registers.htm)
@@ -133,16 +133,16 @@ impl Driver for RegistersAccessor {
         unsafe { self.read_line_status() }.read_empty_transmitter_bit()
     }
 
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        frequency_hz: usize,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    ) {
+    fn initialize(&mut self, setting: Setting) {
+        let Setting {
+            baud_rate,
+            enable_fifo,
+            frequency_hz,
+            parity,
+            send_break,
+            stop_bits,
+            word_bits,
+        } = setting;
         let enable_received_data_available_interrupt: bool = false;
         let enable_transmitter_holding_register_empty_interrupt: bool = false;
         let enable_receiver_line_status_interrupt: bool = false;

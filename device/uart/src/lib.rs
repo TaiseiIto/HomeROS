@@ -88,25 +88,18 @@ impl Abstract {
         #[cfg(target_arch = "x86_64")]
         let mut accessor: Self =
             Self::Ns16550a(unsafe { ns16550a::RegistersAccessor::new_port(0x02f8) });
-        let baud_rate: usize = 9600;
-        let enable_fifo: bool = true;
-        #[cfg(has_device_tree)]
-        let frequency_hz: usize = uart.frequency_hz() as usize;
-        #[cfg(target_arch = "x86_64")]
-        let frequency_hz: usize = 115200;
-        let parity: Option<Parity> = None;
-        let send_break: bool = false;
-        let stop_bits: u8 = 1;
-        let word_bits: u8 = 8;
-        accessor.initialize(
-            baud_rate,
-            enable_fifo,
-            frequency_hz,
-            parity,
-            send_break,
-            stop_bits,
-            word_bits,
-        );
+        accessor.initialize(Setting {
+            baud_rate: 9600,
+            enable_fifo: true,
+            #[cfg(has_device_tree)]
+            frequency_hz: uart.frequency_hz() as usize,
+            #[cfg(target_arch = "x86_64")]
+            frequency_hz: 115200,
+            parity: None,
+            send_break: false,
+            stop_bits: 1,
+            word_bits: 8,
+        });
         accessor
     }
 
@@ -134,25 +127,8 @@ impl Driver for Abstract {
         self.registers().can_send_byte()
     }
 
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        frequency_hz: usize,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    ) {
-        self.registers_mut().initialize(
-            baud_rate,
-            enable_fifo,
-            frequency_hz,
-            parity,
-            send_break,
-            stop_bits,
-            word_bits,
-        );
+    fn initialize(&mut self, setting: Setting) {
+        self.registers_mut().initialize(setting);
     }
 
     unsafe fn send_byte_unchecked(&mut self, data: u8) {
@@ -169,20 +145,19 @@ impl Write for Abstract {
     }
 }
 
+struct Setting {
+    baud_rate: usize,
+    enable_fifo: bool,
+    frequency_hz: usize,
+    parity: Option<Parity>,
+    send_break: bool,
+    stop_bits: u8,
+    word_bits: u8,
+}
+
 trait Driver {
     fn can_send_byte(&self) -> bool;
-
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        frequency_hz: usize,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    );
-
+    fn initialize(&mut self, setting: Setting);
     unsafe fn send_byte_unchecked(&mut self, data: u8);
 
     fn send_byte(&mut self, data: u8) {

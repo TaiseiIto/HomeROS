@@ -10,7 +10,7 @@ mod peripheral;
 mod prime_cell;
 mod receive_status;
 
-use super::{Driver, Parity};
+use super::{Driver, Parity, Setting};
 
 /// # References
 /// * [ARM PrimeCell UART (PL011) Technical Reference Manual](https://support.arm.com/documentation/ddi0183/g/programmers-model/summary-of-registers?lang=en)
@@ -182,16 +182,16 @@ impl Driver for RegistersAccessor {
         !unsafe { self.read_flag() }.read_busy_bit()
     }
 
-    fn initialize(
-        &mut self,
-        baud_rate: usize,
-        enable_fifo: bool,
-        frequency_hz: usize,
-        parity: Option<Parity>,
-        send_break: bool,
-        stop_bits: u8,
-        word_bits: u8,
-    ) {
+    fn initialize(&mut self, setting: Setting) {
+        let Setting {
+            baud_rate,
+            enable_fifo,
+            frequency_hz,
+            parity,
+            send_break,
+            stop_bits,
+            word_bits,
+        } = setting;
         let uart_enable: bool = true;
         let sir_enable: bool = false;
         let sir_low_power_irda_mode: bool = false;
