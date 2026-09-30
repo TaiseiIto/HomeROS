@@ -7,7 +7,11 @@ mod linked;
 
 use {
     alloc::alloc::Layout,
-    core::{alloc::GlobalAlloc, cell::UnsafeCell},
+    core::{
+        alloc::GlobalAlloc,
+        cell::UnsafeCell,
+        fmt::{Debug, Formatter, Result},
+    },
     sync::spin::Lock,
 };
 
@@ -92,7 +96,6 @@ unsafe impl GlobalAlloc for Global {
 unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
-#[derive(Debug)]
 pub enum Allocator {
     Stable {
         #[cfg(has_device_tree)]
@@ -175,6 +178,32 @@ unsafe impl GlobalAlloc for Allocator {
             #[cfg(firmware = "uefi")]
             Self::Temporary() => panic!(),
             Self::Uninitialized => panic!(),
+        }
+    }
+}
+
+impl Debug for Allocator {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        match self {
+            #[cfg(use_temporary_memory_allocator)]
+            Self::Stable {
+                regions,
+                boot_loader,
+            } => formatter
+                .debug_struct("Stable")
+                .field("regions", regions)
+                .field("boot_loader", boot_loader)
+                .finish(),
+            #[cfg(firmware = "uefi")]
+            Self::Stable { map } => formatter.debug_list().entries(map.iter()).finish(),
+            #[cfg(use_temporary_memory_allocator)]
+            Self::Temporary(linked_list) => formatter
+                .debug_tuple("Temporary")
+                .field(linked_list)
+                .finish(),
+            #[cfg(firmware = "uefi")]
+            Self::Temporary() => formatter.write_str("Temporary"),
+            Self::Uninitialized => formatter.write_str("Uninitialized"),
         }
     }
 }
