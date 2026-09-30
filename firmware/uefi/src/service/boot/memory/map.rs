@@ -2,10 +2,14 @@ use {
     super::{
         Type,
         address::{Physical, Virtual},
+        page,
     },
     crate::Status,
     alloc::vec::Vec,
-    core::fmt::{Debug, Formatter, Result},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        ops::Range,
+    },
 };
 
 /// # References
@@ -22,6 +26,14 @@ pub struct Descriptor {
 impl Descriptor {
     pub fn is_allocatable(&self) -> bool {
         matches!(self.memory_type.into(), Type::Conventional)
+    }
+
+    pub fn range(&self) -> Range<usize> {
+        let start: usize = self.physical_start as usize;
+        let number_of_pages: usize = self.number_of_pages as usize;
+        let length: usize = number_of_pages * page::SIZE;
+        let end: usize = start + length;
+        start..end
     }
 }
 

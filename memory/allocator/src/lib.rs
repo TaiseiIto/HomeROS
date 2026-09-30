@@ -197,7 +197,11 @@ impl Debug for Allocator {
             #[cfg(firmware = "uefi")]
             Self::Stable { map } => formatter
                 .debug_list()
-                .entries(map.iter().filter(|descriptor| descriptor.is_allocatable()))
+                .entries(
+                    map.iter()
+                        .filter(|descriptor| descriptor.is_allocatable())
+                        .map(|descriptor| descriptor.range()),
+                )
                 .finish(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => formatter
