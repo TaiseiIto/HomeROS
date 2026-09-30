@@ -11,6 +11,7 @@ use {
         alloc::GlobalAlloc,
         cell::UnsafeCell,
         fmt::{Debug, Formatter, Result},
+        ops::Range,
     },
     sync::spin::Lock,
 };
@@ -114,6 +115,22 @@ impl Allocator {
         Self::Uninitialized
     }
 
+    fn ranges(&self) -> impl Iterator<Item = Range<usize>> {
+        match self {
+            #[cfg(use_temporary_memory_allocator)]
+            Self::Stable {
+                regions,
+                boot_loader,
+            } => regions.ranges(),
+            #[cfg(firmware = "uefi")]
+            Self::Stable { map } => map
+                .iter()
+                .filter(|descriptor| descriptor.is_allocatable())
+                .map(|descriptor| descriptor.range()),
+            _ => panic!(),
+        }
+    }
+
     fn stabilize(
         &mut self,
         #[cfg(has_device_tree)] regions: Regions<usize>,
@@ -189,16 +206,9 @@ impl Debug for Allocator {
             Self::Stable {
                 regions,
                 boot_loader,
-            } => formatter.debug_list().entries(regions.ranges()).finish(),
+            } => formatter.debug_list().entries(self.ranges()).finish(),
             #[cfg(firmware = "uefi")]
-            Self::Stable { map } => formatter
-                .debug_list()
-                .entries(
-                    map.iter()
-                        .filter(|descriptor| descriptor.is_allocatable())
-                        .map(|descriptor| descriptor.range()),
-                )
-                .finish(),
+            Self::Stable { map } => formatter.debug_list().entries(self.ranges()).finish(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => formatter
                 .debug_tuple("Temporary")
