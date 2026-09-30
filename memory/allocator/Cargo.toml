@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2024"
 build = "../../firmware/build.rs"
 
+[dependencies.sync]
+path = "../../sync"
+
 [target.'cfg(any(target_arch = "aarch64", target_arch = "riscv64"))'.dependencies.memory]
 path = ".."
 
-[dependencies.sync]
-path = "../../sync"
+[target.'cfg(target_arch = "x86_64")'.dependencies.uefi]
+path = "../../firmware/uefi"

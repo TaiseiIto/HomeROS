@@ -11,20 +11,28 @@ use {
     sync::spin::Lock,
 };
 
+#[cfg(firmware = "uefi")]
+use uefi::service::boot::memory::Map;
+
 #[cfg(has_device_tree)]
 use memory::Regions;
+
+pub fn stabilize(
+    #[cfg(has_device_tree)] regions: Regions<usize>,
+    #[cfg(firmware = "uefi")] map: Map,
+) {
+    GLOBAL.stabilize(
+        #[cfg(has_device_tree)]
+        regions,
+        #[cfg(firmware = "uefi")]
+        map,
+    );
+}
 
 pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
     GLOBAL.temporize(
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
         head,
-    );
-}
-
-pub fn stabilize(#[cfg(has_device_tree)] regions: Regions<usize>) {
-    GLOBAL.stabilize(
-        #[cfg(has_device_tree)]
-        regions,
     );
 }
 
@@ -38,10 +46,16 @@ impl Global {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
     }
 
-    fn stabilize(&self, #[cfg(has_device_tree)] regions: Regions<usize>) {
+    fn stabilize(
+        &self,
+        #[cfg(has_device_tree)] regions: Regions<usize>,
+        #[cfg(firmware = "uefi")] map: Map,
+    ) {
         unsafe { &mut *self.0.lock().get() }.stabilize(
             #[cfg(has_device_tree)]
             regions,
+            #[cfg(firmware = "uefi")]
+            map,
         );
     }
 
@@ -69,7 +83,10 @@ unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
 enum Allocator {
-    Stable(#[cfg(has_device_tree)] Regions<usize>),
+    Stable(
+        #[cfg(has_device_tree)] Regions<usize>,
+        #[cfg(firmware = "uefi")] Map,
+    ),
     Temporary(#[cfg(any(firmware = "sbi", firmware = "tfa"))] linked::List),
     Uninitialized,
 }
@@ -79,10 +96,16 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn stabilize(&mut self, #[cfg(has_device_tree)] regions: Regions<usize>) {
+    fn stabilize(
+        &mut self,
+        #[cfg(has_device_tree)] regions: Regions<usize>,
+        #[cfg(firmware = "uefi")] map: Map,
+    ) {
         *self = Self::Stable(
             #[cfg(has_device_tree)]
             regions,
+            #[cfg(firmware = "uefi")]
+            map,
         );
     }
 
@@ -100,7 +123,7 @@ unsafe impl GlobalAlloc for Allocator {
             #[cfg(has_device_tree)]
             Self::Stable(regions) => unimplemented!(),
             #[cfg(firmware = "uefi")]
-            Self::Stable() => unimplemented!(),
+            Self::Stable(map) => unimplemented!(),
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
             #[cfg(firmware = "uefi")]
@@ -114,7 +137,7 @@ unsafe impl GlobalAlloc for Allocator {
             #[cfg(has_device_tree)]
             Self::Stable(regions) => unimplemented!(),
             #[cfg(firmware = "uefi")]
-            Self::Stable() => unimplemented!(),
+            Self::Stable(map) => unimplemented!(),
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
             Self::Temporary(linked_list) => unsafe {
                 linked_list.dealloc(address, layout);
