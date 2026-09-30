@@ -10,8 +10,10 @@ use {
         fmt::{Arguments, Result, Write},
     },
     sync::spin::Lock,
-    tree::{Uart, uart::Standard},
 };
+
+#[cfg(has_device_tree)]
+use tree::{Uart, uart::Standard};
 
 #[macro_export]
 macro_rules! dbg {
@@ -154,9 +156,7 @@ impl Driver for Abstract {
     }
 
     unsafe fn send_byte_unchecked(&mut self, data: u8) {
-        unsafe {
-            self.registers_mut().send_byte(data);
-        }
+        self.registers_mut().send_byte(data);
     }
 }
 

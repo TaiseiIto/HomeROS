@@ -41,6 +41,7 @@ impl Registers {
         let reader_type: Ident = self.reader_ident();
         let writer_type: Ident = self.writer_ident();
         quote! {
+            #[allow(dead_code)]
             #[derive(Clone, Debug)]
             #vis enum #pretty_type {
                 Reader(#reader_type),
