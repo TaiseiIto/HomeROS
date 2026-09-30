@@ -11,10 +11,20 @@ use {
     sync::spin::Lock,
 };
 
+#[cfg(has_device_tree)]
+use memory::Regions;
+
 pub fn temporize(#[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
     GLOBAL.temporize(
         #[cfg(any(firmware = "sbi", firmware = "tfa"))]
         head,
+    );
+}
+
+pub fn stabilize(#[cfg(has_device_tree)] regions: Regions<u128>) {
+    GLOBAL.stabilize(
+        #[cfg(has_device_tree)]
+        regions,
     );
 }
 
@@ -26,6 +36,13 @@ struct Global(Lock<UnsafeCell<Allocator>>);
 impl Global {
     const fn new() -> Self {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
+    }
+
+    fn stabilize(&self, #[cfg(has_device_tree)] regions: Regions<u128>) {
+        unsafe { &mut *self.0.lock().get() }.stabilize(
+            #[cfg(has_device_tree)]
+            regions,
+        );
     }
 
     fn temporize(&self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
@@ -52,6 +69,7 @@ unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
 enum Allocator {
+    Stable(#[cfg(has_device_tree)] Regions<u128>),
     Temporary(#[cfg(any(firmware = "sbi", firmware = "tfa"))] linked::List),
     Uninitialized,
 }
@@ -59,6 +77,13 @@ enum Allocator {
 impl Allocator {
     const fn new() -> Self {
         Self::Uninitialized
+    }
+
+    fn stabilize(&mut self, #[cfg(has_device_tree)] regions: Regions<u128>) {
+        *self = Self::Stable(
+            #[cfg(has_device_tree)]
+            regions,
+        );
     }
 
     fn temporize(&mut self, #[cfg(any(firmware = "sbi", firmware = "tfa"))] head: usize) {
@@ -72,6 +97,10 @@ impl Allocator {
 unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
+            #[cfg(has_device_tree)]
+            Self::Stable(regions) => unimplemented!(),
+            #[cfg(firmware = "uefi")]
+            Self::Stable() => unimplemented!(),
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
             #[cfg(firmware = "uefi")]
@@ -82,6 +111,10 @@ unsafe impl GlobalAlloc for Allocator {
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         match self {
+            #[cfg(has_device_tree)]
+            Self::Stable(regions) => unimplemented!(),
+            #[cfg(firmware = "uefi")]
+            Self::Stable() => unimplemented!(),
             #[cfg(any(firmware = "sbi", firmware = "tfa"))]
             Self::Temporary(linked_list) => unsafe {
                 linked_list.dealloc(address, layout);

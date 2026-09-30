@@ -575,17 +575,15 @@ impl<'a> Iterator for Strings<'a> {
         let Self { strings, offset } = self;
         let strings_length: usize = strings.len();
         let begin: usize = *offset;
-        if begin < strings_length {
+        (begin < strings_length).then(|| {
             let end: usize = (begin..strings_length)
                 .take_while(|offset| strings.get(*offset).is_some_and(|byte| *byte != 0x00))
                 .max()
                 .map(|last_index| last_index + 1)
                 .unwrap_or(begin);
             *offset += end - begin + 1;
-            Some(str::from_utf8(&strings[begin..end]).unwrap())
-        } else {
-            None
-        }
+            str::from_utf8(&strings[begin..end]).unwrap()
+        })
     }
 }
 

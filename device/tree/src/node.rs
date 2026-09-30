@@ -155,13 +155,7 @@ impl Node {
 
     fn find_from_phandle(&self, phandle: u32) -> Option<&Self> {
         self.phandle()
-            .and_then(|my_phandle| {
-                if my_phandle == phandle {
-                    Some(self)
-                } else {
-                    None
-                }
-            })
+            .and_then(|my_phandle| (my_phandle == phandle).then_some(self))
             .or_else(|| {
                 self.children
                     .iter()

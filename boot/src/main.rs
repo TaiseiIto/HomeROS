@@ -84,8 +84,6 @@ fn main(global: firmware::Global) {
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
     #[cfg(has_device_tree)]
     uart::dbg!(tree::ROOT.lock().get().unwrap());
-    #[cfg(has_device_tree)]
-    uart::dbg!(tree::memory_regions());
     #[cfg(firmware = "uefi")]
     for memory_map_descriptor in firmware::GLOBAL
         .lock()
@@ -96,6 +94,10 @@ fn main(global: firmware::Global) {
     {
         uart::dbg!(memory_map_descriptor);
     }
+    allocator::stabilize(
+        #[cfg(has_device_tree)]
+        tree::memory_regions(),
+    );
     unimplemented!();
 }
 

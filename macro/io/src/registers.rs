@@ -400,30 +400,21 @@ impl Element {
     }
 
     fn read(&self, structure: &Structure) -> Option<TokenStream> {
-        let read: Option<Ident> = self.read_ident();
-        let pretty_type: Option<Type> = self.pretty_type();
-        let read_memory: Option<Ident> = self.read_memory_ident();
-        let read_port: Option<Ident> = self.read_port_ident();
-        if let (Some(read), Some(pretty_type), Some(read_memory), Some(read_port)) =
-            (read, pretty_type, read_memory, read_port)
-        {
-            Some((read, pretty_type, read_memory, read_port))
-        } else {
-            None
-        }
-        .map(|(read, pretty_type, read_memory, read_port)| {
-            let structure: &Ident = &structure.ident;
-            quote! {
-                pub unsafe fn #read(&self) -> #pretty_type {
-                    match self {
-                        Self::Memory(memory) => unsafe {
-                            memory.#read_memory()
-                        },
-                        #[cfg(target_arch = "x86_64")]
-                        Self::Port(port) => unsafe {
-                            #structure::#read_port(*port)
-                        },
-                    }
+        let read: Ident = self.read_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let read_memory: Ident = self.read_memory_ident()?;
+        let read_port: Ident = self.read_port_ident()?;
+        let structure: &Ident = &structure.ident;
+        Some(quote! {
+            pub unsafe fn #read(&self) -> #pretty_type {
+                match self {
+                    Self::Memory(memory) => unsafe {
+                        memory.#read_memory()
+                    },
+                    #[cfg(target_arch = "x86_64")]
+                    Self::Port(port) => unsafe {
+                        #structure::#read_port(*port)
+                    },
                 }
             }
         })
@@ -434,21 +425,13 @@ impl Element {
     }
 
     fn read_memory(&self) -> Option<TokenStream> {
-        if let (Some(ident), Some(read_memory), Some(pretty_type)) = (
-            self.ident.as_ref(),
-            self.read_memory_ident(),
-            self.pretty_type(),
-        ) {
-            Some((ident, read_memory, pretty_type))
-        } else {
-            None
-        }
-        .map(|(ident, read_memory, pretty_type)| {
-            quote! {
-                pub unsafe fn #read_memory(&self) -> #pretty_type {
-                    unsafe {
-                        self.#ident.read_memory()
-                    }
+        let ident: &Ident = self.ident.as_ref()?;
+        let read_memory: Ident = self.read_memory_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        Some(quote! {
+            pub unsafe fn #read_memory(&self) -> #pretty_type {
+                unsafe {
+                    self.#ident.read_memory()
                 }
             }
         })
@@ -541,30 +524,21 @@ impl Element {
     }
 
     fn write(&self, structure: &Structure) -> Option<TokenStream> {
-        let write: Option<Ident> = self.write_ident();
-        let pretty_type: Option<Type> = self.pretty_type();
-        let write_memory: Option<Ident> = self.write_memory_ident();
-        let write_port: Option<Ident> = self.write_port_ident();
-        if let (Some(write), Some(pretty_type), Some(write_memory), Some(write_port)) =
-            (write, pretty_type, write_memory, write_port)
-        {
-            Some((write, pretty_type, write_memory, write_port))
-        } else {
-            None
-        }
-        .map(|(write, pretty_type, write_memory, write_port)| {
-            let structure: &Ident = &structure.ident;
-            quote! {
-                pub unsafe fn #write(&mut self, value: #pretty_type) {
-                    match self {
-                        Self::Memory(memory) => unsafe {
-                            memory.#write_memory(value);
-                        },
-                        #[cfg(target_arch = "x86_64")]
-                        Self::Port(port) => unsafe {
-                            #structure::#write_port(*port, value);
-                        },
-                    }
+        let write: Ident = self.write_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let write_memory: Ident = self.write_memory_ident()?;
+        let write_port: Ident = self.write_port_ident()?;
+        let structure: &Ident = &structure.ident;
+        Some(quote! {
+            pub unsafe fn #write(&mut self, value: #pretty_type) {
+                match self {
+                    Self::Memory(memory) => unsafe {
+                        memory.#write_memory(value);
+                    },
+                    #[cfg(target_arch = "x86_64")]
+                    Self::Port(port) => unsafe {
+                        #structure::#write_port(*port, value);
+                    },
                 }
             }
         })
@@ -575,21 +549,13 @@ impl Element {
     }
 
     fn write_memory(&self) -> Option<TokenStream> {
-        if let (Some(ident), Some(write_memory), Some(pretty_type)) = (
-            self.ident.as_ref(),
-            self.write_memory_ident(),
-            self.pretty_type(),
-        ) {
-            Some((ident, write_memory, pretty_type))
-        } else {
-            None
-        }
-        .map(|(ident, write_memory, pretty_type)| {
-            quote! {
-                pub unsafe fn #write_memory(&mut self, value: #pretty_type) {
-                    unsafe {
-                        self.#ident.write_memory(value);
-                    }
+        let ident: &Ident = self.ident.as_ref()?;
+        let write_memory: Ident = self.write_memory_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        Some(quote! {
+            pub unsafe fn #write_memory(&mut self, value: #pretty_type) {
+                unsafe {
+                    self.#ident.write_memory(value);
                 }
             }
         })

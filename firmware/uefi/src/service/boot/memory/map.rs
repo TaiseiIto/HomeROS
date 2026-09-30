@@ -1,19 +1,69 @@
 use {
-    super::address::{Physical, Virtual},
+    super::{
+        Type,
+        address::{Physical, Virtual},
+    },
     crate::Status,
     alloc::vec::Vec,
+    core::fmt::{Debug, Formatter, Result},
 };
 
 /// # References
 /// * [EFI_MEMORY_DESCRIPTOR](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
-#[derive(Clone, Debug)]
 #[repr(C)]
 pub struct Descriptor {
     memory_type: u32,
     physical_start: Physical,
     virtual_start: Virtual,
     number_of_pages: u64,
-    attribute: u64,
+    attribute: AttributeRaw,
+}
+
+impl Debug for Descriptor {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let Self {
+            memory_type,
+            physical_start,
+            virtual_start,
+            number_of_pages,
+            attribute,
+        } = self;
+        let memory_type: Type = (*memory_type).into();
+        formatter
+            .debug_struct("Descriptor")
+            .field("memory_type", &memory_type)
+            .field("physical_start", physical_start)
+            .field("virtual_start", virtual_start)
+            .field("number_of_pages", number_of_pages)
+            .field("attribute", attribute)
+            .finish()
+    }
+}
+
+/// # References
+/// * [Attribute](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
+#[io::register]
+pub struct Attribute {
+    uc: bool,
+    wc: bool,
+    wt: bool,
+    wb: bool,
+    uce: bool,
+    __: [bool; 7],
+    wp: bool,
+    rp: bool,
+    xp: bool,
+    nv: bool,
+    more_reliable: bool,
+    ro: bool,
+    sp: bool,
+    cpu_crypto: bool,
+    hot_pluggable: bool,
+    __: [bool; 23],
+    isa_mask: u16,
+    __: [bool; 2],
+    isa_valid: bool,
+    runtime: bool,
 }
 
 /// Refeernces
@@ -55,7 +105,7 @@ pub struct Descriptors<'a> {
 }
 
 impl<'a> Iterator for Descriptors<'a> {
-    type Item = Descriptor;
+    type Item = &'a Descriptor;
 
     fn next(&mut self) -> Option<Self::Item> {
         let Self {
@@ -73,8 +123,8 @@ impl<'a> Iterator for Descriptors<'a> {
             .map(|descriptor| {
                 *index += 1;
                 let descriptor: *const u8 = descriptor as *const u8;
-                let descriptor: *const Self::Item = descriptor as *const Self::Item;
-                unsafe { &*descriptor }.clone()
+                let descriptor: *const Descriptor = descriptor as *const Descriptor;
+                unsafe { &*descriptor }
             })
     }
 }
