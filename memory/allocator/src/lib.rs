@@ -40,11 +40,15 @@ pub fn temporize(#[cfg(use_temporary_memory_allocator)] head: usize) {
 }
 
 #[global_allocator]
-static GLOBAL: Global = Global::new();
+pub static GLOBAL: Global = Global::new();
 
-struct Global(Lock<UnsafeCell<Allocator>>);
+pub struct Global(Lock<UnsafeCell<Allocator>>);
 
 impl Global {
+    pub fn get(&self) -> &Lock<UnsafeCell<Allocator>> {
+        &self.0
+    }
+
     const fn new() -> Self {
         Self(Lock::new(UnsafeCell::new(Allocator::new())))
     }
@@ -88,7 +92,8 @@ unsafe impl GlobalAlloc for Global {
 unsafe impl Send for Global {}
 unsafe impl Sync for Global {}
 
-enum Allocator {
+#[derive(Debug)]
+pub enum Allocator {
     Stable {
         #[cfg(has_device_tree)]
         regions: Regions<usize>,

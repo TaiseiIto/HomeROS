@@ -7,6 +7,7 @@ use {
     },
 };
 
+#[derive(Debug)]
 pub struct List {
     head: *mut Node,
 }
