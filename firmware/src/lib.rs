@@ -49,7 +49,7 @@ pub struct Global {
     hartid: usize,
     #[cfg(has_device_tree)]
     device_tree: &'static tree::Header,
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(use_temporary_memory_allocator)]
     boot_heap_head: usize,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
@@ -58,7 +58,7 @@ pub struct Global {
 }
 
 impl Global {
-    #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+    #[cfg(use_temporary_memory_allocator)]
     pub fn boot_heap_head(&self) -> usize {
         self.boot_heap_head
     }
@@ -80,7 +80,7 @@ impl Global {
     pub unsafe fn new(
         #[cfg(firmware = "sbi")] hartid: usize,
         #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
-        #[cfg(any(firmware = "sbi", firmware = "tfa"))] boot_heap_head: usize,
+        #[cfg(use_temporary_memory_allocator)] boot_heap_head: usize,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
@@ -91,7 +91,7 @@ impl Global {
             device_tree: unsafe { &*device_tree },
             #[cfg(firmware = "tfa")]
             device_tree: unsafe { &*(0x40000000 as *const tree::Header) },
-            #[cfg(any(firmware = "sbi", firmware = "tfa"))]
+            #[cfg(use_temporary_memory_allocator)]
             boot_heap_head,
             #[cfg(firmware = "uefi")]
             image_handle,
