@@ -91,6 +91,7 @@ impl Registers {
             .map(|element| element.reader_declaration())
             .collect();
         quote! {
+            #[allow(dead_code)]
             #[derive(Clone, Debug)]
             #vis struct #reader_type {
                 #(#reader_elements),*
