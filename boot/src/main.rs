@@ -100,7 +100,7 @@ fn main(global: firmware::Global) {
         #[cfg(start_with_assembly)]
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
-    uart::dbg!(allocator::GLOBAL.get().lock().get());
+    uart::dbg!(unsafe { &*allocator::GLOBAL.get().lock().get() });
     unimplemented!();
 }
 
