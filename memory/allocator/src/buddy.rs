@@ -101,7 +101,7 @@ impl TryFrom<&Range<usize>> for NodeList {
             .then(|| {
                 let size: usize = min(size / 2, Self::MAX_SIZE);
                 let length: usize = size / size_of::<Node>();
-                let start: usize = end - length;
+                let start: usize = end - size;
                 Self(unsafe { from_raw_parts_mut(start as *mut Node, length) })
             })
             .ok_or(())
