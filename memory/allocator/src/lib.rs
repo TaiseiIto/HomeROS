@@ -213,13 +213,10 @@ unsafe impl GlobalAlloc for Allocator {
 impl Debug for Allocator {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         match self {
-            #[cfg(use_temporary_memory_allocator)]
-            Self::Stable {
-                regions,
-                boot_loader,
-            } => formatter.debug_list().entries(self.buddy_roots()).finish(),
-            #[cfg(firmware = "uefi")]
-            Self::Stable { map } => formatter.debug_list().entries(self.buddy_roots()).finish(),
+            Self::Stable { .. } => formatter
+                .debug_list()
+                .entries(self.buddy_node_lists())
+                .finish(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => formatter
                 .debug_tuple("Temporary")

@@ -2,6 +2,7 @@ use {
     alloc::alloc::Layout,
     core::{
         cmp::{max, min},
+        fmt::{self, Debug, Formatter},
         mem::size_of,
         ops::Range,
         slice::from_raw_parts_mut,
@@ -83,6 +84,12 @@ impl NodeList {
     }
 }
 
+impl Debug for NodeList {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        self.0.get(0).unwrap().fmt(formatter)
+    }
+}
+
 impl TryFrom<&Range<usize>> for NodeList {
     type Error = ();
 
@@ -101,6 +108,7 @@ impl TryFrom<&Range<usize>> for NodeList {
     }
 }
 
+#[derive(Debug)]
 struct Node {
     index: u8,
     state: State,
@@ -128,6 +136,7 @@ impl Node {
     }
 }
 
+#[derive(Debug)]
 enum State {
     Allocated,
     Divided,
