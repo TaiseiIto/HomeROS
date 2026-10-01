@@ -164,8 +164,8 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
-        for buddy_root in self.buddy_roots() {
-            buddy::NodeList::initialize(&buddy_root);
+        for ref buddy_root in self.buddy_roots() {
+            buddy::NodeList::initialize(buddy_root);
         }
     }
 
