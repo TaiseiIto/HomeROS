@@ -95,7 +95,7 @@ impl TryFrom<&Range<usize>> for NodeList {
 
     fn try_from(region: &Range<usize>) -> Result<Self, Self::Error> {
         let Range { start, end } = region;
-        assert_eq!((start ^ end).count_ones(), 1);
+        assert_eq!((end - start).count_ones(), 1);
         let size: usize = end - start;
         (Self::MIN_SIZE < size)
             .then(|| {
