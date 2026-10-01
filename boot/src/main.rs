@@ -106,7 +106,7 @@ fn main(global: firmware::Global) {
 
 #[panic_handler]
 fn panic(panic: &PanicInfo) -> ! {
-    uart::dbg!(panic);
+    uart::println!("{}", panic);
     loop {
         unsafe {
             wait_for_interrupt();
