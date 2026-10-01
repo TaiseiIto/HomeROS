@@ -159,8 +159,9 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
-        self.buddy_roots()
-            .inspect(|region| buddy::NodeList::initialize(region));
+        for region in self.buddy_roots() {
+            buddy::NodeList::initialize(&region);
+        }
     }
 
     fn temporize(&mut self, #[cfg(use_temporary_memory_allocator)] head: usize) {
