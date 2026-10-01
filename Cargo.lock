@@ -9,6 +9,7 @@ dependencies = [
  "memory",
  "sync",
  "uefi",
+ "unit",
 ]
 
 [[package]]

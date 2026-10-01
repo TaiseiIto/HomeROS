@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+mod buddy;
 #[cfg(use_temporary_memory_allocator)]
 mod linked;
 
@@ -115,7 +116,7 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn ranges(&self) -> impl Iterator<Item = Range<usize>> {
+    fn buddy_ranges(&self) -> impl Iterator<Item = Range<usize>> {
         match self {
             #[cfg(use_temporary_memory_allocator)]
             Self::Stable {
@@ -132,6 +133,10 @@ impl Allocator {
                 .map(|descriptor| descriptor.range()),
             _ => panic!(),
         }
+    }
+
+    fn buddy_roots(&self) -> impl Iterator<Item = Range<usize>> {
+        self.buddy_ranges().flat_map(Into::<buddy::Roots>::into)
     }
 
     fn stabilize(
@@ -154,6 +159,8 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
+        self.buddy_roots()
+            .inspect(|region| buddy::NodeList::initialize(region));
     }
 
     fn temporize(&mut self, #[cfg(use_temporary_memory_allocator)] head: usize) {
@@ -209,9 +216,9 @@ impl Debug for Allocator {
             Self::Stable {
                 regions,
                 boot_loader,
-            } => formatter.debug_list().entries(self.ranges()).finish(),
+            } => formatter.debug_list().entries(self.buddy_roots()).finish(),
             #[cfg(firmware = "uefi")]
-            Self::Stable { map } => formatter.debug_list().entries(self.ranges()).finish(),
+            Self::Stable { map } => formatter.debug_list().entries(self.buddy_roots()).finish(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => formatter
                 .debug_tuple("Temporary")

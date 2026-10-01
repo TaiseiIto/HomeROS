@@ -2,6 +2,7 @@
 //! * [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/)
 //! # TODO
 //! * Implement Arc after implementing memory allocator.
+//! * Move this crate `../tool/sync`.
 #![no_std]
 
 #[cfg(test)]
