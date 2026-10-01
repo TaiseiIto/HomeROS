@@ -1,6 +1,11 @@
 use {
     alloc::alloc::Layout,
-    core::{cmp::min, mem::size_of, ops::Range, slice::from_raw_parts_mut},
+    core::{
+        cmp::{max, min},
+        mem::size_of,
+        ops::Range,
+        slice::from_raw_parts_mut,
+    },
     unit::prefix::KIBI,
 };
 
@@ -57,11 +62,14 @@ impl NodeList {
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
     pub fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
-        unimplemented!();
+        self.0
+            .get_mut(0)
+            .unwrap()
+            .alloc(max(layout.align(), layout.size().next_power_of_two()))
     }
 
     pub fn dealloc(&mut self, address: usize) {
-        unimplemented!();
+        self.0.get_mut(0).unwrap().dealloc(address);
     }
 
     pub fn initialize(region: &Range<usize>) {
@@ -103,6 +111,14 @@ struct Node {
 }
 
 impl Node {
+    fn alloc(&mut self, size: usize) -> Option<*mut u8> {
+        unimplemented!();
+    }
+
+    fn dealloc(&mut self, address: usize) {
+        unimplemented!();
+    }
+
     fn initialize(&mut self, region: &Range<usize>, node_list_address: usize) {
         self.state = State::Free;
         self.start = region.start;
