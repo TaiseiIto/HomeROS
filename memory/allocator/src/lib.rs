@@ -116,6 +116,11 @@ impl Allocator {
         Self::Uninitialized
     }
 
+    fn buddy_node_lists(&self) -> impl Iterator<Item = buddy::NodeList> {
+        self.buddy_roots()
+            .filter_map(|ref buddy_root| buddy_root.try_into().ok())
+    }
+
     fn buddy_ranges(&self) -> impl Iterator<Item = Range<usize>> {
         match self {
             #[cfg(use_temporary_memory_allocator)]
@@ -159,8 +164,8 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
-        for region in self.buddy_roots() {
-            buddy::NodeList::initialize(&region);
+        for buddy_root in self.buddy_roots() {
+            buddy::NodeList::initialize(&buddy_root);
         }
     }
 
@@ -175,13 +180,10 @@ impl Allocator {
 unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
-            #[cfg(has_device_tree)]
-            Self::Stable {
-                regions,
-                boot_loader,
-            } => unimplemented!(),
-            #[cfg(firmware = "uefi")]
-            Self::Stable { map } => unimplemented!(),
+            Self::Stable { .. } => self
+                .buddy_node_lists()
+                .find_map(|mut node_list| node_list.alloc(layout))
+                .unwrap(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },
             #[cfg(firmware = "uefi")]
@@ -192,13 +194,11 @@ unsafe impl GlobalAlloc for Allocator {
 
     unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
         match self {
-            #[cfg(has_device_tree)]
-            Self::Stable {
-                regions,
-                boot_loader,
-            } => unimplemented!(),
-            #[cfg(firmware = "uefi")]
-            Self::Stable { map } => unimplemented!(),
+            Self::Stable { .. } => {
+                for mut node_list in self.buddy_node_lists() {
+                    node_list.dealloc(address as usize);
+                }
+            }
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe {
                 linked_list.dealloc(address, layout);

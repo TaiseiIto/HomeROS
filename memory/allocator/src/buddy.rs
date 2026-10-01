@@ -1,4 +1,5 @@
 use {
+    alloc::alloc::Layout,
     core::{cmp::min, mem::size_of, ops::Range, slice::from_raw_parts_mut},
     unit::prefix::KIBI,
 };
@@ -54,6 +55,14 @@ impl NodeList {
     const MAX_LENGTH: usize = Self::MAX_SIZE / size_of::<Node>();
     const MIN_LENGTH: usize = 1;
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
+
+    pub fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
+        unimplemented!();
+    }
+
+    pub fn dealloc(&mut self, address: usize) {
+        unimplemented!();
+    }
 
     pub fn initialize(region: &Range<usize>) {
         if let Ok(Self(nodes)) = region.try_into() {
