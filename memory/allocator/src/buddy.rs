@@ -73,13 +73,13 @@ impl NodeList {
         self.0.get_mut(0).unwrap().dealloc(address);
     }
 
-    pub fn initialize(region: &Range<usize>) {
-        if let Ok(Self(nodes)) = region.try_into() {
+    pub fn initialize(region: Range<usize>) {
+        if let Ok(Self(nodes)) = region.clone().try_into() {
             let node_list_address: usize = nodes.as_ptr() as usize;
             nodes
                 .get_mut(0)
                 .unwrap()
-                .initialize(region, node_list_address);
+                .initialize(region.start..node_list_address);
         };
     }
 }
@@ -90,17 +90,17 @@ impl Debug for NodeList {
     }
 }
 
-impl TryFrom<&Range<usize>> for NodeList {
+impl TryFrom<Range<usize>> for NodeList {
     type Error = ();
 
-    fn try_from(region: &Range<usize>) -> Result<Self, Self::Error> {
+    fn try_from(region: Range<usize>) -> Result<Self, Self::Error> {
         let Range { start, end } = region;
         let actual_size: usize = end - start;
         let nominal_size: usize = actual_size.next_power_of_two();
         let list_size: usize = min(nominal_size / 2, Self::MAX_SIZE);
         let list_length: usize = list_size / size_of::<Node>();
         let list_start: usize = (end - list_size) & !(list_size - 1);
-        (0 < list_length && *start < list_start)
+        (0 < list_length && start < list_start)
             .then_some(Self(unsafe {
                 from_raw_parts_mut(list_start as *mut Node, list_length)
             }))
@@ -110,11 +110,8 @@ impl TryFrom<&Range<usize>> for NodeList {
 
 #[derive(Debug)]
 struct Node {
-    index: u8,
     state: State,
-    start: usize,
-    log_size: u8,
-    unavailable_tail_size: usize,
+    address: Range<usize>,
     max_size: usize,
 }
 
@@ -131,17 +128,10 @@ impl Node {
         unimplemented!();
     }
 
-    fn initialize(&mut self, region: &Range<usize>, node_list_address: usize) {
+    fn initialize(&mut self, region: Range<usize>) {
         self.state = State::Free;
-        self.start = region.start;
-        let end: usize = if (node_list_address - region.start).count_ones() == 1 {
-            node_list_address
-        } else {
-            region.end
-        };
-        self.log_size = (end - self.start).ilog2() as u8;
-        self.unavailable_tail_size = end - node_list_address;
-        self.max_size = node_list_address - region.start;
+        self.max_size = region.len();
+        self.address = region;
     }
 }
 

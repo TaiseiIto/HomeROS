@@ -118,7 +118,7 @@ impl Allocator {
 
     fn buddy_node_lists(&self) -> impl Iterator<Item = buddy::NodeList> {
         self.buddy_roots()
-            .filter_map(|ref buddy_root| buddy_root.try_into().ok())
+            .filter_map(|buddy_root| buddy_root.try_into().ok())
     }
 
     fn buddy_ranges(&self) -> impl Iterator<Item = Range<usize>> {
@@ -164,7 +164,7 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
-        for ref buddy_root in self.buddy_roots() {
+        for buddy_root in self.buddy_roots() {
             buddy::NodeList::initialize(buddy_root);
         }
     }
