@@ -63,10 +63,7 @@ impl NodeList {
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
     pub fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
-        self.0
-            .get_mut(0)
-            .unwrap()
-            .alloc(max(layout.align(), layout.size().next_power_of_two()))
+        self.0.get_mut(0).unwrap().alloc(layout)
     }
 
     pub fn dealloc(&mut self, address: usize) {
@@ -119,8 +116,12 @@ struct Node {
 }
 
 impl Node {
-    fn alloc(&mut self, size: usize) -> Option<*mut u8> {
-        unimplemented!();
+    fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
+        match self.state {
+            State::Allocated => None,
+            State::Divided => unimplemented!(),
+            State::Free => unimplemented!(),
+        }
     }
 
     fn dealloc(&mut self, address: usize) {
@@ -146,5 +147,4 @@ enum State {
     Allocated,
     Divided,
     Free,
-    Invalid,
 }
