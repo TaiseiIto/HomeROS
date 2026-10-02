@@ -21,13 +21,16 @@ impl Roots {
         let region_end: usize = self.region.end;
         let xor: usize = current_root_start ^ region_end;
         xor.highest_one().map(|xor_highest_one| {
-            let shift: u32 = current_root_start
+            match current_root_start
                 .lowest_one()
                 .filter(|current_root_start_lowest_one| {
                     xor_highest_one > *current_root_start_lowest_one
-                })
-                .unwrap_or(xor_highest_one);
-            current_root_start + (1 << shift)
+                }) {
+                Some(current_root_start_lowest_one) => {
+                    current_root_start + (1 << current_root_start_lowest_one)
+                }
+                None => region_end,
+            }
         })
     }
 }
