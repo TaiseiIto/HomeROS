@@ -92,15 +92,15 @@ impl TryFrom<&Range<usize>> for NodeList {
 
     fn try_from(region: &Range<usize>) -> Result<Self, Self::Error> {
         let Range { start, end } = region;
-        assert_eq!((end - start).count_ones(), 1);
-        let size: usize = end - start;
-        (Self::MIN_SIZE < size)
-            .then(|| {
-                let size: usize = min(size / 2, Self::MAX_SIZE);
-                let length: usize = size / size_of::<Node>();
-                let start: usize = end - size;
-                Self(unsafe { from_raw_parts_mut(start as *mut Node, length) })
-            })
+        let actual_size: usize = end - start;
+        let nominal_size: usize = actual_size.next_power_of_two();
+        let list_size: usize = min(nominal_size / 2, Self::MAX_SIZE);
+        let list_length: usize = list_size / size_of::<Node>();
+        let list_start: usize = (end - list_size) & !(list_size - 1);
+        (0 < list_length && *start < list_start)
+            .then_some(Self(unsafe {
+                from_raw_parts_mut(list_start as *mut Node, list_length)
+            }))
             .ok_or(())
     }
 }
