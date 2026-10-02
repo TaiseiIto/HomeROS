@@ -67,11 +67,9 @@ impl Node {
     fn alloc_by_extending(&mut self, layout: Layout) -> *mut u8 {
         assert!(self.next().is_none());
         self.allocated = true;
-        let allocated_head: usize =
-            (self.available_head() + layout.align() - 1) & !(layout.align() - 1);
+        let allocated_head: usize = self.available_head().next_multiple_of(layout.align());
         let allocated_tail: usize = allocated_head + layout.size();
-        let next_node_head: usize =
-            (allocated_tail + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
+        let next_node_head: usize = allocated_tail.next_multiple_of(align_of::<Self>());
         self.connect(unsafe { &mut *Self::new(next_node_head) });
         allocated_head as *mut u8
     }
@@ -84,8 +82,7 @@ impl Node {
                          start: available_head,
                          end: available_tail,
                      }| {
-                        let allocated_head: usize =
-                            (available_head + layout.align() - 1) & !(layout.align() - 1);
+                        let allocated_head: usize = available_head.next_multiple_of(layout.align());
                         let allocated_tail: usize = allocated_head + layout.size();
                         (allocated_tail <= available_tail).then(|| {
                             self.divide(allocated_tail);
@@ -123,7 +120,7 @@ impl Node {
             start: available_head,
             end: available_tail,
         }: Range<usize> = self.available_range().unwrap();
-        assert_eq!(deallocated_head & (align - 1), 0);
+        assert!(deallocated_head.is_multiple_of(align));
         assert!(available_head <= deallocated_head);
         assert!(deallocated_tail <= available_tail);
         self.allocated = false;
@@ -137,8 +134,7 @@ impl Node {
     }
 
     fn divide(&mut self, divide_point: usize) {
-        let new_node_head: usize =
-            (divide_point + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
+        let new_node_head: usize = divide_point.next_multiple_of(align_of::<Self>());
         let new_node_tail: usize = new_node_head + size_of::<Self>();
         if self.available_range().is_some_and(
             |Range {
@@ -176,7 +172,7 @@ impl Node {
     }
 
     fn new(node: usize) -> *mut Self {
-        let node: usize = (node + align_of::<Self>() - 1) & !(align_of::<Self>() - 1);
+        let node: usize = node.next_multiple_of(align_of::<Self>());
         let node: *mut Self = node as *mut Self;
         unsafe {
             let node: &mut Self = &mut *node;
