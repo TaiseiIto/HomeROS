@@ -130,8 +130,13 @@ impl Node {
     fn initialize(&mut self, region: &Range<usize>, node_list_address: usize) {
         self.state = State::Free;
         self.start = region.start;
-        self.log_size = region.len().ilog2() as u8;
-        self.unavailable_tail_size = region.end - node_list_address;
+        let end: usize = if (node_list_address - region.start).count_ones() == 1 {
+            node_list_address
+        } else {
+            region.end
+        };
+        self.log_size = (end - self.start).ilog2() as u8;
+        self.unavailable_tail_size = end - node_list_address;
         self.max_size = node_list_address - region.start;
     }
 }
