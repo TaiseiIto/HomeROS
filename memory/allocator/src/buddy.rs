@@ -137,10 +137,35 @@ impl NodeInNodes {
     fn higher_half_mut(&mut self) -> Option<NodeInNodes> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
-        (index < nodes.0.len()).then_some(Self {
-            nodes: nodes.clone(),
-            index,
-        })
+        (index < nodes.0.len())
+            .then(|| Self {
+                nodes: nodes.clone(),
+                index,
+            })
+            .or_else(|| {
+                self.get_mut()
+                    .higher_half_range()
+                    .try_into()
+                    .ok()
+                    .map(|nodes: Nodes| nodes.root())
+            })
+    }
+
+    fn lower_half_mut(&mut self) -> Option<NodeInNodes> {
+        let Self { nodes, index } = self;
+        let index: usize = 2 * *index + 1;
+        (index < nodes.0.len())
+            .then(|| Self {
+                nodes: nodes.clone(),
+                index,
+            })
+            .or_else(|| {
+                self.get_mut()
+                    .lower_half_range()
+                    .try_into()
+                    .ok()
+                    .map(|nodes: Nodes| nodes.root())
+            })
     }
 
     fn satisfies(&mut self, layout: Layout) -> bool {
@@ -156,13 +181,26 @@ struct Node {
 }
 
 impl Node {
+    fn division_point(&self) -> usize {
+        let address: &Range<usize> = &self.address;
+        address.start + address.len().next_power_of_two() / 2
+    }
+
+    fn higher_half_range(&self) -> Range<usize> {
+        self.division_point()..self.address.end
+    }
+
     fn initialize(&mut self, region: Range<usize>) {
         self.state = State::Free;
         self.max_size = region.len();
         self.address = region;
     }
 
-    fn satisfies(&mut self, layout: Layout) -> bool {
+    fn lower_half_range(&self) -> Range<usize> {
+        self.address.start..self.division_point()
+    }
+
+    fn satisfies(&self, layout: Layout) -> bool {
         match self.state {
             State::Allocated => false,
             State::Divided => unimplemented!(),
