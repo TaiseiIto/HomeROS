@@ -73,8 +73,6 @@ impl Abstract {
         self.write_fmt(arguments).unwrap();
     }
 
-    /// # TODO
-    /// * Get address from device tree
     fn new(#[cfg(has_device_tree)] uart: Uart) -> Self {
         #[cfg(has_device_tree)]
         let mut accessor: Self = match uart.standard() {
