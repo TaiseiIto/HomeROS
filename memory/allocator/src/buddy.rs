@@ -2,7 +2,6 @@ use {
     alloc::alloc::Layout,
     core::{
         cmp::{max, min},
-        fmt::{self, Debug, Formatter},
         mem::size_of,
         ops::Range,
         ptr::slice_from_raw_parts_mut,
@@ -93,12 +92,6 @@ impl Nodes {
             nodes: self.clone(),
             index: 0,
         }
-    }
-}
-
-impl Debug for Nodes {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        self.root().get_mut().fmt(formatter)
     }
 }
 
@@ -317,7 +310,6 @@ impl NodeInNodes {
     }
 }
 
-#[derive(Debug)]
 struct Node {
     state: State,
     address: Range<usize>,
@@ -350,7 +342,7 @@ impl Node {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 enum State {
     Allocated,
     Divided,

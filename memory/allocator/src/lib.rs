@@ -9,13 +9,7 @@ mod linked;
 
 use {
     alloc::alloc::Layout,
-    core::{
-        alloc::GlobalAlloc,
-        cell::UnsafeCell,
-        cmp::max,
-        fmt::{Debug, Formatter, Result},
-        ops::Range,
-    },
+    core::{alloc::GlobalAlloc, cell::UnsafeCell, cmp::max, ops::Range},
     sync::spin::Lock,
 };
 
@@ -208,25 +202,6 @@ unsafe impl GlobalAlloc for Allocator {
             #[cfg(firmware = "uefi")]
             Self::Temporary() => panic!(),
             Self::Uninitialized => panic!(),
-        }
-    }
-}
-
-impl Debug for Allocator {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        match self {
-            Self::Stable { .. } => formatter
-                .debug_list()
-                .entries(self.buddy_node_lists())
-                .finish(),
-            #[cfg(use_temporary_memory_allocator)]
-            Self::Temporary(linked_list) => formatter
-                .debug_tuple("Temporary")
-                .field(linked_list)
-                .finish(),
-            #[cfg(firmware = "uefi")]
-            Self::Temporary() => formatter.write_str("Temporary"),
-            Self::Uninitialized => formatter.write_str("Uninitialized"),
         }
     }
 }
