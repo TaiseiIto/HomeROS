@@ -182,7 +182,36 @@ impl NodeInNodes {
     }
 
     fn dealloc(&mut self, address: usize) {
-        unimplemented!();
+        if self.address().contains(&address) {
+            match self.state().clone() {
+                State::Allocated => {
+                    *self.state() = State::Free;
+                    *self.max_size() = self.address().len();
+                }
+                State::Divided => {
+                    if let Some(mut higher_half) = self.higher_half_mut() {
+                        higher_half.dealloc(address);
+                    } else if let Some(mut lower_half) = self.lower_half_mut() {
+                        lower_half.dealloc(address);
+                    } else {
+                        panic!();
+                    }
+                    if self.can_merge() {
+                        self.merges();
+                    } else {
+                        *self.max_size() = max(
+                            self.higher_half_mut()
+                                .map(|mut higher_half| *higher_half.max_size())
+                                .unwrap_or(0),
+                            self.lower_half_mut()
+                                .map(|mut lower_half| *lower_half.max_size())
+                                .unwrap_or(0),
+                        )
+                    }
+                }
+                State::Free => panic!(),
+            }
+        }
     }
 
     fn divides(&mut self) {
