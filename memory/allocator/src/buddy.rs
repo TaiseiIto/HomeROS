@@ -76,12 +76,12 @@ impl Nodes {
 
     pub fn initialize(address: Range<usize>) {
         if let Ok(nodes @ Self(..)) = address.clone().try_into() {
-            let node_list_address: usize = nodes.as_mut_ptr() as usize;
-            nodes
-                .root()
-                .get_mut()
-                .initialize(address.start..node_list_address);
-        };
+            nodes.root().initialize(address);
+        }
+    }
+
+    fn len(&self) -> usize {
+        self.0.len()
     }
 
     fn as_mut_ptr(&self) -> *mut Node {
@@ -137,7 +137,7 @@ impl NodeInNodes {
     fn higher_half_mut(&mut self) -> Option<NodeInNodes> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
-        (index < nodes.0.len()).then_some(nodes.root()).or({
+        (index < nodes.len()).then_some(nodes.root()).or({
             self.get_mut()
                 .higher_half_range()
                 .try_into()
@@ -146,10 +146,20 @@ impl NodeInNodes {
         })
     }
 
+    fn initialize(&mut self, address: Range<usize>) {
+        let nodes_address: usize = self.nodes.as_mut_ptr() as usize;
+        let address: Range<usize> = if address.contains(&nodes_address) {
+            address.start..nodes_address
+        } else {
+            address
+        };
+        self.get_mut().initialize(address);
+    }
+
     fn lower_half_mut(&mut self) -> Option<NodeInNodes> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 1;
-        (index < nodes.0.len()).then_some(nodes.root()).or({
+        (index < nodes.len()).then_some(nodes.root()).or({
             self.get_mut()
                 .lower_half_range()
                 .try_into()
