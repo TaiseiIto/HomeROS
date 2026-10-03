@@ -188,7 +188,12 @@ unsafe impl GlobalAlloc for Allocator {
         }
     }
 
-    unsafe fn dealloc(&self, address: *mut u8, layout: Layout) {
+    unsafe fn dealloc(
+        &self,
+        address: *mut u8,
+        #[cfg(use_temporary_memory_allocator)] layout: Layout,
+        #[cfg(firmware = "uefi")] _: Layout,
+    ) {
         match self {
             Self::Stable { .. } => {
                 for mut node_list in self.buddy_node_lists() {
