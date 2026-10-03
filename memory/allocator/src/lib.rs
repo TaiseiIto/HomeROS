@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-mod buddy;
+mod lightning;
 #[cfg(use_temporary_memory_allocator)]
 mod linked;
 
@@ -112,12 +112,12 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn buddy_node_lists(&self) -> impl Iterator<Item = buddy::Nodes> {
-        self.buddy_roots()
-            .filter_map(|buddy_root| buddy_root.try_into().ok())
+    fn lightning_node_lists(&self) -> impl Iterator<Item = lightning::Nodes> {
+        self.lightning_roots()
+            .filter_map(|lightning_root| lightning_root.try_into().ok())
     }
 
-    fn buddy_ranges(&self) -> impl Iterator<Item = Range<usize>> {
+    fn lightning_ranges(&self) -> impl Iterator<Item = Range<usize>> {
         match self {
             #[cfg(use_temporary_memory_allocator)]
             Self::Stable {
@@ -136,8 +136,9 @@ impl Allocator {
         }
     }
 
-    fn buddy_roots(&self) -> impl Iterator<Item = Range<usize>> {
-        self.buddy_ranges().flat_map(Into::<buddy::Roots>::into)
+    fn lightning_roots(&self) -> impl Iterator<Item = Range<usize>> {
+        self.lightning_ranges()
+            .flat_map(Into::<lightning::Roots>::into)
     }
 
     fn stabilize(
@@ -160,8 +161,8 @@ impl Allocator {
             #[cfg(firmware = "uefi")]
             map,
         };
-        for buddy_root in self.buddy_roots() {
-            buddy::Nodes::initialize(buddy_root);
+        for lightning_root in self.lightning_roots() {
+            lightning::Nodes::initialize(lightning_root);
         }
     }
 
@@ -177,7 +178,7 @@ unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match self {
             Self::Stable { .. } => self
-                .buddy_node_lists()
+                .lightning_node_lists()
                 .find_map(|mut node_list| node_list.alloc(max(layout.size(), layout.align())))
                 .unwrap(),
             #[cfg(use_temporary_memory_allocator)]
@@ -196,7 +197,7 @@ unsafe impl GlobalAlloc for Allocator {
     ) {
         match self {
             Self::Stable { .. } => {
-                for mut node_list in self.buddy_node_lists() {
+                for mut node_list in self.lightning_node_lists() {
                     node_list.dealloc(address as usize);
                 }
             }
