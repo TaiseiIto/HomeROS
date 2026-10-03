@@ -1,7 +1,9 @@
 #![no_main]
 #![no_std]
 
-use {arch::wait_for_interrupt, core::panic::PanicInfo};
+extern crate alloc;
+
+use {alloc::vec::Vec, arch::wait_for_interrupt, core::panic::PanicInfo};
 
 #[cfg(firmware = "uefi")]
 use firmware::uefi;
@@ -100,7 +102,7 @@ fn main(global: firmware::Global) {
         #[cfg(start_with_assembly)]
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
-    uart::dbg!(unsafe { &*allocator::GLOBAL.get().lock().get() });
+    uart::dbg!((0..10).collect::<Vec<usize>>());
     unimplemented!();
 }
 
