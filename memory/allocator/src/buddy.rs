@@ -141,9 +141,9 @@ impl NodeInNodes {
                         .and_then(|mut lower_half| lower_half.alloc(size))
                 }),
             State::Free => (size <= *self.max_size()).then(|| {
-                self.divide();
+                self.divides();
                 self.alloc(size).unwrap_or_else(|| {
-                    self.merge();
+                    self.merges();
                     self.provides()
                 })
             }),
@@ -174,7 +174,7 @@ impl NodeInNodes {
         unimplemented!();
     }
 
-    fn divide(&mut self) {
+    fn divides(&mut self) {
         assert!(self.can_divide());
         *self.state() = State::Divided;
         let higher_half_range: Range<usize> = self.get_mut().higher_half_range();
@@ -252,7 +252,7 @@ impl NodeInNodes {
         &mut self.get_mut().max_size
     }
 
-    fn merge(&mut self) {
+    fn merges(&mut self) {
         assert!(self.can_merge());
         *self.state() = State::Free;
         *self.max_size() = self.address().len();
