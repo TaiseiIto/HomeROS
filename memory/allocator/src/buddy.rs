@@ -138,11 +138,11 @@ impl NodeInNodes {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
         (index < nodes.0.len())
-            .then(|| Self {
+            .then_some(Self {
                 nodes: nodes.clone(),
                 index,
             })
-            .or_else(|| {
+            .or({
                 self.get_mut()
                     .higher_half_range()
                     .try_into()
@@ -155,11 +155,11 @@ impl NodeInNodes {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 1;
         (index < nodes.0.len())
-            .then(|| Self {
+            .then_some(Self {
                 nodes: nodes.clone(),
                 index,
             })
-            .or_else(|| {
+            .or({
                 self.get_mut()
                     .lower_half_range()
                     .try_into()
