@@ -154,8 +154,10 @@ impl NodeInNodes {
                 self.divides();
                 self.alloc(size).unwrap_or_else(|| {
                     self.merges();
+                    let provided: *mut u8 = self.provides();
+                    *self.state() = State::Allocated;
                     *self.max_size() = 0;
-                    self.provides()
+                    provided
                 })
             }),
         }
