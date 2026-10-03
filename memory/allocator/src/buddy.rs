@@ -130,6 +130,18 @@ impl NodeInNodes {
         self.get_mut().address.clone()
     }
 
+    fn can_merge(&mut self) -> bool {
+        matches!(self.state(), State::Divided)
+            && self
+                .higher_half_mut()
+                .map(|mut higher_half| higher_half.state().clone())
+                .is_none_or(|state| matches!(state, State::Free))
+            && self
+                .lower_half_mut()
+                .map(|mut lower_half| lower_half.state().clone())
+                .is_none_or(|state| matches!(state, State::Free))
+    }
+
     fn divide(&mut self) {
         let state: &mut State = self.state();
         assert!(matches!(state, State::Free));
@@ -210,17 +222,7 @@ impl NodeInNodes {
     }
 
     fn merge(&mut self) {
-        assert!(matches!(self.state(), State::Divided));
-        assert!(
-            self.higher_half_mut()
-                .map(|mut higher_half| higher_half.state().clone())
-                .is_none_or(|state| matches!(state, State::Free))
-        );
-        assert!(
-            self.lower_half_mut()
-                .map(|mut lower_half| lower_half.state().clone())
-                .is_none_or(|state| matches!(state, State::Free))
-        );
+        assert!(self.can_merge());
         *self.state() = State::Free;
         *self.max_size() = self.address().len();
     }
