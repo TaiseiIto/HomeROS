@@ -11,15 +11,15 @@ use {
 };
 
 pub struct Roots {
-    region: Range<usize>,
+    address: Range<usize>,
     current_root_start: usize,
 }
 
 impl Roots {
     fn next_root_start(&self) -> Option<usize> {
         let current_root_start: usize = self.current_root_start;
-        let region_end: usize = self.region.end;
-        let xor: usize = current_root_start ^ region_end;
+        let address_end: usize = self.address.end;
+        let xor: usize = current_root_start ^ address_end;
         xor.highest_one().map(|xor_highest_one| {
             match current_root_start
                 .lowest_one()
@@ -29,17 +29,17 @@ impl Roots {
                 Some(current_root_start_lowest_one) => {
                     current_root_start + (1 << current_root_start_lowest_one)
                 }
-                None => region_end,
+                None => address_end,
             }
         })
     }
 }
 
 impl From<Range<usize>> for Roots {
-    fn from(region: Range<usize>) -> Self {
-        let current_root_start: usize = region.start;
+    fn from(address: Range<usize>) -> Self {
+        let current_root_start: usize = address.start;
         Self {
-            region,
+            address,
             current_root_start,
         }
     }
@@ -74,13 +74,13 @@ impl Nodes {
         unimplemented!();
     }
 
-    pub fn initialize(region: Range<usize>) {
-        if let Ok(nodes @ Self(..)) = region.clone().try_into() {
+    pub fn initialize(address: Range<usize>) {
+        if let Ok(nodes @ Self(..)) = address.clone().try_into() {
             let node_list_address: usize = nodes.as_mut_ptr() as usize;
             nodes
                 .root()
                 .get_mut()
-                .initialize(region.start..node_list_address);
+                .initialize(address.start..node_list_address);
         };
     }
 
@@ -105,8 +105,8 @@ impl Debug for Nodes {
 impl TryFrom<Range<usize>> for Nodes {
     type Error = ();
 
-    fn try_from(region: Range<usize>) -> Result<Self, Self::Error> {
-        let Range { start, end } = region;
+    fn try_from(address: Range<usize>) -> Result<Self, Self::Error> {
+        let Range { start, end } = address;
         let actual_size: usize = end - start;
         let nominal_size: usize = actual_size.next_power_of_two();
         let list_size: usize = min(nominal_size / 2, Self::MAX_SIZE);
@@ -190,10 +190,10 @@ impl Node {
         self.division_point()..self.address.end
     }
 
-    fn initialize(&mut self, region: Range<usize>) {
+    fn initialize(&mut self, address: Range<usize>) {
         self.state = State::Free;
-        self.max_size = region.len();
-        self.address = region;
+        self.max_size = address.len();
+        self.address = address;
     }
 
     fn lower_half_range(&self) -> Range<usize> {
