@@ -20,16 +20,15 @@ impl Roots {
         let address_end: usize = self.address.end;
         let xor: usize = current_root_start ^ address_end;
         xor.highest_one().map(|xor_highest_one| {
-            match current_root_start
+            current_root_start
                 .lowest_one()
                 .filter(|current_root_start_lowest_one| {
                     xor_highest_one > *current_root_start_lowest_one
-                }) {
-                Some(current_root_start_lowest_one) => {
+                })
+                .map(|current_root_start_lowest_one| {
                     current_root_start + (1 << current_root_start_lowest_one)
-                }
-                None => address_end,
-            }
+                })
+                .unwrap_or(address_end)
         })
     }
 }
