@@ -126,6 +126,19 @@ struct NodeInNodes {
 }
 
 impl NodeInNodes {
+    fn divide(&mut self) {
+        let node: &mut Node = self.get_mut();
+        assert!(matches!(node.state, State::Free));
+        node.state = State::Divided;
+        let higher_half_range: Range<usize> = node.higher_half_range();
+        let lower_half_range: Range<usize> = node.lower_half_range();
+        if let Some(mut higher_half) = self.higher_half_mut() {
+            higher_half.initialize(higher_half_range);
+        }
+        if let Some(mut lower_half) = self.lower_half_mut() {
+            lower_half.initialize(lower_half_range);
+        }
+    }
     fn get_mut(&mut self) -> &mut Node {
         let Self {
             nodes: Nodes(nodes),
@@ -134,16 +147,21 @@ impl NodeInNodes {
         unsafe { &mut *nodes.get_unchecked_mut(*index) }
     }
 
-    fn higher_half_mut(&mut self) -> Option<NodeInNodes> {
+    fn higher_half_mut(&mut self) -> Option<Self> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
-        (index < nodes.len()).then_some(nodes.root()).or({
-            self.get_mut()
-                .higher_half_range()
-                .try_into()
-                .ok()
-                .map(|nodes: Nodes| nodes.root())
-        })
+        (index < nodes.len())
+            .then_some(Self {
+                nodes: nodes.clone(),
+                index,
+            })
+            .or({
+                self.get_mut()
+                    .higher_half_range()
+                    .try_into()
+                    .ok()
+                    .map(|nodes: Nodes| nodes.root())
+            })
     }
 
     fn initialize(&mut self, address: Range<usize>) {
@@ -156,16 +174,21 @@ impl NodeInNodes {
         self.get_mut().initialize(address);
     }
 
-    fn lower_half_mut(&mut self) -> Option<NodeInNodes> {
+    fn lower_half_mut(&mut self) -> Option<Self> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 1;
-        (index < nodes.len()).then_some(nodes.root()).or({
-            self.get_mut()
-                .lower_half_range()
-                .try_into()
-                .ok()
-                .map(|nodes: Nodes| nodes.root())
-        })
+        (index < nodes.len())
+            .then_some(Self {
+                nodes: nodes.clone(),
+                index,
+            })
+            .or({
+                self.get_mut()
+                    .lower_half_range()
+                    .try_into()
+                    .ok()
+                    .map(|nodes: Nodes| nodes.root())
+            })
     }
 
     fn satisfies(&mut self, layout: Layout) -> bool {
