@@ -12,6 +12,7 @@ use {
     core::{
         alloc::GlobalAlloc,
         cell::UnsafeCell,
+        cmp::max,
         fmt::{Debug, Formatter, Result},
         ops::Range,
     },
@@ -183,7 +184,7 @@ unsafe impl GlobalAlloc for Allocator {
         match self {
             Self::Stable { .. } => self
                 .buddy_node_lists()
-                .find_map(|mut node_list| node_list.alloc(layout))
+                .find_map(|mut node_list| node_list.alloc(max(layout.size(), layout.align())))
                 .unwrap(),
             #[cfg(use_temporary_memory_allocator)]
             Self::Temporary(linked_list) => unsafe { linked_list.alloc(layout) },

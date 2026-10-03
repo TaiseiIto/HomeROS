@@ -66,7 +66,7 @@ impl Nodes {
     const MIN_LENGTH: usize = 1;
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
-    pub fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
+    pub fn alloc(&mut self, size: usize) -> Option<*mut u8> {
         unimplemented!();
     }
 
@@ -230,20 +230,10 @@ impl NodeInNodes {
         *self.max_size() = self.address().len();
     }
 
-    fn satisfies(&mut self, layout: Layout) -> bool {
+    fn satisfies(&mut self, size: usize) -> bool {
         match self.state().clone() {
             State::Allocated => false,
-            State::Divided => {
-                self.higher_half_mut()
-                    .is_some_and(|mut higher_half| higher_half.satisfies(layout))
-                    || self
-                        .lower_half_mut()
-                        .is_some_and(|mut lower_half| lower_half.satisfies(layout))
-            }
-            State::Free => {
-                let address: Range<usize> = self.address();
-                layout.size() < address.len() && address.start.is_multiple_of(layout.align())
-            }
+            State::Divided | State::Free => size <= *self.max_size(),
         }
     }
 
