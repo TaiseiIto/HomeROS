@@ -57,20 +57,20 @@ impl Iterator for Roots {
     }
 }
 
-pub struct NodeList(&'static mut [Node]);
+pub struct Nodes(&'static mut [Node]);
 
-impl NodeList {
+impl Nodes {
     const MAX_SIZE: usize = (4 * KIBI) as usize;
     const MAX_LENGTH: usize = Self::MAX_SIZE / size_of::<Node>();
     const MIN_LENGTH: usize = 1;
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
     pub fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
-        self.0.get_mut(0).unwrap().alloc(layout)
+        unimplemented!();
     }
 
     pub fn dealloc(&mut self, address: usize) {
-        self.0.get_mut(0).unwrap().dealloc(address);
+        unimplemented!();
     }
 
     pub fn initialize(region: Range<usize>) {
@@ -84,13 +84,13 @@ impl NodeList {
     }
 }
 
-impl Debug for NodeList {
+impl Debug for Nodes {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.0.get(0).unwrap().fmt(formatter)
     }
 }
 
-impl TryFrom<Range<usize>> for NodeList {
+impl TryFrom<Range<usize>> for Nodes {
     type Error = ();
 
     fn try_from(region: Range<usize>) -> Result<Self, Self::Error> {
@@ -116,18 +116,6 @@ struct Node {
 }
 
 impl Node {
-    fn alloc(&mut self, layout: Layout) -> Option<*mut u8> {
-        match self.state {
-            State::Allocated => None,
-            State::Divided => unimplemented!(),
-            State::Free => unimplemented!(),
-        }
-    }
-
-    fn dealloc(&mut self, address: usize) {
-        unimplemented!();
-    }
-
     fn initialize(&mut self, region: Range<usize>) {
         self.state = State::Free;
         self.max_size = region.len();

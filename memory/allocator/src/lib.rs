@@ -116,7 +116,7 @@ impl Allocator {
         Self::Uninitialized
     }
 
-    fn buddy_node_lists(&self) -> impl Iterator<Item = buddy::NodeList> {
+    fn buddy_node_lists(&self) -> impl Iterator<Item = buddy::Nodes> {
         self.buddy_roots()
             .filter_map(|buddy_root| buddy_root.try_into().ok())
     }
@@ -165,7 +165,7 @@ impl Allocator {
             map,
         };
         for buddy_root in self.buddy_roots() {
-            buddy::NodeList::initialize(buddy_root);
+            buddy::Nodes::initialize(buddy_root);
         }
     }
 
