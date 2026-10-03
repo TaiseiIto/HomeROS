@@ -1,5 +1,4 @@
 use {
-    alloc::alloc::Layout,
     core::{
         cmp::{max, min},
         mem::size_of,
@@ -60,9 +59,6 @@ pub struct Nodes(*mut [Node]);
 
 impl Nodes {
     const MAX_SIZE: usize = (4 * KIBI) as usize;
-    const MAX_LENGTH: usize = Self::MAX_SIZE / size_of::<Node>();
-    const MIN_LENGTH: usize = 1;
-    const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
     pub fn alloc(&mut self, size: usize) -> Option<*mut u8> {
         self.root().alloc(size)
@@ -105,9 +101,10 @@ impl TryFrom<Range<usize>> for Nodes {
         let list_length: usize = list_size / size_of::<Node>();
         let list_start: usize = (end - list_size) & !(list_size - 1);
         (0 < list_length && start < list_start)
-            .then_some(Self(unsafe {
-                slice_from_raw_parts_mut(list_start as *mut Node, list_length)
-            }))
+            .then_some(Self(slice_from_raw_parts_mut(
+                list_start as *mut Node,
+                list_length,
+            )))
             .ok_or(())
     }
 }
@@ -295,13 +292,6 @@ impl NodeInNodes {
     fn provides(&mut self) -> *mut u8 {
         assert!(self.can_provide());
         self.get_mut().provides()
-    }
-
-    fn satisfies(&mut self, size: usize) -> bool {
-        match self.state().clone() {
-            State::Allocated => false,
-            State::Divided | State::Free => size <= *self.max_size(),
-        }
     }
 
     fn state(&mut self) -> &mut State {
