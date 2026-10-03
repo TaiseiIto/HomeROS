@@ -5,7 +5,7 @@ use {
         fmt::{self, Debug, Formatter},
         mem::size_of,
         ops::Range,
-        slice::from_raw_parts_mut,
+        ptr::slice_from_raw_parts_mut,
     },
     unit::prefix::KIBI,
 };
@@ -57,7 +57,8 @@ impl Iterator for Roots {
     }
 }
 
-pub struct Nodes(&'static mut [Node]);
+#[derive(Clone)]
+pub struct Nodes(*mut [Node]);
 
 impl Nodes {
     const MAX_SIZE: usize = (4 * KIBI) as usize;
@@ -74,19 +75,30 @@ impl Nodes {
     }
 
     pub fn initialize(region: Range<usize>) {
-        if let Ok(Self(nodes)) = region.clone().try_into() {
-            let node_list_address: usize = nodes.as_ptr() as usize;
+        if let Ok(nodes @ Self(..)) = region.clone().try_into() {
+            let node_list_address: usize = nodes.as_mut_ptr() as usize;
             nodes
-                .get_mut(0)
-                .unwrap()
+                .root()
+                .get_mut()
                 .initialize(region.start..node_list_address);
         };
+    }
+
+    fn as_mut_ptr(&self) -> *mut Node {
+        self.0.as_mut_ptr()
+    }
+
+    fn root(&self) -> NodeInNodes {
+        NodeInNodes {
+            nodes: self.clone(),
+            index: 0,
+        }
     }
 }
 
 impl Debug for Nodes {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        self.0.get(0).unwrap().fmt(formatter)
+        self.root().get_mut().fmt(formatter)
     }
 }
 
@@ -102,9 +114,24 @@ impl TryFrom<Range<usize>> for Nodes {
         let list_start: usize = (end - list_size) & !(list_size - 1);
         (0 < list_length && start < list_start)
             .then_some(Self(unsafe {
-                from_raw_parts_mut(list_start as *mut Node, list_length)
+                slice_from_raw_parts_mut(list_start as *mut Node, list_length)
             }))
             .ok_or(())
+    }
+}
+
+struct NodeInNodes {
+    nodes: Nodes,
+    index: usize,
+}
+
+impl NodeInNodes {
+    fn get_mut(&mut self) -> &mut Node {
+        let Self {
+            nodes: Nodes(nodes),
+            index,
+        } = self;
+        unsafe { &mut *nodes.get_unchecked_mut(*index) }
     }
 }
 
