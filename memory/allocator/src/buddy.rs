@@ -134,6 +134,15 @@ impl NodeInNodes {
         unsafe { &mut *nodes.get_unchecked_mut(*index) }
     }
 
+    fn higher_half_mut(&mut self) -> Option<NodeInNodes> {
+        let Self { nodes, index } = self;
+        let index: usize = 2 * *index + 2;
+        (index < nodes.0.len()).then_some(Self {
+            nodes: nodes.clone(),
+            index,
+        })
+    }
+
     fn satisfies(&mut self, layout: Layout) -> bool {
         self.get_mut().satisfies(layout)
     }
