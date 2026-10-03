@@ -101,10 +101,12 @@ impl TryFrom<Range<usize>> for Nodes {
         let list_length: usize = list_size / size_of::<Node>();
         let list_start: usize = (end - list_size) & !(list_size - 1);
         (0 < list_length && start < list_start)
-            .then_some(Self(slice_from_raw_parts_mut(
-                list_start as *mut Node,
-                list_length,
-            )))
+            .then(|| {
+                Self(slice_from_raw_parts_mut(
+                    list_start as *mut Node,
+                    list_length,
+                ))
+            })
             .ok_or(())
     }
 }
@@ -238,11 +240,11 @@ impl NodeInNodes {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
         (index < nodes.len())
-            .then_some(Self {
+            .then(|| Self {
                 nodes: nodes.clone(),
                 index,
             })
-            .or({
+            .or_else(|| {
                 self.get_mut()
                     .higher_half_range()
                     .try_into()
@@ -269,11 +271,11 @@ impl NodeInNodes {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 1;
         (index < nodes.len())
-            .then_some(Self {
+            .then(|| Self {
                 nodes: nodes.clone(),
                 index,
             })
-            .or({
+            .or_else(|| {
                 self.get_mut()
                     .lower_half_range()
                     .try_into()
