@@ -133,6 +133,10 @@ impl NodeInNodes {
         } = self;
         unsafe { &mut *nodes.get_unchecked_mut(*index) }
     }
+
+    fn satisfies(&mut self, layout: Layout) -> bool {
+        self.get_mut().satisfies(layout)
+    }
 }
 
 #[derive(Debug)]
@@ -147,6 +151,17 @@ impl Node {
         self.state = State::Free;
         self.max_size = region.len();
         self.address = region;
+    }
+
+    fn satisfies(&mut self, layout: Layout) -> bool {
+        match self.state {
+            State::Allocated => false,
+            State::Divided => unimplemented!(),
+            State::Free => {
+                layout.size() < self.address.len()
+                    && self.address.start.is_multiple_of(layout.align())
+            }
+        }
     }
 }
 
