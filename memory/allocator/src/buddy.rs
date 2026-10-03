@@ -139,11 +139,22 @@ impl NodeInNodes {
                 .or_else(|| {
                     self.lower_half_mut()
                         .and_then(|mut lower_half| lower_half.alloc(size))
+                })
+                .inspect(|_| {
+                    *self.max_size() = max(
+                        self.higher_half_mut()
+                            .map(|mut higher_half| *higher_half.max_size())
+                            .unwrap_or(0),
+                        self.lower_half_mut()
+                            .map(|mut lower_half| *lower_half.max_size())
+                            .unwrap_or(0),
+                    )
                 }),
             State::Free => (size <= *self.max_size()).then(|| {
                 self.divides();
                 self.alloc(size).unwrap_or_else(|| {
                     self.merges();
+                    *self.max_size() = 0;
                     self.provides()
                 })
             }),
