@@ -137,35 +137,25 @@ impl NodeInNodes {
     fn higher_half_mut(&mut self) -> Option<NodeInNodes> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 2;
-        (index < nodes.0.len())
-            .then_some(Self {
-                nodes: nodes.clone(),
-                index,
-            })
-            .or({
-                self.get_mut()
-                    .higher_half_range()
-                    .try_into()
-                    .ok()
-                    .map(|nodes: Nodes| nodes.root())
-            })
+        (index < nodes.0.len()).then_some(nodes.root()).or({
+            self.get_mut()
+                .higher_half_range()
+                .try_into()
+                .ok()
+                .map(|nodes: Nodes| nodes.root())
+        })
     }
 
     fn lower_half_mut(&mut self) -> Option<NodeInNodes> {
         let Self { nodes, index } = self;
         let index: usize = 2 * *index + 1;
-        (index < nodes.0.len())
-            .then_some(Self {
-                nodes: nodes.clone(),
-                index,
-            })
-            .or({
-                self.get_mut()
-                    .lower_half_range()
-                    .try_into()
-                    .ok()
-                    .map(|nodes: Nodes| nodes.root())
-            })
+        (index < nodes.0.len()).then_some(nodes.root()).or({
+            self.get_mut()
+                .lower_half_range()
+                .try_into()
+                .ok()
+                .map(|nodes: Nodes| nodes.root())
+        })
     }
 
     fn satisfies(&mut self, layout: Layout) -> bool {
