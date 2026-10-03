@@ -131,7 +131,23 @@ impl NodeInNodes {
     }
 
     fn alloc(&mut self, size: usize) -> Option<*mut u8> {
-        unimplemented!();
+        match self.state().clone() {
+            State::Allocated => None,
+            State::Divided => self
+                .higher_half_mut()
+                .and_then(|mut higher_half| higher_half.alloc(size))
+                .or_else(|| {
+                    self.lower_half_mut()
+                        .and_then(|mut lower_half| lower_half.alloc(size))
+                }),
+            State::Free => (size <= *self.max_size()).then(|| {
+                self.divide();
+                self.alloc(size).unwrap_or_else(|| {
+                    self.merge();
+                    self.provides()
+                })
+            }),
+        }
     }
 
     fn can_divide(&mut self) -> bool {
@@ -148,6 +164,10 @@ impl NodeInNodes {
                 .lower_half_mut()
                 .map(|mut lower_half| lower_half.state().clone())
                 .is_none_or(|state| matches!(state, State::Free))
+    }
+
+    fn can_provide(&mut self) -> bool {
+        matches!(self.state(), State::Free)
     }
 
     fn dealloc(&mut self, address: usize) {
@@ -238,6 +258,11 @@ impl NodeInNodes {
         *self.max_size() = self.address().len();
     }
 
+    fn provides(&mut self) -> *mut u8 {
+        assert!(self.can_provide());
+        self.get_mut().provides()
+    }
+
     fn satisfies(&mut self, size: usize) -> bool {
         match self.state().clone() {
             State::Allocated => false,
@@ -275,6 +300,11 @@ impl Node {
 
     fn lower_half_range(&self) -> Range<usize> {
         self.address.start..self.division_point()
+    }
+
+    fn provides(&mut self) -> *mut u8 {
+        let address: usize = self.address.start;
+        address as *mut u8
     }
 }
 
