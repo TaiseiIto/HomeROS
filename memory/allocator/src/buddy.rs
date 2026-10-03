@@ -231,7 +231,20 @@ impl NodeInNodes {
     }
 
     fn satisfies(&mut self, layout: Layout) -> bool {
-        self.get_mut().satisfies(layout)
+        match self.state().clone() {
+            State::Allocated => false,
+            State::Divided => {
+                self.higher_half_mut()
+                    .is_some_and(|mut higher_half| higher_half.satisfies(layout))
+                    || self
+                        .lower_half_mut()
+                        .is_some_and(|mut lower_half| lower_half.satisfies(layout))
+            }
+            State::Free => {
+                let address: Range<usize> = self.address();
+                layout.size() < address.len() && address.start.is_multiple_of(layout.align())
+            }
+        }
     }
 
     fn state(&mut self) -> &mut State {
@@ -264,17 +277,6 @@ impl Node {
 
     fn lower_half_range(&self) -> Range<usize> {
         self.address.start..self.division_point()
-    }
-
-    fn satisfies(&self, layout: Layout) -> bool {
-        match self.state {
-            State::Allocated => false,
-            State::Divided => unimplemented!(),
-            State::Free => {
-                layout.size() < self.address.len()
-                    && self.address.start.is_multiple_of(layout.align())
-            }
-        }
     }
 }
 
