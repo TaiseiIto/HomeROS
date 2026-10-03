@@ -210,21 +210,20 @@ impl NodeInNodes {
         *self.state() = State::Divided;
         let higher_half_range: Range<usize> = self.get_mut().higher_half_range();
         let lower_half_range: Range<usize> = self.get_mut().lower_half_range();
-        let higher_half_max_size: usize = self
-            .higher_half_mut()
-            .map(|mut higher_half| {
-                higher_half.initialize(higher_half_range);
-                *higher_half.max_size()
-            })
-            .unwrap_or(0);
-        let lower_half_max_size: usize = self
-            .lower_half_mut()
-            .map(|mut lower_half| {
-                lower_half.initialize(lower_half_range);
-                *lower_half.max_size()
-            })
-            .unwrap_or(0);
-        *self.max_size() = max(higher_half_max_size, lower_half_max_size);
+        *self.max_size() = max(
+            self.higher_half_mut()
+                .map(|mut higher_half| {
+                    higher_half.initialize(higher_half_range);
+                    *higher_half.max_size()
+                })
+                .unwrap_or(0),
+            self.lower_half_mut()
+                .map(|mut lower_half| {
+                    lower_half.initialize(lower_half_range);
+                    *lower_half.max_size()
+                })
+                .unwrap_or(0),
+        );
     }
 
     fn get_mut(&mut self) -> &mut Node {
