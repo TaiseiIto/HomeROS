@@ -130,6 +130,10 @@ impl NodeInNodes {
         self.get_mut().address.clone()
     }
 
+    fn can_divide(&mut self) -> bool {
+        matches!(self.state(), State::Free)
+    }
+
     fn can_merge(&mut self) -> bool {
         matches!(self.state(), State::Divided)
             && self
@@ -143,9 +147,8 @@ impl NodeInNodes {
     }
 
     fn divide(&mut self) {
-        let state: &mut State = self.state();
-        assert!(matches!(state, State::Free));
-        *state = State::Divided;
+        assert!(self.can_divide());
+        *self.state() = State::Divided;
         let higher_half_range: Range<usize> = self.get_mut().higher_half_range();
         let lower_half_range: Range<usize> = self.get_mut().lower_half_range();
         let higher_half_max_size: usize = self
