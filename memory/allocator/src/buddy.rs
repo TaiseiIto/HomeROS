@@ -67,11 +67,11 @@ impl Nodes {
     const MIN_SIZE: usize = Self::MIN_LENGTH * size_of::<Node>();
 
     pub fn alloc(&mut self, size: usize) -> Option<*mut u8> {
-        unimplemented!();
+        self.root().alloc(size)
     }
 
     pub fn dealloc(&mut self, address: usize) {
-        unimplemented!();
+        self.root().dealloc(address)
     }
 
     pub fn initialize(address: Range<usize>) {
@@ -130,6 +130,10 @@ impl NodeInNodes {
         self.get_mut().address.clone()
     }
 
+    fn alloc(&mut self, size: usize) -> Option<*mut u8> {
+        unimplemented!();
+    }
+
     fn can_divide(&mut self) -> bool {
         matches!(self.state(), State::Free)
     }
@@ -144,6 +148,10 @@ impl NodeInNodes {
                 .lower_half_mut()
                 .map(|mut lower_half| lower_half.state().clone())
                 .is_none_or(|state| matches!(state, State::Free))
+    }
+
+    fn dealloc(&mut self, address: usize) {
+        unimplemented!();
     }
 
     fn divide(&mut self) {
