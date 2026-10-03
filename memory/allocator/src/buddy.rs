@@ -127,18 +127,28 @@ struct NodeInNodes {
 
 impl NodeInNodes {
     fn divide(&mut self) {
-        let node: &mut Node = self.get_mut();
-        assert!(matches!(node.state, State::Free));
-        node.state = State::Divided;
-        let higher_half_range: Range<usize> = node.higher_half_range();
-        let lower_half_range: Range<usize> = node.lower_half_range();
-        if let Some(mut higher_half) = self.higher_half_mut() {
-            higher_half.initialize(higher_half_range);
-        }
-        if let Some(mut lower_half) = self.lower_half_mut() {
-            lower_half.initialize(lower_half_range);
-        }
+        let state: &mut State = self.state();
+        assert!(matches!(state, State::Free));
+        *state = State::Divided;
+        let higher_half_range: Range<usize> = self.get_mut().higher_half_range();
+        let lower_half_range: Range<usize> = self.get_mut().lower_half_range();
+        let higher_half_max_size: usize = self
+            .higher_half_mut()
+            .map(|mut higher_half| {
+                higher_half.initialize(higher_half_range);
+                *higher_half.max_size()
+            })
+            .unwrap_or(0);
+        let lower_half_max_size: usize = self
+            .lower_half_mut()
+            .map(|mut lower_half| {
+                lower_half.initialize(lower_half_range);
+                *lower_half.max_size()
+            })
+            .unwrap_or(0);
+        *self.max_size() = max(higher_half_max_size, lower_half_max_size);
     }
+
     fn get_mut(&mut self) -> &mut Node {
         let Self {
             nodes: Nodes(nodes),
@@ -191,8 +201,16 @@ impl NodeInNodes {
             })
     }
 
+    fn max_size(&mut self) -> &mut usize {
+        &mut self.get_mut().max_size
+    }
+
     fn satisfies(&mut self, layout: Layout) -> bool {
         self.get_mut().satisfies(layout)
+    }
+
+    fn state(&mut self) -> &mut State {
+        &mut self.get_mut().state
     }
 }
 
