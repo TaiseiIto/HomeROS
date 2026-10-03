@@ -153,7 +153,7 @@ impl NodeInNodes {
     }
 
     fn can_divide(&mut self) -> bool {
-        matches!(self.state(), State::Free)
+        self.is_free()
     }
 
     fn can_merge(&mut self) -> bool {
@@ -169,7 +169,7 @@ impl NodeInNodes {
     }
 
     fn can_provide(&mut self) -> bool {
-        matches!(self.state(), State::Free)
+        self.is_free()
     }
 
     fn dealloc(&mut self, address: usize) {
@@ -260,6 +260,10 @@ impl NodeInNodes {
             address
         };
         self.get_mut().initialize(address);
+    }
+
+    fn is_free(&mut self) -> bool {
+        matches!(self.state(), State::Free)
     }
 
     fn lower_half_mut(&mut self) -> Option<Self> {
