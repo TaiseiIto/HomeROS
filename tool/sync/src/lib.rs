@@ -4,8 +4,11 @@
 //! * Implement Arc after implementing memory allocator.
 #![no_std]
 
+extern crate alloc;
+
 #[cfg(test)]
 extern crate std;
 
+pub mod arc;
 pub mod oneshot;
 pub mod spin;
