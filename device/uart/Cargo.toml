@@ -11,7 +11,7 @@ path = "../../arch"
 path = "../../macro/io"
 
 [dependencies.sync]
-path = "../../sync"
+path = "../../tool/sync"
 
 [dependencies.tree]
 path = "../tree"

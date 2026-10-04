@@ -13,7 +13,7 @@ path = "../../memory"
 path = "../../tool/regex"
 
 [dependencies.sync]
-path = "../../sync"
+path = "../../tool/sync"
 
 [dependencies.unit]
 path = "../../tool/unit"

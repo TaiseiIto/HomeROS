@@ -13,8 +13,8 @@ members = [
 	"macro/parser",
 	"memory",
 	"memory/allocator",
-	"sync",
 	"tool/regex",
+	"tool/sync",
 	"tool/unit",
 	"xtask"
 ]
