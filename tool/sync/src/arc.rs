@@ -16,6 +16,13 @@ pub struct Arc<T> {
 }
 
 impl<T> Arc<T> {
+    pub fn get_mut(arc: &mut Self) -> Option<&mut T> {
+        (arc.data().ref_count.load(Relaxed) == 1).then(|| {
+            fence(Acquire);
+            unsafe { &mut arc.ptr.as_mut().data }
+        })
+    }
+
     pub fn new(data: T) -> Self {
         Self {
             ptr: NonNull::from(Box::leak(Box::new(Data {
