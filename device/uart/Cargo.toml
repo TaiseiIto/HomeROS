@@ -8,7 +8,7 @@ build = "../../firmware/build.rs"
 path = "../../arch"
 
 [dependencies.io]
-path = "../../macro/io"
+path = "../../tool/macro/io"
 
 [dependencies.sync]
 path = "../../tool/sync"
