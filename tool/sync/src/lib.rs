@@ -10,3 +10,5 @@ extern crate std;
 pub mod arc;
 pub mod oneshot;
 pub mod spin;
+
+pub use arc::{Arc, Weak};

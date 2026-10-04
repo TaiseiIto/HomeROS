@@ -1,70 +1,82 @@
-use core::{
-    cell::{OnceCell, UnsafeCell},
-    fmt::Debug,
-    marker::{Send, Sync},
-    ops::Drop,
-    sync::atomic::{
-        AtomicBool,
-        Ordering::{Acquire, Relaxed, Release},
+use {
+    crate::Arc,
+    core::{
+        cell::{OnceCell, UnsafeCell},
+        fmt::Debug,
+        marker::{Send, Sync},
+        ops::Drop,
+        sync::atomic::{
+            AtomicBool,
+            Ordering::{Acquire, Relaxed, Release},
+        },
     },
 };
 
-/// # TODO
-/// * Read 5.4 of [Rust Atomics and Locks](https://www.oreilly.co.jp/books/9784814400515/) after implementing Arc.
+pub fn channel<T>() -> (Sender<T>, Receiver<T>) {
+    let channel = Arc::new(Channel {
+        message: UnsafeCell::new(OnceCell::new()),
+        ready: AtomicBool::new(false),
+    });
+    (Sender(channel.clone()), Receiver(channel))
+}
+
+pub struct Sender<T>(Arc<Channel<T>>);
+
+impl<T: Debug> Sender<T> {
+    pub fn send(self, message: T) {
+        unsafe { &mut *self.0.message.get() }.set(message).unwrap();
+        self.0.ready.store(true, Release);
+    }
+}
+
+pub struct Receiver<T>(Arc<Channel<T>>);
+
+impl<T> Receiver<T> {
+    pub fn is_ready(&self) -> bool {
+        self.0.ready.load(Relaxed)
+    }
+
+    pub fn receive(self) -> T {
+        assert!(self.0.ready.swap(false, Acquire));
+        unsafe { &mut *self.0.message.get() }.take().unwrap()
+    }
+}
+
 #[derive(Default)]
-pub struct Channel<T: Debug> {
+struct Channel<T> {
     message: UnsafeCell<OnceCell<T>>,
-    in_use: AtomicBool,
     ready: AtomicBool,
 }
 
-impl<T: Debug> Channel<T> {
-    pub fn is_ready(&self) -> bool {
-        self.ready.load(Relaxed)
-    }
-
-    pub fn receive(&self) -> T {
-        if !self.ready.swap(false, Acquire) {
-            panic!();
-        }
-        unsafe { &mut *self.message.get() }.take().unwrap()
-    }
-
-    pub fn send(&self, message: T) {
-        if self.in_use.swap(true, Relaxed) {
-            panic!();
-        }
-        unsafe { &mut *self.message.get() }.set(message).unwrap();
-        self.ready.store(true, Release);
-    }
-}
-
-impl<T: Debug> Drop for Channel<T> {
+impl<T> Drop for Channel<T> {
     fn drop(&mut self) {
-        self.message.get_mut().take();
+        unsafe { &mut *self.message.get() }.take();
     }
 }
 
-unsafe impl<T: Debug> Sync for Channel<T> where T: Send {}
+unsafe impl<T> Sync for Channel<T> where T: Send {}
 
 #[cfg(test)]
 mod tests {
-    use {super::*, std::thread};
+    use {
+        super::*,
+        std::thread::{self, Thread},
+    };
 
     #[test]
     fn test() {
-        let channel = Channel::default();
-        let main_thread = thread::current();
-        let message: &str = "Hello, World!";
-        thread::scope(|thread_scope| {
-            thread_scope.spawn(|| {
-                channel.send(message);
+        thread::scope(|scope| {
+            let (sender, receiver): (Sender<&str>, Receiver<&str>) = channel();
+            let main_thread: Thread = thread::current();
+            let message: &str = "Hello, World!";
+            scope.spawn(move || {
+                sender.send(message);
                 main_thread.unpark();
             });
-            while !channel.is_ready() {
+            while !receiver.is_ready() {
                 thread::park();
             }
-            assert_eq!(channel.receive(), message);
+            assert_eq!(receiver.receive(), message);
         });
     }
 }
