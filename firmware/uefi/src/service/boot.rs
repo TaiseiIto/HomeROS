@@ -7,7 +7,11 @@ mod protocol;
 mod task;
 mod timer;
 
-use crate::{Char16, Status, Void, table};
+use {
+    crate::{Char16, Handle, Status, Void, table},
+    alloc::vec::Vec,
+    core::ptr::null_mut,
+};
 
 /// # References
 /// * [EFI_BOOT_SERVICES](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-boot-services)
@@ -41,7 +45,7 @@ pub struct Table {
     start_image: image::Start,
     exit: image::Exit,
     unload_image: image::Unload,
-    exit_services: image::ExitServices,
+    exit_boot_services: image::ExitBootServices,
     get_next_monotonic_count: GetNextMonotonicCount,
     stall: Stall,
     set_watchdog_timer: SetWatchdogTimer,
@@ -59,6 +63,59 @@ pub struct Table {
     copy_mem: memory::Copy,
     set_mem: memory::Set,
     create_event_ex: event::CreateEx,
+}
+
+impl Table {
+    pub fn exit_boot_services(&mut self, image: Handle) -> memory::Map {
+        let memory_map: memory::Map = self.get_memory_map();
+        (self.exit_boot_services)(image, memory_map.key()).assert();
+        memory_map
+    }
+
+    fn allocate_pool(&self, size: usize) -> Vec<u8> {
+        let mut buffer: *mut Void = null_mut();
+        (self.allocate_pool)(
+            memory::Type::LoaderData,
+            size,
+            (&mut buffer) as *mut *mut Void,
+        )
+        .assert();
+        unsafe { Vec::<u8>::from_raw_parts(buffer as *mut u8, size, size) }
+    }
+
+    fn get_memory_map(&self) -> memory::Map {
+        let mut size: usize = 2 * self.get_memory_map_size();
+        let mut descriptors: Vec<u8> = self.allocate_pool(size);
+        let mut key: usize = 0;
+        let mut descriptor_size: usize = 0;
+        let mut descriptor_version: u32 = 0;
+        (self.get_memory_map)(
+            (&mut size) as *mut usize,
+            descriptors.as_mut_ptr() as *mut memory::map::Descriptor,
+            (&mut key) as *mut usize,
+            (&mut descriptor_size) as *mut usize,
+            (&mut descriptor_version) as *mut u32,
+        )
+        .assert();
+        descriptors.truncate(size);
+        memory::Map::new(key, descriptors, descriptor_size)
+    }
+
+    fn get_memory_map_size(&self) -> usize {
+        let mut size: usize = 0;
+        let mut key: usize = 0;
+        let mut descriptor_size: usize = 0;
+        let mut descriptor_version: u32 = 0;
+        (self.get_memory_map)(
+            (&mut size) as *mut usize,
+            null_mut(),
+            (&mut key) as *mut usize,
+            (&mut descriptor_size) as *mut usize,
+            (&mut descriptor_version) as *mut u32,
+        )
+        .assert_buffer_too_small();
+        size
+    }
 }
 
 /// # References

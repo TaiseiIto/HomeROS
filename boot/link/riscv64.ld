@@ -15,8 +15,9 @@ SECTIONS {
 	.bss : {
 		*(.bss .bss.*)
 	}
+	_heap_head = .;
 	. = ALIGN(4K);
 	_stack_top = .;
-	. += 0x10000;
+	. += 0x40000;
 	_stack_bottom = .;
 }

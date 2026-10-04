@@ -1,13 +1,16 @@
 #![no_std]
 
+extern crate alloc;
+
 mod configuration;
 mod protocol;
-mod service;
+pub mod service;
 pub mod system;
 mod table;
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
+#[derive(Debug)]
 #[repr(C)]
 pub struct Guid {
     data1: u32,
@@ -27,9 +30,14 @@ impl Status {
     /// # References
     /// * [Status Codes](https://uefi.org/specs/UEFI/2.11/Apx_D_Status_Codes.html)
     const SUCCESS: Self = Self(0);
+    const BUFFER_TOO_SMALL: Self = Self((1 << (usize::BITS - 1)) + 5);
 
     pub fn assert(self) {
         assert_eq!(self, Self::SUCCESS);
+    }
+
+    pub fn assert_buffer_too_small(self) {
+        assert_eq!(self, Self::BUFFER_TOO_SMALL);
     }
 }
 

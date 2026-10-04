@@ -18,8 +18,6 @@ pub struct Command {
 }
 
 impl Command {
-    const DEBUG: &str = "debug.log";
-    const LOG: &str = "-d int,cpu_reset -D qemu.log";
     const MEMORY: &str = "-m 1G";
     const REBOOT: &str = "--no-reboot";
     const VNC: &str = "-vnc :0";
@@ -48,14 +46,14 @@ impl Command {
         [
             self.qemu(),
             &self.boot(),
-            self.com1(),
-            self.com2(),
+            &self.com1(),
+            &self.com2(),
             self.cpu(),
             &self.debug(),
             self.display(),
             &self.drive(),
             &self.firmware(),
-            Self::LOG,
+            &self.log(),
             self.machine(),
             Self::MEMORY,
             Self::REBOOT,
@@ -64,22 +62,39 @@ impl Command {
         .join(" ")
     }
 
-    fn com1(&self) -> &str {
+    fn com1(&self) -> String {
         let Self { arch, version: _ } = self;
         match arch {
-            Arch::X64 => "-serial file:com1.log",
-            _ => "-chardev stdio,id=com1,mux=on,logfile=com1.log -serial chardev:com1",
+            Arch::X64 => format!("-serial file:{}", self.com1log().to_str().unwrap()),
+            _ => format!(
+                "-chardev stdio,id=com1,mux=on,logfile={} -serial chardev:com1",
+                self.com1log().to_str().unwrap()
+            ),
         }
     }
 
-    fn com2(&self) -> &str {
+    fn com1log(&self) -> PathBuf {
+        let mut com1log: PathBuf = self.log_directory();
+        com1log.push("com1.log");
+        com1log
+    }
+
+    fn com2(&self) -> String {
         let Self { arch, version: _ } = self;
         match arch {
-            Arch::X64 => "-chardev stdio,id=com2,mux=on,logfile=com2.log -serial chardev:com2",
-            _ => "",
+            Arch::X64 => format!(
+                "-chardev stdio,id=com2,mux=on,logfile={} -serial chardev:com2",
+                self.com2log().to_str().unwrap()
+            ),
+            _ => String::new(),
         }
     }
 
+    fn com2log(&self) -> PathBuf {
+        let mut com2log: PathBuf = self.log_directory();
+        com2log.push("com2.log");
+        com2log
+    }
     fn cpu(&self) -> &str {
         let Self { arch, version: _ } = self;
         match arch {
@@ -91,13 +106,19 @@ impl Command {
     fn debug(&self) -> String {
         let Self { arch, version: _ } = self;
         match arch {
-            Arch::Aarch64 => format!("-serial file:{}", Self::DEBUG),
+            Arch::Aarch64 => format!("-serial file:{}", self.debug_log().to_str().unwrap()),
             Arch::X64 => format!(
                 "-chardev file,id=debug,path={} -device isa-debugcon,iobase=0x402,chardev=debug",
-                Self::DEBUG
+                self.debug_log().to_str().unwrap(),
             ),
             _ => String::new(),
         }
+    }
+
+    fn debug_log(&self) -> PathBuf {
+        let mut debug_log: PathBuf = self.log_directory();
+        debug_log.push("debug.log");
+        debug_log
     }
 
     fn destination(&self) -> PathBuf {
@@ -146,6 +167,20 @@ impl Command {
         }
     }
 
+    fn log(&self) -> String {
+        format!("-d int,cpu_reset -D {}", self.qemu_log().to_str().unwrap())
+    }
+
+    fn log_directory(&self) -> PathBuf {
+        let mut log_directory: PathBuf = PathBuf::from("log");
+        log_directory.push(match self.arch {
+            Arch::Aarch64 => "aarch64",
+            Arch::RiscV64 => "riscv64",
+            Arch::X64 => "x64",
+        });
+        log_directory
+    }
+
     fn machine(&self) -> &str {
         let Self { arch, version: _ } = self;
         match arch {
@@ -166,6 +201,12 @@ impl Command {
             Arch::RiscV64 => "qemu-system-riscv64",
             Arch::X64 => "qemu-system-x86_64",
         }
+    }
+
+    fn qemu_log(&self) -> PathBuf {
+        let mut qemu_log: PathBuf = self.log_directory();
+        qemu_log.push("qemu.log");
+        qemu_log
     }
 
     fn run_inside_tmux(self) {

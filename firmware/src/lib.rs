@@ -9,6 +9,25 @@ use {
 };
 
 #[macro_export]
+macro_rules! dbg {
+    ($arg:expr) => {
+        match $arg {
+            tmp => {
+                $crate::println!(
+                    "[{}:{}:{}] {} = {:#x?}",
+                    file!(),
+                    line!(),
+                    column!(),
+                    stringify!($arg),
+                    tmp
+                );
+                tmp
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
 }
@@ -26,6 +45,14 @@ pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 
 #[derive(Debug)]
 pub struct Global {
+    #[cfg(firmware = "sbi")]
+    hartid: usize,
+    #[cfg(has_device_tree)]
+    device_tree: &'static tree::Header,
+    #[cfg(start_with_assembly)]
+    boot_loader_head: usize,
+    #[cfg(use_temporary_memory_allocator)]
+    boot_heap_head: usize,
     #[cfg(firmware = "uefi")]
     image_handle: uefi::HandleMut,
     #[cfg(firmware = "uefi")]
@@ -33,13 +60,49 @@ pub struct Global {
 }
 
 impl Global {
+    #[cfg(use_temporary_memory_allocator)]
+    pub fn boot_heap_head(&self) -> usize {
+        self.boot_heap_head
+    }
+
+    #[cfg(start_with_assembly)]
+    pub fn boot_loader_head(&self) -> usize {
+        self.boot_loader_head
+    }
+
+    #[cfg(has_device_tree)]
+    pub fn device_tree(&self) -> &tree::Header {
+        self.device_tree
+    }
+
+    #[cfg(firmware = "uefi")]
+    pub fn exit_boot_services(&mut self) -> uefi::service::boot::memory::Map {
+        self.system_table
+            .exit_boot_services(self.image_handle as uefi::Handle)
+    }
+
     /// # Safety
-    /// This function dereferences `image_handle` and `system_table`.
+    /// This function dereferences raw pointers.
+    /// Caller must pass valid pointers.
     pub unsafe fn new(
+        #[cfg(firmware = "sbi")] hartid: usize,
+        #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
+        #[cfg(start_with_assembly)] boot_loader_head: usize,
+        #[cfg(use_temporary_memory_allocator)] boot_heap_head: usize,
         #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
         #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
     ) -> Self {
         Self {
+            #[cfg(firmware = "sbi")]
+            hartid,
+            #[cfg(firmware = "sbi")]
+            device_tree: unsafe { &*device_tree },
+            #[cfg(firmware = "tfa")]
+            device_tree: unsafe { &*(0x40000000 as *const tree::Header) },
+            #[cfg(start_with_assembly)]
+            boot_loader_head,
+            #[cfg(use_temporary_memory_allocator)]
+            boot_heap_head,
             #[cfg(firmware = "uefi")]
             image_handle,
             #[cfg(firmware = "uefi")]

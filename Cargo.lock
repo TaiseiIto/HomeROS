@@ -3,6 +3,16 @@
 version = 4
 
 [[package]]
+name = "allocator"
+version = "0.1.0"
+dependencies = [
+ "memory",
+ "sync",
+ "uefi",
+ "unit",
+]
+
+[[package]]
 name = "arch"
 version = "0.1.0"
 
@@ -10,9 +20,20 @@ version = "0.1.0"
 name = "boot"
 version = "0.1.0"
 dependencies = [
+ "allocator",
  "arch",
  "firmware",
+ "tree",
  "uart",
+]
+
+[[package]]
+name = "endian"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -22,12 +43,26 @@ dependencies = [
  "sbi",
  "sync",
  "tfa",
+ "tree",
  "uart",
  "uefi",
 ]
 
 [[package]]
 name = "io"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "memory"
+version = "0.1.0"
+
+[[package]]
+name = "parser"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",
@@ -51,6 +86,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "regex"
+version = "0.1.0"
+dependencies = [
+ "parser",
 ]
 
 [[package]]
@@ -80,23 +122,43 @@ name = "tfa"
 version = "0.1.0"
 
 [[package]]
+name = "tree"
+version = "0.1.0"
+dependencies = [
+ "endian",
+ "memory",
+ "regex",
+ "sync",
+ "unit",
+]
+
+[[package]]
 name = "uart"
 version = "0.1.0"
 dependencies = [
  "arch",
  "io",
  "sync",
+ "tree",
 ]
 
 [[package]]
 name = "uefi"
 version = "0.1.0"
+dependencies = [
+ "io",
+ "unit",
+]
 
 [[package]]
 name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+
+[[package]]
+name = "unit"
+version = "0.1.0"
 
 [[package]]
 name = "xtask"

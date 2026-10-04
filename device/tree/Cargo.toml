@@ -1,0 +1,19 @@
+[package]
+name = "tree"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies.endian]
+path = "../../tool/macro/endian"
+
+[dependencies.memory]
+path = "../../memory"
+
+[dependencies.regex]
+path = "../../tool/regex"
+
+[dependencies.sync]
+path = "../../tool/sync"
+
+[dependencies.unit]
+path = "../../tool/unit"

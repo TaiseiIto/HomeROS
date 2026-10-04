@@ -1,0 +1,66 @@
+use {
+    crate::node::{SecondAnalyzed, SecondAnalyzer},
+    alloc::vec::Vec,
+    core::{
+        fmt::{Debug, Formatter, Result},
+        ops::Range,
+    },
+    memory::Regions,
+};
+
+/// # References
+/// * [Devicetree Specification](https://github.com/devicetree-org/devicetree-specification/releases/download/v0.4/devicetree-specification-v0.4.pdf) 2.3.6 reg
+#[derive(Clone)]
+pub enum Reg {
+    Raw(Vec<u32>),
+    Pretty(Vec<Range<u128>>),
+}
+
+impl Debug for Reg {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        match self {
+            Self::Raw(words) => formatter.debug_list().entries(words).finish(),
+            Self::Pretty(ranges) => formatter.debug_list().entries(ranges).finish(),
+        }
+    }
+}
+
+impl From<&Reg> for Regions<u128> {
+    fn from(reg: &Reg) -> Self {
+        if let Reg::Pretty(ranges) = reg {
+            ranges.as_slice().into()
+        } else {
+            panic!();
+        }
+    }
+}
+
+impl SecondAnalyzed for Reg {
+    fn second_analyze(&self, second_analyzer: &SecondAnalyzer<'_>) -> Self {
+        if let Self::Raw(words) = self {
+            let address_cells: usize = second_analyzer.parent_address_cells().unwrap();
+            let size_cells: usize = second_analyzer.parent_size_cells().unwrap();
+            let range_cells: usize = address_cells + size_cells;
+            Self::Pretty(
+                words
+                    .as_slice()
+                    .chunks(range_cells)
+                    .map(|range| {
+                        let (address_cells, size_cells): (&[u32], &[u32]) =
+                            range.split_at(address_cells);
+                        let start: u128 = address_cells
+                            .iter()
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
+                        let size: u128 = size_cells
+                            .iter()
+                            .fold(0, |value, cell| (value << u32::BITS) + (*cell as u128));
+                        let end: u128 = start + size;
+                        start..end
+                    })
+                    .collect(),
+            )
+        } else {
+            panic!();
+        }
+    }
+}

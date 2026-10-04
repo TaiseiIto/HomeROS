@@ -4,9 +4,18 @@ version = "0.1.0"
 edition = "2024"
 build = "../firmware/build.rs"
 
+[dependencies.allocator]
+path = "../memory/allocator"
+
 [dependencies.arch]
 path = "../arch"
+
 [dependencies.firmware]
 path = "../firmware"
+
 [dependencies.uart]
 path = "../device/uart"
+
+[target.'cfg(any(target_arch = "aarch64", target_arch = "riscv64"))'.dependencies.tree]
+path = "../device/tree"
+
