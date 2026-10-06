@@ -1,5 +1,5 @@
 use core::{
-    mem::{offset_of, size_of},
+    mem::{offset_of, size_of, size_of_val},
     num::Wrapping,
     slice::from_raw_parts,
 };
@@ -31,7 +31,7 @@ impl Pointer {
             .sum::<Wrapping<u8>>()
             .0
             == 0
-            && unsafe { from_raw_parts(pointer, size_of::<Self>()) }
+            && unsafe { from_raw_parts(pointer, offset_of!(Self, __) + size_of_val(&self.__)) }
                 .iter()
                 .copied()
                 .map(Wrapping)
