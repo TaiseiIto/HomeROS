@@ -3,6 +3,9 @@ name = "uefi"
 version = "0.1.0"
 edition = "2024"
 
+[dependencies.acpi]
+path = "../../device/acpi"
+
 [dependencies.io]
 path = "../../tool/macro/io"
 

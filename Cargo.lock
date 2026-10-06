@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "acpi"
+version = "0.1.0"
+
+[[package]]
 name = "allocator"
 version = "0.1.0"
 dependencies = [
@@ -40,6 +44,7 @@ dependencies = [
 name = "firmware"
 version = "0.1.0"
 dependencies = [
+ "acpi",
  "sbi",
  "sync",
  "tfa",
@@ -146,6 +151,7 @@ dependencies = [
 name = "uefi"
 version = "0.1.0"
 dependencies = [
+ "acpi",
  "io",
  "unit",
 ]

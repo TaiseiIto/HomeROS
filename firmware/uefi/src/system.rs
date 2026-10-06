@@ -5,6 +5,7 @@ use {
         service::{boot, runtime},
         table::Header,
     },
+    acpi::root_system_description::Pointer,
     core::{
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,
@@ -33,6 +34,13 @@ pub struct Table {
 impl Table {
     pub fn exit_boot_services(&mut self, image: Handle) -> boot::memory::Map {
         unsafe { &mut *self.boot_services }.exit_boot_services(image)
+    }
+
+    pub fn rsdp(&self) -> &Pointer {
+        self.configuration_tables()
+            .iter()
+            .find_map(|table| table.try_into().ok())
+            .unwrap()
     }
 
     pub fn write(&self, string: &str) {

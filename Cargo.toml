@@ -2,6 +2,7 @@
 members = [
 	"arch",
 	"boot",
+	"device/acpi",
 	"device/tree",
 	"device/uart",
 	"firmware",

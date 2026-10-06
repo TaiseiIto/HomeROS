@@ -102,7 +102,8 @@ fn main(global: firmware::Global) {
         #[cfg(start_with_assembly)]
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
-    uart::dbg!((0..10).collect::<Vec<usize>>());
+    #[cfg(firmware = "uefi")]
+    uart::dbg!(firmware::GLOBAL.lock().get().unwrap().rsdp());
     unimplemented!();
 }
 

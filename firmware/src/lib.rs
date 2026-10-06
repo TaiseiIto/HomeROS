@@ -8,6 +8,9 @@ use {
     sync::spin::Lock,
 };
 
+#[cfg(firmware = "uefi")]
+use acpi::root_system_description::Pointer;
+
 #[macro_export]
 macro_rules! dbg {
     ($arg:expr) => {
@@ -108,6 +111,11 @@ impl Global {
             #[cfg(firmware = "uefi")]
             system_table: unsafe { &mut *system_table },
         }
+    }
+
+    #[cfg(firmware = "uefi")]
+    pub fn rsdp(&self) -> &Pointer {
+        self.system_table.rsdp()
     }
 
     pub fn set(self) {
