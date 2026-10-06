@@ -1,14 +1,16 @@
-use core::{
-    fmt::{Debug, Formatter, Result},
-    mem::{offset_of, size_of, size_of_val},
-    num::Wrapping,
-    slice::from_raw_parts,
+use {
+    super::Header,
+    core::{
+        fmt::{Debug, Formatter, Result},
+        mem::{offset_of, size_of, size_of_val},
+        num::Wrapping,
+        slice::from_raw_parts,
+    },
 };
 
 /// # References
 /// * [Root System Description Pointer (RSDP) Structure](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#rsdp-structure)
 /// # TODO
-/// * Print RSDT
 /// * Print XSDT
 #[repr(C)]
 pub struct Pointer {
@@ -43,6 +45,12 @@ impl Pointer {
                 == 0
     }
 
+    fn rsdt(&self) -> &Table {
+        let rsdt: usize = self.rsdt as usize;
+        let rsdt: *const Table = rsdt as *const Table;
+        unsafe { &*rsdt }
+    }
+
     fn signature(&self) -> &str {
         str::from_utf8(&self.signature).unwrap()
     }
@@ -59,8 +67,18 @@ impl Debug for Pointer {
             .field("signature", &self.signature())
             .field("oemid", &self.oemid())
             .field("revision", &self.revision)
-            .field("rsdt", &self.rsdt)
+            .field("rsdt", &self.rsdt())
             .field("xsdt", &self.xsdt)
             .finish()
     }
+}
+
+/// # References
+/// * [Root System Description TAble (RSDT)](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#root-system-description-table-rsdt)
+/// # TODO
+/// * Print entries
+#[derive(Debug)]
+#[repr(C)]
+pub struct Table {
+    header: Header,
 }
