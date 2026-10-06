@@ -41,6 +41,9 @@ macro_rules! println {
 #[cfg(firmware = "uefi")]
 pub use uefi;
 
+#[cfg(firmware = "uefi")]
+use uefi::{Handle, HandleMut, service::boot::memory::Map, system::Table};
+
 pub static GLOBAL: Lock<OnceCell<Global>> = Lock::new(OnceCell::new());
 
 #[derive(Debug)]
@@ -54,9 +57,9 @@ pub struct Global {
     #[cfg(use_temporary_memory_allocator)]
     boot_heap_head: usize,
     #[cfg(firmware = "uefi")]
-    image_handle: uefi::HandleMut,
+    image_handle: HandleMut,
     #[cfg(firmware = "uefi")]
-    system_table: &'static mut uefi::system::Table,
+    system_table: &'static mut Table,
 }
 
 impl Global {
@@ -76,9 +79,9 @@ impl Global {
     }
 
     #[cfg(firmware = "uefi")]
-    pub fn exit_boot_services(&mut self) -> uefi::service::boot::memory::Map {
+    pub fn exit_boot_services(&mut self) -> Map {
         self.system_table
-            .exit_boot_services(self.image_handle as uefi::Handle)
+            .exit_boot_services(self.image_handle as Handle)
     }
 
     /// # Safety
@@ -89,8 +92,8 @@ impl Global {
         #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
         #[cfg(start_with_assembly)] boot_loader_head: usize,
         #[cfg(use_temporary_memory_allocator)] boot_heap_head: usize,
-        #[cfg(firmware = "uefi")] image_handle: uefi::HandleMut,
-        #[cfg(firmware = "uefi")] system_table: *mut uefi::system::Table,
+        #[cfg(firmware = "uefi")] image_handle: HandleMut,
+        #[cfg(firmware = "uefi")] system_table: *mut Table,
     ) -> Self {
         Self {
             #[cfg(firmware = "sbi")]
@@ -111,7 +114,7 @@ impl Global {
     }
 
     #[cfg(firmware = "uefi")]
-    pub fn system_table(&self) -> &uefi::system::Table {
+    pub fn system_table(&self) -> &Table {
         self.system_table
     }
 
