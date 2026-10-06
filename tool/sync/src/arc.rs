@@ -43,10 +43,6 @@ impl<T> Arc<T> {
             },
         }
     }
-
-    fn data(&self) -> &Data<T> {
-        unsafe { self.weak.ptr.as_ref() }
-    }
 }
 
 impl<T> Clone for Arc<T> {
