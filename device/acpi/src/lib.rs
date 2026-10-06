@@ -12,14 +12,26 @@ pub struct Header {
     length: u32,
     revision: u8,
     checksum: u8,
-    oemid: [u8; 6],
-    oem_table_id: u64,
+    oem_id: [u8; 6],
+    oem_table_id: [u8; 8],
     oem_revision: u32,
-    creator_id: u32,
+    creator_id: [u8; 4],
     creator_revision: u32,
 }
 
 impl Header {
+    fn creator_id(&self) -> &str {
+        str::from_utf8(&self.creator_id).unwrap()
+    }
+
+    fn oem_id(&self) -> &str {
+        str::from_utf8(&self.oem_id).unwrap()
+    }
+
+    fn oem_table_id(&self) -> &str {
+        str::from_utf8(&self.oem_table_id).unwrap()
+    }
+
     fn signature(&self) -> &str {
         str::from_utf8(&self.signature).unwrap()
     }
@@ -31,10 +43,10 @@ impl Debug for Header {
             .debug_struct("Header")
             .field("signature", &self.signature())
             .field("revision", &self.revision)
-            .field("oemid", &self.oemid)
-            .field("oem_table_id", &self.oem_table_id)
+            .field("oem_id", &self.oem_id())
+            .field("oem_table_id", &self.oem_table_id())
             .field("oem_revision", &self.oem_revision)
-            .field("creator_id", &self.creator_id)
+            .field("creator_id", &self.creator_id())
             .field("creator_revision", &self.creator_revision)
             .finish()
     }
