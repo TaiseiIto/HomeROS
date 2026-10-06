@@ -60,7 +60,6 @@ impl Debug for Pointer {
             .field("oemid", &self.oemid())
             .field("revision", &self.revision)
             .field("rsdt", &self.rsdt)
-            .field("length", &self.length)
             .field("xsdt", &self.xsdt)
             .finish()
     }
