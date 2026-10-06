@@ -29,6 +29,7 @@ impl<'a> TryFrom<&'a Table> for &'a Pointer {
     fn try_from(table: &'a Table) -> Result<Self, Self::Error> {
         (table.guid == Table::RSDP)
             .then(|| unsafe { &*(table.table as *const Pointer) })
+            .inspect(|pointer| assert!(pointer.is_correct()))
             .ok_or(())
     }
 }
