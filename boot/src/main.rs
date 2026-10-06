@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use {alloc::vec::Vec, arch::wait_for_interrupt, core::panic::PanicInfo};
+use {arch::wait_for_interrupt, core::panic::PanicInfo};
 
 #[cfg(firmware = "uefi")]
 use firmware::uefi;
@@ -103,7 +103,7 @@ fn main(global: firmware::Global) {
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
     #[cfg(firmware = "uefi")]
-    uart::dbg!(firmware::GLOBAL.lock().get().unwrap().rsdp());
+    uart::dbg!(firmware::GLOBAL.lock().get().unwrap().system_table().rsdp());
     unimplemented!();
 }
 
