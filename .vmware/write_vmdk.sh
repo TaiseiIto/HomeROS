@@ -1,5 +1,6 @@
 #!/bin/bash
 # Usage: $ ./write_vmdk.sh ~/vmware/HomeROS/HomeROS.vmx
+# TODO Embed this into xtask.
 
 pushd $(dirname $0)
 vmx=$1

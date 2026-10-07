@@ -5,6 +5,8 @@ use {
 
 /// # References
 /// * [EFI_CONFIGURATION_TABLE](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html#efi-configuration-table)
+/// # TODO
+/// * Search all GUID appearing on the configuration tables.
 #[derive(Debug)]
 #[repr(C)]
 pub struct Table {

@@ -1,5 +1,6 @@
 #!/bin/bash
 # Usage: $ ./write_vhd.sh
+# TODO Embed this into xtask.
 
 pushd $(dirname $0)
 product=$(git remote get-url origin | awk -F '[/.]' '{print $(NF-1)}')
