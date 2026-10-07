@@ -10,6 +10,9 @@ mod table;
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
+/// # TODO
+/// * Implement Debug manually
+/// * Format is `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 #[derive(Debug, Eq, PartialEq)]
 #[repr(C)]
 pub struct Guid {
