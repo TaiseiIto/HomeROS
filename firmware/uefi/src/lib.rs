@@ -8,18 +8,34 @@ pub mod service;
 pub mod system;
 mod table;
 
+use core::fmt::{Debug, Formatter, Result};
+
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
-/// # TODO
-/// * Implement Debug manually
-/// * Format is `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq)]
 #[repr(C)]
 pub struct Guid {
     data1: u32,
     data2: u16,
     data3: u16,
     data4: [u8; 8],
+}
+
+impl Debug for Guid {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.write_fmt(format_args!(
+            "{:x}-{:x}-{:x}-{:x}-{:x}",
+            self.data1,
+            self.data2,
+            self.data3,
+            self.data4[..2]
+                .iter()
+                .fold(0u16, |data, byte| (data << u8::BITS) + (*byte as u16)),
+            self.data4[2..]
+                .iter()
+                .fold(0u64, |data, byte| (data << u8::BITS) + (*byte as u64)),
+        ))
+    }
 }
 
 /// # References
