@@ -32,6 +32,18 @@ And run the commands below.
 
 Then you can connect to `localhost:5900` with VNC and operate HomeROS.
 
+### Install HomeROS on a virtual hard disk
+
+```
+/somewhere/HomeROS$ cargo xtask install ~/VirtualBox/HomeROS/HomeROS.vhd
+```
+
+### Install HomeROS on a virtual machine disk
+
+```
+/somewhere/HomeROS$ cargo xtask install ~/vmware/HomeROS/HomeROS.vmdk
+```
+
 ### Disassemble
 
 ```
