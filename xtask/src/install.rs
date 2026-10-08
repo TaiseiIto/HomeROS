@@ -3,7 +3,7 @@ use {
         command,
         product::{Arch, Tree, Version},
     },
-    std::{env::Args, path::PathBuf, thread::sleep, time::Duration},
+    std::{env::Args, fs::read_dir, path::PathBuf, thread::sleep, time::Duration},
 };
 
 #[derive(Debug)]
@@ -33,7 +33,13 @@ impl Command {
                 command::run(&format!("sudo mkfs.vfat -v -c -F 32 {:#x?}", nbd));
                 command::run(&format!("mkdir {:#x?}", mount_point));
                 command::run(&format!("sudo mount {:#x?} {:#x?}", nbd, mount_point));
-                command::run(&format!("sudo cp -r {:#x?}/* {:#x?}", source, mount_point));
+                for source in read_dir(source).unwrap().flatten() {
+                    command::run(&format!(
+                        "sudo cp -r {:#x?} {:#x?}",
+                        source.path(),
+                        mount_point
+                    ));
+                }
                 command::run(&format!("sudo umount {:#x?}", mount_point));
                 command::run(&format!("sudo rm -rf {:#x?}", mount_point));
                 command::run(&format!("sudo qemu-nbd --disconnect {:#x?}", nbd));
