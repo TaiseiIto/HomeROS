@@ -5,6 +5,7 @@ mod docker;
 mod firmware;
 mod format;
 mod git;
+mod install;
 mod lint;
 mod product;
 mod run;
@@ -18,8 +19,9 @@ pub use {docker::in_container, format::format, lint::lint, test::test};
 
 pub enum Command {
     Build,
+    Develop(develop::Command),
     Disassemble(disassemble::Command),
-    Environment(develop::Command),
+    Install(install::Command),
     Lint,
     PreCommit,
     Run(run::Command),
@@ -36,11 +38,15 @@ impl Command {
                     develop::build_in_container();
                 }
             }
+            Self::Develop(command) => command.run(),
             Self::Disassemble(command) => {
                 product::build();
                 command.run();
             }
-            Self::Environment(command) => command.run(),
+            Self::Install(command) => {
+                product::build();
+                command.run();
+            }
             Self::Lint => lint(),
             Self::PreCommit => {
                 git::add_rust_sources();
@@ -67,8 +73,9 @@ impl From<Args> for Command {
         args.next();
         match args.next().unwrap().as_str() {
             "build" => Self::Build,
+            "develop" => Self::Develop(args.into()),
             "disassemble" => Self::Disassemble(args.into()),
-            "develop" => Self::Environment(args.into()),
+            "install" => Self::Install(args.into()),
             "lint" => Self::Lint,
             "precommit" => Self::PreCommit,
             "run" => Self::Run(args.into()),
