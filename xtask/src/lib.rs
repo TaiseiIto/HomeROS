@@ -44,7 +44,7 @@ impl Command {
                 command.run();
             }
             Self::Install(command) => {
-                product::build();
+                Self::Build.run();
                 command.run();
             }
             Self::Lint => lint(),
