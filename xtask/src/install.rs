@@ -44,7 +44,17 @@ impl Command {
                 command::run(&format!("sudo rm -rf {:#x?}", mount_point));
                 command::run(&format!("sudo qemu-nbd --disconnect {:#x?}", nbd));
             }
-            "vmdk" => unimplemented!(),
+            "vmdk" => {
+                let vhd: PathBuf = self.virtual_disk.with_extension("vhd");
+                Self {
+                    virtual_disk: vhd.clone(),
+                }
+                .run();
+                command::run(&format!(
+                    "qemu-img convert -f vpc -O vmdk {:#x?} {:#x?}",
+                    vhd, self.virtual_disk
+                ));
+            }
             _ => unimplemented!(),
         }
     }
