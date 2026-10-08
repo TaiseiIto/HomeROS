@@ -1,14 +1,27 @@
-use std::{env::Args, path::PathBuf};
+use {
+    super::product::{Arch, Tree, Version},
+    std::{env::Args, path::PathBuf},
+};
 
 #[derive(Debug)]
 pub struct Command {
-    #[allow(dead_code)]
     virtual_disk: PathBuf,
 }
 
 impl Command {
     pub fn run(self) {
-        println!("{:#x?}", self);
+        match self.virtual_disk.extension().unwrap().to_str().unwrap() {
+            "vhd" => {
+                let source: PathBuf = Tree::new(Arch::X64, Version::Release).destination();
+                let nbd: PathBuf = "/dev/nbd0".parse().unwrap();
+                let mount_point: PathBuf = "mount_point".parse().unwrap();
+                println!("source = {:#x?}", source);
+                println!("nbd = {:#x?}", nbd);
+                println!("mount_point = {:#x?}", mount_point);
+            }
+            "vmdk" => unimplemented!(),
+            _ => unimplemented!(),
+        }
     }
 }
 
