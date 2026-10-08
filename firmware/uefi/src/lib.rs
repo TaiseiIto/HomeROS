@@ -24,7 +24,7 @@ pub struct Guid {
 impl Debug for Guid {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter.write_fmt(format_args!(
-            "{:x}-{:x}-{:x}-{:x}-{:x}",
+            "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
             self.data1,
             self.data2,
             self.data3,
