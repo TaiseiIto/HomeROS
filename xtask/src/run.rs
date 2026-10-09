@@ -210,6 +210,7 @@ impl Command {
     }
 
     fn run_inside_tmux(self) {
+        run(&format!("mkdir -p {:?}", self.log_directory()));
         run(&self.command());
     }
 
