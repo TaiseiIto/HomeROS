@@ -84,7 +84,6 @@ fn main(global: firmware::Global) {
     );
     firmware::println!("Hello, firmware!");
     uart::println!("Hello, UART!");
-    uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
     #[cfg(has_device_tree)]
     uart::dbg!(tree::ROOT.lock().get().unwrap());
     allocator::stabilize(
@@ -99,8 +98,7 @@ fn main(global: firmware::Global) {
         #[cfg(start_with_assembly)]
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
-    #[cfg(firmware = "uefi")]
-    uart::dbg!(firmware::GLOBAL.lock().get().unwrap().system_table().rsdp());
+    uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
     unimplemented!();
 }
 
