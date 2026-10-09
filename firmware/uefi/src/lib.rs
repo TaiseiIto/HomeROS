@@ -1,3 +1,4 @@
+#![feature(string_into_chars)]
 #![no_std]
 
 extern crate alloc;
@@ -8,7 +9,19 @@ pub mod service;
 pub mod system;
 mod table;
 
-use core::fmt::{Debug, Formatter, Result};
+use {
+    alloc::{
+        collections::btree_map::BTreeMap,
+        format,
+        string::{String, ToString},
+        vec::Vec,
+    },
+    core::{
+        fmt::{self, Debug, Formatter},
+        str::FromStr,
+    },
+    regex::{Automaton, Capture, Match},
+};
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
@@ -22,7 +35,7 @@ pub struct Guid {
 }
 
 impl Debug for Guid {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.write_fmt(format_args!(
             "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
             self.data1,
@@ -35,6 +48,61 @@ impl Debug for Guid {
                 .iter()
                 .fold(0u64, |data, byte| (data << u8::BITS) + (*byte as u64)),
         ))
+    }
+}
+
+impl FromStr for Guid {
+    type Err = ();
+
+    fn from_str(guid: &str) -> Result<Self, Self::Err> {
+        let automaton: Automaton = r"^(?<data1>[\da-f]{8})-(?<data2>[\da-f]{4})-(?<data3>[\da-f]{4})-(?<data4prefix>[\da-f]{4})-(?<data4suffix>[\da-f]{12})$".parse().unwrap();
+        let matches: Vec<Match> = automaton.input(guid);
+        let mat: Match = matches.into_iter().next().ok_or(())?;
+        let captures: BTreeMap<String, Vec<Capture>> = mat.captures();
+        let data1: u32 =
+            u32::from_str_radix(&captures["data1"].iter().next().unwrap().to_string(), 16)
+                .map_err(|_| ())?;
+        let data2: u16 =
+            u16::from_str_radix(&captures["data2"].iter().next().unwrap().to_string(), 16)
+                .map_err(|_| ())?;
+        let data3: u16 =
+            u16::from_str_radix(&captures["data3"].iter().next().unwrap().to_string(), 16)
+                .map_err(|_| ())?;
+        let data4prefix: Vec<char> = captures["data4prefix"]
+            .iter()
+            .next()
+            .unwrap()
+            .to_string()
+            .into_chars()
+            .collect();
+        let data4prefix: Vec<u8> = data4prefix
+            .chunks(2)
+            .map(|byte| u8::from_str_radix(&format!("{}{}", byte[0], byte[1]), 16).unwrap())
+            .collect();
+        let data4prefix: [u8; 2] = data4prefix.try_into().map_err(|_| ())?;
+        let data4suffix: Vec<char> = captures["data4suffix"]
+            .iter()
+            .next()
+            .unwrap()
+            .to_string()
+            .into_chars()
+            .collect();
+        let data4suffix: Vec<u8> = data4suffix
+            .chunks(2)
+            .map(|byte| u8::from_str_radix(&format!("{}{}", byte[0], byte[1]), 16).unwrap())
+            .collect();
+        let data4suffix: [u8; 6] = data4suffix.try_into().map_err(|_| ())?;
+        let data4: Vec<u8> = data4prefix
+            .into_iter()
+            .chain(data4suffix.into_iter())
+            .collect();
+        let data4: [u8; 8] = data4.try_into().map_err(|_| ())?;
+        Ok(Self {
+            data1,
+            data2,
+            data3,
+            data4,
+        })
     }
 }
 

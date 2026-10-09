@@ -9,5 +9,8 @@ path = "../../device/acpi"
 [dependencies.io]
 path = "../../tool/macro/io"
 
+[dependencies.regex]
+path = "../../tool/regex"
+
 [dependencies.unit]
 path = "../../tool/unit"
