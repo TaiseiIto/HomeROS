@@ -28,7 +28,7 @@ pub struct Table {
     runtime_services: *const runtime::Table,
     boot_services: *mut boot::Table,
     number_of_table_entries: usize,
-    configuration_table: *const configuration::Table,
+    configuration_table: *const configuration::Pointer,
 }
 
 impl Table {
@@ -47,7 +47,7 @@ impl Table {
         unsafe { &*self.con_out }.write_string(string);
     }
 
-    fn configuration_tables(&self) -> &[configuration::Table] {
+    fn configuration_tables(&self) -> &[configuration::Pointer] {
         unsafe { from_raw_parts(self.configuration_table, self.number_of_table_entries) }
     }
 }
