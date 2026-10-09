@@ -99,6 +99,8 @@ fn main(global: firmware::Global) {
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
+    #[cfg(firmware = "uefi")]
+    uart::dbg!(firmware::GLOBAL.lock().get().unwrap().system_table().rsdp());
     unimplemented!();
 }
 
