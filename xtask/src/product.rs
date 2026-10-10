@@ -38,8 +38,10 @@ impl Binary {
 
     fn build(&self) {
         run(&format!(
-            "{} cargo build --package {} {} --target {}",
+            "{} cargo {} {} build --package {} {} --target {}",
             self.vars(),
+            self.json(),
+            self.crates(),
             self.package,
             self.tree.version.argument(),
             self.target(),
@@ -80,6 +82,20 @@ impl Binary {
         }
     }
 
+    fn crates(&self) -> &str {
+        match self {
+            Self {
+                package: Package::Boot,
+                tree:
+                    Tree {
+                        arch: Arch::X64,
+                        version: Version::Debug,
+                    },
+            } => "-Zbuild-std=core,alloc",
+            _ => "",
+        }
+    }
+
     fn destination(&self) -> PathBuf {
         let Self {
             package,
@@ -106,12 +122,37 @@ impl Binary {
             .collect()
     }
 
+    fn json(&self) -> &str {
+        match self {
+            Self {
+                package: Package::Boot,
+                tree:
+                    Tree {
+                        arch: Arch::X64,
+                        version: Version::Debug,
+                    },
+            } => "-Zjson-target-spec",
+            _ => "",
+        }
+    }
+
     fn lint(&self) {
+        let target: &str = match self {
+            Self {
+                package: Package::Boot,
+                tree:
+                    Tree {
+                        arch: Arch::X64,
+                        version: Version::Debug,
+                    },
+            } => "x86_64-unknown-uefi",
+            _ => self.target(),
+        };
         run(&format!(
             "{} cargo clippy --package {} --target {}",
             self.vars(),
             self.package,
-            self.target()
+            target,
         ));
     }
 
@@ -135,7 +176,13 @@ impl Binary {
     fn source(&self) -> PathBuf {
         PathBuf::from(&format!(
             "target/{}/{}/{}",
-            self.target(),
+            self.target()
+                .rsplit('/')
+                .next()
+                .unwrap()
+                .split('.')
+                .next()
+                .unwrap(),
             self.tree.version,
             self.name()
         ))
@@ -144,12 +191,15 @@ impl Binary {
     fn target(&self) -> &str {
         let Self {
             package,
-            tree: Tree { arch, version: _ },
+            tree: Tree { arch, version },
         } = self;
         match (arch, package) {
             (Arch::Aarch64, Package::Boot) => "aarch64-unknown-none-softfloat",
             (Arch::RiscV64, Package::Boot) => "riscv64gc-unknown-none-elf",
-            (Arch::X64, Package::Boot) => "x86_64-unknown-uefi",
+            (Arch::X64, Package::Boot) => match version {
+                Version::Debug => "targets/x86_64-homeros-uefi.json",
+                Version::Release => "x86_64-unknown-uefi",
+            },
         }
     }
 
