@@ -75,13 +75,17 @@ pub fn build_in_container() {
 pub fn debug_in_container(command: debug::Command) {
     let container: Container = build();
     assert!(container.runs());
-    container.execute_in_terminal(&format!("cargo xtask debug {}", command));
+    container.execute_in_terminal(&format!("cargo xtask debug --arch {}", command.arch()));
 }
 
 pub fn run_in_container(command: run::Command) {
     let container: Container = build();
     assert!(container.runs());
-    container.execute_in_terminal(&format!("cargo xtask run {}", command));
+    container.execute_in_terminal(&format!(
+        "cargo xtask run --arch {} --version {}",
+        command.arch(),
+        command.version()
+    ));
 }
 
 fn attach() {

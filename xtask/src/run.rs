@@ -22,12 +22,20 @@ impl Command {
     const REBOOT: &str = "--no-reboot";
     const VNC: &str = "-vnc :0";
 
+    pub fn arch(&self) -> &Arch {
+        &self.arch
+    }
+
     pub fn run(self) {
         if tmux::runs() {
             self.run_inside_tmux();
         } else {
             self.run_outside_tmux();
         }
+    }
+
+    pub fn version(&self) -> &Version {
+        &self.version
     }
 
     fn boot(&self) -> String {
@@ -40,26 +48,6 @@ impl Command {
     fn boot_destination(&self) -> PathBuf {
         let tree: Tree = self.into();
         tree.boot_destination()
-    }
-
-    fn command(&self) -> String {
-        [
-            self.qemu(),
-            &self.boot(),
-            &self.com1(),
-            &self.com2(),
-            self.cpu(),
-            &self.debug(),
-            self.display(),
-            &self.drive(),
-            &self.firmware(),
-            &self.log(),
-            self.machine(),
-            Self::MEMORY,
-            Self::REBOOT,
-            Self::VNC,
-        ]
-        .join(" ")
     }
 
     fn com1(&self) -> String {
@@ -211,7 +199,7 @@ impl Command {
 
     fn run_inside_tmux(self) {
         run(&format!("mkdir -p {:?}", self.log_directory()));
-        run(&self.command());
+        run(&self.to_string());
     }
 
     fn run_outside_tmux(self) {
@@ -234,13 +222,6 @@ impl From<&Command> for Tree {
     }
 }
 
-impl Display for Command {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let Self { arch, version } = self;
-        write!(formatter, "--arch {} --version {}", arch, version)
-    }
-}
-
 impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
         let mut arch: Option<Arch> = None;
@@ -253,5 +234,29 @@ impl From<Args> for Command {
             }
         }
         Self::new(arch.unwrap(), version.unwrap())
+    }
+}
+
+impl Display for Command {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.write_str(
+            &[
+                self.qemu(),
+                &self.boot(),
+                &self.com1(),
+                &self.com2(),
+                self.cpu(),
+                &self.debug(),
+                self.display(),
+                &self.drive(),
+                &self.firmware(),
+                &self.log(),
+                self.machine(),
+                Self::MEMORY,
+                Self::REBOOT,
+                Self::VNC,
+            ]
+            .join(" "),
+        )
     }
 }
