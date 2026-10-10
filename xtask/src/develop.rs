@@ -1,5 +1,6 @@
 use {
     crate::{
+        debug,
         docker::{Container, Image},
         git::{branch, developer, domain, email, product},
         product::Tree,
@@ -69,6 +70,12 @@ pub fn build_in_container() {
         let source: PathBuf = container.working_directory().join(&destination);
         container.export(&source, &destination);
     }
+}
+
+pub fn debug_in_container(command: debug::Command) {
+    let container: Container = build();
+    assert!(container.runs());
+    container.execute_in_terminal(&format!("cargo xtask debug {}", command));
 }
 
 pub fn run_in_container(command: run::Command) {

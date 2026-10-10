@@ -1,4 +1,5 @@
 mod command;
+mod debug;
 mod develop;
 mod disassemble;
 mod docker;
@@ -19,6 +20,7 @@ pub use {docker::in_container, format::format, lint::lint, test::test};
 
 pub enum Command {
     Build,
+    Debug(debug::Command),
     Develop(develop::Command),
     Disassemble(disassemble::Command),
     Install(install::Command),
@@ -36,6 +38,13 @@ impl Command {
                     product::build()
                 } else {
                     develop::build_in_container();
+                }
+            }
+            Self::Debug(command) => {
+                if in_container() {
+                    command.run();
+                } else {
+                    develop::debug_in_container(command);
                 }
             }
             Self::Develop(command) => command.run(),
@@ -73,6 +82,7 @@ impl From<Args> for Command {
         args.next();
         match args.next().unwrap().as_str() {
             "build" => Self::Build,
+            "debug" => Self::Debug(args.into()),
             "develop" => Self::Develop(args.into()),
             "disassemble" => Self::Disassemble(args.into()),
             "install" => Self::Install(args.into()),
