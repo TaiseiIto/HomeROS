@@ -214,7 +214,7 @@ impl Command {
     fn run_outside_tmux(self) {
         build();
         let Self(arch) = self;
-        let source: PathBuf = PathBuf::from(".docker/tmux/run");
+        let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
         run(&format!(
             "ARCH={} VERSION=debug tmux new-session ; source-file {}",
             arch,
