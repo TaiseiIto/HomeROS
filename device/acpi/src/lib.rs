@@ -43,7 +43,7 @@ impl Header {
             == 0
     }
 
-    pub fn table<'a>(&'a self) -> Result<&'a dyn Table, &'a str> {
+    pub fn table(&self) -> Result<&dyn Table, &str> {
         let header: *const Self = self as *const Self;
         match self.signature() {
             "RSDT" => Ok(unsafe { &*(header as *const root_system_description::Table) }),
