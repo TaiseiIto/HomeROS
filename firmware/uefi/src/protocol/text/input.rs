@@ -5,9 +5,9 @@ use crate::{Char16, Event, Status};
 #[derive(Debug)]
 #[repr(C)]
 pub struct Functions {
-    reset: Reset,
-    read_key_stroke: ReadKey,
-    wait_for_key: Event,
+    reset: Option<Reset>,
+    read_key_stroke: Option<ReadKey>,
+    wait_for_key: Option<Event>,
 }
 
 /// # References

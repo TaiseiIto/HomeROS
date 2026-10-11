@@ -5,15 +5,15 @@ use crate::{Char16, Status};
 #[derive(Debug)]
 #[repr(C)]
 pub struct Functions {
-    reset: Reset,
-    output_string: String,
-    test_string: TestString,
-    query_mode: QueryMode,
-    set_mode: SetMode,
-    set_attribute: SetAttribute,
-    clear_screen: ClearScreen,
-    set_cursor_position: SetCursorPosition,
-    enable_cursor: EnableCursor,
+    reset: Option<Reset>,
+    output_string: Option<String>,
+    test_string: Option<TestString>,
+    query_mode: Option<QueryMode>,
+    set_mode: Option<SetMode>,
+    set_attribute: Option<SetAttribute>,
+    clear_screen: Option<ClearScreen>,
+    set_cursor_position: Option<SetCursorPosition>,
+    enable_cursor: Option<EnableCursor>,
     mode: *const Mode,
 }
 
@@ -29,7 +29,7 @@ impl Functions {
 
     fn write_character(&self, character: Char16) {
         let string: [Char16; 2] = [character, 0x0000];
-        (self.output_string)(self as *const Self, string.as_slice().as_ptr()).assert();
+        (self.output_string.unwrap())(self as *const Self, string.as_slice().as_ptr()).assert();
     }
 }
 
