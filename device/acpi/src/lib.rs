@@ -15,7 +15,7 @@ use core::{
 
 /// # References
 /// * [System Description Table Header](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#system-description-table-header)
-#[repr(packed)]
+#[repr(C, packed)]
 pub struct Header {
     signature: [u8; 4],
     length: [u8; 4],
