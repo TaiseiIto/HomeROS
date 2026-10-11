@@ -5,7 +5,6 @@ use {
         service::{boot, runtime},
         table::Header,
     },
-    acpi::root_system_description::Pointer,
     core::{
         fmt::{Debug, Formatter, Result},
         slice::from_raw_parts,

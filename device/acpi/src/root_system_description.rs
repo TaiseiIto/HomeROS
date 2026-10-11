@@ -47,7 +47,7 @@ impl Pointer {
     }
 
     fn length(&self) -> usize {
-        u32::from_le_bytes(self.length.clone()) as usize
+        u32::from_le_bytes(self.length) as usize
     }
 
     fn rsdt(&self) -> &Table {

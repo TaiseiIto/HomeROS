@@ -35,7 +35,7 @@ impl Header {
 
     pub fn is_correct(&self) -> bool {
         self.bytes()
-            .into_iter()
+            .iter()
             .copied()
             .map(Wrapping)
             .sum::<Wrapping<u8>>()
@@ -63,7 +63,7 @@ impl Header {
     }
 
     fn length(&self) -> usize {
-        u32::from_le_bytes(self.length.clone()) as usize
+        u32::from_le_bytes(self.length) as usize
     }
 
     fn oem_id(&self) -> &str {
