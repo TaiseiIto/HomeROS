@@ -19,62 +19,62 @@ use {
 #[repr(C)]
 pub struct Table {
     hdr: table::Header,
-    raise_tpl: task::Raise,
-    restore_tpl: task::Restore,
-    allocate_pages: memory::page::Allocate,
-    free_pages: memory::page::Free,
-    get_memory_map: memory::map::Get,
-    allocate_pool: memory::pool::Allocate,
-    free_pool: memory::pool::Free,
-    create_event: event::Create,
-    set_timer: timer::Set,
-    wait_for_event: event::Wait,
-    signal_event: event::Signal,
-    close_event: event::Close,
-    check_event: event::Check,
-    install_protocol: protocol::Install,
-    reinstall_protocol: protocol::Reinstall,
-    uninstall_protocol: protocol::Uninstall,
-    handle_protocol: protocol::Handle,
+    raise_tpl: Option<task::Raise>,
+    restore_tpl: Option<task::Restore>,
+    allocate_pages: Option<memory::page::Allocate>,
+    free_pages: Option<memory::page::Free>,
+    get_memory_map: Option<memory::map::Get>,
+    allocate_pool: Option<memory::pool::Allocate>,
+    free_pool: Option<memory::pool::Free>,
+    create_event: Option<event::Create>,
+    set_timer: Option<timer::Set>,
+    wait_for_event: Option<event::Wait>,
+    signal_event: Option<event::Signal>,
+    close_event: Option<event::Close>,
+    check_event: Option<event::Check>,
+    install_protocol: Option<protocol::Install>,
+    reinstall_protocol: Option<protocol::Reinstall>,
+    uninstall_protocol: Option<protocol::Uninstall>,
+    handle_protocol: Option<protocol::Handle>,
     __: *const Void,
-    register_protocol_notify: protocol::RegisterNotify,
-    locate_handle: protocol::LocateHandle,
-    locate_device_path: protocol::LocateDevicePath,
-    install_configuration: configuration::Install,
-    load_image: image::Load,
-    start_image: image::Start,
-    exit: image::Exit,
-    unload_image: image::Unload,
-    exit_boot_services: image::ExitBootServices,
-    get_next_monotonic_count: GetNextMonotonicCount,
-    stall: Stall,
-    set_watchdog_timer: SetWatchdogTimer,
-    connect_controller: controller::Connect,
-    disconnect_controller: controller::Disconnect,
-    open_protocol: protocol::Open,
-    close_protocol: protocol::Close,
-    open_protocol_information: protocol::OpenInformation,
-    protocols_per_handle: protocol::PerHandle,
-    locate_handle_buffer: protocol::LocateHandleBuffer,
-    locate_protocol: protocol::Locate,
-    install_multiple_protocol: protocol::multiple::Install,
-    uninstall_multiple_protocol: protocol::multiple::Uninstall,
-    calculate_crc32: CalculateCrc32,
-    copy_mem: memory::Copy,
-    set_mem: memory::Set,
-    create_event_ex: event::CreateEx,
+    register_protocol_notify: Option<protocol::RegisterNotify>,
+    locate_handle: Option<protocol::LocateHandle>,
+    locate_device_path: Option<protocol::LocateDevicePath>,
+    install_configuration: Option<configuration::Install>,
+    load_image: Option<image::Load>,
+    start_image: Option<image::Start>,
+    exit: Option<image::Exit>,
+    unload_image: Option<image::Unload>,
+    exit_boot_services: Option<image::ExitBootServices>,
+    get_next_monotonic_count: Option<GetNextMonotonicCount>,
+    stall: Option<Stall>,
+    set_watchdog_timer: Option<SetWatchdogTimer>,
+    connect_controller: Option<controller::Connect>,
+    disconnect_controller: Option<controller::Disconnect>,
+    open_protocol: Option<protocol::Open>,
+    close_protocol: Option<protocol::Close>,
+    open_protocol_information: Option<protocol::OpenInformation>,
+    protocols_per_handle: Option<protocol::PerHandle>,
+    locate_handle_buffer: Option<protocol::LocateHandleBuffer>,
+    locate_protocol: Option<protocol::Locate>,
+    install_multiple_protocol: Option<protocol::multiple::Install>,
+    uninstall_multiple_protocol: Option<protocol::multiple::Uninstall>,
+    calculate_crc32: Option<CalculateCrc32>,
+    copy_mem: Option<memory::Copy>,
+    set_mem: Option<memory::Set>,
+    create_event_ex: Option<event::CreateEx>,
 }
 
 impl Table {
     pub fn exit_boot_services(&mut self, image: Handle) -> memory::Map {
         let memory_map: memory::Map = self.get_memory_map();
-        (self.exit_boot_services)(image, memory_map.key()).assert();
+        (self.exit_boot_services.unwrap())(image, memory_map.key()).assert();
         memory_map
     }
 
     fn allocate_pool(&self, size: usize) -> Vec<u8> {
         let mut buffer: *mut Void = null_mut();
-        (self.allocate_pool)(
+        (self.allocate_pool.unwrap())(
             memory::Type::LoaderData,
             size,
             (&mut buffer) as *mut *mut Void,
@@ -89,7 +89,7 @@ impl Table {
         let mut key: usize = 0;
         let mut descriptor_size: usize = 0;
         let mut descriptor_version: u32 = 0;
-        (self.get_memory_map)(
+        (self.get_memory_map.unwrap())(
             (&mut size) as *mut usize,
             descriptors.as_mut_ptr() as *mut memory::map::Descriptor,
             (&mut key) as *mut usize,
@@ -106,7 +106,7 @@ impl Table {
         let mut key: usize = 0;
         let mut descriptor_size: usize = 0;
         let mut descriptor_version: u32 = 0;
-        (self.get_memory_map)(
+        (self.get_memory_map.unwrap())(
             (&mut size) as *mut usize,
             null_mut(),
             (&mut key) as *mut usize,
