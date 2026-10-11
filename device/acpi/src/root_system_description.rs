@@ -3,7 +3,7 @@ use {
     alloc::vec::Vec,
     core::{
         fmt::{self, Debug, Formatter},
-        mem::{offset_of, size_of, size_of_val},
+        mem::offset_of,
         num::Wrapping,
         slice::from_raw_parts,
     },
@@ -51,7 +51,7 @@ impl Pointer {
     }
 
     fn rsdt(&self) -> &Table {
-        let rsdt: usize = u32::from_le_bytes(self.rsdt.clone()) as usize;
+        let rsdt: usize = u32::from_le_bytes(self.rsdt) as usize;
         let rsdt: *const Table = rsdt as *const Table;
         let rsdt: &Table = unsafe { &*rsdt };
         assert!(rsdt.header.is_correct());
@@ -93,7 +93,7 @@ impl Table {
     fn entries(&self) -> Vec<Result<&dyn super::Table, &str>> {
         self.header
             .body()
-            .into_iter()
+            .iter()
             .copied()
             .array_chunks()
             .map(|entry| {
