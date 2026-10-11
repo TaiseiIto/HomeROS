@@ -1,5 +1,5 @@
 use {
-    alloc::string::{String, ToString},
+    alloc::string::String,
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -11,7 +11,9 @@ impl Header {
     fn signature(&self) -> String {
         str::from_utf8(self.signature.to_le_bytes().as_slice())
             .unwrap()
-            .to_string()
+            .chars()
+            .take_while(|character| *character != '\0')
+            .collect()
     }
 }
 
