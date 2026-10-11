@@ -59,18 +59,14 @@ impl FromStr for Guid {
         let matches: Vec<Match> = automaton.input(guid);
         let mat: Match = matches.into_iter().next().ok_or(())?;
         let captures: BTreeMap<String, Vec<Capture>> = mat.captures();
-        let data1: u32 =
-            u32::from_str_radix(&captures["data1"].iter().next().unwrap().to_string(), 16)
-                .map_err(|_| ())?;
-        let data2: u16 =
-            u16::from_str_radix(&captures["data2"].iter().next().unwrap().to_string(), 16)
-                .map_err(|_| ())?;
-        let data3: u16 =
-            u16::from_str_radix(&captures["data3"].iter().next().unwrap().to_string(), 16)
-                .map_err(|_| ())?;
+        let data1: u32 = u32::from_str_radix(&captures["data1"].first().unwrap().to_string(), 16)
+            .map_err(|_| ())?;
+        let data2: u16 = u16::from_str_radix(&captures["data2"].first().unwrap().to_string(), 16)
+            .map_err(|_| ())?;
+        let data3: u16 = u16::from_str_radix(&captures["data3"].first().unwrap().to_string(), 16)
+            .map_err(|_| ())?;
         let data4prefix: Vec<char> = captures["data4prefix"]
-            .iter()
-            .next()
+            .first()
             .unwrap()
             .to_string()
             .into_chars()
@@ -81,8 +77,7 @@ impl FromStr for Guid {
             .collect();
         let data4prefix: [u8; 2] = data4prefix.try_into().map_err(|_| ())?;
         let data4suffix: Vec<char> = captures["data4suffix"]
-            .iter()
-            .next()
+            .first()
             .unwrap()
             .to_string()
             .into_chars()
