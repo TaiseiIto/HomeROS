@@ -7,6 +7,7 @@
 extern crate alloc;
 
 mod dos;
+mod nt;
 
 use core::fmt::{Debug, Formatter, Result};
 
@@ -17,6 +18,13 @@ impl<'a> File<'a> {
         let dos_header: *const dos::Header = self.0.as_ptr() as *const dos::Header;
         unsafe { &*dos_header }
     }
+
+    fn nt_header(&'a self) -> &'a nt::Header {
+        let nt_header: *const u8 =
+            self.0.get(self.dos_header().nt_header_offset()).unwrap() as *const u8;
+        let nt_header: *const nt::Header = nt_header as *const nt::Header;
+        unsafe { &*nt_header }
+    }
 }
 
 impl<'a> Debug for File<'a> {
@@ -24,6 +32,7 @@ impl<'a> Debug for File<'a> {
         formatter
             .debug_struct("File")
             .field("dos_header", self.dos_header())
+            .field("nt_header", self.nt_header())
             .finish()
     }
 }

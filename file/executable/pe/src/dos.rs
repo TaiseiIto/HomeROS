@@ -29,6 +29,10 @@ pub struct Header {
 }
 
 impl Header {
+    pub fn nt_header_offset(&self) -> usize {
+        self.lfanew as usize
+    }
+
     fn magic(&self) -> String {
         str::from_utf8(self.magic.to_le_bytes().as_slice())
             .unwrap()
