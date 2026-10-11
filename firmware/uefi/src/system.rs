@@ -36,13 +36,6 @@ impl Table {
         unsafe { &mut *self.boot_services }.exit_boot_services(image)
     }
 
-    pub fn rsdp(&self) -> &Pointer {
-        self.configuration_tables()
-            .iter()
-            .find_map(|table| table.try_into().ok())
-            .unwrap()
-    }
-
     pub fn write(&self, string: &str) {
         unsafe { &*self.con_out }.write_string(string);
     }
