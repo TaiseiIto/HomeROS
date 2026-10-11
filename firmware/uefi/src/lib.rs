@@ -92,10 +92,7 @@ impl FromStr for Guid {
             .map(|byte| u8::from_str_radix(&format!("{}{}", byte[0], byte[1]), 16).unwrap())
             .collect();
         let data4suffix: [u8; 6] = data4suffix.try_into().map_err(|_| ())?;
-        let data4: Vec<u8> = data4prefix
-            .into_iter()
-            .chain(data4suffix.into_iter())
-            .collect();
+        let data4: Vec<u8> = data4prefix.into_iter().chain(data4suffix).collect();
         let data4: [u8; 8] = data4.try_into().map_err(|_| ())?;
         Ok(Self {
             data1,

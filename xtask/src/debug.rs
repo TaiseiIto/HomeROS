@@ -7,7 +7,9 @@ use {
     },
     std::{
         env::Args,
-        fmt::{Display, Formatter, Result},
+        fmt::{self, Display, Formatter},
+        fs::File,
+        io::{BufRead, BufReader},
         path::PathBuf,
     },
 };
@@ -191,8 +193,13 @@ impl Command {
     }
 
     fn run_inside_tmux(self) {
-        run(&format!("mkdir -p {:?}", self.log_directory()));
-        run(&self.to_string());
+        let debug_log: File = File::open(self.debug_log()).unwrap();
+        let debug_log: BufReader<File> = BufReader::new(debug_log);
+        for line in debug_log.lines().map_while(Result::ok) {
+            println!("{}", line);
+        }
+        // run(&format!("mkdir -p {:?}", self.log_directory()));
+        // run(&self.to_string());
     }
 
     fn run_outside_tmux(self) {
@@ -228,7 +235,7 @@ impl From<Args> for Command {
 }
 
 impl Display for Command {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.write_str(
             &[
                 self.qemu(),
