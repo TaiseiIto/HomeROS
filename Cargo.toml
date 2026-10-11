@@ -5,6 +5,7 @@ members = [
 	"device/acpi",
 	"device/tree",
 	"device/uart",
+	"file/executable/pe",
 	"firmware",
 	"firmware/sbi",
 	"firmware/tfa",

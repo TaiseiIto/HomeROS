@@ -9,7 +9,7 @@ use {
     std::{
         env::Args,
         fmt::{self, Display, Formatter},
-        fs::File,
+        fs::{File, read},
         io::{BufRead, BufReader},
         path::PathBuf,
     },
@@ -200,7 +200,6 @@ impl Command {
             r"^Loading driver at 0x(?<address>[\da-fA-F]+) EntryPoint=0x[\da-fA-F]+ boot\.efi$"
                 .parse()
                 .unwrap();
-
         let address: usize = debug_log
             .lines()
             .map_while(Result::ok)
@@ -213,6 +212,9 @@ impl Command {
             })
             .unwrap();
         println!("address = {:#x?}", address);
+        let boot: Vec<u8> = read(self.boot_destination()).unwrap();
+        let pe: pe::File = boot.as_slice().into();
+        println!("pe = {:#x?}", pe);
         // run(&format!("mkdir -p {:?}", self.log_directory()));
         // run(&self.to_string());
     }

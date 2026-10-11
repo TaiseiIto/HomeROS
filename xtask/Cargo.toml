@@ -3,5 +3,8 @@ name = "xtask"
 version = "0.1.0"
 edition = "2024"
 
+[dependencies.pe]
+path = "../file/executable/pe"
+
 [dependencies.regex]
 path = "../tool/regex"
