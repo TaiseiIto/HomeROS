@@ -1,10 +1,15 @@
 use {
+    crate::file,
     alloc::string::String,
     core::fmt::{Debug, Formatter, Result},
 };
 
+/// # References
+/// * [NT Headers (IMAGE_NT_HEADERS)](https://0xrick.github.io/win-internals/pe4/#nt-headers-image_nt_headers)
+#[repr(C)]
 pub struct Header {
     signature: u32,
+    file_header: file::Header,
 }
 
 impl Header {
@@ -22,6 +27,7 @@ impl Debug for Header {
         formatter
             .debug_struct("Header")
             .field("signature", &self.signature())
+            .field("file_header", &self.file_header)
             .finish()
     }
 }
