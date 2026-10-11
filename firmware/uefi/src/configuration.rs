@@ -18,7 +18,7 @@ impl Pointer {
     /// * [Finding the RSDP on UEFI Enabled Systems](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#finding-the-rsdp-on-uefi-enabled-systems)
     const RSDP: &str = "8868e871-e4f1-11d3-bc22-0080c73c8881";
 
-    pub fn table<'a>(&'a self) -> Result<&'a dyn Table, &'a Guid> {
+    pub fn table(&self) -> Result<&dyn Table, &Guid> {
         if self.guid == Pointer::RSDP.parse().unwrap() {
             Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
         } else {
