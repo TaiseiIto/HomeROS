@@ -5,6 +5,7 @@ use {
         product::{Arch, Tree, Version, build},
         tmux,
     },
+    regex::Automaton,
     std::{
         env::Args,
         fmt::{self, Display, Formatter},
@@ -195,9 +196,23 @@ impl Command {
     fn run_inside_tmux(self) {
         let debug_log: File = File::open(self.debug_log()).unwrap();
         let debug_log: BufReader<File> = BufReader::new(debug_log);
-        for line in debug_log.lines().map_while(Result::ok) {
-            println!("{}", line);
-        }
+        let automaton: Automaton =
+            r"^Loading driver at 0x(?<address>[\da-fA-F]+) EntryPoint=0x[\da-fA-F]+ boot\.efi$"
+                .parse()
+                .unwrap();
+
+        let address: usize = debug_log
+            .lines()
+            .map_while(Result::ok)
+            .find_map(|line| {
+                automaton.input(&line).into_iter().next().and_then(|mat| {
+                    mat.captures()["address"]
+                        .first()
+                        .and_then(|address| usize::from_str_radix(address.into(), 16).ok())
+                })
+            })
+            .unwrap();
+        println!("address = {:#x?}", address);
         // run(&format!("mkdir -p {:?}", self.log_directory()));
         // run(&self.to_string());
     }
