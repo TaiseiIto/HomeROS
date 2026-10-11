@@ -575,6 +575,7 @@ pub enum NakedElement {
     RightParenthesis(RightParenthesis),
     Semicolon(Semicolon),
     Slash(Slash),
+    Space(Space),
     Tilde(Tilde),
     Underscore(Underscore),
     VerticalBar(VerticalBar),
@@ -628,6 +629,7 @@ impl From<NakedElement> for char {
             NakedElement::RightParenthesis(right_parenthesis) => right_parenthesis.into(),
             NakedElement::Semicolon(semicolon) => semicolon.into(),
             NakedElement::Slash(slash) => slash.into(),
+            NakedElement::Space(space) => space.into(),
             NakedElement::Tilde(tilde) => tilde.into(),
             NakedElement::Underscore(underscore) => underscore.into(),
             NakedElement::VerticalBar(vertical_bar) => vertical_bar.into(),
@@ -1224,6 +1226,10 @@ pub struct Semicolon;
 #[derive(Debug, Parser)]
 #[terminal = '/']
 pub struct Slash;
+
+#[derive(Debug, Parser)]
+#[terminal = ' ']
+pub struct Space;
 
 #[derive(Debug, Parser)]
 #[terminal = '~']
