@@ -4,6 +4,8 @@
 
 #![no_std]
 
+extern crate alloc;
+
 mod dos;
 
 use core::fmt::{Debug, Formatter, Result};

@@ -1,6 +1,10 @@
+use {
+    alloc::string::{String, ToString},
+    core::fmt::{Debug, Formatter, Result},
+};
+
 /// # References
 /// * [DOS Header](https://0xrick.github.io/win-internals/pe3/#dos-header)
-#[derive(Debug)]
 #[repr(C)]
 pub struct Header {
     magic: u16,
@@ -22,4 +26,39 @@ pub struct Header {
     oeminfo: u16,
     res2: [u16; 10],
     lfanew: u16,
+}
+
+impl Header {
+    fn magic(&self) -> String {
+        str::from_utf8(self.magic.to_le_bytes().as_slice())
+            .unwrap()
+            .to_string()
+    }
+}
+
+impl Debug for Header {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter
+            .debug_struct("Header")
+            .field("magic", &self.magic())
+            .field("cblp", &self.cblp)
+            .field("cp", &self.cp)
+            .field("crlc", &self.crlc)
+            .field("cparhdr", &self.cparhdr)
+            .field("minalloc", &self.minalloc)
+            .field("maxalloc", &self.maxalloc)
+            .field("ss", &self.ss)
+            .field("sp", &self.sp)
+            .field("csum", &self.csum)
+            .field("ip", &self.ip)
+            .field("cs", &self.cs)
+            .field("lfarlc", &self.lfarlc)
+            .field("ovno", &self.ovno)
+            .field("res", &self.res)
+            .field("oemid", &self.oemid)
+            .field("oeminfo", &self.oeminfo)
+            .field("res2", &self.res2)
+            .field("lfanew", &self.lfanew)
+            .finish()
+    }
 }
