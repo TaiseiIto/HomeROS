@@ -1,5 +1,7 @@
 source-file ~/.tmux.conf
 split-window -hc '#{pane_current_path}'
+split-window -hc '#{pane_current_path}'
+select-layout even-horizontal
 send-key -t 0 'cargo xtask debug --arch $ARCH' C-m
 send-key -t 1 'rust-gdb -x .docker/gdb/boot/x64.gdbinit' C-m
 select-pane -t 1
