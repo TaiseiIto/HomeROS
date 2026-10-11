@@ -33,6 +33,6 @@ impl Debug for Pointer {
     }
 }
 
-trait Table: Debug {}
+pub trait Table: Debug {}
 
 impl Table for acpi::root_system_description::Pointer {}

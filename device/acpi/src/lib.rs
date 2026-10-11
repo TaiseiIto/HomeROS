@@ -94,4 +94,4 @@ impl Debug for Header {
     }
 }
 
-trait Table: Debug {}
+pub trait Table: Debug {}
