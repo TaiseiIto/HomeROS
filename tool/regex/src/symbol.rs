@@ -362,6 +362,7 @@ pub enum NakedCharacter {
     Percent(Percent),
     Quotation(Quotation),
     Semicolon(Semicolon),
+    Space(Space),
     Tilde(Tilde),
     Underscore(Underscore),
 }
@@ -403,6 +404,7 @@ impl From<NakedCharacter> for char {
             NakedCharacter::Percent(percent) => percent.into(),
             NakedCharacter::Quotation(quotation) => quotation.into(),
             NakedCharacter::Semicolon(semicolon) => semicolon.into(),
+            NakedCharacter::Space(space) => space.into(),
             NakedCharacter::Tilde(tilde) => tilde.into(),
             NakedCharacter::Underscore(underscore) => underscore.into(),
         }
