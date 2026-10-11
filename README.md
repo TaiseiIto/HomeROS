@@ -44,12 +44,6 @@ Then you can connect to `localhost:5900` with VNC and operate HomeROS.
 /somewhere/HomeROS$ cargo xtask install ~/vmware/HomeROS/HomeROS.vmdk
 ```
 
-### Disassemble
-
-```
-/somewhere/HomeROS$ cargo xtask disassemble --arch (aarch64|riscv64|x64) --package boot --version (debug|release)
-```
-
 ### Build development environment
 
 ```
@@ -82,4 +76,16 @@ If you have push permission to this repository, this command make you able to pu
 
 ```
 /somewhere/HomeROS$ cargo xtask lint
+```
+
+### Debug
+
+```
+/somewhere/HomeROS$ cargo xtask debug --arch x64
+```
+
+### Disassemble
+
+```
+/somewhere/HomeROS$ cargo xtask disassemble --arch (aarch64|riscv64|x64) --package boot --version (debug|release)
 ```
