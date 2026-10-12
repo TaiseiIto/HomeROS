@@ -34,5 +34,5 @@ pub struct Header {
     size_of_heap_commit: u64,
     loader_flags: u32,
     number_of_rva_and_sizes: u32,
-    data_directory: [data::Directory; 16],
+    data_directories: data::Directories,
 }
