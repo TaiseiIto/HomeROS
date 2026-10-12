@@ -6,6 +6,7 @@
 
 extern crate alloc;
 
+mod data;
 mod dos;
 mod file;
 mod nt;

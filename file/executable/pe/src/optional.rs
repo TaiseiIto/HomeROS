@@ -1,3 +1,5 @@
+use crate::data;
+
 /// # References
 /// * [Optional Header (IMAGE_OPTIONAL_HEADER)](https://0xrick.github.io/win-internals/pe4/#optional-header-image_optional_header)
 #[derive(Debug)]
@@ -32,4 +34,5 @@ pub struct Header {
     size_of_heap_commit: u64,
     loader_flags: u32,
     number_of_rva_and_sizes: u32,
+    data_directory: [data::Directory; 16],
 }
