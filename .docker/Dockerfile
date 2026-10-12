@@ -74,5 +74,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y lefthook
 RUN lefthook install
 
 # Development environment settings
+RUN ln -s $(realpath .docker/gdb/init) ../.gdbinit
 RUN ln -s $(realpath .docker/tmux/conf) ../.tmux.conf
 RUN ln -s $(realpath .docker/vim/rc) ../.vimrc
