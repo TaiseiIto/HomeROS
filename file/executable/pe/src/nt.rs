@@ -29,6 +29,7 @@ impl Debug for Header {
             .debug_struct("Header")
             .field("signature", &self.signature())
             .field("file_header", &self.file_header)
+            .field("optional_header", &self.optional_header)
             .finish()
     }
 }
