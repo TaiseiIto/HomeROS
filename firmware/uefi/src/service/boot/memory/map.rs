@@ -6,10 +6,7 @@ use {
     },
     crate::Status,
     alloc::vec::Vec,
-    core::{
-        fmt::{Debug, Formatter, Result},
-        ops::Range,
-    },
+    core::ops::Range,
 };
 
 /// # References
