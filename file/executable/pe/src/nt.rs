@@ -14,12 +14,21 @@ pub struct Header {
 }
 
 impl Header {
+    fn optional_header<'a>(&'a self) -> optional::header::WithSize<'a> {
+        self.optional_header
+            .with_size(self.size_of_optional_header())
+    }
+
     fn signature(&self) -> String {
         str::from_utf8(self.signature.to_le_bytes().as_slice())
             .unwrap()
             .chars()
             .take_while(|character| *character != '\0')
             .collect()
+    }
+
+    fn size_of_optional_header(&self) -> usize {
+        self.file_header.size_of_optional_header()
     }
 }
 
@@ -29,7 +38,7 @@ impl Debug for Header {
             .debug_struct("Header")
             .field("signature", &self.signature())
             .field("file_header", &self.file_header)
-            .field("optional_header", &self.optional_header)
+            .field("optional_header", &self.optional_header())
             .finish()
     }
 }

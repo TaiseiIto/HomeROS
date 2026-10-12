@@ -11,3 +11,9 @@ pub struct Header {
     size_of_optional_header: u16,
     characteristics: u16,
 }
+
+impl Header {
+    pub fn size_of_optional_header(&self) -> usize {
+        self.size_of_optional_header as usize
+    }
+}

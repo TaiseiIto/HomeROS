@@ -1,8 +1,9 @@
-use crate::data;
+pub mod header;
+
+use {crate::data, header::WithSize};
 
 /// # References
 /// * [Optional Header (IMAGE_OPTIONAL_HEADER)](https://0xrick.github.io/win-internals/pe4/#optional-header-image_optional_header)
-#[derive(Debug)]
 #[repr(C)]
 pub struct Header {
     magic: u16,
@@ -35,4 +36,10 @@ pub struct Header {
     loader_flags: u32,
     number_of_rva_and_sizes: u32,
     data_directories: data::Directories,
+}
+
+impl Header {
+    pub fn with_size<'a>(&'a self, size: usize) -> WithSize<'a> {
+        WithSize::new(self, size)
+    }
 }
