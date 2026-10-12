@@ -19,7 +19,7 @@ pub struct Header {
     pointer_to_linenumbers: u32,
     number_of_relocations: u16,
     number_of_linenumbers: u16,
-    characteristics: u32,
+    characteristics: FlagsRaw,
 }
 
 impl Header {
@@ -60,4 +60,33 @@ impl Debug for Header {
             .field("characteristics", &self.characteristics)
             .finish()
     }
+}
+
+/// # References
+/// * [Section Flags](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#section-flags)
+#[io::register]
+struct Flags {
+    __: [bool; 3],
+    type_no_pad: bool,
+    __: bool,
+    cnt_code: bool,
+    cnt_initialized_data: bool,
+    cnt_uninitialized_data: bool,
+    lnk_other: bool,
+    lnk_info: bool,
+    __: bool,
+    lnk_remove: bool,
+    lnk_comdat: bool,
+    __: [bool; 2],
+    scn_gprel: bool,
+    __: [bool; 4],
+    align: [bool; 4],
+    lnk_nreloc_ovfl: bool,
+    mem_discardable: bool,
+    mem_not_cached: bool,
+    mem_not_paged: bool,
+    mem_shared: bool,
+    mem_execute: bool,
+    mem_read: bool,
+    mem_write: bool,
 }
