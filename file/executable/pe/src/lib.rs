@@ -11,6 +11,7 @@ mod dos;
 mod file;
 mod nt;
 mod optional;
+mod section;
 
 use core::fmt::{Debug, Formatter, Result};
 
@@ -36,6 +37,7 @@ impl<'a> Debug for File<'a> {
             .debug_struct("File")
             .field("dos_header", self.dos_header())
             .field("nt_header", self.nt_header())
+            .field("section_table", &self.nt_header().section_table())
             .finish()
     }
 }

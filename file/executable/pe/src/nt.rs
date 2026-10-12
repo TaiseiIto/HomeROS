@@ -1,7 +1,11 @@
 use {
-    crate::{file, optional},
+    crate::{file, optional, section},
     alloc::string::String,
-    core::fmt::{Debug, Formatter, Result},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        mem::offset_of,
+        slice::from_raw_parts,
+    },
 };
 
 /// # References
@@ -14,6 +18,20 @@ pub struct Header {
 }
 
 impl Header {
+    pub fn section_table(&self) -> &[section::Header] {
+        let header: *const Self = self as *const Self;
+        let header: usize = header as usize;
+        let section_table: usize =
+            header + offset_of!(Self, optional_header) + self.size_of_optional_header();
+        let section_table: *const section::Header = section_table as *const section::Header;
+        let number_of_sections: usize = self.number_of_sections();
+        unsafe { from_raw_parts(section_table, number_of_sections) }
+    }
+
+    fn number_of_sections(&self) -> usize {
+        self.file_header.number_of_sections()
+    }
+
     fn optional_header<'a>(&'a self) -> optional::header::WithSize<'a> {
         self.optional_header
             .with_size(self.size_of_optional_header())

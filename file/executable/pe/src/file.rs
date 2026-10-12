@@ -13,6 +13,10 @@ pub struct Header {
 }
 
 impl Header {
+    pub fn number_of_sections(&self) -> usize {
+        self.number_of_sections as usize
+    }
+
     pub fn size_of_optional_header(&self) -> usize {
         self.size_of_optional_header as usize
     }
