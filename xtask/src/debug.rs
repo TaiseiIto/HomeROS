@@ -10,7 +10,7 @@ use {
         env::Args,
         fmt::{self, Display, Formatter},
         fs::{File, read},
-        io::{BufRead, BufReader},
+        io::{BufRead, BufReader, Write},
         path::PathBuf,
     },
 };
@@ -226,7 +226,9 @@ impl Command {
             Arch::RiscV64 => "riscv:rv64",
             Arch::X64 => "i386:x86-64",
         };
-        let gdbinit: String = format!(
+        let mut gdbinit = File::create(".gdbinit").unwrap();
+        write!(
+            gdbinit,
             r#"
 set architecture {}
 file {:?}
@@ -235,8 +237,9 @@ add-symbol-file {:?} {:#x?}
 break boot::efi_main
 continue"#,
             architecture, boot_destination, boot_destination, boot_loader_address
-        );
-        println!("{}", gdbinit);
+        )
+        .unwrap();
+        gdbinit.flush().unwrap();
         // let Self(arch) = self;
         // let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
         // run(&format!(
