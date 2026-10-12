@@ -28,7 +28,7 @@ pub struct Header {
     size_of_headers: u32,
     checksum: u32,
     subsystem: Subsystem,
-    dll_characteristics: u16,
+    dll_characteristics: DllCharacteristicsRaw,
     size_of_stack_reserve: u64,
     size_of_stack_commit: u64,
     size_of_heap_reserve: u64,
@@ -44,6 +44,8 @@ impl Header {
     }
 }
 
+/// # References
+/// * [Windows Subsystem](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#windows-subsystem)
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 #[repr(u16)]
@@ -62,4 +64,22 @@ enum Subsystem {
     EfiRom = 13,
     Xbox = 14,
     WindowsBootApplication = 16,
+}
+
+/// # References
+/// * [DLL Characteristics](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#dll-characteristics)
+#[io::register]
+struct DllCharacteristics {
+    __: [bool; 5],
+    high_entropy_va: bool,
+    dynamic_base: bool,
+    force_integrity: bool,
+    nx_compat: bool,
+    no_isolation: bool,
+    no_seh: bool,
+    no_bind: bool,
+    appcontainer: bool,
+    wdm_driver: bool,
+    guard_cf: bool,
+    terminal_server_aware: bool,
 }

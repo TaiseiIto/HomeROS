@@ -1,5 +1,5 @@
 use {
-    super::{Header, Subsystem},
+    super::{DllCharacteristicsRaw, Header, Subsystem},
     crate::data,
     core::{
         fmt::{Debug, DebugStruct, Formatter, Result},
@@ -148,10 +148,10 @@ impl<'a> WithSize<'a> {
             .then(|| self.header.subsystem.clone())
     }
 
-    fn dll_characteristics(&self) -> Option<u16> {
+    fn dll_characteristics(&self) -> Option<&DllCharacteristicsRaw> {
         (offset_of!(Header, dll_characteristics) + size_of_val(&self.header.dll_characteristics)
             <= self.size)
-            .then_some(self.header.dll_characteristics)
+            .then_some(&self.header.dll_characteristics)
     }
 
     fn size_of_stack_reserve(&self) -> Option<u64> {
