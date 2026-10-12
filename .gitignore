@@ -27,3 +27,6 @@ target
 
 # Don't add log files.
 *.log
+
+# Don't add gdbinit files.
+*.gdbinit

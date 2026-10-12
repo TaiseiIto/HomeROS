@@ -235,7 +235,8 @@ file {:?}
 target remote localhost:1234
 add-symbol-file {:?} {:#x?}
 break boot::efi_main
-continue"#,
+continue
+"#,
             architecture, boot_destination, boot_destination, boot_loader_address
         )
         .unwrap();
