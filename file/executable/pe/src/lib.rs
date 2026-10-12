@@ -29,6 +29,10 @@ impl<'a> File<'a> {
         let nt_header: *const nt::Header = nt_header as *const nt::Header;
         unsafe { &*nt_header }
     }
+
+    fn section_table(&'a self) -> &'a [section::Header] {
+        self.nt_header().section_table()
+    }
 }
 
 impl<'a> Debug for File<'a> {
@@ -37,7 +41,7 @@ impl<'a> Debug for File<'a> {
             .debug_struct("File")
             .field("dos_header", self.dos_header())
             .field("nt_header", self.nt_header())
-            .field("section_table", &self.nt_header().section_table())
+            .field("section_table", &self.section_table())
             .finish()
     }
 }
