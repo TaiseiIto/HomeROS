@@ -2,7 +2,7 @@ use {
     crate::{
         command::run,
         git::product,
-        product::{Arch, Tree, Version, build},
+        product::{Arch, Tree, Version},
         tmux,
     },
     regex::Automaton,
@@ -194,6 +194,11 @@ impl Command {
     }
 
     fn run_inside_tmux(self) {
+        run(&format!("mkdir -p {:?}", self.log_directory()));
+        run(&self.to_string());
+    }
+
+    fn run_outside_tmux(self) {
         let debug_log: File = File::open(self.debug_log()).unwrap();
         let debug_log: BufReader<File> = BufReader::new(debug_log);
         let automaton: Automaton =
@@ -215,19 +220,13 @@ impl Command {
         let boot: Vec<u8> = read(self.boot_destination()).unwrap();
         let pe: pe::File = boot.as_slice().into();
         println!("pe = {:#x?}", pe);
-        // run(&format!("mkdir -p {:?}", self.log_directory()));
-        // run(&self.to_string());
-    }
-
-    fn run_outside_tmux(self) {
-        build();
-        let Self(arch) = self;
-        let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
-        run(&format!(
-            "ARCH={} VERSION=debug tmux new-session ; source-file {}",
-            arch,
-            source.to_str().unwrap()
-        ));
+        // let Self(arch) = self;
+        // let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
+        // run(&format!(
+        //     "ARCH={} VERSION=debug tmux new-session ; source-file {}",
+        //     arch,
+        //     source.to_str().unwrap()
+        // ));
     }
 }
 
