@@ -1,4 +1,6 @@
-use core::fmt::{Debug, Formatter, Result};
+pub mod directories;
+
+use directories::WithSize;
 
 /// # References
 /// * [Data Directories](https://0xrick.github.io/win-internals/pe5/#data-directories)
@@ -22,39 +24,9 @@ pub struct Directories {
     null: Directory,
 }
 
-impl Debug for Directories {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter
-            .debug_map()
-            .entries(
-                [
-                    ("export", &self.export),
-                    ("import", &self.import),
-                    ("resource", &self.resource),
-                    ("exception", &self.exception),
-                    ("security", &self.security),
-                    ("base_relocation_table", &self.base_relocation_table),
-                    ("debug", &self.debug),
-                    (
-                        "architecture_specific_data",
-                        &self.architecture_specific_data,
-                    ),
-                    ("rva_of_global_ptr", &self.rva_of_global_ptr),
-                    ("tls", &self.tls),
-                    ("load_configuration", &self.load_configuration),
-                    ("bound_import", &self.bound_import),
-                    ("import_address_table", &self.import_address_table),
-                    ("delay_load_import", &self.delay_load_import),
-                    ("com_runtime_descriptor", &self.com_runtime_descriptor),
-                    ("null", &self.null),
-                ]
-                .as_slice()
-                .iter()
-                .filter_map(|(name, directory)| {
-                    directory.filter().map(|directory| (name, directory))
-                }),
-            )
-            .finish()
+impl Directories {
+    pub fn with_size<'a>(&'a self, size: usize) -> WithSize<'a> {
+        WithSize::new(self, size)
     }
 }
 

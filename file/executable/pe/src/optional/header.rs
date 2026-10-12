@@ -1,5 +1,6 @@
 use {
     super::Header,
+    crate::data,
     core::{
         fmt::{Debug, DebugStruct, Formatter, Result},
         mem::{offset_of, size_of_val},
@@ -189,6 +190,14 @@ impl<'a> WithSize<'a> {
             <= self.size)
             .then_some(self.header.number_of_rva_and_sizes)
     }
+
+    fn data_directories(&'a self) -> Option<data::directories::WithSize<'a>> {
+        (offset_of!(Header, data_directories) < self.size).then(|| {
+            self.header
+                .data_directories
+                .with_size(self.size - offset_of!(Header, data_directories))
+        })
+    }
 }
 
 impl Debug for WithSize<'_> {
@@ -286,6 +295,9 @@ impl Debug for WithSize<'_> {
         }
         if let Some(number_of_rva_and_sizes) = self.number_of_rva_and_sizes() {
             debug_struct.field("number_of_rva_and_sizes", &number_of_rva_and_sizes);
+        }
+        if let Some(data_directories) = self.data_directories() {
+            debug_struct.field("data_directories", &data_directories);
         }
         debug_struct.finish()
     }
