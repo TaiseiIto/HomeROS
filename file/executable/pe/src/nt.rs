@@ -1,5 +1,5 @@
 use {
-    crate::file,
+    crate::{file, optional},
     alloc::string::String,
     core::fmt::{Debug, Formatter, Result},
 };
@@ -10,6 +10,7 @@ use {
 pub struct Header {
     signature: u32,
     file_header: file::Header,
+    optional_header: optional::Header,
 }
 
 impl Header {

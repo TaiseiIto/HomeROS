@@ -9,6 +9,7 @@ extern crate alloc;
 mod dos;
 mod file;
 mod nt;
+mod optional;
 
 use core::fmt::{Debug, Formatter, Result};
 
