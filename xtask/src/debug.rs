@@ -241,13 +241,12 @@ continue
         )
         .unwrap();
         gdbinit.flush().unwrap();
-        // let Self(arch) = self;
-        // let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
-        // run(&format!(
-        //     "ARCH={} VERSION=debug tmux new-session ; source-file {}",
-        //     arch,
-        //     source.to_str().unwrap()
-        // ));
+        let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
+        run(&format!(
+            "ARCH={} VERSION=debug tmux new-session ; source-file {}",
+            self.arch(),
+            source.to_str().unwrap()
+        ));
     }
 }
 
