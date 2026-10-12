@@ -27,7 +27,7 @@ pub struct Header {
     size_of_image: u32,
     size_of_headers: u32,
     checksum: u32,
-    subsystem: u16,
+    subsystem: Subsystem,
     dll_characteristics: u16,
     size_of_stack_reserve: u64,
     size_of_stack_commit: u64,
@@ -42,4 +42,24 @@ impl Header {
     pub fn with_size<'a>(&'a self, size: usize) -> WithSize<'a> {
         WithSize::new(self, size)
     }
+}
+
+#[allow(dead_code)]
+#[derive(Clone, Debug)]
+#[repr(u16)]
+enum Subsystem {
+    Unknown,
+    Native,
+    WindowsGui,
+    WindowsCui,
+    Os2Cui,
+    PosixCui,
+    NativeWindows,
+    WindowsCeGui,
+    EfiApplication,
+    EfiBootServiceDriver,
+    EfiRuntimeDriver,
+    EfiRom,
+    Xbox,
+    WindowsBootApplication,
 }

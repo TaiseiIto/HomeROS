@@ -1,5 +1,5 @@
 use {
-    super::Header,
+    super::{Header, Subsystem},
     crate::data,
     core::{
         fmt::{Debug, DebugStruct, Formatter, Result},
@@ -143,9 +143,9 @@ impl<'a> WithSize<'a> {
             .then_some(self.header.checksum)
     }
 
-    fn subsystem(&self) -> Option<u16> {
+    fn subsystem(&self) -> Option<Subsystem> {
         (offset_of!(Header, subsystem) + size_of_val(&self.header.subsystem) <= self.size)
-            .then_some(self.header.subsystem)
+            .then(|| self.header.subsystem.clone())
     }
 
     fn dll_characteristics(&self) -> Option<u16> {
