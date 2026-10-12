@@ -205,7 +205,7 @@ impl Command {
             r"^Loading driver at 0x(?<address>[\da-fA-F]+) EntryPoint=0x[\da-fA-F]+ boot\.efi$"
                 .parse()
                 .unwrap();
-        let address: usize = debug_log
+        let boot_loader_address: usize = debug_log
             .lines()
             .map_while(Result::ok)
             .find_map(|line| {
@@ -216,10 +216,11 @@ impl Command {
                 })
             })
             .unwrap();
-        println!("address = {:#x?}", address);
         let boot: Vec<u8> = read(self.boot_destination()).unwrap();
         let pe: pe::File = boot.as_slice().into();
-        println!("pe = {:#x?}", pe);
+        let first_section_offset: usize = pe.first_section_offset();
+        let boot_loader_address: usize = boot_loader_address + first_section_offset;
+        println!("boot_loader_address = {:#x?}", boot_loader_address);
         // let Self(arch) = self;
         // let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
         // run(&format!(

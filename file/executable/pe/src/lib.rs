@@ -18,6 +18,14 @@ use core::fmt::{Debug, Formatter, Result};
 pub struct File<'a>(&'a [u8]);
 
 impl<'a> File<'a> {
+    pub fn first_section_offset(&self) -> usize {
+        self.section_table()
+            .iter()
+            .map(|section| section.range_on_memory().start)
+            .max()
+            .unwrap()
+    }
+
     fn dos_header(&'a self) -> &'a dos::Header {
         let dos_header: *const dos::Header = self.0.as_ptr() as *const dos::Header;
         unsafe { &*dos_header }

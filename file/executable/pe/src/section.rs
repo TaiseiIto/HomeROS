@@ -23,6 +23,13 @@ pub struct Header {
 }
 
 impl Header {
+    pub fn range_on_memory(&self) -> Range<usize> {
+        let start_on_memory: usize = self.virtual_address as usize;
+        let size_on_memory: usize = self.virtual_size as usize;
+        let end_on_memory: usize = start_on_memory + size_on_memory;
+        start_on_memory..end_on_memory
+    }
+
     fn name(&self) -> String {
         str::from_utf8(self.name.as_slice())
             .unwrap()
@@ -36,13 +43,6 @@ impl Header {
         let size_on_file: usize = self.size_of_raw_data as usize;
         let end_on_file: usize = start_on_file + size_on_file;
         start_on_file..end_on_file
-    }
-
-    fn range_on_memory(&self) -> Range<usize> {
-        let start_on_memory: usize = self.virtual_address as usize;
-        let size_on_memory: usize = self.virtual_size as usize;
-        let end_on_memory: usize = start_on_memory + size_on_memory;
-        start_on_memory..end_on_memory
     }
 }
 
