@@ -199,8 +199,7 @@ impl Command {
     }
 
     fn run_outside_tmux(self) {
-        let debug_log_path: PathBuf = self.debug_log();
-        let debug_log: File = File::open(&debug_log_path).unwrap();
+        let debug_log: File = File::open(self.debug_log()).unwrap();
         let debug_log: BufReader<File> = BufReader::new(debug_log);
         let automaton: Automaton =
             r"^Loading driver at 0x(?<address>[\da-fA-F]+) EntryPoint=0x[\da-fA-F]+ boot\.efi$"
@@ -217,19 +216,20 @@ impl Command {
                 })
             })
             .unwrap();
-        let boot: Vec<u8> = read(self.boot_destination()).unwrap();
+        let boot_destination: PathBuf = self.boot_destination();
+        let boot: Vec<u8> = read(&boot_destination).unwrap();
         let pe: pe::File = boot.as_slice().into();
         let first_section_offset: usize = pe.first_section_offset();
         let boot_loader_address: usize = boot_loader_address + first_section_offset;
         let gdbinit: String = format!(
             r#"
 set architecture i386:x86-64
-file {:#x?}
+file {:?}
 target remote localhost:1234
-add-symbol-file {:#x?} {:#x?}
+add-symbol-file {:?} {:#x?}
 break boot::efi_main
 continue"#,
-            debug_log_path, debug_log_path, boot_loader_address
+            boot_destination, boot_destination, boot_loader_address
         );
         println!("{}", gdbinit);
         // let Self(arch) = self;
