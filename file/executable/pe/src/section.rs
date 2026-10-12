@@ -1,6 +1,9 @@
 use {
     alloc::string::String,
-    core::fmt::{Debug, Formatter, Result},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        ops::Range,
+    },
 };
 
 /// # References
@@ -27,6 +30,20 @@ impl Header {
             .take_while(|character| *character != '\0')
             .collect()
     }
+
+    fn range_on_file(&self) -> Range<usize> {
+        let start_on_file: usize = self.pointer_to_raw_data as usize;
+        let size_on_file: usize = self.size_of_raw_data as usize;
+        let end_on_file: usize = start_on_file + size_on_file;
+        start_on_file..end_on_file
+    }
+
+    fn range_on_memory(&self) -> Range<usize> {
+        let start_on_memory: usize = self.virtual_address as usize;
+        let size_on_memory: usize = self.virtual_size as usize;
+        let end_on_memory: usize = start_on_memory + size_on_memory;
+        start_on_memory..end_on_memory
+    }
 }
 
 impl Debug for Header {
@@ -34,10 +51,8 @@ impl Debug for Header {
         formatter
             .debug_struct("Header")
             .field("name", &self.name())
-            .field("virtual_size", &self.virtual_size)
-            .field("virtual_address", &self.virtual_address)
-            .field("size_of_raw_data", &self.size_of_raw_data)
-            .field("pointer_to_raw_data", &self.pointer_to_raw_data)
+            .field("range_on_memory", &self.range_on_memory())
+            .field("range_on_file", &self.range_on_file())
             .field("pointer_to_relocations", &self.pointer_to_relocations)
             .field("pointer_to_linenumbers", &self.pointer_to_linenumbers)
             .field("number_of_relocations", &self.number_of_relocations)
