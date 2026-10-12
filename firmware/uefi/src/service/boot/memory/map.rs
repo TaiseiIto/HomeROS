@@ -14,9 +14,10 @@ use {
 
 /// # References
 /// * [EFI_MEMORY_DESCRIPTOR](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-getmemorymap)
+#[derive(Debug)]
 #[repr(C)]
 pub struct Descriptor {
-    memory_type: u32,
+    memory_type: Type,
     physical_start: Physical,
     virtual_start: Virtual,
     number_of_pages: u64,
@@ -25,7 +26,7 @@ pub struct Descriptor {
 
 impl Descriptor {
     pub fn is_allocatable(&self) -> bool {
-        matches!(self.memory_type.into(), Type::Conventional)
+        matches!(self.memory_type, Type::Conventional)
     }
 
     pub fn range(&self) -> Range<usize> {
@@ -34,27 +35,6 @@ impl Descriptor {
         let length: usize = number_of_pages * page::SIZE;
         let end: usize = start + length;
         start..end
-    }
-}
-
-impl Debug for Descriptor {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        let Self {
-            memory_type,
-            physical_start,
-            virtual_start,
-            number_of_pages,
-            attribute,
-        } = self;
-        let memory_type: Type = (*memory_type).into();
-        formatter
-            .debug_struct("Descriptor")
-            .field("memory_type", &memory_type)
-            .field("physical_start", physical_start)
-            .field("virtual_start", virtual_start)
-            .field("number_of_pages", number_of_pages)
-            .field("attribute", attribute)
-            .finish()
     }
 }
 
