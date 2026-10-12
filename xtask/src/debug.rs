@@ -221,15 +221,20 @@ impl Command {
         let pe: pe::File = boot.as_slice().into();
         let first_section_offset: usize = pe.first_section_offset();
         let boot_loader_address: usize = boot_loader_address + first_section_offset;
+        let architecture: &str = match self.arch() {
+            Arch::Aarch64 => "aarch64",
+            Arch::RiscV64 => "riscv:rv64",
+            Arch::X64 => "i386:x86-64",
+        };
         let gdbinit: String = format!(
             r#"
-set architecture i386:x86-64
+set architecture {}
 file {:?}
 target remote localhost:1234
 add-symbol-file {:?} {:#x?}
 break boot::efi_main
 continue"#,
-            boot_destination, boot_destination, boot_loader_address
+            architecture, boot_destination, boot_destination, boot_loader_address
         );
         println!("{}", gdbinit);
         // let Self(arch) = self;
