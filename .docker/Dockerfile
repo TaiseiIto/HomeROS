@@ -10,6 +10,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y iasl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libglib2.0-dev
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libpixman-1-dev
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libssl-dev
+RUN apt-get update && apt-get upgrade -y && apt-get install -y lldb
 RUN apt-get update && apt-get upgrade -y && apt-get install -y llvm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y nasm
 RUN apt-get update && apt-get upgrade -y && apt-get install -y ninja-build
@@ -23,6 +24,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . $HOME/.cargo/env && cargo install cargo-expand
+RUN . $HOME/.cargo/env && rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 
 # Install QEMU
 WORKDIR /root/

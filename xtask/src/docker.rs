@@ -4,6 +4,7 @@ use {
         collections::{BTreeMap, BTreeSet},
         fs::{read_to_string, write},
         path::{Path, PathBuf},
+        str::FromStr,
     },
 };
 
@@ -148,10 +149,10 @@ impl Container {
     }
 }
 
-impl TryFrom<&str> for Container {
-    type Error = ();
+impl FromStr for Container {
+    type Err = ();
 
-    fn try_from(id: &str) -> Result<Self, Self::Error> {
+    fn from_str(id: &str) -> Result<Self, Self::Err> {
         if test(&format!("docker inspect {}", id)) {
             let id: String = id.to_string();
             Ok(Self { id })
@@ -198,10 +199,10 @@ impl Image {
     }
 }
 
-impl TryFrom<&str> for Image {
-    type Error = ();
+impl core::str::FromStr for Image {
+    type Err = ();
 
-    fn try_from(id: &str) -> Result<Self, Self::Error> {
+    fn from_str(id: &str) -> Result<Self, Self::Err> {
         if test(&format!("docker image inspect {}", id)) {
             let id: String = id.to_string();
             Ok(Self { id })
