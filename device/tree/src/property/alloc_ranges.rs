@@ -43,7 +43,6 @@ impl SecondAnalyzed for AllocRanges {
             let range_cells: usize = address_cells + size_cells;
             Self::Pretty(
                 words
-                    .as_slice()
                     .chunks(range_cells)
                     .map(|range| {
                         let (address_cells, size_cells): (&[u32], &[u32]) =

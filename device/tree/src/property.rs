@@ -401,7 +401,7 @@ impl Property {
             "model" => Self::Model(String::read(data)),
             "msi-map" => {
                 let data: Vec<u32> = Vec::<u32>::read(data);
-                let (rid_base, data): (&u32, &[u32]) = data.as_slice().split_first().unwrap();
+                let (rid_base, data): (&u32, &[u32]) = data.split_first().unwrap();
                 let (msi_parent, data): (&u32, &[u32]) = data.split_first().unwrap();
                 let (msi_length, data): (&u32, &[u32]) = data.split_last().unwrap();
                 let msi_base: u128 = data
@@ -430,7 +430,7 @@ impl Property {
             "reservation-granule-siz" => Self::ReservationGranuleSiz(u32::read(data)),
             "reusable" => Self::Reusable,
             "serial-number" => Self::SerialNumber(String::read(data)),
-            "status" => Self::Status(String::read(data).as_str().try_into().unwrap()),
+            "status" => Self::Status(String::read(data).as_str().parse().unwrap()),
             "stdin-path" => Self::StdInPath(<&str>::read(data).into()),
             "stdout-path" => Self::StdOutPath(<&str>::read(data).into()),
             "timebase-frequency" => Self::TimeBaseFrequency(match data.len() {
@@ -471,7 +471,7 @@ impl Property {
                 } else if let Some(specifier) = name.strip_suffix("-status") {
                     Self::StatusWithSpecifier {
                         specifier: specifier.to_string(),
-                        status: String::read(data).as_str().try_into().unwrap(),
+                        status: String::read(data).as_str().parse().unwrap(),
                     }
                 } else if let Some(name) = name.strip_prefix("#")
                     && let Some(specifier) = name.strip_suffix("-cells")

@@ -112,14 +112,11 @@ impl<'a> Iterator for Descriptors<'a> {
                 },
             index,
         } = self;
-        descriptors
-            .as_slice()
-            .get(*index * descriptor_size)
-            .map(|descriptor| {
-                *index += 1;
-                let descriptor: *const u8 = descriptor as *const u8;
-                let descriptor: *const Descriptor = descriptor as *const Descriptor;
-                unsafe { &*descriptor }
-            })
+        descriptors.get(*index * descriptor_size).map(|descriptor| {
+            *index += 1;
+            let descriptor: *const u8 = descriptor as *const u8;
+            let descriptor: *const Descriptor = descriptor as *const Descriptor;
+            unsafe { &*descriptor }
+        })
     }
 }

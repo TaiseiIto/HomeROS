@@ -26,7 +26,6 @@ impl SecondAnalyzed for Specifiers {
         if let Self::Raw(words) = self {
             Self::Pretty(
                 words
-                    .as_slice()
                     .chunks(second_analyzer.interrupt_parent_interrupt_cells().unwrap())
                     .map(|specifier| {
                         specifier

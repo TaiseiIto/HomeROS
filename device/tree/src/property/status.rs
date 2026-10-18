@@ -10,10 +10,10 @@ pub enum Status {
     Fail(Option<String>),
 }
 
-impl TryFrom<&str> for Status {
-    type Error = ();
+impl core::str::FromStr for Status {
+    type Err = ();
 
-    fn try_from(status: &str) -> Result<Self, Self::Error> {
+    fn from_str(status: &str) -> Result<Self, Self::Err> {
         match status {
             "okay" => Ok(Self::Okay),
             "disabled" => Ok(Self::Disabled),

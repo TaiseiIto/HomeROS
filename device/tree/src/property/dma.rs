@@ -31,7 +31,6 @@ impl SecondAnalyzed for Ranges {
                 child_bus_address_cells + parent_bus_address_cells + size_cells;
             Self::Pretty(
                 words
-                    .as_slice()
                     .chunks(range_cells)
                     .map(|range| {
                         let child_bus_address_start: usize = 0;
