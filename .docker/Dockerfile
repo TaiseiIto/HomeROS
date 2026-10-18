@@ -23,6 +23,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . $HOME/.cargo/env && cargo install cargo-expand
+RUN . $HOME/.cargo/env && rustup component add rust-src --toolchain nightly-2026-09-26-x86_64-unknown-linux-gnu
 
 # Install QEMU
 WORKDIR /root/
