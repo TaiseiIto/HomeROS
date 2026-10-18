@@ -1,3 +1,6 @@
+[profile.dev.package.compiler_builtins]
+opt-level = "s"
+
 [workspace]
 members = [
 	"arch",

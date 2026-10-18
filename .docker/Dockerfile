@@ -28,7 +28,7 @@ RUN echo 'export PATH=$PATH:~/.local/bin' >> .bashrc
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . $HOME/.cargo/env && cargo install cargo-expand
-RUN . $HOME/.cargo/env && rustup component add rust-src --toolchain nightly-2026-09-26-x86_64-unknown-linux-gnu
+RUN . $HOME/.cargo/env && rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 
 # Install QEMU
 RUN git clone --branch v11.0.0 --depth 1 --recursive --shallow-submodules --single-branch https://gitlab.com/qemu-project/qemu.git

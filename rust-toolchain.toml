@@ -1,5 +1,5 @@
 [toolchain]
-channel = "nightly-2026-09-26"
+channel = "nightly"
 targets = [
 	"aarch64-unknown-none-softfloat",
 	"riscv64gc-unknown-none-elf",

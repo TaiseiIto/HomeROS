@@ -187,7 +187,7 @@ fn build() -> Container {
 fn container() -> Option<Container> {
     read_to_string(container_id_file())
         .ok()
-        .and_then(|id| id.as_str().try_into().ok())
+        .and_then(|id| id.as_str().parse().ok())
 }
 
 fn container_id_file() -> PathBuf {
@@ -211,7 +211,7 @@ fn home_directory() -> PathBuf {
 fn image() -> Option<Image> {
     read_to_string(image_id_file())
         .ok()
-        .and_then(|id| id.as_str().try_into().ok())
+        .and_then(|id| id.as_str().parse().ok())
 }
 
 fn image_id_file() -> PathBuf {
