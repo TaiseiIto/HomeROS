@@ -1,5 +1,3 @@
-#![feature(smart_pointer_try_map)]
-
 mod parser;
 
 use syn::{DeriveInput, parse_macro_input};
