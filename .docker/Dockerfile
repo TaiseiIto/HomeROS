@@ -20,13 +20,17 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y tzdata
 RUN apt-get update && apt-get upgrade -y && apt-get install -y uuid-dev
 RUN apt-get update && apt-get upgrade -y && apt-get install -y vim
 
+# Install Claude
+WORKDIR /root/
+RUN curl -fsSL https://claude.ai/install.sh | bash
+RUN echo 'export PATH=$PATH:~/.local/bin' >> .bashrc
+
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN . $HOME/.cargo/env && cargo install cargo-expand
 RUN . $HOME/.cargo/env && rustup component add rust-src --toolchain nightly-2026-09-26-x86_64-unknown-linux-gnu
 
 # Install QEMU
-WORKDIR /root/
 RUN git clone --branch v11.0.0 --depth 1 --recursive --shallow-submodules --single-branch https://gitlab.com/qemu-project/qemu.git
 WORKDIR qemu
 RUN ./configure --target-list=aarch64-softmmu,riscv64-softmmu,x86_64-softmmu CFLAGS="-O0 -g -fno-inline" CXXFLAGS="-O0 -g -fno-inline"
