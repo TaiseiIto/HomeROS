@@ -184,10 +184,9 @@ impl NodeInNodes {
                 State::Divided => {
                     if let Some(mut higher_half) = self.higher_half_mut() {
                         higher_half.dealloc(address);
-                    } else if let Some(mut lower_half) = self.lower_half_mut() {
+                    }
+                    if let Some(mut lower_half) = self.lower_half_mut() {
                         lower_half.dealloc(address);
-                    } else {
-                        panic!();
                     }
                     if self.can_merge() {
                         self.merges();
