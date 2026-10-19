@@ -80,8 +80,17 @@ If you have push permission to this repository, this command make you able to pu
 
 ### Debug
 
+First, run on debug mode to generate `log/x64/debug.log`.
+
 ```
 /somewhere/HomeROS$ cargo xtask run --arch x64 --version debug
+```
+
+The generated log contains the load address of `BOOTX64.EFI`.
+It's the base address of all symbols.
+Then, debug `BOOTX64.EFI` by the following command.
+
+```
 /somewhere/HomeROS$ cargo xtask debug --arch x64
 ```
 
