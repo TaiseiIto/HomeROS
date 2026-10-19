@@ -81,6 +81,7 @@ If you have push permission to this repository, this command make you able to pu
 ### Debug
 
 ```
+/somewhere/HomeROS$ cargo xtask run --arch x64 --version debug
 /somewhere/HomeROS$ cargo xtask debug --arch x64
 ```
 

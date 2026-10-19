@@ -22,7 +22,7 @@ impl<'a> File<'a> {
         self.section_table()
             .iter()
             .map(|section| section.range_on_memory().start)
-            .max()
+            .min()
             .unwrap()
     }
 
