@@ -63,7 +63,7 @@ extern "efiapi" fn efi_main(image_handle: HandleMut, system_table: *mut Table) -
     unreachable!();
 }
 
-fn main(global: firmware::Global) {
+fn main(global: firmware::Global) -> ! {
     global.set();
     allocator::temporize(
         #[cfg(use_temporary_memory_allocator)]
