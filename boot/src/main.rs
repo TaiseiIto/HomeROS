@@ -40,7 +40,7 @@ fn initialize_global(
     #[cfg(firmware = "sbi")] device_tree: *const tree::Header,
     boot_loader_head: usize,
     heap_head: usize,
-) {
+) -> ! {
     main(unsafe {
         firmware::Global::new(
             #[cfg(firmware = "sbi")]
@@ -51,7 +51,6 @@ fn initialize_global(
             heap_head,
         )
     });
-    unreachable!();
 }
 
 /// # References
