@@ -60,7 +60,6 @@ fn initialize_global(
 #[unsafe(no_mangle)]
 extern "efiapi" fn efi_main(image_handle: HandleMut, system_table: *mut Table) -> Status {
     main(unsafe { firmware::Global::new(image_handle, system_table) });
-    unreachable!();
 }
 
 fn main(global: firmware::Global) -> ! {
