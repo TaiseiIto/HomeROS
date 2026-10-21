@@ -301,7 +301,7 @@ set architecture {}
 file {:?}
 target remote localhost:1234
 add-symbol-file {:?} {:#x?}
-break boot::debug::breakpoint
+break 'boot::main'
 "#,
             arch, boot_destination, boot_destination, boot_loader_address
         )
