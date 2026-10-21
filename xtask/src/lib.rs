@@ -21,6 +21,8 @@ pub use {docker::in_container, format::format, lint::lint, test::test};
 pub enum Command {
     Build,
     Debug(debug::Command),
+    Debuggee(debug::Debuggee),
+    Debugger(debug::Debugger),
     Develop(develop::Command),
     Disassemble(disassemble::Command),
     Install(install::Command),
@@ -47,6 +49,8 @@ impl Command {
                     develop::debug_in_container(command);
                 }
             }
+            Self::Debuggee(command) => command.run(),
+            Self::Debugger(command) => command.run(),
             Self::Develop(command) => command.run(),
             Self::Disassemble(command) => {
                 product::build();
@@ -83,6 +87,8 @@ impl From<Args> for Command {
         match args.next().unwrap().as_str() {
             "build" => Self::Build,
             "debug" => Self::Debug(args.into()),
+            "debuggee" => Self::Debuggee(args.into()),
+            "debugger" => Self::Debugger(args.into()),
             "develop" => Self::Develop(args.into()),
             "disassemble" => Self::Disassemble(args.into()),
             "install" => Self::Install(args.into()),
