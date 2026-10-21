@@ -320,6 +320,9 @@ target remote localhost:1234
 add-symbol-file {:?} {:#x?} {}
 break 'boot::debug::breakpoint'
 continue
+set var *(&boot::debug::WAIT as *mut u8) = 0
+break 'boot::main'
+continue
 "#,
             arch, boot_destination, boot_destination, text_address, section2address
         )
