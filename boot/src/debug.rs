@@ -9,4 +9,7 @@ pub fn wait() {
     while WAIT.load(Relaxed) {
         spin_loop();
     }
+    break_point();
 }
+
+fn break_point() {}
