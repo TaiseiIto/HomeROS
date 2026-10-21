@@ -4,10 +4,15 @@ use {
         git::product,
         product::{Arch, Tree, Version},
     },
+    regex::Automaton,
     std::{
         env::Args,
         fmt::{self, Display, Formatter},
+        fs::{File, read, read_to_string},
+        io::Write,
         path::PathBuf,
+        thread::sleep,
+        time::Duration,
     },
 };
 
@@ -222,6 +227,12 @@ impl Debuggee {
     }
 }
 
+impl From<&Debugger> for Debuggee {
+    fn from(debugger: &Debugger) -> Self {
+        Self::new(debugger.arch().clone())
+    }
+}
+
 impl From<&Debuggee> for Tree {
     fn from(debuggee: &Debuggee) -> Self {
         let Debuggee(arch) = debuggee;
@@ -271,11 +282,81 @@ pub struct Debugger(Arch);
 
 impl Debugger {
     pub fn run(self) {
-        unimplemented!();
+        let arch: &str = match self.arch() {
+            Arch::Aarch64 => "aarch64",
+            Arch::RiscV64 => "riscv:rv64",
+            Arch::X64 => "i386:x86-64",
+        };
+        let boot_loader_address: usize = self.boot_loader_address();
+        let boot_destination: PathBuf = self.boot_destination();
+        let boot: Vec<u8> = read(&boot_destination).unwrap();
+        let pe: pe::File = boot.as_slice().into();
+        let first_section_offset: usize = pe.first_section_offset();
+        let boot_loader_address: usize = boot_loader_address + first_section_offset;
+        let mut gdbinit = File::create(".gdbinit").unwrap();
+        write!(
+            gdbinit,
+            r#"
+set architecture {}
+file {:?}
+target remote localhost:1234
+add-symbol-file {:?} {:#x?}
+"#,
+            arch, boot_destination, boot_destination, boot_loader_address
+        )
+        .unwrap();
+        gdbinit.flush().unwrap();
+        run("rust-gdb");
+    }
+
+    fn arch(&self) -> &Arch {
+        &self.0
+    }
+
+    fn boot_destination(&self) -> PathBuf {
+        let debuggee: Debuggee = self.into();
+        debuggee.boot_destination()
+    }
+
+    fn boot_loader_address(&self) -> usize {
+        if let Some(boot_loader_address) = self.try_boot_loader_address() {
+            boot_loader_address
+        } else {
+            sleep(Duration::from_secs(1));
+            self.boot_loader_address()
+        }
+    }
+
+    fn debug_log(&self) -> String {
+        if let Ok(debug_log) = read_to_string(self.debug_log_path()) {
+            debug_log
+        } else {
+            sleep(Duration::from_secs(1));
+            self.debug_log()
+        }
+    }
+
+    fn debug_log_path(&self) -> PathBuf {
+        let debuggee: Debuggee = self.into();
+        debuggee.debug_log()
     }
 
     fn new(arch: Arch) -> Self {
         Self(arch)
+    }
+
+    fn try_boot_loader_address(&self) -> Option<usize> {
+        let automaton: Automaton =
+            r"^Loading driver at 0x(?<address>[\da-fA-F]+) EntryPoint=0x[\da-fA-F]+ boot\.efi$"
+                .parse()
+                .unwrap();
+        self.debug_log().lines().find_map(|line| {
+            automaton.input(line).into_iter().next().and_then(|mat| {
+                mat.captures()["address"]
+                    .first()
+                    .and_then(|address| usize::from_str_radix(address.into(), 16).ok())
+            })
+        })
     }
 }
 
