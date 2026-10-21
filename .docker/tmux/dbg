@@ -2,6 +2,6 @@ source-file ~/.tmux.conf
 split-window -hc '#{pane_current_path}'
 split-window -hc '#{pane_current_path}'
 select-layout even-horizontal
-send-key -t 0 'cargo xtask debug --arch $ARCH' C-m
-send-key -t 1 'rust-gdb' C-m
+send-key -t 0 'cargo xtask debuggee --arch $ARCH' C-m
+send-key -t 1 'cargo xtask debugger --arch $ARCH' C-m
 select-pane -t 1
