@@ -3,10 +3,16 @@
 
 extern crate alloc;
 
+#[cfg(all(debug_assertions, firmware = "uefi"))]
+mod debug;
+
 use {arch::wait_for_interrupt, core::panic::PanicInfo};
 
 #[cfg(firmware = "uefi")]
 use firmware::uefi::{HandleMut, Status, system::Table};
+
+#[cfg(all(debug_assertions, firmware = "uefi"))]
+use debug::wait;
 
 #[cfg(start_with_assembly)]
 use core::arch::naked_asm;
@@ -58,6 +64,8 @@ fn initialize_global(
 #[cfg(firmware = "uefi")]
 #[unsafe(no_mangle)]
 extern "efiapi" fn efi_main(image_handle: HandleMut, system_table: *mut Table) -> Status {
+    #[cfg(debug_assertions)]
+    wait();
     main(unsafe { firmware::Global::new(image_handle, system_table) });
 }
 
