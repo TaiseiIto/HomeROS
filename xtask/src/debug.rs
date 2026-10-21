@@ -6,6 +6,7 @@ use {
     },
     regex::Automaton,
     std::{
+        collections::HashMap,
         env::Args,
         fmt::{self, Display, Formatter},
         fs::{File, read, read_to_string},
@@ -291,8 +292,24 @@ impl Debugger {
         let boot_destination: PathBuf = self.boot_destination();
         let boot: Vec<u8> = read(&boot_destination).unwrap();
         let pe: pe::File = boot.as_slice().into();
-        let first_section_offset: usize = pe.first_section_offset();
-        let boot_loader_address: usize = boot_loader_address + first_section_offset;
+
+        let section_name_pattern: Automaton = r"^\.\w+$".parse().unwrap();
+        let mut section2address: HashMap<String, usize> = pe
+            .section_table()
+            .iter()
+            .filter_map(|section| {
+                let section_name: String = section.name();
+                let section_address: usize = boot_loader_address + section.range_on_memory().start;
+                (!section_name_pattern.input(&section_name).is_empty())
+                    .then_some((section_name, section_address))
+            })
+            .collect();
+        let text_address: usize = section2address.remove(".text").unwrap();
+        let section2address: Vec<String> = section2address
+            .into_iter()
+            .map(|(name, address)| format!("-s {} {:#x?}", name, address))
+            .collect();
+        let section2address: String = section2address.join(" ");
         let mut gdbinit = File::create(".gdbinit").unwrap();
         write!(
             gdbinit,
@@ -300,11 +317,11 @@ impl Debugger {
 set architecture {}
 file {:?}
 target remote localhost:1234
-add-symbol-file {:?} {:#x?}
+add-symbol-file {:?} {:#x?} {}
 break 'boot::debug::breakpoint'
 continue
 "#,
-            arch, boot_destination, boot_destination, boot_loader_address
+            arch, boot_destination, boot_destination, text_address, section2address
         )
         .unwrap();
         gdbinit.flush().unwrap();

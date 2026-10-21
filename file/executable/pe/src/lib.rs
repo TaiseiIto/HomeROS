@@ -11,19 +11,15 @@ mod dos;
 mod file;
 mod nt;
 mod optional;
-mod section;
+pub mod section;
 
 use core::fmt::{Debug, Formatter, Result};
 
 pub struct File<'a>(&'a [u8]);
 
 impl<'a> File<'a> {
-    pub fn first_section_offset(&self) -> usize {
-        self.section_table()
-            .iter()
-            .map(|section| section.range_on_memory().start)
-            .min()
-            .unwrap()
+    pub fn section_table(&'a self) -> &'a [section::Header] {
+        self.nt_header().section_table()
     }
 
     fn dos_header(&'a self) -> &'a dos::Header {
@@ -36,10 +32,6 @@ impl<'a> File<'a> {
             self.0.get(self.dos_header().nt_header_offset()).unwrap() as *const u8;
         let nt_header: *const nt::Header = nt_header as *const nt::Header;
         unsafe { &*nt_header }
-    }
-
-    fn section_table(&'a self) -> &'a [section::Header] {
-        self.nt_header().section_table()
     }
 }
 
