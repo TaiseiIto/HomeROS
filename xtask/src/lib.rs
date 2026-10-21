@@ -44,6 +44,7 @@ impl Command {
             }
             Self::Debug(command) => {
                 if in_container() {
+                    product::build();
                     command.run();
                 } else {
                     develop::debug_in_container(command);
