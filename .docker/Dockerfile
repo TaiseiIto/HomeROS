@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y && apt-get install -y build-essential
 RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y gcc-aarch64-linux-gnu
-RUN apt-get update && apt-get upgrade -y && apt-get install -y gdb
+RUN apt-get update && apt-get upgrade -y && apt-get install -y gdb-multiarch
 RUN apt-get update && apt-get upgrade -y && apt-get install -y git
 RUN apt-get update && apt-get upgrade -y && apt-get install -y iasl
 RUN apt-get update && apt-get upgrade -y && apt-get install -y libglib2.0-dev
