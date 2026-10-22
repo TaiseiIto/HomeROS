@@ -14,7 +14,7 @@ use {
 };
 
 #[cfg(firmware = "uefi")]
-use uefi::service::boot::memory::Map;
+use uefi::service::boot::memory::{Map, map::Descriptor};
 
 #[cfg(has_device_tree)]
 use memory::{Region, Regions};
@@ -131,7 +131,7 @@ impl Allocator {
             Self::Stable { map } => map
                 .iter()
                 .filter(|descriptor| descriptor.is_allocatable())
-                .map(|descriptor| descriptor.range()),
+                .map(Descriptor::range),
             _ => panic!(),
         }
     }
