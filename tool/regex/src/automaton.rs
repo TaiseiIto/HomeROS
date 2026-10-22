@@ -38,10 +38,8 @@ impl Automaton {
             Self::Character(_) => false,
             Self::EndOfLine => true,
             Self::Repetition { body, number } => number.can_break(0) || body.accepts_empty_string(),
-            Self::Selection(options) => options.iter().any(|option| option.accepts_empty_string()),
-            Self::Sequence(elements) => elements
-                .iter()
-                .all(|element| element.accepts_empty_string()),
+            Self::Selection(options) => options.iter().any(Self::accepts_empty_string),
+            Self::Sequence(elements) => elements.iter().all(Self::accepts_empty_string),
             Self::StartOfLine => true,
         }
     }
@@ -54,7 +52,7 @@ impl Automaton {
         trees
             .into_iter()
             .flat_map(Into::<Vec<Line<'a>>>::into)
-            .filter(|line| line.accepted())
+            .filter(Line::accepted)
             .map(|line| Match::new(input, line))
             .collect()
     }

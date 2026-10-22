@@ -190,8 +190,7 @@ impl Component {
                 if let Some(name) = name {
                     quote! { #name }
                 } else {
-                    let elements: Vec<TokenStream> =
-                        elements.iter().map(|element| element.ty()).collect();
+                    let elements: Vec<TokenStream> = elements.iter().map(Component::ty).collect();
                     quote! { (#(#elements),*) }
                 }
             }

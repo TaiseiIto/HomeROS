@@ -22,7 +22,7 @@ impl Structure {
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
-            .filter_map(|element| element.accessor_debug())
+            .filter_map(Element::accessor_debug)
             .collect();
         quote! {
             impl ::core::fmt::Debug for #accessor {
@@ -73,11 +73,7 @@ impl Structure {
     fn debug(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
         let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .filter_map(|element| element.debug())
-            .collect();
+        let elements: Vec<TokenStream> = self.elements.iter().filter_map(Element::debug).collect();
         quote! {
             impl ::core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
@@ -157,14 +153,14 @@ impl Structure {
     fn read_memories(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.read_memory())
+            .filter_map(Element::read_memory)
             .collect()
     }
 
     fn read_ports(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.read_port())
+            .filter_map(Element::read_port)
             .collect()
     }
 
@@ -176,7 +172,7 @@ impl Structure {
     }
 
     fn sizes(&self) -> Vec<TokenStream> {
-        self.elements.iter().map(|element| element.size()).collect()
+        self.elements.iter().map(Element::size).collect()
     }
 
     fn true_declaration(&self) -> TokenStream {
@@ -185,10 +181,7 @@ impl Structure {
             ident,
             elements,
         } = self;
-        let elements: Vec<TokenStream> = elements
-            .iter()
-            .map(|element| element.true_declaration())
-            .collect();
+        let elements: Vec<TokenStream> = elements.iter().map(Element::true_declaration).collect();
         quote! {
             #[repr(C)]
             #vis struct #ident {
@@ -200,14 +193,14 @@ impl Structure {
     fn write_memories(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.write_memory())
+            .filter_map(Element::write_memory)
             .collect()
     }
 
     fn write_ports(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.write_port())
+            .filter_map(Element::write_port)
             .collect()
     }
 
