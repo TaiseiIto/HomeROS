@@ -9,7 +9,7 @@ use {
         collections::HashMap,
         env::Args,
         fmt::{self, Display, Formatter},
-        fs::{read, read_to_string, write},
+        fs::{read, read_to_string, remove_file, write},
         path::PathBuf,
         thread::sleep,
         time::Duration,
@@ -282,6 +282,8 @@ pub struct Debugger(Arch);
 
 impl Debugger {
     pub fn run(self) {
+        let gdbinit: PathBuf = PathBuf::from(".gdbinit");
+        remove_file(&gdbinit).unwrap();
         let arch: &str = match self.arch() {
             Arch::Aarch64 => "aarch64",
             Arch::RiscV64 => "riscv:rv64",
@@ -324,7 +326,7 @@ impl Debugger {
             _ => String::default(),
         };
         write(
-            ".gdbinit",
+            gdbinit,
             format!(
                 r#"
                     set architecture {}
