@@ -293,11 +293,16 @@ continue
                 "#,
                 self.boot().source()
             ),
-            Arch::RiscV64 => r#"
+            Arch::RiscV64 => format!(
+                r#"
 set architecture riscv:rv64
 target remote localhost:1234
-            "#
-            .to_string(),
+file {:?}
+break 'boot::main'
+continue
+                "#,
+                self.boot().source()
+            ),
             Arch::X64 => {
                 let boot_loader_address: usize = self.boot_loader_address();
                 let boot_destination: PathBuf = self.boot().destination();
