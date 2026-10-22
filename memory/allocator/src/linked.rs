@@ -55,7 +55,7 @@ impl Node {
     }
 
     fn available_tail(&self) -> Option<usize> {
-        self.next().map(|next| next.address())
+        self.next().map(Self::address)
     }
 
     fn alloc(&mut self, layout: Layout) -> *mut u8 {
@@ -200,8 +200,6 @@ impl Node {
     }
 
     fn tail(&self) -> usize {
-        self.next()
-            .map(|next| next.tail())
-            .unwrap_or(self.available_head())
+        self.next().map(Self::tail).unwrap_or(self.available_head())
     }
 }

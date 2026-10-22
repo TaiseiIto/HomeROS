@@ -169,9 +169,9 @@ impl<T: UnsignedInt> Regions<T> {
     pub fn try_cast<U: UnsignedInt + TryFrom<T>>(self) -> Option<Regions<U>> {
         self.0
             .into_iter()
-            .map(|region| region.try_cast())
+            .map(Region::try_cast)
             .collect::<Option<Vec<Region<U>>>>()
-            .map(|regions| Regions(regions))
+            .map(Regions::<U>)
     }
 
     fn deduplicate(&mut self) {
