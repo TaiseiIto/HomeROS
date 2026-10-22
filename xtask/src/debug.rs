@@ -282,32 +282,17 @@ pub struct Debugger(Arch);
 
 impl Debugger {
     pub fn run(self) {
-        let gdbinit: String = match self.arch() {
-            Arch::Aarch64 => format!(
-                r#"
-set architecture aarch64
-file {:?}
-target remote localhost:1234
-break 'boot::main'
-continue
-                "#,
-                self.boot().source()
-            ),
-            Arch::RiscV64 => format!(
-                r#"
-set architecture riscv:rv64
-file {:?}
-target remote localhost:1234
-break 'boot::main'
-continue
-                "#,
-                self.boot().source()
-            ),
+        let arch: &str = match self.arch() {
+            Arch::Aarch64 => "aarch64",
+            Arch::RiscV64 => "riscv:rv64",
+            Arch::X64 => "i386:x86-64",
+        };
+        let boot_loader: PathBuf = self.boot().source();
+        let option: String = match self.arch() {
             Arch::X64 => {
                 let boot_loader_address: usize = self.boot_loader_address();
-                let boot_destination: PathBuf = self.boot().destination();
-                let boot: Vec<u8> = read(&boot_destination).unwrap();
-                let pe: pe::File = boot.as_slice().into();
+                let boot_loader_bytes: Vec<u8> = read(&boot_loader).unwrap();
+                let pe: pe::File = boot_loader_bytes.as_slice().into();
                 let section_name_pattern: Automaton = r"^\.\w+$".parse().unwrap();
                 let mut section2address: HashMap<String, usize> = pe
                     .section_table()
@@ -328,20 +313,27 @@ continue
                 let section2address: String = section2address.join(" ");
                 format!(
                     r#"
-set architecture i386:x86-64
-file {:?}
-target remote localhost:1234
 add-symbol-file {:?} {:#x?} {}
 break 'boot::debug::breakpoint'
 continue
 set var *(&boot::debug::WAIT as *mut u8) = 0
-break 'boot::main'
-continue
 "#,
-                    boot_destination, boot_destination, text_address, section2address
+                    boot_loader, text_address, section2address
                 )
             }
+            _ => String::default(),
         };
+        let gdbinit: String = format!(
+            r#"
+set architecture {}
+file {:?}
+target remote localhost:1234
+{}
+break 'boot::main'
+continue
+            "#,
+            arch, boot_loader, option
+        );
         write(".gdbinit", gdbinit).unwrap();
         run("RUST_GDB=gdb-multiarch rust-gdb");
     }
