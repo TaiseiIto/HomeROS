@@ -313,11 +313,11 @@ impl Debugger {
                 let section2address: String = section2address.join(" ");
                 format!(
                     r#"
-add-symbol-file {:?} {:#x?} {}
-break 'boot::debug::breakpoint'
-continue
-set var *(&boot::debug::WAIT as *mut u8) = 0
-"#,
+                        add-symbol-file {:?} {:#x?} {}
+                        break 'boot::debug::breakpoint'
+                        continue
+                        set var *(&boot::debug::WAIT as *mut u8) = 0
+                    "#,
                     boot_loader, text_address, section2address
                 )
             }
@@ -327,12 +327,12 @@ set var *(&boot::debug::WAIT as *mut u8) = 0
             ".gdbinit",
             format!(
                 r#"
-set architecture {}
-file {:?}
-target remote localhost:1234
-{}
-break 'boot::main'
-continue
+                    set architecture {}
+                    file {:?}
+                    target remote localhost:1234
+                    {}
+                    break 'boot::main'
+                    continue
             "#,
                 arch, boot_loader, option
             ),
