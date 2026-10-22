@@ -26,7 +26,7 @@ impl Command {
     pub fn run(self) {
         let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
         run(&format!(
-            "ARCH={} VERSION=debug tmux new-session ; source-file {}",
+            "ARCH={} tmux new-session ; source-file {}",
             self.arch(),
             source.to_str().unwrap()
         ));

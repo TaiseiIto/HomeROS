@@ -14,7 +14,6 @@ use {
 
 pub struct Command {
     arch: Arch,
-    version: Version,
 }
 
 impl Command {
@@ -34,17 +33,13 @@ impl Command {
         }
     }
 
-    pub fn version(&self) -> &Version {
-        &self.version
-    }
-
     fn boot(&self) -> Binary {
         let tree: Tree = self.into();
         tree.boot()
     }
 
     fn com1(&self) -> String {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::X64 => format!("-serial file:{}", self.com1log().to_str().unwrap()),
             _ => format!(
@@ -61,7 +56,7 @@ impl Command {
     }
 
     fn com2(&self) -> String {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::X64 => format!(
                 "-chardev stdio,id=com2,mux=on,logfile={} -serial chardev:com2",
@@ -77,7 +72,7 @@ impl Command {
         com2log
     }
     fn cpu(&self) -> &str {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::Aarch64 => "-cpu max",
             _ => "",
@@ -85,7 +80,7 @@ impl Command {
     }
 
     fn debug(&self) -> String {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::Aarch64 => format!("-serial file:{}", self.debug_log().to_str().unwrap()),
             Arch::X64 => format!(
@@ -108,7 +103,7 @@ impl Command {
     }
 
     fn display(&self) -> &str {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::Aarch64 | Arch::RiscV64 => "-device ramfb",
             _ => "",
@@ -170,7 +165,7 @@ impl Command {
     }
 
     fn machine(&self) -> &str {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::Aarch64 => "-machine virt,secure=on",
             Arch::RiscV64 => "-machine virt",
@@ -178,12 +173,12 @@ impl Command {
         }
     }
 
-    fn new(arch: Arch, version: Version) -> Self {
-        Self { arch, version }
+    fn new(arch: Arch) -> Self {
+        Self { arch }
     }
 
     fn qemu(&self) -> &str {
-        let Self { arch, version: _ } = self;
+        let Self { arch } = self;
         match arch {
             Arch::Aarch64 => "qemu-system-aarch64",
             Arch::RiscV64 => "qemu-system-riscv64",
@@ -204,12 +199,11 @@ impl Command {
 
     fn run_outside_tmux(self) {
         build();
-        let Self { arch, version } = self;
+        let Self { arch } = self;
         let source: PathBuf = PathBuf::from(".docker/tmux/run");
         run(&format!(
-            "ARCH={} VERSION={} tmux new-session ; source-file {}",
+            "ARCH={} tmux new-session ; source-file {}",
             arch,
-            version,
             source.to_str().unwrap()
         ));
     }
@@ -217,23 +211,21 @@ impl Command {
 
 impl From<&Command> for Tree {
     fn from(command: &Command) -> Self {
-        let Command { arch, version } = command;
-        Self::new(arch.clone(), version.clone())
+        let Command { arch } = command;
+        Self::new(arch.clone(), Version::Release)
     }
 }
 
 impl From<Args> for Command {
     fn from(mut args: Args) -> Self {
         let mut arch: Option<Arch> = None;
-        let mut version: Option<Version> = None;
         while let Some(arg) = args.next() {
             match arg.as_str() {
                 "--arch" => arch = Some(args.next().unwrap().as_str().into()),
-                "--version" => version = Some(args.next().unwrap().as_str().into()),
                 arg => unreachable!("arg = {}", arg),
             }
         }
-        Self::new(arch.unwrap(), version.unwrap())
+        Self::new(arch.unwrap())
     }
 }
 

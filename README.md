@@ -27,7 +27,7 @@ And run the commands below.
 ### Run HomeROS on QEMU
 
 ```
-/somewhere/HomeROS$ cargo xtask run --arch (aarch64|riscv64|x64) --version (debug|release)
+/somewhere/HomeROS$ cargo xtask run --arch (aarch64|riscv64|x64)
 ```
 
 Then you can connect to `localhost:5900` with VNC and operate HomeROS.
