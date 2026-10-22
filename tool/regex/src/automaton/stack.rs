@@ -17,7 +17,7 @@ impl<'a> Stack<'a> {
     }
 
     pub fn accepted(&self) -> bool {
-        self.0.iter().all(|frame| frame.accepted())
+        self.0.iter().all(Frame::accepted)
     }
 
     pub fn acceptor(&self) -> &'a Acceptor {
@@ -250,7 +250,7 @@ impl<'a> Frame<'a> {
             } => elements
                 .iter()
                 .skip(*processing_element_index)
-                .all(|element| element.accepts_empty_string()),
+                .all(Automaton::accepts_empty_string),
             _ => panic!(),
         }
     }

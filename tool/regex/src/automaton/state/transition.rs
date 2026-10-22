@@ -10,9 +10,7 @@ pub struct Line<'a>(Vec<Acceptance<'a>>);
 
 impl Line<'_> {
     pub fn accepted(&self) -> bool {
-        self.0
-            .last()
-            .is_some_and(|acceptance| acceptance.accepted())
+        self.0.last().is_some_and(Acceptance::accepted)
     }
 
     pub fn index_range(&self, stack: &Stack) -> RangeInclusive<usize> {
@@ -20,7 +18,7 @@ impl Line<'_> {
             .0
             .iter()
             .filter(|acceptance| acceptance.accepted_in(stack))
-            .map(|acceptance| acceptance.index())
+            .map(Acceptance::index)
             .collect();
         let max: usize = *indices.iter().max().unwrap();
         let min: usize = *indices.iter().min().unwrap();
