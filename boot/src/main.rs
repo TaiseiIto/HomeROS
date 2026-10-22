@@ -8,11 +8,14 @@ mod debug;
 
 use {arch::wait_for_interrupt, core::panic::PanicInfo};
 
+#[cfg(all(debug_assertions, firmware = "uefi"))]
+use debug::wait;
+
 #[cfg(firmware = "uefi")]
 use firmware::uefi::{HandleMut, Status, system::Table};
 
-#[cfg(all(debug_assertions, firmware = "uefi"))]
-use debug::wait;
+#[cfg(has_device_tree)]
+use tree::Uart;
 
 #[cfg(start_with_assembly)]
 use core::arch::naked_asm;
@@ -85,7 +88,7 @@ fn main(global: firmware::Global) -> ! {
             .unwrap()
             .uarts()
             .into_iter()
-            .min_by_key(|uart| uart.base_address())
+            .min_by_key(Uart::base_address)
             .unwrap(),
     );
     firmware::println!("Hello, firmware!");

@@ -62,7 +62,7 @@ impl Node {
             self.children
                 .iter()
                 .filter(|child| child.is_ok())
-                .flat_map(|child| child.memories())
+                .flat_map(Self::memories)
                 .collect()
         }
     }
@@ -96,7 +96,7 @@ impl Node {
             + self
                 .children
                 .iter()
-                .map(|child| child.regions())
+                .map(Self::regions)
                 .sum::<Regions<u128>>()
     }
 
@@ -106,7 +106,7 @@ impl Node {
         } else {
             self.children
                 .iter()
-                .flat_map(|child| child.reserved_memories())
+                .flat_map(Self::reserved_memories)
                 .collect()
         }
     }
@@ -303,7 +303,7 @@ impl From<&Node> for Vec<Uart> {
         node.children
             .iter()
             .map(Into::<Self>::into)
-            .flat_map(|uarts| uarts.into_iter())
+            .flat_map(Self::into_iter)
             .chain(node.try_into().ok())
             .collect()
     }
@@ -348,26 +348,24 @@ impl<'a> SecondAnalyzer<'a> {
     }
 
     pub fn interrupt_parent_interrupt_cells(&self) -> Option<usize> {
-        self.interrupt_parent()
-            .and_then(|node| node.interrupt_cells())
+        self.interrupt_parent().and_then(Node::interrupt_cells)
     }
 
     pub fn parent_address_cells(&self) -> Option<usize> {
-        self.parent_node().map(|node| node.address_cells())
+        self.parent_node().map(Node::address_cells)
     }
 
     pub fn parent_size_cells(&self) -> Option<usize> {
-        self.parent_node().map(|node| node.size_cells())
+        self.parent_node().map(Node::size_cells)
     }
 
     pub fn phandle_address_cells(&self, phandle: u32) -> Option<usize> {
-        self.node_from_phandle(phandle)
-            .map(|node| node.address_cells())
+        self.node_from_phandle(phandle).map(Node::address_cells)
     }
 
     pub fn phandle_interrupt_cells(&self, phandle: u32) -> Option<usize> {
         self.node_from_phandle(phandle)
-            .and_then(|node| node.interrupt_cells())
+            .and_then(Node::interrupt_cells)
     }
 
     pub fn phandle_names(&self, phandle: u32, specifier: &str) -> Vec<String> {

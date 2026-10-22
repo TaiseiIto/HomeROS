@@ -32,7 +32,7 @@ pub fn memory_regions() -> Regions<u128> {
 
 #[derive(Debug)]
 pub struct Analyzed {
-    root: node::Node,
+    root: Node,
     reserved_memory_entries: Vec<reserved_memory::Entry>,
 }
 
@@ -48,12 +48,12 @@ impl Analyzed {
         } = self;
         root.memories()
             .into_iter()
-            .map(|node| node.regions())
+            .map(Node::regions)
             .sum::<Regions<u128>>()
             - (root
                 .reserved_memories()
                 .into_iter()
-                .map(|node| node.regions())
+                .map(Node::regions)
                 .sum::<Regions<u128>>()
                 + reserved_memory_entries
                     .iter()
