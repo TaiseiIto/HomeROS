@@ -19,17 +19,11 @@ impl Structure {
     }
 
     fn bits_reads(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.bits_read())
-            .collect()
+        self.elements.iter().map(Element::bits_read).collect()
     }
 
     fn bits_updates(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.bits_update())
-            .collect()
+        self.elements.iter().map(Element::bits_update).collect()
     }
 
     fn debug(&self) -> TokenStream {
@@ -76,10 +70,7 @@ impl Structure {
     }
 
     fn lengths(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.length())
-            .collect()
+        self.elements.iter().map(Element::length).collect()
     }
 
     fn masks(&self) -> Vec<TokenStream> {
@@ -101,11 +92,8 @@ impl Structure {
     fn prettify(&self) -> TokenStream {
         let true_type: Ident = self.true_type();
         let pretty_type: Ident = self.pretty_type();
-        let prettify_elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| element.prettify())
-            .collect();
+        let prettify_elements: Vec<TokenStream> =
+            self.elements.iter().map(Element::prettify).collect();
         quote! {
             impl From<#true_type> for #pretty_type {
                 fn from(value: #true_type) -> Self {
@@ -120,7 +108,7 @@ impl Structure {
     fn pretty_bit_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.pretty_bit_read())
+            .filter_map(Element::pretty_bit_read)
             .collect()
     }
 
@@ -134,7 +122,7 @@ impl Structure {
     fn pretty_bits_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.pretty_bits_read())
+            .filter_map(Element::pretty_bits_read)
             .collect()
     }
 
@@ -237,7 +225,7 @@ impl Structure {
     fn pretty_uint_reads(&self) -> Vec<TokenStream> {
         self.elements
             .iter()
-            .filter_map(|element| element.pretty_uint_read())
+            .filter_map(Element::pretty_uint_read)
             .collect()
     }
 
@@ -251,11 +239,7 @@ impl Structure {
     fn pretty_declaration(&self) -> TokenStream {
         let vis: &Visibility = &self.vis;
         let pretty_type: Ident = self.pretty_type();
-        let elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| element.pretty())
-            .collect();
+        let elements: Vec<TokenStream> = self.elements.iter().map(Element::pretty).collect();
         quote! {
             #[derive(Clone, Default)]
             #vis struct #pretty_type {
@@ -290,7 +274,7 @@ impl Structure {
         let unprettifies: Vec<TokenStream> = self
             .elements
             .iter()
-            .filter_map(|element| element.unprettify())
+            .filter_map(Element::unprettify)
             .collect();
         quote! {
             impl From<#pretty_type> for #true_type {
