@@ -123,12 +123,12 @@ impl Debuggee {
     fn debug(&self) -> String {
         let Self(arch) = self;
         match arch {
-            Arch::Aarch64 => format!("-serial file:{}", self.debug_log().to_str().unwrap()),
+            Arch::Aarch64 => format!("-serial file:{} -s -S", self.debug_log().to_str().unwrap()),
             Arch::X64 => format!(
                 "-chardev file,id=debug,path={} -device isa-debugcon,iobase=0x402,chardev=debug -s",
                 self.debug_log().to_str().unwrap(),
             ),
-            _ => String::new(),
+            _ => "-s -S".to_string(),
         }
     }
 
