@@ -72,7 +72,7 @@ impl Container {
         let mut groups: Vec<String> = self
             .get_stdout("groups")
             .split_whitespace()
-            .map(|group| group.to_string())
+            .map(ToString::to_string)
             .collect();
         groups.sort();
         groups
