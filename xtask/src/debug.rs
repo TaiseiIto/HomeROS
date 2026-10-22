@@ -333,7 +333,7 @@ continue
             }
         };
         write(".gdbinit", gdbinit).unwrap();
-        run("rust-gdb");
+        run("RUST_GDB=gdb-multiarch rust-gdb");
     }
 
     fn arch(&self) -> &Arch {
