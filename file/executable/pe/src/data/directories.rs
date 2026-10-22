@@ -19,31 +19,31 @@ impl<'a> WithSize<'a> {
     fn export(&self) -> Option<&Directory> {
         (offset_of!(Directories, export) + size_of_val(&self.directories.export) <= self.size)
             .then_some(&self.directories.export)
-            .and_then(|export| export.filter())
+            .and_then(Directory::filter)
     }
 
     fn import(&self) -> Option<&Directory> {
         (offset_of!(Directories, import) + size_of_val(&self.directories.import) <= self.size)
             .then_some(&self.directories.import)
-            .and_then(|import| import.filter())
+            .and_then(Directory::filter)
     }
 
     fn resource(&self) -> Option<&Directory> {
         (offset_of!(Directories, resource) + size_of_val(&self.directories.resource) <= self.size)
             .then_some(&self.directories.resource)
-            .and_then(|resource| resource.filter())
+            .and_then(Directory::filter)
     }
 
     fn exception(&self) -> Option<&Directory> {
         (offset_of!(Directories, exception) + size_of_val(&self.directories.exception) <= self.size)
             .then_some(&self.directories.exception)
-            .and_then(|exception| exception.filter())
+            .and_then(Directory::filter)
     }
 
     fn security(&self) -> Option<&Directory> {
         (offset_of!(Directories, security) + size_of_val(&self.directories.security) <= self.size)
             .then_some(&self.directories.security)
-            .and_then(|security| security.filter())
+            .and_then(Directory::filter)
     }
 
     fn base_relocation_table(&self) -> Option<&Directory> {
@@ -51,13 +51,13 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.base_relocation_table)
             <= self.size)
             .then_some(&self.directories.base_relocation_table)
-            .and_then(|base_relocation_table| base_relocation_table.filter())
+            .and_then(Directory::filter)
     }
 
     fn debug(&self) -> Option<&Directory> {
         (offset_of!(Directories, debug) + size_of_val(&self.directories.debug) <= self.size)
             .then_some(&self.directories.debug)
-            .and_then(|debug| debug.filter())
+            .and_then(Directory::filter)
     }
 
     fn architecture_specific_data(&self) -> Option<&Directory> {
@@ -65,7 +65,7 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.architecture_specific_data)
             <= self.size)
             .then_some(&self.directories.architecture_specific_data)
-            .and_then(|architecture_specific_data| architecture_specific_data.filter())
+            .and_then(Directory::filter)
     }
 
     fn rva_of_global_ptr(&self) -> Option<&Directory> {
@@ -73,13 +73,13 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.rva_of_global_ptr)
             <= self.size)
             .then_some(&self.directories.rva_of_global_ptr)
-            .and_then(|rva_of_global_ptr| rva_of_global_ptr.filter())
+            .and_then(Directory::filter)
     }
 
     fn tls(&self) -> Option<&Directory> {
         (offset_of!(Directories, tls) + size_of_val(&self.directories.tls) <= self.size)
             .then_some(&self.directories.tls)
-            .and_then(|tls| tls.filter())
+            .and_then(Directory::filter)
     }
 
     fn load_configuration(&self) -> Option<&Directory> {
@@ -87,14 +87,14 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.load_configuration)
             <= self.size)
             .then_some(&self.directories.load_configuration)
-            .and_then(|load_configuration| load_configuration.filter())
+            .and_then(Directory::filter)
     }
 
     fn bound_import(&self) -> Option<&Directory> {
         (offset_of!(Directories, bound_import) + size_of_val(&self.directories.bound_import)
             <= self.size)
             .then_some(&self.directories.bound_import)
-            .and_then(|bound_import| bound_import.filter())
+            .and_then(Directory::filter)
     }
 
     fn import_address_table(&self) -> Option<&Directory> {
@@ -102,7 +102,7 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.import_address_table)
             <= self.size)
             .then_some(&self.directories.import_address_table)
-            .and_then(|import_address_table| import_address_table.filter())
+            .and_then(Directory::filter)
     }
 
     fn delay_load_import(&self) -> Option<&Directory> {
@@ -110,7 +110,7 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.delay_load_import)
             <= self.size)
             .then_some(&self.directories.delay_load_import)
-            .and_then(|delay_load_import| delay_load_import.filter())
+            .and_then(Directory::filter)
     }
 
     fn com_runtime_descriptor(&self) -> Option<&Directory> {
@@ -118,7 +118,7 @@ impl<'a> WithSize<'a> {
             + size_of_val(&self.directories.com_runtime_descriptor)
             <= self.size)
             .then_some(&self.directories.com_runtime_descriptor)
-            .and_then(|com_runtime_descriptor| com_runtime_descriptor.filter())
+            .and_then(Directory::filter)
     }
 }
 

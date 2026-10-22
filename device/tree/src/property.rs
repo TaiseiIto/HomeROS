@@ -627,9 +627,7 @@ impl Reader<'_> for Vec<u32> {
 
 impl Reader<'_> for Vec<String> {
     fn read(data: &[u8]) -> Self {
-        Strings::new(data)
-            .map(|string| string.to_string())
-            .collect()
+        Strings::new(data).map(ToString::to_string).collect()
     }
 }
 
