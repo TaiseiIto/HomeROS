@@ -9,8 +9,7 @@ use {
         collections::HashMap,
         env::Args,
         fmt::{self, Display, Formatter},
-        fs::{File, read, read_to_string},
-        io::Write,
+        fs::{read, read_to_string, write},
         path::PathBuf,
         thread::sleep,
         time::Duration,
@@ -283,38 +282,35 @@ pub struct Debugger(Arch);
 
 impl Debugger {
     pub fn run(self) {
-        let arch: &str = match self.arch() {
-            Arch::Aarch64 => "aarch64",
-            Arch::RiscV64 => "riscv:rv64",
-            Arch::X64 => "i386:x86-64",
-        };
-        let boot_loader_address: usize = self.boot_loader_address();
-        let boot_destination: PathBuf = self.boot_destination();
-        let boot: Vec<u8> = read(&boot_destination).unwrap();
-        let pe: pe::File = boot.as_slice().into();
-
-        let section_name_pattern: Automaton = r"^\.\w+$".parse().unwrap();
-        let mut section2address: HashMap<String, usize> = pe
-            .section_table()
-            .iter()
-            .filter_map(|section| {
-                let section_name: String = section.name();
-                let section_address: usize = boot_loader_address + section.range_on_memory().start;
-                (!section_name_pattern.input(&section_name).is_empty())
-                    .then_some((section_name, section_address))
-            })
-            .collect();
-        let text_address: usize = section2address.remove(".text").unwrap();
-        let section2address: Vec<String> = section2address
-            .into_iter()
-            .map(|(name, address)| format!("-s {} {:#x?}", name, address))
-            .collect();
-        let section2address: String = section2address.join(" ");
-        let mut gdbinit = File::create(".gdbinit").unwrap();
-        write!(
-            gdbinit,
-            r#"
-set architecture {}
+        let gdbinit: String = match self.arch() {
+            Arch::Aarch64 => unimplemented!(),
+            Arch::RiscV64 => unimplemented!(),
+            Arch::X64 => {
+                let boot_loader_address: usize = self.boot_loader_address();
+                let boot_destination: PathBuf = self.boot_destination();
+                let boot: Vec<u8> = read(&boot_destination).unwrap();
+                let pe: pe::File = boot.as_slice().into();
+                let section_name_pattern: Automaton = r"^\.\w+$".parse().unwrap();
+                let mut section2address: HashMap<String, usize> = pe
+                    .section_table()
+                    .iter()
+                    .filter_map(|section| {
+                        let section_name: String = section.name();
+                        let section_address: usize =
+                            boot_loader_address + section.range_on_memory().start;
+                        (!section_name_pattern.input(&section_name).is_empty())
+                            .then_some((section_name, section_address))
+                    })
+                    .collect();
+                let text_address: usize = section2address.remove(".text").unwrap();
+                let section2address: Vec<String> = section2address
+                    .into_iter()
+                    .map(|(name, address)| format!("-s {} {:#x?}", name, address))
+                    .collect();
+                let section2address: String = section2address.join(" ");
+                format!(
+                    r#"
+set architecture i386:x86-64
 file {:?}
 target remote localhost:1234
 add-symbol-file {:?} {:#x?} {}
@@ -324,10 +320,11 @@ set var *(&boot::debug::WAIT as *mut u8) = 0
 break 'boot::main'
 continue
 "#,
-            arch, boot_destination, boot_destination, text_address, section2address
-        )
-        .unwrap();
-        gdbinit.flush().unwrap();
+                    boot_destination, boot_destination, text_address, section2address
+                )
+            }
+        };
+        write(".gdbinit", gdbinit).unwrap();
         run("rust-gdb");
     }
 
