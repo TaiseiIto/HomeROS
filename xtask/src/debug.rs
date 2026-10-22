@@ -283,8 +283,16 @@ pub struct Debugger(Arch);
 impl Debugger {
     pub fn run(self) {
         let gdbinit: String = match self.arch() {
-            Arch::Aarch64 => unimplemented!(),
-            Arch::RiscV64 => unimplemented!(),
+            Arch::Aarch64 => r#"
+set architecture aarch64
+target remote localhost:1234
+            "#
+            .to_string(),
+            Arch::RiscV64 => r#"
+set architecture riscv:rv64
+target remote localhost:1234
+            "#
+            .to_string(),
             Arch::X64 => {
                 let boot_loader_address: usize = self.boot_loader_address();
                 let boot_destination: PathBuf = self.boot_destination();
