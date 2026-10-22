@@ -286,8 +286,8 @@ impl Debugger {
             Arch::Aarch64 => format!(
                 r#"
 set architecture aarch64
-target remote localhost:1234
 file {:?}
+target remote localhost:1234
 break 'boot::main'
 continue
                 "#,
@@ -296,8 +296,8 @@ continue
             Arch::RiscV64 => format!(
                 r#"
 set architecture riscv:rv64
-target remote localhost:1234
 file {:?}
+target remote localhost:1234
 break 'boot::main'
 continue
                 "#,
