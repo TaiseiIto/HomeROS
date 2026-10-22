@@ -30,7 +30,7 @@ fn extract(delimiters: &str, backward_index: usize) -> String {
     let words: Vec<String> = url()
         .as_str()
         .split(delimiters)
-        .map(|word| word.to_string())
+        .map(ToString::to_string)
         .collect();
     words.into_iter().rev().nth(backward_index).unwrap()
 }
