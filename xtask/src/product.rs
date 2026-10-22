@@ -29,11 +29,40 @@ pub struct Binary {
 }
 
 impl Binary {
+    pub fn destination(&self) -> PathBuf {
+        let Self {
+            package,
+            tree: tree @ Tree { arch, version: _ },
+        } = self;
+        let destination: PathBuf = tree.destination();
+        let disk_relative_path: &str = match (arch, package) {
+            (Arch::Aarch64, Package::Boot) => "qemu_fw.rom",
+            (Arch::RiscV64, Package::Boot) => "boot.elf",
+            (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.EFI",
+        };
+        destination.as_path().join(disk_relative_path)
+    }
+
     pub fn disassemble(&self) {
         run(&format!(
             "llvm-objdump -d {}",
             self.source().to_str().unwrap()
         ));
+    }
+
+    pub fn source(&self) -> PathBuf {
+        PathBuf::from(&format!(
+            "target/{}/{}/{}",
+            self.target()
+                .rsplit('/')
+                .next()
+                .unwrap()
+                .split('.')
+                .next()
+                .unwrap(),
+            self.tree.version,
+            self.name()
+        ))
     }
 
     fn build(&self) {
@@ -94,20 +123,6 @@ impl Binary {
             } => "-Zbuild-std=core,alloc",
             _ => "",
         }
-    }
-
-    fn destination(&self) -> PathBuf {
-        let Self {
-            package,
-            tree: tree @ Tree { arch, version: _ },
-        } = self;
-        let destination: PathBuf = tree.destination();
-        let disk_relative_path: &str = match (arch, package) {
-            (Arch::Aarch64, Package::Boot) => "qemu_fw.rom",
-            (Arch::RiscV64, Package::Boot) => "boot.elf",
-            (Arch::X64, Package::Boot) => "EFI/BOOT/BOOTX64.EFI",
-        };
-        destination.as_path().join(disk_relative_path)
     }
 
     fn domain() -> Vec<Self> {
@@ -171,21 +186,6 @@ impl Binary {
     fn new(arch: Arch, package: Package, version: Version) -> Self {
         let tree: Tree = Tree { arch, version };
         Self { package, tree }
-    }
-
-    fn source(&self) -> PathBuf {
-        PathBuf::from(&format!(
-            "target/{}/{}/{}",
-            self.target()
-                .rsplit('/')
-                .next()
-                .unwrap()
-                .split('.')
-                .next()
-                .unwrap(),
-            self.tree.version,
-            self.name()
-        ))
     }
 
     fn target(&self) -> &str {
@@ -282,9 +282,9 @@ pub struct Tree {
 }
 
 impl Tree {
-    pub fn boot_destination(&self) -> PathBuf {
+    pub fn boot(&self) -> Binary {
         let Tree { arch, version } = self;
-        Binary::new(arch.clone(), Package::Boot, version.clone()).destination()
+        Binary::new(arch.clone(), Package::Boot, version.clone())
     }
 
     pub fn domain() -> Vec<Self> {

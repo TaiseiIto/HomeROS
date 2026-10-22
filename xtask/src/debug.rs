@@ -2,7 +2,7 @@ use {
     crate::{
         command::run,
         git::product,
-        product::{Arch, Tree, Version},
+        product::{Arch, Binary, Tree, Version},
     },
     regex::Automaton,
     std::{
@@ -66,16 +66,9 @@ impl Debuggee {
         run(&self.to_string());
     }
 
-    fn boot(&self) -> String {
-        match self.0 {
-            Arch::RiscV64 => format!("-kernel {}", self.boot_destination().to_str().unwrap()),
-            _ => String::new(),
-        }
-    }
-
-    fn boot_destination(&self) -> PathBuf {
+    fn boot(&self) -> Binary {
         let tree: Tree = self.into();
-        tree.boot_destination()
+        tree.boot()
     }
 
     fn com1(&self) -> String {
@@ -175,12 +168,19 @@ impl Debuggee {
     fn firmware(&self) -> String {
         match self.0 {
             Arch::Aarch64 => {
-                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", self.boot_destination().to_str().unwrap())
+                format!("-drive if=pflash,format=raw,unit=0,file={},readonly=on", self.boot().destination().to_str().unwrap())
             }
             Arch::RiscV64 => "-bios default".to_string(),
             Arch::X64 => {
                 "-drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_CODE.fd,format=raw,if=pflash,readonly=on -drive file=../edk2/Build/OvmfX64/DEBUG_GCC/FV/OVMF_VARS.fd,format=raw,if=pflash".to_string()
             }
+        }
+    }
+
+    fn kernel(&self) -> String {
+        match self.0 {
+            Arch::RiscV64 => format!("-kernel {}", self.boot().destination().to_str().unwrap()),
+            _ => String::new(),
         }
     }
 
@@ -258,7 +258,6 @@ impl Display for Debuggee {
         formatter.write_str(
             &[
                 self.qemu(),
-                &self.boot(),
                 &self.com1(),
                 &self.com2(),
                 self.cpu(),
@@ -266,6 +265,7 @@ impl Display for Debuggee {
                 self.display(),
                 &self.drive(),
                 &self.firmware(),
+                &self.kernel(),
                 &self.log(),
                 self.machine(),
                 Self::MEMORY,
@@ -283,11 +283,16 @@ pub struct Debugger(Arch);
 impl Debugger {
     pub fn run(self) {
         let gdbinit: String = match self.arch() {
-            Arch::Aarch64 => r#"
+            Arch::Aarch64 => format!(
+                r#"
 set architecture aarch64
 target remote localhost:1234
-            "#
-            .to_string(),
+file {:?}
+break 'boot::main'
+continue
+                "#,
+                self.boot().source()
+            ),
             Arch::RiscV64 => r#"
 set architecture riscv:rv64
 target remote localhost:1234
@@ -295,7 +300,7 @@ target remote localhost:1234
             .to_string(),
             Arch::X64 => {
                 let boot_loader_address: usize = self.boot_loader_address();
-                let boot_destination: PathBuf = self.boot_destination();
+                let boot_destination: PathBuf = self.boot().destination();
                 let boot: Vec<u8> = read(&boot_destination).unwrap();
                 let pe: pe::File = boot.as_slice().into();
                 let section_name_pattern: Automaton = r"^\.\w+$".parse().unwrap();
@@ -340,9 +345,9 @@ continue
         &self.0
     }
 
-    fn boot_destination(&self) -> PathBuf {
+    fn boot(&self) -> Binary {
         let debuggee: Debuggee = self.into();
-        debuggee.boot_destination()
+        debuggee.boot()
     }
 
     fn boot_loader_address(&self) -> usize {
