@@ -323,8 +323,10 @@ set var *(&boot::debug::WAIT as *mut u8) = 0
             }
             _ => String::default(),
         };
-        let gdbinit: String = format!(
-            r#"
+        write(
+            ".gdbinit",
+            format!(
+                r#"
 set architecture {}
 file {:?}
 target remote localhost:1234
@@ -332,9 +334,10 @@ target remote localhost:1234
 break 'boot::main'
 continue
             "#,
-            arch, boot_loader, option
-        );
-        write(".gdbinit", gdbinit).unwrap();
+                arch, boot_loader, option
+            ),
+        )
+        .unwrap();
         run("RUST_GDB=gdb-multiarch rust-gdb");
     }
 
