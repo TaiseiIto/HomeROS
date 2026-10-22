@@ -15,11 +15,7 @@ pub struct Structure {
 impl Structure {
     fn implement(&self) -> TokenStream {
         let ident: &Ident = &self.ident;
-        let reads: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .filter_map(|element| element.read())
-            .collect();
+        let reads: Vec<TokenStream> = self.elements.iter().filter_map(Element::read).collect();
         quote! {
             impl #ident {
                 #(#reads)*

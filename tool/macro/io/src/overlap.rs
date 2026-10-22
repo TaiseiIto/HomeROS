@@ -19,11 +19,7 @@ impl Registers {
         let pretty_type: Ident = self.pretty_ident();
         let reader_type: Ident = self.reader_ident();
         let true_type: Ident = self.true_type();
-        let elements: Vec<TokenStream> = self
-            .elements
-            .iter()
-            .map(|element| element.prettify())
-            .collect();
+        let elements: Vec<TokenStream> = self.elements.iter().map(Element::prettify).collect();
         quote! {
             impl From<#true_type> for #pretty_type {
                 fn from(value: #true_type) -> Self {
@@ -67,10 +63,7 @@ impl Registers {
     }
 
     fn pretty_reads(&self) -> Vec<TokenStream> {
-        self.elements
-            .iter()
-            .map(|element| element.pretty_read())
-            .collect()
+        self.elements.iter().map(Element::pretty_read).collect()
     }
 
     fn pretty_writes(&self) -> Vec<TokenStream> {
@@ -87,10 +80,8 @@ impl Registers {
             vis,
         } = self;
         let reader_type: Ident = self.reader_ident();
-        let reader_elements: Vec<TokenStream> = elements
-            .iter()
-            .map(|element| element.reader_declaration())
-            .collect();
+        let reader_elements: Vec<TokenStream> =
+            elements.iter().map(Element::reader_declaration).collect();
         quote! {
             #[allow(dead_code)]
             #[derive(Clone, Debug)]
@@ -184,7 +175,7 @@ impl Registers {
         let elements: Vec<TokenStream> = self
             .elements
             .iter()
-            .map(|element| element.true_declaration())
+            .map(Element::true_declaration)
             .collect();
         quote! {
             #[repr(C)]
@@ -318,10 +309,7 @@ impl Registers {
             vis,
         } = self;
         let writer_type: Ident = self.writer_ident();
-        let elements: Vec<TokenStream> = elements
-            .iter()
-            .map(|element| element.writer_declaration())
-            .collect();
+        let elements: Vec<TokenStream> = elements.iter().map(Element::writer_declaration).collect();
         quote! {
             #[derive(Clone, Debug)]
             #vis enum #writer_type {
