@@ -24,12 +24,32 @@ impl Command {
     }
 
     pub fn run(self) {
+        self.delete_old_files();
         let source: PathBuf = PathBuf::from(".docker/tmux/dbg");
         run(&format!(
             "ARCH={} tmux new-session ; source-file {}",
             self.arch(),
             source.to_str().unwrap()
         ));
+    }
+
+    fn debug_log(&self) -> PathBuf {
+        let debuggee: Debuggee = self.into();
+        debuggee.debug_log()
+    }
+
+    fn delete_old_files(&self) {
+        for file in [self.debug_log(), self.gdbinit()].as_slice().iter() {
+            if file.exists() {
+                assert!(file.is_file());
+                remove_file(file).unwrap();
+            }
+        }
+    }
+
+    fn gdbinit(&self) -> PathBuf {
+        let debugger: Debugger = self.into();
+        debugger.gdbinit()
     }
 
     fn new(arch: Arch) -> Self {
@@ -227,6 +247,12 @@ impl Debuggee {
     }
 }
 
+impl From<&Command> for Debuggee {
+    fn from(command: &Command) -> Self {
+        Self::new(command.arch().clone())
+    }
+}
+
 impl From<&Debugger> for Debuggee {
     fn from(debugger: &Debugger) -> Self {
         Self::new(debugger.arch().clone())
@@ -282,11 +308,6 @@ pub struct Debugger(Arch);
 
 impl Debugger {
     pub fn run(self) {
-        let gdbinit: PathBuf = PathBuf::from(".gdbinit");
-        if gdbinit.exists() {
-            assert!(gdbinit.is_file());
-            remove_file(&gdbinit).unwrap();
-        }
         let arch: &str = match self.arch() {
             Arch::Aarch64 => "aarch64",
             Arch::RiscV64 => "riscv:rv64",
@@ -329,7 +350,7 @@ impl Debugger {
             _ => String::default(),
         };
         write(
-            gdbinit,
+            self.gdbinit(),
             format!(
                 r#"
                     set architecture {}
@@ -378,6 +399,10 @@ impl Debugger {
         debuggee.debug_log()
     }
 
+    fn gdbinit(&self) -> PathBuf {
+        PathBuf::from(".gdbinit")
+    }
+
     fn new(arch: Arch) -> Self {
         Self(arch)
     }
@@ -407,5 +432,11 @@ impl From<Args> for Debugger {
             }
         }
         Self::new(arch.unwrap())
+    }
+}
+
+impl From<&Command> for Debugger {
+    fn from(command: &Command) -> Self {
+        Self::new(command.arch().clone())
     }
 }
