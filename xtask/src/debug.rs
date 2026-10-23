@@ -283,7 +283,10 @@ pub struct Debugger(Arch);
 impl Debugger {
     pub fn run(self) {
         let gdbinit: PathBuf = PathBuf::from(".gdbinit");
-        remove_file(&gdbinit).unwrap();
+        if gdbinit.exists() {
+            assert!(gdbinit.is_file());
+            remove_file(&gdbinit).unwrap();
+        }
         let arch: &str = match self.arch() {
             Arch::Aarch64 => "aarch64",
             Arch::RiscV64 => "riscv:rv64",
