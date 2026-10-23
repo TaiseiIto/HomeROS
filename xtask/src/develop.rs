@@ -109,6 +109,7 @@ fn privilege(gpg_key: &Path, ssh_key: &Path) {
         .into_bytes(),
     );
     [
+        "git config --global pull.rebase false".to_string(),
         format!("git config --global user.name {}", developer()),
         format!("git config --global user.email {}", email()),
         "git config --global commit.gpgsign true".to_string(),
