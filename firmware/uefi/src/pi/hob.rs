@@ -1,5 +1,9 @@
+//! # TODO
+//! * Implement all HOBs.
+
 mod hand_off;
 mod memory_allocation;
+mod resource_descriptor;
 
 use core::fmt::{self, Debug, Formatter};
 
@@ -48,6 +52,9 @@ impl Header {
             Type::Handoff => Ok(unsafe { &*(self as *const Header as *const hand_off::Hob) }),
             Type::MemoryAllocation => {
                 Ok(unsafe { &*(self as *const Header as *const memory_allocation::Hob) })
+            }
+            Type::ResourceDescriptor => {
+                Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Hob) })
             }
             hob_type => Err(hob_type),
         }
