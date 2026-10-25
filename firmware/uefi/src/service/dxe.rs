@@ -1,6 +1,6 @@
 use {
     super::boot::memory::address::Physical,
-    crate::{Guid, Handle, Status, table},
+    crate::{Guid, Handle, Status, Void, table},
 };
 
 /// # References
@@ -25,6 +25,8 @@ pub struct Table {
     dispatch: Option<Dispatch>,
     schedule: Option<Schedule>,
     truct: Option<Trust>,
+    process_firmware_volume: Option<ProcessFirmwareVolume>,
+    set_memory_space_capabilities: Option<SetMemorySpaceCapabilities>,
 }
 
 /// # References
@@ -102,7 +104,11 @@ pub struct GcdMemorySpaceDescriptor {
 pub type SetMemorySpaceAttributes = extern "efiapi" fn(Physical, u64, u64) -> Status;
 
 /// # References
-/// * [EFI_GET_MEMPRY_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacemap)
+/// * [EFI_SET_MEMORY_SPACE_CAPABILITIES](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#setmemoryspacecapabilities)
+pub type SetMemorySpaceCapabilities = extern "efiapi" fn(Physical, u64, u64) -> Status;
+
+/// # References
+/// * [EFI_GET_MEMORY_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacemap)
 pub type GetMemorySpaceMap =
     extern "efiapi" fn(*mut usize, *mut *mut GcdMemorySpaceDescriptor) -> Status;
 
@@ -171,3 +177,7 @@ pub type Schedule = extern "efiapi" fn(Handle, *const Guid) -> Status;
 /// # References
 /// * [EFI_TRUST](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#trust)
 pub type Trust = extern "efiapi" fn(Handle, *const Guid) -> Status;
+
+/// # References
+/// * [EFI_PROCESS_FIRMWARE_VOLUME](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#trust)
+pub type ProcessFirmwareVolume = extern "efiapi" fn(*const Void, usize, *mut Handle) -> Status;
