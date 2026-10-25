@@ -115,4 +115,13 @@ mod test {
         let automaton: Automaton = r"^bc".parse().unwrap();
         assert!(automaton.input("abc").is_empty());
     }
+
+    #[test]
+    fn end_of_line() {
+        let automaton: Automaton = "abc".parse().unwrap();
+        assert!(!automaton.input("abcd").is_empty());
+        // TODO
+        // let automaton: Automaton = "abc$".parse().unwrap();
+        // assert!(automaton.input("abcd").is_empty());
+    }
 }
