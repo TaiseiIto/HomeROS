@@ -7,7 +7,7 @@ use {
 pub struct List(HandOff);
 
 impl List {
-    fn iter(&self) -> TableIterator {
+    fn iter(&self) -> TableIterator<'_> {
         TableIterator(&self.0.header)
     }
 }

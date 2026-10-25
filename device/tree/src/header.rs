@@ -29,9 +29,7 @@ impl Header {
     pub fn reserved_memory_entry(&self) -> &Entry {
         let offset: usize = self.read_off_mem_rsvmap() as usize;
         let header: *const Self = self as *const Self;
-        let header: usize = header as usize;
-        let reserved_memory_map: usize = header + offset;
-        let reserved_memory_map: *const Entry = reserved_memory_map as *const Entry;
+        let reserved_memory_map: *const Entry = unsafe { header.byte_add(offset) } as *const Entry;
         unsafe { &*reserved_memory_map }
     }
 
