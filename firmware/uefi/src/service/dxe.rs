@@ -21,6 +21,7 @@ pub struct Table {
     free_io_space: Option<FreeIoSpace>,
     remove_io_space: Option<RemoveIoSpace>,
     get_io_space_descriptor: Option<GetIoSpaceDescriptor>,
+    get_io_space_map: Option<GetIoSpaceMap>,
 }
 
 /// # References
@@ -151,3 +152,7 @@ pub struct GcdIoSpaceDescriptor {
     image: Handle,
     device: Handle,
 }
+
+/// # References
+/// * [EFI_GET_IO_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacemap)
+pub type GetIoSpaceMap = extern "efiapi" fn(*mut usize, *mut *mut GcdIoSpaceDescriptor) -> Status;
