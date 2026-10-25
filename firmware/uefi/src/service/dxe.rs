@@ -14,6 +14,13 @@ pub struct Table {
     free_memory_space: Option<FreeMemorySpace>,
     remove_memory_space: Option<RemoveMemorySpace>,
     get_memory_space_descriptor: Option<GetMemorySpaceDescriptor>,
+    set_memory_space_attributes: Option<SetMemorySpaceAttributes>,
+    get_memory_space_map: Option<GetMemorySpaceMap>,
+    add_io_space: Option<AddIoSpace>,
+    allocate_io_space: Option<AllocateIoSpace>,
+    free_io_space: Option<FreeIoSpace>,
+    remove_io_space: Option<RemoveIoSpace>,
+    get_io_space_descriptor: Option<GetIoSpaceDescriptor>,
 }
 
 /// # References
@@ -82,6 +89,65 @@ pub struct GcdMemorySpaceDescriptor {
     capabilities: u64,
     attributes: u64,
     gcd_memory_type: GcdMemoryType,
+    image: Handle,
+    device: Handle,
+}
+
+/// # References
+/// * [EFI_SET_MEMORY_SPACE_ATTRIBUTES](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#setmemoryspaceattributes)
+pub type SetMemorySpaceAttributes = extern "efiapi" fn(Physical, u64, u64) -> Status;
+
+/// # References
+/// * [EFI_GET_MEMPRY_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacemap)
+pub type GetMemorySpaceMap =
+    extern "efiapi" fn(*mut usize, *mut *mut GcdMemorySpaceDescriptor) -> Status;
+
+/// # References
+/// * [EFI_ADD_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addiospace)
+pub type AddIoSpace = extern "efiapi" fn(GcdIoType, Physical, u64) -> Status;
+
+/// # References
+/// * [EFI_GCD_IO_TYPE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addiospace)
+#[derive(Debug)]
+#[repr(C)]
+pub enum GcdIoType {
+    NonExistent,
+    Reserved,
+    Io,
+    Maximum,
+}
+
+/// # References
+/// * [EFI_ALLOCATE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocateiospace)
+pub type AllocateIoSpace = extern "efiapi" fn(
+    GcdAllocateType,
+    GcdIoType,
+    usize,
+    u64,
+    *mut Physical,
+    image: Handle,
+    device: Handle,
+) -> Status;
+
+/// # References
+/// * [EFI_FREE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#freeiospace)
+pub type FreeIoSpace = extern "efiapi" fn(Physical, u64) -> Status;
+
+/// # References
+/// * [EFI_REMOVE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#removeiospace)
+pub type RemoveIoSpace = extern "efiapi" fn(Physical, u64) -> Status;
+
+/// # References
+/// * [EFI_GET_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacedescriptor)
+pub type GetIoSpaceDescriptor = extern "efiapi" fn(Physical, *mut GcdIoSpaceDescriptor) -> Status;
+
+/// # References
+/// * [EFI_GCD_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacedescriptor)
+#[repr(C)]
+pub struct GcdIoSpaceDescriptor {
+    base_address: Physical,
+    length: u64,
+    gcd_io_type: GcdIoType,
     image: Handle,
     device: Handle,
 }
