@@ -107,4 +107,12 @@ mod test {
         let data4suffix: [u8; 6] = data4suffix.try_into().map_err(|_| ()).unwrap();
         let _data4: Vec<u8> = data4prefix.into_iter().chain(data4suffix).collect();
     }
+
+    #[test]
+    fn start_of_line() {
+        let automaton: Automaton = r"bc".parse().unwrap();
+        assert!(!automaton.input("abc").is_empty());
+        let automaton: Automaton = r"^bc".parse().unwrap();
+        assert!(automaton.input("abc").is_empty());
+    }
 }
