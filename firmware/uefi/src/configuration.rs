@@ -1,7 +1,7 @@
 mod lzma;
 
 use {
-    crate::{Guid, Void, service::dxe},
+    crate::{Guid, Void, pi::dxe},
     core::fmt::{self, Debug, Formatter},
 };
 
