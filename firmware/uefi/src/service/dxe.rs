@@ -1,6 +1,6 @@
 use {
     super::boot::memory::address::Physical,
-    crate::{Status, table},
+    crate::{Handle, Status, table},
 };
 
 /// # References
@@ -10,6 +10,7 @@ use {
 pub struct Table {
     hdr: table::Header,
     add_memory_space: Option<AddMemorySpace>,
+    allocate_memory_space: Option<AllocateMemorySpace>,
 }
 
 /// # References
@@ -29,4 +30,29 @@ pub enum GcdMemoryType {
     MoreReliable,
     Unaccepted,
     Maximum,
+}
+
+/// # References
+/// * [EFI_ALLOCATE_MEMORY_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocatememoryspace)
+pub type AllocateMemorySpace = extern "efiapi" fn(
+    GcdAllocateType,
+    GcdMemoryType,
+    usize,
+    u64,
+    *mut Physical,
+    Handle,
+    Handle,
+) -> Status;
+
+/// # References
+/// * [EFI_GCD_ALLOCATE_TYPE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocatememoryspace)
+#[derive(Debug)]
+#[repr(C)]
+pub enum GcdAllocateType {
+    AnySearchBottomUp,
+    MaxAddressSearchBottomUp,
+    Address,
+    AnySearchTopDown,
+    MaxAddressSearchTopDown,
+    MaxType,
 }
