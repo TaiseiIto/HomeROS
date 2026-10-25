@@ -1,26 +1,26 @@
 use {
     crate::service::boot::memory::address::Physical,
-    core::fmt::{Debug, Formatter, Result},
+    core::fmt::{self, Debug, Formatter},
 };
 
 #[repr(transparent)]
 pub struct List(HandOff);
 
 impl List {
-    fn iter(&self) -> HobIterator<'_> {
-        HobIterator(&self.0.header)
+    fn iter(&self) -> impl Iterator<Item = Result<&dyn Hob, &Type>> {
+        HeaderIterator(&self.0.header).map(Header::hob)
     }
 }
 
 impl Debug for List {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.debug_list().entries(self.iter()).finish()
     }
 }
 
-struct HobIterator<'a>(&'a Header);
+struct HeaderIterator<'a>(&'a Header);
 
-impl<'a> Iterator for HobIterator<'a> {
+impl<'a> Iterator for HeaderIterator<'a> {
     type Item = &'a Header;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -42,6 +42,15 @@ struct Header {
     reserved: u32,
 }
 
+impl Header {
+    fn hob(&self) -> Result<&dyn Hob, &Type> {
+        match &self.hob_type {
+            Type::Handoff => Ok(unsafe { &*(self as *const Header as *const HandOff) }),
+            hob_type => Err(hob_type),
+        }
+    }
+}
+
 #[derive(Debug, Eq, PartialEq)]
 #[repr(u16)]
 enum Type {
@@ -61,6 +70,8 @@ enum Type {
     EndOfHobList = 0xffff,
 }
 
+trait Hob: Debug {}
+
 /// # References
 /// * [EFI_HOB_HANDOFF_INFO_TABLE](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-handoff-info-table-phit-hob)
 #[derive(Debug)]
@@ -75,5 +86,7 @@ struct HandOff {
     free_memory_bottom: Physical,
     end_of_hob_list: Physical,
 }
+
+impl Hob for HandOff {}
 
 type BootMode = u32;
