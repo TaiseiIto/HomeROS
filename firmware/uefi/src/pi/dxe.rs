@@ -1,7 +1,7 @@
 use crate::{Guid, Handle, Status, Void, service::boot::memory::address::Physical, table};
 
 /// # References
-/// * [DXE_SERVICES](https://uefi.org/specs/PI/1.8/V2_UEFI_System_Table.html#dxe-services)
+/// * [DXE_SERVICES](https://uefi.org/specs/PI/1.10/V2_UEFI_System_Table.html#dxe-services)
 #[derive(Debug)]
 #[repr(C)]
 pub struct Table {
@@ -27,11 +27,11 @@ pub struct Table {
 }
 
 /// # References
-/// * [EFI_ADD_MEMORY_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addmemoryspace)
+/// * [EFI_ADD_MEMORY_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#addmemoryspace)
 pub type AddMemorySpace = extern "efiapi" fn(GcdMemoryType, Physical, u64, u64) -> Status;
 
 /// # References
-/// * [EFI_GCD_MEMORY_TYPE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addmemoryspace)
+/// * [EFI_GCD_MEMORY_TYPE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#addmemoryspace)
 #[derive(Debug)]
 #[repr(C)]
 pub enum GcdMemoryType {
@@ -46,7 +46,7 @@ pub enum GcdMemoryType {
 }
 
 /// # References
-/// * [EFI_ALLOCATE_MEMORY_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocatememoryspace)
+/// * [EFI_ALLOCATE_MEMORY_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#allocatememoryspace)
 pub type AllocateMemorySpace = extern "efiapi" fn(
     GcdAllocateType,
     GcdMemoryType,
@@ -58,7 +58,7 @@ pub type AllocateMemorySpace = extern "efiapi" fn(
 ) -> Status;
 
 /// # References
-/// * [EFI_GCD_ALLOCATE_TYPE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocatememoryspace)
+/// * [EFI_GCD_ALLOCATE_TYPE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#allocatememoryspace)
 #[derive(Debug)]
 #[repr(C)]
 pub enum GcdAllocateType {
@@ -71,20 +71,20 @@ pub enum GcdAllocateType {
 }
 
 /// # References
-/// * [EFI_FREE_MEMORY_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#freememoryspace)
+/// * [EFI_FREE_MEMORY_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#freememoryspace)
 pub type FreeMemorySpace = extern "efiapi" fn(Physical, u64) -> Status;
 
 /// # References
-/// * [EFI_REMOVE_MEMORY_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#removememoryspace)
+/// * [EFI_REMOVE_MEMORY_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#removememoryspace)
 pub type RemoveMemorySpace = extern "efiapi" fn(Physical, u64) -> Status;
 
 /// # References
-/// * [EFI_GET_MEMORY_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacedescriptor)
+/// * [EFI_GET_MEMORY_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getmemoryspacedescriptor)
 pub type GetMemorySpaceDescriptor =
     extern "efiapi" fn(Physical, GcdMemorySpaceDescriptor) -> Status;
 
 /// # References
-/// * [EFI_GCD_MEMORY_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacedescriptor)
+/// * [EFI_GCD_MEMORY_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getmemoryspacedescriptor)
 #[repr(C)]
 pub struct GcdMemorySpaceDescriptor {
     base_address: Physical,
@@ -97,24 +97,24 @@ pub struct GcdMemorySpaceDescriptor {
 }
 
 /// # References
-/// * [EFI_SET_MEMORY_SPACE_ATTRIBUTES](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#setmemoryspaceattributes)
+/// * [EFI_SET_MEMORY_SPACE_ATTRIBUTES](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#setmemoryspaceattributes)
 pub type SetMemorySpaceAttributes = extern "efiapi" fn(Physical, u64, u64) -> Status;
 
 /// # References
-/// * [EFI_SET_MEMORY_SPACE_CAPABILITIES](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#setmemoryspacecapabilities)
+/// * [EFI_SET_MEMORY_SPACE_CAPABILITIES](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#setmemoryspacecapabilities)
 pub type SetMemorySpaceCapabilities = extern "efiapi" fn(Physical, u64, u64) -> Status;
 
 /// # References
-/// * [EFI_GET_MEMORY_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getmemoryspacemap)
+/// * [EFI_GET_MEMORY_SPACE_MAP](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getmemoryspacemap)
 pub type GetMemorySpaceMap =
     extern "efiapi" fn(*mut usize, *mut *mut GcdMemorySpaceDescriptor) -> Status;
 
 /// # References
-/// * [EFI_ADD_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addiospace)
+/// * [EFI_ADD_IO_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#addiospace)
 pub type AddIoSpace = extern "efiapi" fn(GcdIoType, Physical, u64) -> Status;
 
 /// # References
-/// * [EFI_GCD_IO_TYPE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#addiospace)
+/// * [EFI_GCD_IO_TYPE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#addiospace)
 #[derive(Debug)]
 #[repr(C)]
 pub enum GcdIoType {
@@ -125,7 +125,7 @@ pub enum GcdIoType {
 }
 
 /// # References
-/// * [EFI_ALLOCATE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#allocateiospace)
+/// * [EFI_ALLOCATE_IO_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#allocateiospace)
 pub type AllocateIoSpace = extern "efiapi" fn(
     GcdAllocateType,
     GcdIoType,
@@ -137,19 +137,19 @@ pub type AllocateIoSpace = extern "efiapi" fn(
 ) -> Status;
 
 /// # References
-/// * [EFI_FREE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#freeiospace)
+/// * [EFI_FREE_IO_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#freeiospace)
 pub type FreeIoSpace = extern "efiapi" fn(Physical, u64) -> Status;
 
 /// # References
-/// * [EFI_REMOVE_IO_SPACE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#removeiospace)
+/// * [EFI_REMOVE_IO_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#removeiospace)
 pub type RemoveIoSpace = extern "efiapi" fn(Physical, u64) -> Status;
 
 /// # References
-/// * [EFI_GET_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacedescriptor)
+/// * [EFI_GET_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getiospacedescriptor)
 pub type GetIoSpaceDescriptor = extern "efiapi" fn(Physical, *mut GcdIoSpaceDescriptor) -> Status;
 
 /// # References
-/// * [EFI_GCD_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacedescriptor)
+/// * [EFI_GCD_IO_SPACE_DESCRIPTOR](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getiospacedescriptor)
 #[repr(C)]
 pub struct GcdIoSpaceDescriptor {
     base_address: Physical,
@@ -160,21 +160,21 @@ pub struct GcdIoSpaceDescriptor {
 }
 
 /// # References
-/// * [EFI_GET_IO_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacemap)
+/// * [EFI_GET_IO_SPACE_MAP](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#getiospacemap)
 pub type GetIoSpaceMap = extern "efiapi" fn(*mut usize, *mut *mut GcdIoSpaceDescriptor) -> Status;
 
 /// # References
-/// * [EFI_DISPATCH](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#dispatch)
+/// * [EFI_DISPATCH](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#dispatch)
 pub type Dispatch = extern "efiapi" fn() -> Status;
 
 /// # References
-/// * [EFI_SCHEDULE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#schedule)
+/// * [EFI_SCHEDULE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#schedule)
 pub type Schedule = extern "efiapi" fn(Handle, *const Guid) -> Status;
 
 /// # References
-/// * [EFI_TRUST](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#trust)
+/// * [EFI_TRUST](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#trust)
 pub type Trust = extern "efiapi" fn(Handle, *const Guid) -> Status;
 
 /// # References
-/// * [EFI_PROCESS_FIRMWARE_VOLUME](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#trust)
+/// * [EFI_PROCESS_FIRMWARE_VOLUME](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#trust)
 pub type ProcessFirmwareVolume = extern "efiapi" fn(*const Void, usize, *mut Handle) -> Status;
