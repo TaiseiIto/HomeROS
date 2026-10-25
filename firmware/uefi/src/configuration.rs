@@ -37,7 +37,7 @@ impl Pointer {
         if self.guid == Self::DXE.parse().unwrap() {
             Ok(unsafe { &*(self.table as *const dxe::Table) })
         } else if self.guid == Self::HOB.parse().unwrap() {
-            Ok(unsafe { &*(self.table as *const hob::HandOff) })
+            Ok(unsafe { &*(self.table as *const hob::List) })
         } else if self.guid == Self::LZMA.parse().unwrap() {
             Ok(unsafe { &*(self.table as *const lzma::Table) })
         } else if self.guid == Self::RSDP.parse().unwrap() {
@@ -58,5 +58,5 @@ pub trait Table: Debug {}
 
 impl Table for acpi::root_system_description::Pointer {}
 impl Table for dxe::Table {}
-impl Table for hob::HandOff {}
+impl Table for hob::List {}
 impl Table for lzma::Table {}

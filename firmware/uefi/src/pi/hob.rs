@@ -1,5 +1,9 @@
 use crate::service::boot::memory::address::Physical;
 
+#[derive(Debug)]
+#[repr(C)]
+pub struct List(HandOff);
+
 /// # References
 /// * [EFI_HOB_GENERIC_HEADER](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-generic-header)
 #[derive(Debug)]
