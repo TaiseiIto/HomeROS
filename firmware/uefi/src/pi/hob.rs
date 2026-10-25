@@ -1,16 +1,14 @@
+mod hand_off;
 mod memory_allocation;
 
-use {
-    crate::service::boot::memory::{self, address::Physical},
-    core::fmt::{self, Debug, Formatter},
-};
+use core::fmt::{self, Debug, Formatter};
 
 #[repr(transparent)]
-pub struct List(HandOff);
+pub struct List(Header);
 
 impl List {
     fn iter(&self) -> impl Iterator<Item = Result<&dyn Hob, &Type>> {
-        HeaderIterator(&self.0.header).map(Header::hob)
+        HeaderIterator(&self.0).map(Header::hob)
     }
 }
 
@@ -47,7 +45,7 @@ struct Header {
 impl Header {
     fn hob(&self) -> Result<&dyn Hob, &Type> {
         match &self.hob_type {
-            Type::Handoff => Ok(unsafe { &*(self as *const Header as *const HandOff) }),
+            Type::Handoff => Ok(unsafe { &*(self as *const Header as *const hand_off::Hob) }),
             Type::MemoryAllocation => {
                 Ok(unsafe { &*(self as *const Header as *const memory_allocation::Hob) })
             }
@@ -76,22 +74,3 @@ enum Type {
 }
 
 trait Hob: Debug {}
-
-/// # References
-/// * [EFI_HOB_HANDOFF_INFO_TABLE](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-handoff-info-table-phit-hob)
-#[derive(Debug)]
-#[repr(C)]
-struct HandOff {
-    header: Header,
-    version: u32,
-    boot_mode: BootMode,
-    memory_top: Physical,
-    memory_bottom: Physical,
-    free_memory_top: Physical,
-    free_memory_bottom: Physical,
-    end_of_hob_list: Physical,
-}
-
-impl Hob for HandOff {}
-
-type BootMode = u32;
