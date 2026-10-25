@@ -19,7 +19,7 @@ impl Hob {
         if self.alloc_descriptor.name == Stack::GUID.parse().unwrap() {
             unsafe { &*(self as *const Self as *const Stack) }
         } else {
-            self
+            unsafe { &*(self as *const Self as *const Other) }
         }
     }
 }
@@ -62,3 +62,12 @@ impl Stack {
 }
 
 impl Table for Stack {}
+
+#[derive(Debug)]
+#[repr(C)]
+pub struct Other {
+    header: super::Header,
+    alloc_descriptor: Header,
+}
+
+impl Table for Other {}
