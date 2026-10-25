@@ -7,8 +7,8 @@ use {
 pub struct List(HandOff);
 
 impl List {
-    fn iter(&self) -> TableIterator<'_> {
-        TableIterator(&self.0.header)
+    fn iter(&self) -> HobIterator<'_> {
+        HobIterator(&self.0.header)
     }
 }
 
@@ -18,9 +18,9 @@ impl Debug for List {
     }
 }
 
-struct TableIterator<'a>(&'a Header);
+struct HobIterator<'a>(&'a Header);
 
-impl<'a> Iterator for TableIterator<'a> {
+impl<'a> Iterator for HobIterator<'a> {
     type Item = &'a Header;
 
     fn next(&mut self) -> Option<Self::Item> {
