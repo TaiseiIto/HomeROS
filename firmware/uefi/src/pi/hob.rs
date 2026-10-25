@@ -43,7 +43,7 @@ struct Header {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-#[repr(u32)]
+#[repr(u16)]
 enum Type {
     Handoff = 0x0001,
     MemoryAllocation = 0x0002,
