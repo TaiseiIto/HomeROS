@@ -1,22 +1,50 @@
-use crate::service::boot::memory::address::Physical;
+use {
+    crate::service::boot::memory::address::Physical,
+    core::fmt::{Debug, Formatter, Result},
+};
 
-#[derive(Debug)]
-#[repr(C)]
+#[repr(transparent)]
 pub struct List(HandOff);
+
+impl List {
+    fn iter(&self) -> TableIterator {
+        TableIterator(&self.0.header)
+    }
+}
+
+impl Debug for List {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter.debug_list().entries(self.iter()).finish()
+    }
+}
+
+struct TableIterator<'a>(&'a Header);
+
+impl<'a> Iterator for TableIterator<'a> {
+    type Item = &'a Header;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        (self.0.hob_type != Type::EndOfHobList).then(|| {
+            let item: Self::Item = self.0;
+            self.0 = unsafe { &*(self.0 as *const Header).byte_add(item.length as usize) };
+            item
+        })
+    }
+}
 
 /// # References
 /// * [EFI_HOB_GENERIC_HEADER](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-generic-header)
 #[derive(Debug)]
 #[repr(C)]
-pub struct Header {
+struct Header {
     hob_type: Type,
     length: u16,
     reserved: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(u32)]
-pub enum Type {
+enum Type {
     Handoff = 0x0001,
     MemoryAllocation = 0x0002,
     ResourceDescriptor = 0x0003,
@@ -37,7 +65,7 @@ pub enum Type {
 /// * [EFI_HOB_HANDOFF_INFO_TABLE](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-handoff-info-table-phit-hob)
 #[derive(Debug)]
 #[repr(C)]
-pub struct HandOff {
+struct HandOff {
     header: Header,
     version: u32,
     boot_mode: BootMode,
@@ -48,4 +76,4 @@ pub struct HandOff {
     end_of_hob_list: Physical,
 }
 
-pub type BootMode = u32;
+type BootMode = u32;
