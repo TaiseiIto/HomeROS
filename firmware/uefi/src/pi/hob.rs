@@ -5,9 +5,28 @@ use crate::service::boot::memory::address::Physical;
 #[derive(Debug)]
 #[repr(C)]
 pub struct Header {
-    hob_type: u16,
+    hob_type: Type,
     length: u16,
     reserved: u32,
+}
+
+#[derive(Debug)]
+#[repr(u32)]
+pub enum Type {
+    Handoff = 0x0001,
+    MemoryAllocation = 0x0002,
+    ResourceDescriptor = 0x0003,
+    GuidExtension = 0x0004,
+    Fv = 0x0005,
+    Cpu = 0x0006,
+    MemoryPool = 0x0007,
+    Fv2 = 0x0009,
+    LoadPeimUnused = 0x000a,
+    UefiCapsule = 0x000b,
+    Fv3 = 0x000c,
+    ResourceDescriptor2 = 0x000d,
+    Unused = 0xfffe,
+    EndOfHobList = 0xffff,
 }
 
 /// # References
