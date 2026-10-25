@@ -1,5 +1,8 @@
 use {
-    crate::service::boot::memory::address::Physical,
+    crate::{
+        Guid,
+        service::boot::memory::{self, address::Physical},
+    },
     core::fmt::{self, Debug, Formatter},
 };
 
@@ -46,6 +49,9 @@ impl Header {
     fn hob(&self) -> Result<&dyn Hob, &Type> {
         match &self.hob_type {
             Type::Handoff => Ok(unsafe { &*(self as *const Header as *const HandOff) }),
+            Type::MemoryAllocation => {
+                Ok(unsafe { &*(self as *const Header as *const MemoryAllocation) })
+            }
             hob_type => Err(hob_type),
         }
     }
@@ -90,3 +96,26 @@ struct HandOff {
 impl Hob for HandOff {}
 
 type BootMode = u32;
+
+/// # References
+/// * [EFI_HOB_MEMORY_ALLOCATION](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-memory-allocation)
+#[derive(Debug)]
+#[repr(C)]
+struct MemoryAllocation {
+    header: Header,
+    alloc_descriptor: MemoryAllocationHeader,
+}
+
+impl Hob for MemoryAllocation {}
+
+/// # References
+/// * [EFI_HOB_MEMORY_ALLOCATION](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-memory-allocation)
+#[derive(Debug)]
+#[repr(C)]
+struct MemoryAllocationHeader {
+    name: Guid,
+    memory_base_address: Physical,
+    memory_length: u64,
+    memory_type: memory::Type,
+    reserved: [u8; 4],
+}
