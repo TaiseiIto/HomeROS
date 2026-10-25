@@ -1,6 +1,6 @@
 use {
     super::boot::memory::address::Physical,
-    crate::{Handle, Status, table},
+    crate::{Guid, Handle, Status, table},
 };
 
 /// # References
@@ -22,6 +22,9 @@ pub struct Table {
     remove_io_space: Option<RemoveIoSpace>,
     get_io_space_descriptor: Option<GetIoSpaceDescriptor>,
     get_io_space_map: Option<GetIoSpaceMap>,
+    dispatch: Option<Dispatch>,
+    schedule: Option<Schedule>,
+    truct: Option<Trust>,
 }
 
 /// # References
@@ -156,3 +159,15 @@ pub struct GcdIoSpaceDescriptor {
 /// # References
 /// * [EFI_GET_IO_SPACE_MAP](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#getiospacemap)
 pub type GetIoSpaceMap = extern "efiapi" fn(*mut usize, *mut *mut GcdIoSpaceDescriptor) -> Status;
+
+/// # References
+/// * [EFI_DISPATCH](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#dispatch)
+pub type Dispatch = extern "efiapi" fn() -> Status;
+
+/// # References
+/// * [EFI_SCHEDULE](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#schedule)
+pub type Schedule = extern "efiapi" fn(Handle, *const Guid) -> Status;
+
+/// # References
+/// * [EFI_TRUST](https://uefi.org/specs/PI/1.8/V2_Services_DXE_Services.html#trust)
+pub type Trust = extern "efiapi" fn(Handle, *const Guid) -> Status;
