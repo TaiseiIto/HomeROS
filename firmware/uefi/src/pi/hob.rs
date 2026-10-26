@@ -54,7 +54,10 @@ impl Header {
                 Ok(unsafe { &*(self as *const Header as *const memory_allocation::Hob) })
             }
             Type::ResourceDescriptor => {
-                Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Hob) })
+                Ok(unsafe { &*(self as *const Header as *const resource_descriptor::First) })
+            }
+            Type::ResourceDescriptor2 => {
+                Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Second) })
             }
             ty => Err(ty),
         }

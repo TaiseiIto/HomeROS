@@ -1,13 +1,16 @@
 use {
-    super::Header,
-    crate::{Guid, service::boot::memory::address::Physical},
+    super::{Header, Hob},
+    crate::{
+        Guid,
+        service::boot::memory::{address::Physical, map},
+    },
 };
 
 /// # References
 /// * [EFI_HOB_RESOURCE_DESCRIPTOR](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-resource-descriptor)
 #[derive(Debug)]
 #[repr(C)]
-pub struct Hob {
+pub struct First {
     header: Header,
     owner: Guid,
     ty: Type,
@@ -16,7 +19,23 @@ pub struct Hob {
     length: u64,
 }
 
-impl super::Hob for Hob {}
+impl Hob for First {}
+
+/// # References
+/// * [EFI_HOB_RESOURCE_DESCRIPTOR2](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-resource-descriptor2)
+#[derive(Debug)]
+#[repr(C)]
+pub struct Second {
+    header: Header,
+    owner: Guid,
+    ty: Type,
+    attribute: Attribute,
+    start: Physical,
+    length: u64,
+    memory_attribute: map::AttributeRaw,
+}
+
+impl Hob for Second {}
 
 /// # References
 /// * [EFI_RESOURCE_TYPE](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-resource-descriptor)
