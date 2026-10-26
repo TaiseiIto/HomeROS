@@ -1,4 +1,3 @@
-#![feature(string_into_chars)]
 #![no_std]
 
 extern crate alloc;
@@ -11,16 +10,8 @@ pub mod system;
 mod table;
 
 use {
-    alloc::{
-        collections::btree_map::BTreeMap,
-        format,
-        string::{String, ToString},
-        vec::Vec,
-    },
-    core::{
-        fmt::{self, Debug, Formatter},
-        str::FromStr,
-    },
+    alloc::collections::btree_map::BTreeMap,
+    core::fmt::{self, Debug, Formatter},
 };
 
 /// # References

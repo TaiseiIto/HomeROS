@@ -170,7 +170,6 @@ dependencies = [
  "acpi",
  "guid",
  "io",
- "regex",
  "unit",
 ]
 
