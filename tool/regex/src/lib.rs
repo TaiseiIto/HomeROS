@@ -120,8 +120,7 @@ mod test {
     fn end_of_line() {
         let automaton: Automaton = "abc".parse().unwrap();
         assert!(!automaton.input("abcd").is_empty());
-        // TODO
-        // let automaton: Automaton = "abc$".parse().unwrap();
-        // assert!(automaton.input("abcd").is_empty());
+        let automaton: Automaton = "abc$".parse().unwrap();
+        assert!(automaton.input("abcd").is_empty());
     }
 }
