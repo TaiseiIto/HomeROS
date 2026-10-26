@@ -20,11 +20,11 @@ impl<'a> Stack<'a> {
         self.0.iter().all(Frame::accepted)
     }
 
-    pub fn acceptor(&self) -> &'a Acceptor {
-        if let Automaton::Character(acceptor) = self.0.last().unwrap().automaton {
-            acceptor
-        } else {
-            panic!();
+    pub fn acceptor(&self) -> Acceptor {
+        match self.0.last().unwrap().automaton {
+            Automaton::Character(acceptor) => acceptor.clone(),
+            Automaton::EndOfLine => -Acceptor::default(),
+            _ => panic!(),
         }
     }
 
@@ -122,9 +122,12 @@ impl<'a> Stack<'a> {
                     automaton: Automaton::EndOfLine,
                     progress:
                         Progress::EndOfLine {
-                            following_characters: _,
+                            following_characters,
                         },
-                } => Vec::default(),
+                } => {
+                    *following_characters += 1;
+                    vec![next_stack]
+                }
                 Frame {
                     automaton: Automaton::Repetition { body, number },
                     progress: Progress::Repetition { repetition_count },
@@ -229,6 +232,13 @@ impl<'a> Frame<'a> {
                 automaton: _,
                 progress: Progress::Character { executed },
             } => *executed,
+            Self {
+                automaton: Automaton::EndOfLine,
+                progress:
+                    Progress::EndOfLine {
+                        following_characters: _,
+                    },
+            } => false,
             Self {
                 automaton: Automaton::Repetition { body, number },
                 progress: Progress::Repetition { repetition_count },
