@@ -4,6 +4,7 @@ use {
         service::boot::memory::{self, address::Physical},
     },
     core::fmt::{Debug, Formatter, Result},
+    guid::guid,
 };
 
 /// # References
@@ -15,19 +16,16 @@ pub struct Hob {
 }
 
 impl Hob {
-    const STACK: &str = "4ed4bf27-4092-42e9-807d-527b1d00c9bd";
-    const BSP_STORE: &str = "564b33cd-c92a-4593-90bf-2473e43c6322";
-    const MODULE: &str = "f8e21975-0899-4f58-a4be-5525a9c6d77a";
+    const STACK: Guid = guid!("4ed4bf27-4092-42e9-807d-527b1d00c9bd");
+    const BSP_STORE: Guid = guid!("564b33cd-c92a-4593-90bf-2473e43c6322");
+    const MODULE: Guid = guid!("f8e21975-0899-4f58-a4be-5525a9c6d77a");
 
     fn table(&self) -> &dyn Table {
-        if self.alloc_descriptor.name == Self::STACK.parse().unwrap() {
-            unsafe { &*(self as *const Self as *const Stack) }
-        } else if self.alloc_descriptor.name == Self::BSP_STORE.parse().unwrap() {
-            unsafe { &*(self as *const Self as *const BspStore) }
-        } else if self.alloc_descriptor.name == Self::MODULE.parse().unwrap() {
-            unsafe { &*(self as *const Self as *const Module) }
-        } else {
-            unsafe { &*(self as *const Self as *const Other) }
+        match self.alloc_descriptor.name {
+            Self::STACK => unsafe { &*(self as *const Self as *const Stack) },
+            Self::BSP_STORE => unsafe { &*(self as *const Self as *const BspStore) },
+            Self::MODULE => unsafe { &*(self as *const Self as *const Module) },
+            _ => unsafe { &*(self as *const Self as *const Other) },
         }
     }
 }
