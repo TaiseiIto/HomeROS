@@ -21,7 +21,6 @@ use {
         fmt::{self, Debug, Formatter},
         str::FromStr,
     },
-    regex::{Automaton, Capture, Match},
 };
 
 /// # References
