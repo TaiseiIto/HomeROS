@@ -1,6 +1,7 @@
 //! # TODO
 //! * Implement all HOBs.
 
+mod cpu;
 mod fv;
 mod guid;
 mod hand_off;
@@ -65,6 +66,7 @@ impl Header {
             Type::Fv => Ok(unsafe { &*(self as *const Header as *const fv::First) }),
             Type::Fv2 => Ok(unsafe { &*(self as *const Header as *const fv::Second) }),
             Type::Fv3 => Ok(unsafe { &*(self as *const Header as *const fv::Third) }),
+            Type::Cpu => Ok(unsafe { &*(self as *const Header as *const cpu::Hob) }),
             ty => Err(ty),
         }
     }
