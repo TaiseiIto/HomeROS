@@ -67,6 +67,9 @@ impl Header {
             Type::Fv2 => Ok(unsafe { &*(self as *const Header as *const fv::Second) }),
             Type::Fv3 => Ok(unsafe { &*(self as *const Header as *const fv::Third) }),
             Type::Cpu => Ok(unsafe { &*(self as *const Header as *const cpu::Hob) }),
+            Type::MemoryPool => {
+                Ok(unsafe { &*(self as *const Header as *const memory::pool::Hob) })
+            }
             ty => Err(ty),
         }
     }
