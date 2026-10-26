@@ -1,6 +1,7 @@
 //! # TODO
 //! * Implement all HOBs.
 
+mod guid;
 mod hand_off;
 mod memory_allocation;
 mod resource_descriptor;
@@ -59,6 +60,7 @@ impl Header {
             Type::ResourceDescriptor2 => {
                 Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Second) })
             }
+            Type::Guid => Ok(unsafe { &*(self as *const Header as *const guid::Hob) }),
             ty => Err(ty),
         }
     }
@@ -70,7 +72,7 @@ enum Type {
     Handoff = 0x0001,
     MemoryAllocation = 0x0002,
     ResourceDescriptor = 0x0003,
-    GuidExtension = 0x0004,
+    Guid = 0x0004,
     Fv = 0x0005,
     Cpu = 0x0006,
     MemoryPool = 0x0007,
