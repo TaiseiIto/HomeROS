@@ -1,6 +1,7 @@
 //! # TODO
 //! * Implement all HOBs.
 
+mod capsule;
 mod cpu;
 mod fv;
 mod guid;
@@ -70,6 +71,7 @@ impl Header {
             Type::MemoryPool => {
                 Ok(unsafe { &*(self as *const Header as *const memory::pool::Hob) })
             }
+            Type::Capsule => Ok(unsafe { &*(self as *const Header as *const capsule::Hob) }),
             ty => Err(ty),
         }
     }
@@ -87,7 +89,7 @@ enum Type {
     MemoryPool = 0x0007,
     Fv2 = 0x0009,
     LoadPeimUnused = 0x000a,
-    UefiCapsule = 0x000b,
+    Capsule = 0x000b,
     Fv3 = 0x000c,
     ResourceDescriptor2 = 0x000d,
     Unused = 0xfffe,
