@@ -6,6 +6,7 @@ use {
         pi::{dxe, hob},
     },
     core::fmt::{self, Debug, Formatter},
+    guid::guid,
 };
 
 /// # References
@@ -21,29 +22,27 @@ pub struct Pointer {
 impl Pointer {
     /// # References
     /// * [DXE Services Table GUID](https://uefi.org/specs/PI/1.10/V2_DXE_Appendix_B.html#dxe-services-table-guid)
-    const DXE: &str = "05ad34ba-6f02-4214-952e-4da0398e2bb9";
+    const DXE: Guid = guid!("05ad34ba-6f02-4214-952e-4da0398e2bb9");
 
     /// # References
     /// * [HOB List GUID](https://uefi.org/specs/PI/1.10/V2_DXE_Appendix_B.html#hob-list-guid)
-    const HOB: &str = "7739f24c-93d7-11d4-9a3a-0090273fc14d";
+    const HOB: Guid = guid!("7739f24c-93d7-11d4-9a3a-0090273fc14d");
 
-    const LZMA: &str = "ee4e5898-3914-4259-9d6e-dc7bd79403cf";
+    const LZMA: Guid = guid!("ee4e5898-3914-4259-9d6e-dc7bd79403cf");
 
     /// # References
     /// * [Finding the RSDP on UEFI Enabled Systems](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#finding-the-rsdp-on-uefi-enabled-systems)
-    const RSDP: &str = "8868e871-e4f1-11d3-bc22-0080c73c8881";
+    const RSDP: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
 
     pub fn table(&self) -> Result<&dyn Table, &Guid> {
-        if self.guid == Self::DXE.parse().unwrap() {
-            Ok(unsafe { &*(self.table as *const dxe::Table) })
-        } else if self.guid == Self::HOB.parse().unwrap() {
-            Ok(unsafe { &*(self.table as *const hob::List) })
-        } else if self.guid == Self::LZMA.parse().unwrap() {
-            Ok(unsafe { &*(self.table as *const lzma::Table) })
-        } else if self.guid == Self::RSDP.parse().unwrap() {
-            Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
-        } else {
-            Err(&self.guid)
+        match self.guid {
+            Self::DXE => Ok(unsafe { &*(self.table as *const dxe::Table) }),
+            Self::HOB => Ok(unsafe { &*(self.table as *const hob::List) }),
+            Self::LZMA => Ok(unsafe { &*(self.table as *const lzma::Table) }),
+            Self::RSDP => {
+                Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
+            }
+            _ => Err(&self.guid),
         }
     }
 }
