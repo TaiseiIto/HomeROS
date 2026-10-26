@@ -53,6 +53,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "guid"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "regex",
+ "syn",
+]
+
+[[package]]
 name = "io"
 version = "0.1.0"
 dependencies = [
@@ -158,6 +168,7 @@ name = "uefi"
 version = "0.1.0"
 dependencies = [
  "acpi",
+ "guid",
  "io",
  "regex",
  "unit",

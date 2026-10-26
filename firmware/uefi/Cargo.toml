@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies.acpi]
 path = "../../device/acpi"
 
+[dependencies.guid]
+path = "guid"
+
 [dependencies.io]
 path = "../../tool/macro/io"
 
