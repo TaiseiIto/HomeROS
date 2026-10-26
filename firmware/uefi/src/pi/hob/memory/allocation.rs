@@ -10,7 +10,7 @@ use {
 /// * [EFI_HOB_MEMORY_ALLOCATION](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-memory-allocation)
 #[repr(C)]
 pub struct Hob {
-    header: super::Header,
+    header: super::super::Header,
     alloc_descriptor: Header,
 }
 
@@ -40,7 +40,7 @@ impl Debug for Hob {
 
 impl Table for Hob {}
 
-impl super::Hob for Hob {}
+impl super::super::Hob for Hob {}
 
 /// # References
 /// * [EFI_HOB_MEMORY_ALLOCATION](https://uefi.org/specs/PI/1.10/V3_HOB_Code_Definitions.html#efi-hob-memory-allocation)
@@ -61,7 +61,7 @@ trait Table: Debug {}
 #[derive(Debug)]
 #[repr(C)]
 struct Stack {
-    header: super::Header,
+    header: super::super::Header,
     alloc_descriptor: Header,
 }
 
@@ -72,7 +72,7 @@ impl Table for Stack {}
 #[derive(Debug)]
 #[repr(C)]
 struct BspStore {
-    header: super::Header,
+    header: super::super::Header,
     alloc_descriptor: Header,
 }
 
@@ -83,7 +83,7 @@ impl Table for BspStore {}
 #[derive(Debug)]
 #[repr(C)]
 struct Module {
-    header: super::Header,
+    header: super::super::Header,
     alloc_descriptor: Header,
     module_name: Guid,
     entry_point: Physical,
@@ -94,7 +94,7 @@ impl Table for Module {}
 #[derive(Debug)]
 #[repr(C)]
 struct Other {
-    header: super::Header,
+    header: super::super::Header,
     alloc_descriptor: Header,
 }
 

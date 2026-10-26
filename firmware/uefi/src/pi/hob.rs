@@ -5,7 +5,7 @@ mod cpu;
 mod fv;
 mod guid;
 mod hand_off;
-mod memory_allocation;
+mod memory;
 mod resource_descriptor;
 
 use core::fmt::{self, Debug, Formatter};
@@ -54,7 +54,7 @@ impl Header {
         match &self.ty {
             Type::Handoff => Ok(unsafe { &*(self as *const Header as *const hand_off::Hob) }),
             Type::MemoryAllocation => {
-                Ok(unsafe { &*(self as *const Header as *const memory_allocation::Hob) })
+                Ok(unsafe { &*(self as *const Header as *const memory::allocation::Hob) })
             }
             Type::ResourceDescriptor => {
                 Ok(unsafe { &*(self as *const Header as *const resource_descriptor::First) })
