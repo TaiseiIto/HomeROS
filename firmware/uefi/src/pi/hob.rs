@@ -28,7 +28,7 @@ impl<'a> Iterator for HeaderIterator<'a> {
     type Item = &'a Header;
 
     fn next(&mut self) -> Option<Self::Item> {
-        (self.0.hob_type != Type::EndOfHobList).then(|| {
+        (self.0.ty != Type::EndOfHobList).then(|| {
             let item: Self::Item = self.0;
             self.0 = unsafe { &*(self.0 as *const Header).byte_add(item.length as usize) };
             item
@@ -41,14 +41,14 @@ impl<'a> Iterator for HeaderIterator<'a> {
 #[derive(Debug)]
 #[repr(C)]
 struct Header {
-    hob_type: Type,
+    ty: Type,
     length: u16,
     reserved: u32,
 }
 
 impl Header {
     fn hob(&self) -> Result<&dyn Hob, &Type> {
-        match &self.hob_type {
+        match &self.ty {
             Type::Handoff => Ok(unsafe { &*(self as *const Header as *const hand_off::Hob) }),
             Type::MemoryAllocation => {
                 Ok(unsafe { &*(self as *const Header as *const memory_allocation::Hob) })
@@ -56,7 +56,7 @@ impl Header {
             Type::ResourceDescriptor => {
                 Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Hob) })
             }
-            hob_type => Err(hob_type),
+            ty => Err(ty),
         }
     }
 }

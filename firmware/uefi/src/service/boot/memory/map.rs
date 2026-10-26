@@ -14,7 +14,7 @@ use {
 #[derive(Debug)]
 #[repr(C)]
 pub struct Descriptor {
-    memory_type: Type,
+    ty: Type,
     physical_start: Physical,
     virtual_start: Virtual,
     number_of_pages: u64,
@@ -23,7 +23,7 @@ pub struct Descriptor {
 
 impl Descriptor {
     pub fn is_allocatable(&self) -> bool {
-        matches!(self.memory_type, Type::Conventional)
+        matches!(self.ty, Type::Conventional)
     }
 
     pub fn range(&self) -> Range<usize> {
