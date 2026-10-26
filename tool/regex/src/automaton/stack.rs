@@ -120,12 +120,8 @@ impl<'a> Stack<'a> {
                 }
                 Frame {
                     automaton: Automaton::EndOfLine,
-                    progress:
-                        Progress::EndOfLine {
-                            following_characters,
-                        },
+                    progress: Progress::EndOfLine,
                 } => {
-                    *following_characters += 1;
                     vec![next_stack]
                 }
                 Frame {
@@ -234,10 +230,7 @@ impl<'a> Frame<'a> {
             } => *executed,
             Self {
                 automaton: Automaton::EndOfLine,
-                progress:
-                    Progress::EndOfLine {
-                        following_characters: _,
-                    },
+                progress: Progress::EndOfLine,
             } => false,
             Self {
                 automaton: Automaton::Repetition { body, number },
@@ -273,7 +266,7 @@ impl<'a> Frame<'a> {
 enum Progress {
     Capturer { executed: bool },
     Character { executed: bool },
-    EndOfLine { following_characters: usize },
+    EndOfLine,
     Repetition { repetition_count: usize },
     Selection { executed: bool },
     Sequence { processing_element_index: usize },
@@ -285,9 +278,7 @@ impl Progress {
         match automaton {
             Automaton::Capturer { body: _, name: _ } => Self::Capturer { executed: false },
             Automaton::Character(_) => Self::Character { executed: false },
-            Automaton::EndOfLine => Self::EndOfLine {
-                following_characters: 0,
-            },
+            Automaton::EndOfLine => Self::EndOfLine,
             Automaton::Repetition { body: _, number: _ } => Self::Repetition {
                 repetition_count: 0,
             },
