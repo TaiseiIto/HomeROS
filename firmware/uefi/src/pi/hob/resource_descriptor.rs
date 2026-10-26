@@ -50,7 +50,7 @@ enum Type {
     MemoryReserved = 0x00000005,
     IoReserved = 0x00000006,
     MemoryUnaccepted = 0x00000007,
-    MaxMemoryType = 0x00000008,
+    MaxMemory = 0x00000008,
 }
 
 /// # References

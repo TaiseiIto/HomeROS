@@ -9,10 +9,7 @@ pub mod service;
 pub mod system;
 mod table;
 
-use {
-    alloc::collections::btree_map::BTreeMap,
-    core::fmt::{self, Debug, Formatter},
-};
+use core::fmt::{self, Debug, Formatter};
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
