@@ -77,7 +77,7 @@ impl<'a> Tree<'a> {
     pub fn execute(stack: Stack<'a>, mut input: Point) -> Vec<Self> {
         if let Some(character) = input.next() {
             stack
-                .next_states(character.index() == 0, input.is_empty())
+                .next_states(character.index() == 0)
                 .into_iter()
                 .filter_map(|stack| {
                     stack.accept(&character).map(|acceptance| Self {
