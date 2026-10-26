@@ -1,6 +1,3 @@
-//! # TODO
-//! * Implement all HOBs.
-
 mod capsule;
 mod cpu;
 mod fv;
