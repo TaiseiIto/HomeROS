@@ -1,6 +1,7 @@
 //! # TODO
 //! * Implement all HOBs.
 
+mod fv;
 mod guid;
 mod hand_off;
 mod memory_allocation;
@@ -61,6 +62,9 @@ impl Header {
                 Ok(unsafe { &*(self as *const Header as *const resource_descriptor::Second) })
             }
             Type::Guid => Ok(unsafe { &*(self as *const Header as *const guid::Hob) }),
+            Type::Fv => Ok(unsafe { &*(self as *const Header as *const fv::First) }),
+            Type::Fv2 => Ok(unsafe { &*(self as *const Header as *const fv::Second) }),
+            Type::Fv3 => Ok(unsafe { &*(self as *const Header as *const fv::Third) }),
             ty => Err(ty),
         }
     }
