@@ -1,3 +1,5 @@
+use crate::{Handle, protocol::image::Protocol};
+
 /// # References
 /// * [EFI_DEBUG_IMAGE_INFO_TABLE_HEADER](https://uefi.org/specs/UEFI/2.11/18_Protocols_Debugger_Support.html#efi-image-info)
 #[derive(Debug)]
@@ -30,4 +32,6 @@ struct Info {
 #[repr(C)]
 struct Normal {
     ty: u32,
+    loaded_image: &'static Protocol,
+    image: Handle,
 }
