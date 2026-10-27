@@ -35,6 +35,9 @@ impl Protocol {
             SubType::PiwgFile => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
             }
+            SubType::PiwgVolume => {
+                Ok(unsafe { &*(self as *const Self as *const piwg::volume::Protocol) })
+            }
             sub_type => Err(sub_type),
         }
     }
