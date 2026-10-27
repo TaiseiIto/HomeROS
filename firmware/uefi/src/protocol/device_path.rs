@@ -14,14 +14,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn read(&self) -> Result<&dyn Node, &Type> {
+    fn read(&self) -> &dyn Node {
         match &self.ty {
-            Type::Hardware => Ok(unsafe { &*(self as *const Self as *const hardware::Protocol) }),
-            Type::EndOfHardware => {
-                Ok(unsafe { &*(self as *const Self as *const end_of_hardware::Protocol) })
-            }
-            Type::Media => Ok(unsafe { &*(self as *const Self as *const media::Protocol) }),
-            ty => Err(ty),
+            Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
+            Type::EndOfHardware => unsafe {
+                &*(self as *const Self as *const end_of_hardware::Protocol)
+            },
+            Type::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
+            _ => panic!(),
         }
     }
 }
