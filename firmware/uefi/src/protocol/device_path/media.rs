@@ -1,6 +1,7 @@
 mod cd_rom;
 mod hard_drive;
 mod piwg;
+mod vendor;
 
 use {
     super::{Node, Type},
@@ -24,6 +25,7 @@ impl Protocol {
                 Ok(unsafe { &*(self as *const Self as *const hard_drive::Protocol) })
             }
             SubType::CdRom => Ok(unsafe { &*(self as *const Self as *const cd_rom::Protocol) }),
+            SubType::Vendor => Ok(unsafe { &*(self as *const Self as *const vendor::Protocol) }),
             SubType::PiwgFile => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
             }
