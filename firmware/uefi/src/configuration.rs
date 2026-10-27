@@ -43,7 +43,7 @@ impl Pointer {
             Self::HOB => Ok(unsafe { &*(self.table as *const hob::List) }),
             Self::LZMA => Ok(unsafe { &*(self.table as *const lzma::Table) }),
             Self::MEMORY_TYPE_INFORMATION => {
-                Ok(unsafe { &*(self.table as *const memory_type::Information) })
+                Ok(unsafe { &*(self.table as *const memory_type::Table) })
             }
             Self::RSDP => {
                 Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
@@ -65,4 +65,4 @@ impl Table for acpi::root_system_description::Pointer {}
 impl Table for dxe::Table {}
 impl Table for hob::List {}
 impl Table for lzma::Table {}
-impl Table for memory_type::Information {}
+impl Table for memory_type::Table {}

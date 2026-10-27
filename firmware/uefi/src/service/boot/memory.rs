@@ -19,7 +19,7 @@ pub enum AllocateType {
 
 /// # References
 /// * [EFI_MEMORY_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-allocatepages)
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum Type {
     Reserved,
