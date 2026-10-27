@@ -1,12 +1,35 @@
-use super::{Node, Type};
+mod piwg;
+
+use {
+    super::{Node, Type},
+    core::fmt::{self, Debug, Formatter},
+};
 
 /// # References
 /// * [Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-device-path)
-#[derive(Debug)]
+/// # TODO
+/// * Print all sub type.
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
+}
+
+impl Protocol {
+    fn read(&self) -> Result<&dyn Node, &SubType> {
+        match &self.sub_type {
+            SubType::PiwgFile => {
+                Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
+            }
+            sub_type => Err(sub_type),
+        }
+    }
+}
+
+impl Debug for Protocol {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        self.read().fmt(formatter)
+    }
 }
 
 impl Node for Protocol {}

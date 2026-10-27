@@ -7,7 +7,7 @@ use core::fmt::{self, Debug, Formatter};
 /// # References
 /// * [EFI_DEVICE_PATH_PROTOCOL](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-device-path-protocol)
 /// # TODO
-/// * Print generic device path structures
+/// * Print all type.
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
