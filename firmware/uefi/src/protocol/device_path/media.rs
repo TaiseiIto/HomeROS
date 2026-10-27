@@ -3,6 +3,7 @@ mod file_path;
 mod hard_drive;
 mod media;
 mod piwg;
+mod ram_disk;
 mod relative_offset;
 mod vendor;
 
@@ -42,7 +43,7 @@ impl Protocol {
             SubType::RelativeOffset => {
                 Ok(unsafe { &*(self as *const Self as *const relative_offset::Protocol) })
             }
-            sub_type => Err(sub_type),
+            SubType::RamDisk => Ok(unsafe { &*(self as *const Self as *const ram_disk::Protocol) }),
         }
     }
 }
