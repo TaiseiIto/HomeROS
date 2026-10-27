@@ -1,3 +1,4 @@
+mod hard_drive;
 mod piwg;
 
 use {
@@ -18,6 +19,9 @@ pub struct Protocol {
 impl Protocol {
     fn read(&self) -> Result<&dyn Node, &SubType> {
         match &self.sub_type {
+            SubType::HardDrive => {
+                Ok(unsafe { &*(self as *const Self as *const hard_drive::Protocol) })
+            }
             SubType::PiwgFile => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
             }
