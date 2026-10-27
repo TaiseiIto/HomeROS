@@ -1,4 +1,5 @@
 mod lzma;
+mod memory_type;
 
 use {
     crate::{
@@ -30,6 +31,8 @@ impl Pointer {
 
     const LZMA: Guid = guid!("ee4e5898-3914-4259-9d6e-dc7bd79403cf");
 
+    const MEMORY_TYPE_INFORMATION: Guid = guid!("4c19049f-4137-4dd3-9c10-8b97a83ffdfa");
+
     /// # References
     /// * [Finding the RSDP on UEFI Enabled Systems](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#finding-the-rsdp-on-uefi-enabled-systems)
     const RSDP: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
@@ -39,6 +42,9 @@ impl Pointer {
             Self::DXE => Ok(unsafe { &*(self.table as *const dxe::Table) }),
             Self::HOB => Ok(unsafe { &*(self.table as *const hob::List) }),
             Self::LZMA => Ok(unsafe { &*(self.table as *const lzma::Table) }),
+            Self::MEMORY_TYPE_INFORMATION => {
+                Ok(unsafe { &*(self.table as *const memory_type::Information) })
+            }
             Self::RSDP => {
                 Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
             }
@@ -59,3 +65,4 @@ impl Table for acpi::root_system_description::Pointer {}
 impl Table for dxe::Table {}
 impl Table for hob::List {}
 impl Table for lzma::Table {}
+impl Table for memory_type::Information {}
