@@ -14,8 +14,6 @@ use {
 
 /// # References
 /// * [Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-device-path)
-/// # TODO
-/// * Print all sub type.
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
@@ -23,27 +21,21 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn read(&self) -> Result<&dyn Node, &SubType> {
+    fn read(&self) -> &dyn Node {
         match &self.sub_type {
-            SubType::HardDrive => {
-                Ok(unsafe { &*(self as *const Self as *const hard_drive::Protocol) })
-            }
-            SubType::CdRom => Ok(unsafe { &*(self as *const Self as *const cd_rom::Protocol) }),
-            SubType::Vendor => Ok(unsafe { &*(self as *const Self as *const vendor::Protocol) }),
-            SubType::FilePath => {
-                Ok(unsafe { &*(self as *const Self as *const file_path::Protocol) })
-            }
-            SubType::Media => Ok(unsafe { &*(self as *const Self as *const media::Protocol) }),
-            SubType::PiwgFile => {
-                Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
-            }
-            SubType::PiwgVolume => {
-                Ok(unsafe { &*(self as *const Self as *const piwg::volume::Protocol) })
-            }
-            SubType::RelativeOffset => {
-                Ok(unsafe { &*(self as *const Self as *const relative_offset::Protocol) })
-            }
-            SubType::RamDisk => Ok(unsafe { &*(self as *const Self as *const ram_disk::Protocol) }),
+            SubType::HardDrive => unsafe { &*(self as *const Self as *const hard_drive::Protocol) },
+            SubType::CdRom => unsafe { &*(self as *const Self as *const cd_rom::Protocol) },
+            SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
+            SubType::FilePath => unsafe { &*(self as *const Self as *const file_path::Protocol) },
+            SubType::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
+            SubType::PiwgFile => unsafe { &*(self as *const Self as *const piwg::file::Protocol) },
+            SubType::PiwgVolume => unsafe {
+                &*(self as *const Self as *const piwg::volume::Protocol)
+            },
+            SubType::RelativeOffset => unsafe {
+                &*(self as *const Self as *const relative_offset::Protocol)
+            },
+            SubType::RamDisk => unsafe { &*(self as *const Self as *const ram_disk::Protocol) },
         }
     }
 }
