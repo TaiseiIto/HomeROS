@@ -1,7 +1,7 @@
 mod end_of_hardware;
 mod hardware;
 
-use core::fmt::{Debug, Formatter, Result};
+use core::fmt::{self, Debug, Formatter};
 
 /// # References
 /// * [EFI_DEVICE_PATH_PROTOCOL](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-device-path-protocol)
@@ -13,19 +13,19 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn read(&self) -> &dyn Node {
-        match self.ty {
-            Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
-            Type::EndOfHardware => unsafe {
-                &*(self as *const Self as *const end_of_hardware::Protocol)
-            },
-            _ => panic!(),
+    fn read(&self) -> Result<&dyn Node, &Type> {
+        match &self.ty {
+            Type::Hardware => Ok(unsafe { &*(self as *const Self as *const hardware::Protocol) }),
+            Type::EndOfHardware => {
+                Ok(unsafe { &*(self as *const Self as *const end_of_hardware::Protocol) })
+            }
+            ty => Err(ty),
         }
     }
 }
 
 impl Debug for Protocol {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         self.read().fmt(formatter)
     }
 }
