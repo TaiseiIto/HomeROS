@@ -1,6 +1,10 @@
 use {
     super::device_path,
-    crate::{Handle, Void, service::boot::memory::Type, system},
+    crate::{
+        Handle, Void,
+        service::boot::{image::Unload, memory::Type},
+        system,
+    },
 };
 
 /// # References
@@ -22,4 +26,5 @@ pub struct Protocol {
     image_size: u64,
     image_code: Type,
     image_data: Type,
+    unload: Unload,
 }

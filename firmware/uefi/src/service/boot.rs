@@ -1,7 +1,7 @@
 mod configuration;
 mod controller;
 mod event;
-mod image;
+pub mod image;
 pub mod memory;
 mod protocol;
 mod task;
