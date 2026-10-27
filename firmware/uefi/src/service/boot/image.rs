@@ -1,4 +1,4 @@
-use crate::{Char16, Handle, Status, Void, protocol::DevicePath};
+use crate::{Char16, Handle, Status, Void, protocol::device_path::Protocol};
 
 /// # References
 /// * [Exit](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-exit)
@@ -11,7 +11,7 @@ pub type ExitBootServices = extern "efiapi" fn(Handle, usize) -> Status;
 /// # References
 /// * [LoadImage](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-loadimage)
 pub type Load =
-    extern "efiapi" fn(bool, Handle, *const DevicePath, *const Void, usize, *mut Handle) -> Status;
+    extern "efiapi" fn(bool, Handle, *const Protocol, *const Void, usize, *mut Handle) -> Status;
 
 /// # References
 /// * [StartImage](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-startimage)

@@ -1,6 +1,6 @@
 pub mod multiple;
 
-use crate::{Event, Guid, Status, Void, protocol::DevicePath};
+use crate::{Event, Guid, Status, Void, protocol::device_path::Protocol};
 
 /// # References
 /// * [EFI_LOCATE_SEARCH_TYPE](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatehandle)
@@ -48,7 +48,7 @@ pub type Locate = extern "efiapi" fn(*const Guid, *const Void, *mut *const Void)
 /// # References
 /// * [LocalteDevicePath](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatedevicepath)
 pub type LocateDevicePath =
-    extern "efiapi" fn(*const Guid, *mut *const DevicePath, *mut crate::Handle) -> Status;
+    extern "efiapi" fn(*const Guid, *mut *const Protocol, *mut crate::Handle) -> Status;
 
 /// # References
 /// * [LocateHandle](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-locatehandle)

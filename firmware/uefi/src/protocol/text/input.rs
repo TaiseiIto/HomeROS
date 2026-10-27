@@ -4,7 +4,7 @@ use crate::{Char16, Event, Status};
 /// * [EFI_SIMPLE_TEXT_INPUT_PROTOCOL](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol)
 #[derive(Debug)]
 #[repr(C)]
-pub struct Functions {
+pub struct Protocol {
     reset: Option<Reset>,
     read_key_stroke: Option<ReadKey>,
     wait_for_key: Option<Event>,
@@ -20,8 +20,8 @@ pub struct Key {
 
 /// # References
 /// * [EFI_INPUT_READ_KEY](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-readkeystroke)
-pub type ReadKey = extern "efiapi" fn(*const Functions, *mut Key) -> Status;
+pub type ReadKey = extern "efiapi" fn(*const Protocol, *mut Key) -> Status;
 
 /// # References
 /// * [EFI_INPUT_RESET](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html#efi-simple-text-input-protocol-reset)
-pub type Reset = extern "efiapi" fn(*const Functions, bool) -> Status;
+pub type Reset = extern "efiapi" fn(*const Protocol, bool) -> Status;
