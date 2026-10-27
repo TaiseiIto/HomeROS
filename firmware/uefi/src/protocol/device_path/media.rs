@@ -3,6 +3,7 @@ mod file_path;
 mod hard_drive;
 mod media;
 mod piwg;
+mod relative_offset;
 mod vendor;
 
 use {
@@ -37,6 +38,9 @@ impl Protocol {
             }
             SubType::PiwgVolume => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::volume::Protocol) })
+            }
+            SubType::RelativeOffset => {
+                Ok(unsafe { &*(self as *const Self as *const relative_offset::Protocol) })
             }
             sub_type => Err(sub_type),
         }
