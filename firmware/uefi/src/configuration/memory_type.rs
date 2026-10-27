@@ -3,6 +3,7 @@ use {
     core::fmt::{Debug, Formatter, Result},
 };
 
+#[repr(C)]
 pub struct Table;
 
 impl Table {
@@ -30,6 +31,7 @@ impl<'a> Iterator for EntryIterator<'a> {
 }
 
 #[derive(Debug, Eq, PartialEq)]
+#[repr(C)]
 struct Entry {
     ty: Type,
     pages: u32,
