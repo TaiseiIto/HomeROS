@@ -3,6 +3,13 @@
 #[derive(Debug)]
 #[repr(C)]
 pub struct Table {
-    update_status: u32,
+    update_status: UpdateStatusRaw,
     table_size: u32,
+}
+
+#[io::register]
+struct UpdateStatus {
+    update_in_progress: bool,
+    modified: bool,
+    __: [bool; 30],
 }
