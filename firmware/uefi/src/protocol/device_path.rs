@@ -1,5 +1,6 @@
 mod end_of_hardware;
 mod hardware;
+mod media;
 
 use core::fmt::{self, Debug, Formatter};
 
@@ -19,6 +20,7 @@ impl Protocol {
             Type::EndOfHardware => {
                 Ok(unsafe { &*(self as *const Self as *const end_of_hardware::Protocol) })
             }
+            Type::Media => Ok(unsafe { &*(self as *const Self as *const media::Protocol) }),
             ty => Err(ty),
         }
     }

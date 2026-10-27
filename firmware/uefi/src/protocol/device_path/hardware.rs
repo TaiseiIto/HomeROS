@@ -1,11 +1,15 @@
 use super::{Node, Type};
 
+/// # References
+/// * [Hardware Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#hardware-device-path)
 #[derive(Debug)]
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
-    sub_type: u8,
+    sub_type: SubType,
 }
+
+impl Node for Protocol {}
 
 /// # References
 /// * [Hardware Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#hardware-device-path)
@@ -19,5 +23,3 @@ enum SubType {
     Controller = 0x05,
     Bmc = 0x06,
 }
-
-impl Node for Protocol {}
