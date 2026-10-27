@@ -1,3 +1,4 @@
+mod cd_rom;
 mod hard_drive;
 mod piwg;
 
@@ -22,6 +23,7 @@ impl Protocol {
             SubType::HardDrive => {
                 Ok(unsafe { &*(self as *const Self as *const hard_drive::Protocol) })
             }
+            SubType::CdRom => Ok(unsafe { &*(self as *const Self as *const cd_rom::Protocol) }),
             SubType::PiwgFile => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
             }
