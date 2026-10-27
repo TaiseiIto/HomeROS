@@ -1,4 +1,5 @@
 mod cd_rom;
+mod file_path;
 mod hard_drive;
 mod piwg;
 mod vendor;
@@ -26,6 +27,9 @@ impl Protocol {
             }
             SubType::CdRom => Ok(unsafe { &*(self as *const Self as *const cd_rom::Protocol) }),
             SubType::Vendor => Ok(unsafe { &*(self as *const Self as *const vendor::Protocol) }),
+            SubType::FilePath => {
+                Ok(unsafe { &*(self as *const Self as *const file_path::Protocol) })
+            }
             SubType::PiwgFile => {
                 Ok(unsafe { &*(self as *const Self as *const piwg::file::Protocol) })
             }
