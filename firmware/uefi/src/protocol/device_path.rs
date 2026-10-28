@@ -1,3 +1,4 @@
+mod acpi;
 mod end_of_hardware;
 mod hardware;
 mod media;
@@ -17,10 +18,11 @@ impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.ty {
             Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
+            Type::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
+            Type::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
             Type::EndOfHardware => unsafe {
                 &*(self as *const Self as *const end_of_hardware::Protocol)
             },
-            Type::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
             _ => panic!(),
         }
     }
