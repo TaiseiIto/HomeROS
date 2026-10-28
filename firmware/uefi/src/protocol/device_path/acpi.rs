@@ -1,4 +1,5 @@
 mod acpi;
+mod expanded;
 
 use {
     super::{Node, Type},
@@ -19,6 +20,7 @@ impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.sub_type {
             SubType::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
+            SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             _ => unimplemented!(),
         }
     }
@@ -38,7 +40,7 @@ impl Node for Protocol {}
 #[repr(u8)]
 enum SubType {
     Acpi = 1,
-    ExpandedAcpi = 2,
+    Expanded = 2,
     Adr = 3,
     Nvdimm = 4,
 }
