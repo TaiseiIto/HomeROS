@@ -1,6 +1,7 @@
 mod acpi;
 mod adr;
 mod expanded;
+mod nvdimm;
 
 use {
     super::{Node, Type},
@@ -23,7 +24,7 @@ impl Protocol {
             SubType::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
-            _ => unimplemented!(),
+            SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
         }
     }
 }
