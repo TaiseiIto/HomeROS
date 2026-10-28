@@ -1,0 +1,69 @@
+use {
+    super::{Node, Type},
+    core::fmt::{Debug, Formatter, Result},
+};
+
+/// # References
+/// * [Messaging Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#messaging-device-path)
+/// # TODO
+/// * Print all subtypes.
+#[repr(C)]
+pub struct Protocol {
+    ty: Type,
+    sub_type: SubType,
+}
+
+impl Protocol {
+    fn read(&self) -> &dyn Node {
+        match &self.sub_type {
+            _ => unimplemented!(),
+        }
+    }
+}
+
+impl Debug for Protocol {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        self.read().fmt(formatter)
+    }
+}
+
+impl Node for Protocol {}
+
+/// # References
+/// * [Messaging Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#messaging-device-path)
+#[derive(Debug)]
+#[repr(u8)]
+enum SubType {
+    Atapi = 1,
+    Scsi = 2,
+    Fibre = 3,
+    FibreEx = 21,
+    Device1394 = 4,
+    Usb = 5,
+    Sata = 18,
+    UsbWwid = 16,
+    DeviceLogicalUnit = 17,
+    UsbClass = 15,
+    I2O = 6,
+    MacAddress = 11,
+    Ipv4 = 12,
+    Ipv6 = 13,
+    Vlan = 20,
+    InfiniBand = 9,
+    Uart = 14,
+    Vendor = 10,
+    SasEx = 22,
+    Iscsi = 19,
+    NvmExpressNamespace = 23,
+    Uri = 24,
+    Ufs = 25,
+    Sd = 26,
+    Bluetooth = 27,
+    Wifi = 28,
+    Emmc = 29,
+    BluetoothLe = 30,
+    Dns = 31,
+    Nvdimm = 32,
+    RestService = 33,
+    NvmeofNamespace = 34,
+}

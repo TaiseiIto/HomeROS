@@ -2,6 +2,7 @@ mod acpi;
 mod end_of_hardware;
 mod hardware;
 mod media;
+mod messaging;
 
 use core::fmt::{Debug, Formatter, Result};
 
@@ -19,6 +20,7 @@ impl Protocol {
         match &self.ty {
             Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
             Type::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
+            Type::Messaging => unsafe { &*(self as *const Self as *const messaging::Protocol) },
             Type::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
             Type::EndOfHardware => unsafe {
                 &*(self as *const Self as *const end_of_hardware::Protocol)
