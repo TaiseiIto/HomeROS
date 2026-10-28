@@ -1,4 +1,5 @@
 mod acpi;
+mod adr;
 mod expanded;
 
 use {
@@ -21,6 +22,7 @@ impl Protocol {
         match &self.sub_type {
             SubType::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
+            SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
             _ => unimplemented!(),
         }
     }
