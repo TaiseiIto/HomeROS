@@ -3,7 +3,7 @@ mod end_of_hardware;
 mod hardware;
 mod media;
 
-use core::fmt::{self, Debug, Formatter};
+use core::fmt::{Debug, Formatter, Result};
 
 /// # References
 /// * [EFI_DEVICE_PATH_PROTOCOL](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-device-path-protocol)
@@ -29,7 +29,7 @@ impl Protocol {
 }
 
 impl Debug for Protocol {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         self.read().fmt(formatter)
     }
 }

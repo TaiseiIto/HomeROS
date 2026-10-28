@@ -9,7 +9,7 @@ mod vendor;
 
 use {
     super::{Node, Type},
-    core::fmt::{self, Debug, Formatter},
+    core::fmt::{Debug, Formatter, Result},
 };
 
 /// # References
@@ -41,7 +41,7 @@ impl Protocol {
 }
 
 impl Debug for Protocol {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         self.read().fmt(formatter)
     }
 }
