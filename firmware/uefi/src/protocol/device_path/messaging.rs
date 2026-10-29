@@ -32,6 +32,7 @@ impl Protocol {
             },
             SubType::Usb => unsafe { &*(self as *const Self as *const usb::Protocol) },
             SubType::Sata => unsafe { &*(self as *const Self as *const sata::Protocol) },
+            SubType::UsbWwid => unsafe { &*(self as *const Self as *const usb::wwid::Protocol) },
             _ => unimplemented!(),
         }
     }
