@@ -1,3 +1,4 @@
+mod controller;
 mod memory_mapped;
 mod pccard;
 mod pci;
@@ -28,6 +29,9 @@ impl Protocol {
                 &*(self as *const Self as *const memory_mapped::Protocol)
             },
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
+            SubType::Controller => unsafe {
+                &*(self as *const Self as *const controller::Protocol)
+            },
             _ => panic!(),
         }
     }
