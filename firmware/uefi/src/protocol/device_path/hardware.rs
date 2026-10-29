@@ -1,12 +1,31 @@
-use super::{Node, Type};
+mod pci;
+
+use {
+    super::{Node, Type},
+    core::fmt::{Debug, Formatter, Result},
+};
 
 /// # References
 /// * [Hardware Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#hardware-device-path)
-#[derive(Debug)]
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
+}
+
+impl Protocol {
+    fn read(&self) -> &dyn Node {
+        match &self.sub_type {
+            SubType::Pci => unsafe { &*(self as *const Self as *const pci::Protocol) },
+            _ => panic!(),
+        }
+    }
+}
+
+impl Debug for Protocol {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        self.read().fmt(formatter)
+    }
 }
 
 impl Node for Protocol {}
