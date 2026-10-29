@@ -1,4 +1,5 @@
 mod atapi;
+mod scsi;
 
 use {
     super::{Node, Type},
@@ -19,6 +20,7 @@ impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.sub_type {
             SubType::Atapi => unsafe { &*(self as *const Self as *const atapi::Protocol) },
+            SubType::Scsi => unsafe { &*(self as *const Self as *const scsi::Protocol) },
             _ => unimplemented!(),
         }
     }
