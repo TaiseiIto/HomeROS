@@ -1,3 +1,4 @@
+mod bmc;
 mod controller;
 mod memory_mapped;
 mod pccard;
@@ -32,6 +33,7 @@ impl Protocol {
             SubType::Controller => unsafe {
                 &*(self as *const Self as *const controller::Protocol)
             },
+            SubType::Bmc => unsafe { &*(self as *const Self as *const bmc::Protocol) },
             _ => panic!(),
         }
     }
