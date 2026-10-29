@@ -1,3 +1,4 @@
+mod pccard;
 mod pci;
 
 use {
@@ -19,6 +20,7 @@ impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.sub_type {
             SubType::Pci => unsafe { &*(self as *const Self as *const pci::Protocol) },
+            SubType::PcCard => unsafe { &*(self as *const Self as *const pccard::Protocol) },
             _ => panic!(),
         }
     }
