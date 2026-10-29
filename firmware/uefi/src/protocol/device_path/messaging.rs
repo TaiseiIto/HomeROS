@@ -2,6 +2,7 @@ mod atapi;
 mod device1394;
 mod fibre;
 mod fibre_ex;
+mod sata;
 mod scsi;
 mod usb;
 
@@ -31,6 +32,7 @@ impl Protocol {
                 &*(self as *const Self as *const device1394::Protocol)
             },
             SubType::Usb => unsafe { &*(self as *const Self as *const usb::Protocol) },
+            SubType::Sata => unsafe { &*(self as *const Self as *const sata::Protocol) },
             _ => unimplemented!(),
         }
     }
