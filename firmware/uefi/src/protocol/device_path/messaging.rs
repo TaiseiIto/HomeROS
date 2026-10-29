@@ -1,4 +1,5 @@
 mod atapi;
+mod fibre;
 mod scsi;
 
 use {
@@ -21,6 +22,7 @@ impl Protocol {
         match &self.sub_type {
             SubType::Atapi => unsafe { &*(self as *const Self as *const atapi::Protocol) },
             SubType::Scsi => unsafe { &*(self as *const Self as *const scsi::Protocol) },
+            SubType::Fibre => unsafe { &*(self as *const Self as *const fibre::Protocol) },
             _ => unimplemented!(),
         }
     }
