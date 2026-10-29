@@ -1,3 +1,5 @@
+mod atapi;
+
 use {
     super::{Node, Type},
     core::fmt::{Debug, Formatter, Result},
@@ -16,6 +18,7 @@ pub struct Protocol {
 impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.sub_type {
+            SubType::Atapi => unsafe { &*(self as *const Self as *const atapi::Protocol) },
             _ => unimplemented!(),
         }
     }
