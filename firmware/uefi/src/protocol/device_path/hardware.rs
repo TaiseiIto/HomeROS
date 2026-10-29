@@ -1,3 +1,4 @@
+mod memory_mapped;
 mod pccard;
 mod pci;
 
@@ -21,6 +22,9 @@ impl Protocol {
         match &self.sub_type {
             SubType::Pci => unsafe { &*(self as *const Self as *const pci::Protocol) },
             SubType::PcCard => unsafe { &*(self as *const Self as *const pccard::Protocol) },
+            SubType::MemoryMapped => unsafe {
+                &*(self as *const Self as *const memory_mapped::Protocol)
+            },
             _ => panic!(),
         }
     }
