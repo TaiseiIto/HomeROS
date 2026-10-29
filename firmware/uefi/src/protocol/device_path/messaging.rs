@@ -3,6 +3,7 @@ mod device1394;
 mod fibre;
 mod fibre_ex;
 mod scsi;
+mod usb;
 
 use {
     super::{Node, Type},
@@ -29,6 +30,7 @@ impl Protocol {
             SubType::Device1394 => unsafe {
                 &*(self as *const Self as *const device1394::Protocol)
             },
+            SubType::Usb => unsafe { &*(self as *const Self as *const usb::Protocol) },
             _ => unimplemented!(),
         }
     }
