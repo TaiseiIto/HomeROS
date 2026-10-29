@@ -3,6 +3,7 @@ mod device1394;
 mod device_logical_unit;
 mod fibre;
 mod i2o;
+mod infini_band;
 mod ip;
 mod mac_address;
 mod sata;
@@ -50,6 +51,9 @@ impl Protocol {
             SubType::Ipv4 => unsafe { &*(self as *const Self as *const ip::v4::Protocol) },
             SubType::Ipv6 => unsafe { &*(self as *const Self as *const ip::v6::Protocol) },
             SubType::Vlan => unsafe { &*(self as *const Self as *const vlan::Protocol) },
+            SubType::InfiniBand => unsafe {
+                &*(self as *const Self as *const infini_band::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
