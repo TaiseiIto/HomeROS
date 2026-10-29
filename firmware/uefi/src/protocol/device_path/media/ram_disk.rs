@@ -8,7 +8,7 @@ use {
 
 /// # References
 /// * [RAM Disk](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#ram-disk)
-#[derive(Debug)]
+#[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,

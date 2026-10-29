@@ -14,6 +14,7 @@ use {
 
 /// # References
 /// * [ACPI _ADR Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-adr-device-path)
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -24,15 +25,7 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn length(&self) -> u16 {
-        unsafe { addr_of!(self.length).read_unaligned() }
-    }
-
-    fn adr(&self) -> u32 {
-        unsafe { addr_of!(self.adr).read_unaligned() }
-    }
-
-    fn additional(&self) -> &[u8] {
+    fn additional_bytes(&self) -> &[u8] {
         unsafe {
             from_raw_parts(
                 &self.additional as *const PhantomData<u8> as *const u8,
@@ -50,11 +43,11 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty)
-            .field("sub_type", &self.sub_type)
+            .field("ty", &self.ty())
+            .field("sub_type", &self.sub_type())
             .field("length", &self.length())
             .field("adr", &self.adr())
-            .field("additional", &self.additional())
+            .field("additional", &self.additional_bytes())
             .finish()
     }
 }

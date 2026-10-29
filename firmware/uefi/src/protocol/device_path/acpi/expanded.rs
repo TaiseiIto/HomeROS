@@ -15,6 +15,7 @@ use {
 
 /// # References
 /// * [ACPI Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-device-path)
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -27,31 +28,15 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn length(&self) -> u16 {
-        unsafe { addr_of!(self.length).read_unaligned() }
-    }
-
-    fn hid(&self) -> u32 {
-        unsafe { addr_of!(self.hid).read_unaligned() }
-    }
-
-    fn uid(&self) -> u32 {
-        unsafe { addr_of!(self.uid).read_unaligned() }
-    }
-
-    fn cid(&self) -> u32 {
-        unsafe { addr_of!(self.cid).read_unaligned() }
-    }
-
-    fn hidstr(&self) -> &str {
+    fn hid_str(&self) -> &str {
         self.strings()[0]
     }
 
-    fn uidstr(&self) -> &str {
+    fn uid_str(&self) -> &str {
         self.strings()[1]
     }
 
-    fn cidstr(&self) -> &str {
+    fn cid_str(&self) -> &str {
         self.strings()[2]
     }
 
@@ -74,7 +59,7 @@ impl Protocol {
     }
 
     fn strings_size(&self) -> usize {
-        self.length as usize - offset_of!(Self, hidstr)
+        self.length() as usize - offset_of!(Self, hidstr)
     }
 }
 
@@ -82,15 +67,15 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty)
-            .field("sub_type", &self.sub_type)
+            .field("ty", &self.ty())
+            .field("sub_type", &self.sub_type())
             .field("length", &self.length())
             .field("hid", &self.hid())
             .field("uid", &self.uid())
             .field("cid", &self.cid())
-            .field("hidstr", &self.hidstr())
-            .field("uidstr", &self.uidstr())
-            .field("cidstr", &self.cidstr())
+            .field("hidstr", &self.hid_str())
+            .field("uidstr", &self.uid_str())
+            .field("cidstr", &self.cid_str())
             .finish()
     }
 }

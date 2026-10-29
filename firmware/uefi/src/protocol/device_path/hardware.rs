@@ -11,6 +11,7 @@ use {
 /// * [Hardware Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#hardware-device-path)
 /// # TODO
 /// * Print all subtypes.
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -19,7 +20,7 @@ pub struct Protocol {
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match &self.sub_type {
+        match self.sub_type() {
             SubType::Pci => unsafe { &*(self as *const Self as *const pci::Protocol) },
             SubType::PcCard => unsafe { &*(self as *const Self as *const pccard::Protocol) },
             SubType::MemoryMapped => unsafe {

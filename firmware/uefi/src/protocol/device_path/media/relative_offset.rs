@@ -5,7 +5,7 @@ use super::{
 
 /// # References
 /// * [Relative Offset Range](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#relative-offset-range)
-#[derive(Debug)]
+#[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,

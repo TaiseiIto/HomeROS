@@ -5,7 +5,7 @@ use super::super::{
 
 /// # References
 /// * [Device Logical Unit](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#device-logical-unit)
-#[derive(Debug)]
+#[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,

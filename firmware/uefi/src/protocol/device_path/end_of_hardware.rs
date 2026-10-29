@@ -1,6 +1,6 @@
 use super::{Node, Type};
 
-#[derive(Debug)]
+#[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,

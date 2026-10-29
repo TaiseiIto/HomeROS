@@ -18,6 +18,7 @@ use {
 /// * [Messaging Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#messaging-device-path)
 /// # TODO
 /// * Print all subtypes.
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -26,7 +27,7 @@ pub struct Protocol {
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match &self.sub_type {
+        match self.sub_type() {
             SubType::Atapi => unsafe { &*(self as *const Self as *const atapi::Protocol) },
             SubType::Scsi => unsafe { &*(self as *const Self as *const scsi::Protocol) },
             SubType::Fibre => unsafe { &*(self as *const Self as *const fibre::Protocol) },

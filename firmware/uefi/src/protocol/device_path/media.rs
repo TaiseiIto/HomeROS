@@ -16,6 +16,7 @@ use {
 /// * [Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-device-path)
 /// # TODO
 /// * Print all subtypes.
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -24,7 +25,7 @@ pub struct Protocol {
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match &self.sub_type {
+        match self.sub_type() {
             SubType::HardDrive => unsafe { &*(self as *const Self as *const hard_drive::Protocol) },
             SubType::CdRom => unsafe { &*(self as *const Self as *const cd_rom::Protocol) },
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },

@@ -16,6 +16,7 @@ use {
 
 /// # References
 /// * [File Path Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#file-path-media-device-path)
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -25,11 +26,7 @@ pub struct Protocol {
 }
 
 impl Protocol {
-    fn length(&self) -> u16 {
-        unsafe { addr_of!(self.length).read_unaligned() }
-    }
-
-    fn name(&self) -> String {
+    fn name_string(&self) -> String {
         char::decode_utf16(
             unsafe {
                 from_raw_parts(
@@ -57,10 +54,10 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty)
-            .field("sub_type", &self.sub_type)
+            .field("ty", &self.ty())
+            .field("sub_type", &self.sub_type())
             .field("length", &self.length())
-            .field("name", &self.name())
+            .field("name", &self.name_string())
             .finish()
     }
 }

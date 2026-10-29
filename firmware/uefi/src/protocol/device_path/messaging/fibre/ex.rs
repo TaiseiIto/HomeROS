@@ -5,7 +5,7 @@ use super::super::{
 
 /// # References
 /// * [Fibre Channel Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#fibre-channel-device-path)
-#[derive(Debug)]
+#[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,

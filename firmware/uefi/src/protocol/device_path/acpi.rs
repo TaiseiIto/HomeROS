@@ -12,6 +12,7 @@ use {
 /// * [ACPI Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-device-path)
 /// # TODO
 /// * Print all subtypes.
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -20,7 +21,7 @@ pub struct Protocol {
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match &self.sub_type {
+        match self.sub_type() {
             SubType::Acpi => unsafe { &*(self as *const Self as *const general::Protocol) },
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
