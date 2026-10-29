@@ -18,6 +18,7 @@ members = [
 	"memory/allocator",
 	"tool/macro/endian",
 	"tool/macro/io",
+	"tool/macro/packed",
 	"tool/macro/parser",
 	"tool/regex",
 	"tool/sync",

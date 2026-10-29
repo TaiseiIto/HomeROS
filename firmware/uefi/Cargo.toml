@@ -12,5 +12,8 @@ path = "guid"
 [dependencies.io]
 path = "../../tool/macro/io"
 
+[dependencies.packed]
+path = "../../tool/macro/packed"
+
 [dependencies.unit]
 path = "../../tool/unit"

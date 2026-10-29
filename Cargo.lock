@@ -76,6 +76,15 @@ name = "memory"
 version = "0.1.0"
 
 [[package]]
+name = "packed"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "parser"
 version = "0.1.0"
 dependencies = [
@@ -170,6 +179,7 @@ dependencies = [
  "acpi",
  "guid",
  "io",
+ "packed",
  "unit",
 ]
 

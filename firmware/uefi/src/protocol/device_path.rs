@@ -10,6 +10,7 @@ use core::fmt::{Debug, Formatter, Result};
 /// * [EFI_DEVICE_PATH_PROTOCOL](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-device-path-protocol)
 /// # TODO
 /// * Print all type.
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
@@ -17,7 +18,7 @@ pub struct Protocol {
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match &self.ty {
+        match self.ty() {
             Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
             Type::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
             Type::Messaging => unsafe { &*(self as *const Self as *const messaging::Protocol) },
