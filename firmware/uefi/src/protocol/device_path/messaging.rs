@@ -1,5 +1,6 @@
 mod atapi;
 mod device1394;
+mod device_logical_unit;
 mod fibre;
 mod sata;
 mod scsi;
@@ -33,6 +34,9 @@ impl Protocol {
             SubType::Usb => unsafe { &*(self as *const Self as *const usb::Protocol) },
             SubType::Sata => unsafe { &*(self as *const Self as *const sata::Protocol) },
             SubType::UsbWwid => unsafe { &*(self as *const Self as *const usb::wwid::Protocol) },
+            SubType::DeviceLogicalUnit => unsafe {
+                &*(self as *const Self as *const device_logical_unit::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
