@@ -1,6 +1,7 @@
 mod memory_mapped;
 mod pccard;
 mod pci;
+mod vendor;
 
 use {
     super::{Node, Type},
@@ -26,6 +27,7 @@ impl Protocol {
             SubType::MemoryMapped => unsafe {
                 &*(self as *const Self as *const memory_mapped::Protocol)
             },
+            SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
             _ => panic!(),
         }
     }
