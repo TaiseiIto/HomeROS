@@ -1,6 +1,6 @@
-mod acpi;
 mod adr;
 mod expanded;
+mod general;
 mod nvdimm;
 
 use {
@@ -19,7 +19,7 @@ pub struct Protocol {
 impl Protocol {
     fn read(&self) -> &dyn Node {
         match &self.sub_type {
-            SubType::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
+            SubType::Acpi => unsafe { &*(self as *const Self as *const general::Protocol) },
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
             SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
