@@ -8,6 +8,7 @@ mod ip;
 mod mac_address;
 mod sata;
 mod scsi;
+mod uart;
 mod usb;
 mod vlan;
 
@@ -54,6 +55,7 @@ impl Protocol {
             SubType::InfiniBand => unsafe {
                 &*(self as *const Self as *const infini_band::Protocol)
             },
+            SubType::Uart => unsafe { &*(self as *const Self as *const uart::Protocol) },
             _ => unimplemented!(),
         }
     }
