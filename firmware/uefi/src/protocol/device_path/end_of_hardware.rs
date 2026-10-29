@@ -1,7 +1,7 @@
 use super::{Node, Type};
 
 #[derive(Debug)]
-#[repr(C)]
+#[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,

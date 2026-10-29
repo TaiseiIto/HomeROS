@@ -13,7 +13,7 @@ use core::fmt::{self, Debug, Formatter};
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
-#[derive(Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 #[repr(C)]
 pub struct Guid {
     data1: u32,

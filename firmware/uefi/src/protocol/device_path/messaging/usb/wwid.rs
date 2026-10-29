@@ -7,13 +7,14 @@ use {
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
         mem::offset_of,
+        ptr::addr_of,
         slice::from_raw_parts,
     },
 };
 
 /// # References
 /// * [USB Device Paths (WWID)](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#usb-device-paths-wwid)
-#[repr(C)]
+#[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
@@ -25,6 +26,22 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn length(&self) -> u16 {
+        unsafe { addr_of!(self.length).read_unaligned() }
+    }
+
+    fn interface_number(&self) -> u16 {
+        unsafe { addr_of!(self.interface_number).read_unaligned() }
+    }
+
+    fn device_vendor_id(&self) -> u16 {
+        unsafe { addr_of!(self.device_vendor_id).read_unaligned() }
+    }
+
+    fn device_product_id(&self) -> u16 {
+        unsafe { addr_of!(self.device_product_id).read_unaligned() }
+    }
+
     fn serial_number(&self) -> &[u8] {
         unsafe {
             from_raw_parts(
@@ -45,10 +62,10 @@ impl Debug for Protocol {
             .debug_struct("Protocol")
             .field("ty", &self.ty)
             .field("sub_type", &self.sub_type)
-            .field("length", &self.length)
-            .field("interface_number", &self.interface_number)
-            .field("device_vendor_id", &self.device_vendor_id)
-            .field("device_product_id", &self.device_product_id)
+            .field("length", &self.length())
+            .field("interface_number", &self.interface_number())
+            .field("device_vendor_id", &self.device_vendor_id())
+            .field("device_product_id", &self.device_product_id())
             .field("serial_number", &self.serial_number())
             .finish()
     }

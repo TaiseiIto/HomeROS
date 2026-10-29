@@ -8,13 +8,14 @@ use {
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
         mem::offset_of,
+        ptr::addr_of,
         slice::from_raw_parts,
     },
 };
 
 /// # References
 /// * [ACPI Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-device-path)
-#[repr(C)]
+#[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
@@ -26,6 +27,22 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn length(&self) -> u16 {
+        unsafe { addr_of!(self.length).read_unaligned() }
+    }
+
+    fn hid(&self) -> u32 {
+        unsafe { addr_of!(self.hid).read_unaligned() }
+    }
+
+    fn uid(&self) -> u32 {
+        unsafe { addr_of!(self.uid).read_unaligned() }
+    }
+
+    fn cid(&self) -> u32 {
+        unsafe { addr_of!(self.cid).read_unaligned() }
+    }
+
     fn hidstr(&self) -> &str {
         self.strings()[0]
     }
@@ -67,10 +84,10 @@ impl Debug for Protocol {
             .debug_struct("Protocol")
             .field("ty", &self.ty)
             .field("sub_type", &self.sub_type)
-            .field("length", &self.length)
-            .field("hid", &self.hid)
-            .field("uid", &self.uid)
-            .field("cid", &self.cid)
+            .field("length", &self.length())
+            .field("hid", &self.hid())
+            .field("uid", &self.uid())
+            .field("cid", &self.cid())
             .field("hidstr", &self.hidstr())
             .field("uidstr", &self.uidstr())
             .field("cidstr", &self.cidstr())

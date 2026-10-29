@@ -9,13 +9,14 @@ use {
         fmt::{self, Debug, Formatter},
         marker::PhantomData,
         mem::{offset_of, size_of},
+        ptr::addr_of,
         slice::from_raw_parts,
     },
 };
 
 /// # References
 /// * [File Path Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#file-path-media-device-path)
-#[repr(C)]
+#[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
@@ -24,6 +25,10 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn length(&self) -> u16 {
+        unsafe { addr_of!(self.length).read_unaligned() }
+    }
+
     fn name(&self) -> String {
         char::decode_utf16(
             unsafe {
@@ -54,7 +59,7 @@ impl Debug for Protocol {
             .debug_struct("Protocol")
             .field("ty", &self.ty)
             .field("sub_type", &self.sub_type)
-            .field("length", &self.length)
+            .field("length", &self.length())
             .field("name", &self.name())
             .finish()
     }
