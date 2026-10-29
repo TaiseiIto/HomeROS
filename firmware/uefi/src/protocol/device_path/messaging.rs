@@ -1,4 +1,5 @@
 mod atapi;
+mod device1394;
 mod fibre;
 mod fibre_ex;
 mod scsi;
@@ -25,6 +26,9 @@ impl Protocol {
             SubType::Scsi => unsafe { &*(self as *const Self as *const scsi::Protocol) },
             SubType::Fibre => unsafe { &*(self as *const Self as *const fibre::Protocol) },
             SubType::FibreEx => unsafe { &*(self as *const Self as *const fibre_ex::Protocol) },
+            SubType::Device1394 => unsafe {
+                &*(self as *const Self as *const device1394::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
