@@ -8,6 +8,7 @@ mod mac_address;
 mod sata;
 mod scsi;
 mod usb;
+mod vlan;
 
 use {
     super::{Node, Type},
@@ -48,6 +49,7 @@ impl Protocol {
             },
             SubType::Ipv4 => unsafe { &*(self as *const Self as *const ip::v4::Protocol) },
             SubType::Ipv6 => unsafe { &*(self as *const Self as *const ip::v6::Protocol) },
+            SubType::Vlan => unsafe { &*(self as *const Self as *const vlan::Protocol) },
             _ => unimplemented!(),
         }
     }
