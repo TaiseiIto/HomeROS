@@ -47,6 +47,7 @@ impl Protocol {
                 &*(self as *const Self as *const mac_address::Protocol)
             },
             SubType::Ipv4 => unsafe { &*(self as *const Self as *const ip::v4::Protocol) },
+            SubType::Ipv6 => unsafe { &*(self as *const Self as *const ip::v6::Protocol) },
             _ => unimplemented!(),
         }
     }
