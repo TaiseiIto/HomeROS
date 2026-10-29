@@ -2,6 +2,7 @@ mod atapi;
 mod device1394;
 mod device_logical_unit;
 mod fibre;
+mod i2o;
 mod sata;
 mod scsi;
 mod usb;
@@ -38,6 +39,7 @@ impl Protocol {
                 &*(self as *const Self as *const device_logical_unit::Protocol)
             },
             SubType::UsbClass => unsafe { &*(self as *const Self as *const usb::class::Protocol) },
+            SubType::I2O => unsafe { &*(self as *const Self as *const i2o::Protocol) },
             _ => unimplemented!(),
         }
     }
