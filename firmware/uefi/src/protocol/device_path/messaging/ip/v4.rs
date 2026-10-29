@@ -6,7 +6,7 @@ use super::super::{
 /// # References
 /// * [IPv4 Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#ipv4-device-path)
 #[derive(Debug)]
-#[repr(packed)]
+#[repr(C, packed)]
 pub struct Protocol {
     ty: Type,
     sub_type: SubType,
