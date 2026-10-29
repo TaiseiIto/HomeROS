@@ -3,6 +3,7 @@ mod device1394;
 mod device_logical_unit;
 mod fibre;
 mod i2o;
+mod mac_address;
 mod sata;
 mod scsi;
 mod usb;
@@ -40,6 +41,9 @@ impl Protocol {
             },
             SubType::UsbClass => unsafe { &*(self as *const Self as *const usb::class::Protocol) },
             SubType::I2O => unsafe { &*(self as *const Self as *const i2o::Protocol) },
+            SubType::MacAddress => unsafe {
+                &*(self as *const Self as *const mac_address::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
