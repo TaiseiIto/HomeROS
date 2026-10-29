@@ -38,7 +38,7 @@ impl Debug for Protocol {
 
 /// # References
 /// * [Type](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#generic-device-path-structures)
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u8)]
 enum Type {
     Hardware = 0x01,

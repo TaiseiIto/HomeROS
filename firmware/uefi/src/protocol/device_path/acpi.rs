@@ -37,7 +37,7 @@ impl Node for Protocol {}
 
 /// # References
 /// * [ACPI Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-device-path)
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u8)]
 enum SubType {
     Acpi = 1,

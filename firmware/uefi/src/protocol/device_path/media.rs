@@ -50,7 +50,7 @@ impl Node for Protocol {}
 
 /// # References
 /// * [Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-device-path)
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u8)]
 enum SubType {
     HardDrive = 0x01,

@@ -3,6 +3,7 @@ mod device1394;
 mod device_logical_unit;
 mod fibre;
 mod i2o;
+mod ip;
 mod mac_address;
 mod sata;
 mod scsi;
@@ -44,6 +45,7 @@ impl Protocol {
             SubType::MacAddress => unsafe {
                 &*(self as *const Self as *const mac_address::Protocol)
             },
+            SubType::Ipv4 => unsafe { &*(self as *const Self as *const ip::v4::Protocol) },
             _ => unimplemented!(),
         }
     }
@@ -59,7 +61,7 @@ impl Node for Protocol {}
 
 /// # References
 /// * [Messaging Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#messaging-device-path)
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 #[repr(u8)]
 enum SubType {
     Atapi = 1,
