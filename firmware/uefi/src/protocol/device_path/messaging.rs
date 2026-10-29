@@ -10,6 +10,7 @@ mod sata;
 mod scsi;
 mod uart;
 mod usb;
+mod vendor;
 mod vlan;
 
 use {
@@ -56,6 +57,7 @@ impl Protocol {
                 &*(self as *const Self as *const infini_band::Protocol)
             },
             SubType::Uart => unsafe { &*(self as *const Self as *const uart::Protocol) },
+            SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
             _ => unimplemented!(),
         }
     }
