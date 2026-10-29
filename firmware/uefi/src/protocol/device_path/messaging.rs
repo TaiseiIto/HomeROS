@@ -37,6 +37,7 @@ impl Protocol {
             SubType::DeviceLogicalUnit => unsafe {
                 &*(self as *const Self as *const device_logical_unit::Protocol)
             },
+            SubType::UsbClass => unsafe { &*(self as *const Self as *const usb::class::Protocol) },
             _ => unimplemented!(),
         }
     }

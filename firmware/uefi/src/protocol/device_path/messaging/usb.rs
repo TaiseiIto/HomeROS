@@ -1,3 +1,4 @@
+pub mod class;
 pub mod wwid;
 
 use super::{
