@@ -7,6 +7,8 @@ use {
 
 /// # References
 /// * [Hardware Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#hardware-device-path)
+/// # TODO
+/// * Print all subtypes.
 #[repr(C)]
 pub struct Protocol {
     ty: Type,
