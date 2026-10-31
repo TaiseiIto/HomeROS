@@ -3,10 +3,6 @@
 version = 4
 
 [[package]]
-name = "acpi"
-version = "0.1.0"
-
-[[package]]
 name = "allocator"
 version = "0.1.0"
 dependencies = [
@@ -176,7 +172,6 @@ dependencies = [
 name = "uefi"
 version = "0.1.0"
 dependencies = [
- "acpi",
  "guid",
  "io",
  "packed",

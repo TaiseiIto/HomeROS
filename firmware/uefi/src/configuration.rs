@@ -49,7 +49,6 @@ impl Debug for Pointer {
 
 pub trait Table: Debug {}
 
-impl Table for acpi::root_system_description::Pointer {}
 impl Table for debug_image::Table {}
 impl Table for dxe::Table {}
 impl Table for hob::List {}
