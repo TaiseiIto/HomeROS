@@ -25,19 +25,19 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn name_bytes(&self) -> &[Char16] {
+        unsafe {
+            from_raw_parts(
+                &self.name as *const PhantomData<Char16> as *const Char16,
+                self.name_length(),
+            )
+        }
+    }
+
     fn name_string(&self) -> String {
-        char::decode_utf16(
-            unsafe {
-                from_raw_parts(
-                    &self.name as *const PhantomData<Char16> as *const Char16,
-                    self.name_length(),
-                )
-            }
-            .iter()
-            .cloned(),
-        )
-        .filter_map(Result::ok)
-        .collect()
+        char::decode_utf16(self.name_bytes().iter().cloned())
+            .filter_map(Result::ok)
+            .collect()
     }
 
     fn name_length(&self) -> usize {
