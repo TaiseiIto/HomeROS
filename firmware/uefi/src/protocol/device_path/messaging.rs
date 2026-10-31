@@ -5,6 +5,7 @@ mod fibre;
 mod i2o;
 mod infini_band;
 mod ip;
+mod iscsi;
 mod mac_address;
 mod sas_ex;
 mod sata;
@@ -60,6 +61,7 @@ impl Protocol {
             SubType::Uart => unsafe { &*(self as *const Self as *const uart::Protocol) },
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
             SubType::SasEx => unsafe { &*(self as *const Self as *const sas_ex::Protocol) },
+            SubType::Iscsi => unsafe { &*(self as *const Self as *const iscsi::Protocol) },
             _ => unimplemented!(),
         }
     }
