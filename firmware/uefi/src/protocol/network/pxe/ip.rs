@@ -20,3 +20,17 @@ impl Address {
         unsafe { &self.v6 }
     }
 }
+
+impl Default for Address {
+    fn default() -> Self {
+        Self {
+            v6: ManuallyDrop::<v6::Address>::default(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum HeterogeneousAddress {
+    V4(v4::Address),
+    V6(v6::Address),
+}
