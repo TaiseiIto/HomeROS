@@ -1,4 +1,5 @@
 mod acpi;
+mod bios_boot_specification;
 mod end_of_hardware;
 mod hardware;
 mod media;
@@ -26,7 +27,9 @@ impl Protocol {
             Type::EndOfHardware => unsafe {
                 &*(self as *const Self as *const end_of_hardware::Protocol)
             },
-            _ => panic!(),
+            Type::BiosBootSpecification => unsafe {
+                &*(self as *const Self as *const bios_boot_specification::Protocol)
+            },
         }
     }
 }
