@@ -10,6 +10,7 @@ mod infini_band;
 mod ip;
 mod iscsi;
 mod mac_address;
+mod nvdimm;
 mod nvm_express_namespace;
 mod sas_ex;
 mod sata;
@@ -83,6 +84,7 @@ impl Protocol {
                 &*(self as *const Self as *const bluetooth::le::Protocol)
             },
             SubType::Dns => unsafe { &*(self as *const Self as *const dns::Protocol) },
+            SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
             _ => unimplemented!(),
         }
     }
