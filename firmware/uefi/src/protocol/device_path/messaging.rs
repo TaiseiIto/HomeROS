@@ -12,6 +12,7 @@ mod iscsi;
 mod mac_address;
 mod nvdimm;
 mod nvm_express_namespace;
+mod rest_service;
 mod sas_ex;
 mod sata;
 mod scsi;
@@ -85,6 +86,9 @@ impl Protocol {
             },
             SubType::Dns => unsafe { &*(self as *const Self as *const dns::Protocol) },
             SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
+            SubType::RestService => unsafe {
+                &*(self as *const Self as *const rest_service::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
