@@ -8,7 +8,7 @@ use {
 
 /// # References
 /// * [EFI_IPv4_ADDRESS](https://uefi.org/specs/UEFI/2.11/24_Network_Protocols_SNP_PXE_BIS.html#efi-pxe-base-code-protocol)
-#[derive(Clone, Default)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct Address([u8; 4]);
 

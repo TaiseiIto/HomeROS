@@ -14,8 +14,6 @@ use {
 
 /// # References
 /// * [DND Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#dns-device-path)
-/// # TODO
-/// * Use core::ptr::addr_of
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
@@ -30,19 +28,9 @@ impl Protocol {
     fn server_addresses(&self) -> Vec<ip::HeterogeneousAddress> {
         self.servers_bytes()
             .chunks(size_of::<ip::Address>())
-            .map(|bytes| {
-                let mut address: ip::Address = ip::Address::default();
-                for (address, byte) in unsafe {
-                    from_raw_parts_mut(
-                        &mut address as *mut ip::Address as *mut u8,
-                        size_of::<ip::Address>(),
-                    )
-                }
-                .iter_mut()
-                .zip(bytes.iter())
-                {
-                    *address = *byte;
-                }
+            .map(|address| {
+                let address: ip::Address =
+                    unsafe { (address.as_ptr() as *const ip::Address).read_unaligned() };
                 match self.is_ipv6() {
                     0x00 => ip::HeterogeneousAddress::V4(address.v4().clone()),
                     0x01 => ip::HeterogeneousAddress::V6(address.v6().clone()),
