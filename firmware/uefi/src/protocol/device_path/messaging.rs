@@ -78,6 +78,9 @@ impl Protocol {
             SubType::Bluetooth => unsafe { &*(self as *const Self as *const bluetooth::Protocol) },
             SubType::Wifi => unsafe { &*(self as *const Self as *const wifi::Protocol) },
             SubType::Emmc => unsafe { &*(self as *const Self as *const emmc::Protocol) },
+            SubType::BluetoothLe => unsafe {
+                &*(self as *const Self as *const bluetooth::le::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
