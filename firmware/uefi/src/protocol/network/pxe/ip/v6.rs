@@ -1,6 +1,9 @@
 use {
-    alloc::vec::Vec,
-    core::fmt::{Debug, Formatter, Result},
+    alloc::{
+        string::{String, ToString},
+        vec::Vec,
+    },
+    core::fmt::{Debug, Display, Formatter, Result},
 };
 
 /// # References
@@ -17,5 +20,23 @@ impl Address {
             .map(|word| u16::from_le_bytes(word.to_vec().try_into().unwrap()))
             .collect();
         words.try_into().unwrap()
+    }
+}
+
+impl Debug for Address {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, formatter)
+    }
+}
+
+impl Display for Address {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let words: Vec<String> = self
+            .words()
+            .as_slice()
+            .iter()
+            .map(ToString::to_string)
+            .collect();
+        Display::fmt(&words.join(":"), formatter)
     }
 }
