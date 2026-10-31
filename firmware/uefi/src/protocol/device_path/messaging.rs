@@ -7,6 +7,7 @@ mod infini_band;
 mod ip;
 mod iscsi;
 mod mac_address;
+mod nvm_express_namespace;
 mod sas_ex;
 mod sata;
 mod scsi;
@@ -62,6 +63,9 @@ impl Protocol {
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
             SubType::SasEx => unsafe { &*(self as *const Self as *const sas_ex::Protocol) },
             SubType::Iscsi => unsafe { &*(self as *const Self as *const iscsi::Protocol) },
+            SubType::NvmExpressNamespace => unsafe {
+                &*(self as *const Self as *const nvm_express_namespace::Protocol)
+            },
             _ => unimplemented!(),
         }
     }
