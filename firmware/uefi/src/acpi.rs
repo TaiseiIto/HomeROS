@@ -1,8 +1,3 @@
-#![no_std]
-#![feature(iter_array_chunks)]
-
-extern crate alloc;
-
 mod fixed_acpi_description;
 pub mod root_system_description;
 

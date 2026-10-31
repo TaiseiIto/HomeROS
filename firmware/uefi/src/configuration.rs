@@ -4,7 +4,7 @@ mod memory_type;
 
 use {
     crate::{
-        Guid, Void,
+        Guid, Void, acpi,
         pi::{dxe, hob},
     },
     core::fmt::{self, Debug, Formatter},

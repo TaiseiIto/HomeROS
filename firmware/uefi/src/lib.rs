@@ -1,7 +1,9 @@
 #![no_std]
+#![feature(iter_array_chunks)]
 
 extern crate alloc;
 
+mod acpi;
 mod configuration;
 mod pi;
 mod protocol;
