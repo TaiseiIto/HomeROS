@@ -1,6 +1,8 @@
 mod atapi;
+mod bluetooth;
 mod device1394;
 mod device_logical_unit;
+mod emmc;
 mod fibre;
 mod i2o;
 mod infini_band;
@@ -11,12 +13,14 @@ mod nvm_express_namespace;
 mod sas_ex;
 mod sata;
 mod scsi;
+mod sd;
 mod uart;
 mod ufs;
 mod uri;
 mod usb;
 mod vendor;
 mod vlan;
+mod wifi;
 
 use {
     super::{Node, Type},
@@ -70,6 +74,10 @@ impl Protocol {
             },
             SubType::Uri => unsafe { &*(self as *const Self as *const uri::Protocol) },
             SubType::Ufs => unsafe { &*(self as *const Self as *const ufs::Protocol) },
+            SubType::Sd => unsafe { &*(self as *const Self as *const sd::Protocol) },
+            SubType::Bluetooth => unsafe { &*(self as *const Self as *const bluetooth::Protocol) },
+            SubType::Wifi => unsafe { &*(self as *const Self as *const wifi::Protocol) },
+            SubType::Emmc => unsafe { &*(self as *const Self as *const emmc::Protocol) },
             _ => unimplemented!(),
         }
     }
