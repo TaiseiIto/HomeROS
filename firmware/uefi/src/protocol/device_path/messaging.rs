@@ -2,6 +2,7 @@ mod atapi;
 mod bluetooth;
 mod device1394;
 mod device_logical_unit;
+mod dns;
 mod emmc;
 mod fibre;
 mod i2o;
@@ -81,6 +82,7 @@ impl Protocol {
             SubType::BluetoothLe => unsafe {
                 &*(self as *const Self as *const bluetooth::le::Protocol)
             },
+            SubType::Dns => unsafe { &*(self as *const Self as *const dns::Protocol) },
             _ => unimplemented!(),
         }
     }
