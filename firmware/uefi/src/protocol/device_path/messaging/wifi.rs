@@ -4,10 +4,7 @@ use {
         SubType,
     },
     alloc::string::String,
-    core::{
-        fmt::{Debug, Formatter, Result},
-        slice::from_raw_parts,
-    },
+    core::fmt::{Debug, Formatter, Result},
 };
 
 /// # References
