@@ -93,7 +93,6 @@ impl Protocol {
             SubType::NvmeofNamespace => unsafe {
                 &*(self as *const Self as *const nvmeof_namespace::Protocol)
             },
-            _ => unimplemented!(),
         }
     }
 }
