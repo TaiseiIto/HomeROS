@@ -12,6 +12,7 @@ mod iscsi;
 mod mac_address;
 mod nvdimm;
 mod nvm_express_namespace;
+mod nvmeof_namespace;
 mod rest_service;
 mod sas_ex;
 mod sata;
@@ -88,6 +89,9 @@ impl Protocol {
             SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
             SubType::RestService => unsafe {
                 &*(self as *const Self as *const rest_service::Protocol)
+            },
+            SubType::NvmeofNamespace => unsafe {
+                &*(self as *const Self as *const nvmeof_namespace::Protocol)
             },
             _ => unimplemented!(),
         }
