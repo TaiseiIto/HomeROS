@@ -1,3 +1,5 @@
+mod uart_flow_control;
+
 use {
     super::{
         super::{Node, Type},
@@ -5,7 +7,7 @@ use {
     },
     crate::Guid,
     core::{
-        fmt::{Debug, Formatter, Result},
+        fmt::{self, Debug, Formatter},
         marker::PhantomData,
         mem::offset_of,
         slice::from_raw_parts,
@@ -21,34 +23,22 @@ pub struct Protocol {
     sub_type: SubType,
     length: u16,
     guid: Guid,
-    data: PhantomData<u8>,
 }
 
 impl Protocol {
-    fn data_bytes(&self) -> &[u8] {
-        unsafe {
-            from_raw_parts(
-                &self.data as *const PhantomData<u8> as *const u8,
-                self.data_size(),
-            )
+    fn read(&self) -> Result<&dyn Node, Guid> {
+        match self.guid() {
+            uart_flow_control::Protocol::GUID => {
+                Ok(unsafe { &*(self as *const Self as *const uart_flow_control::Protocol) })
+            }
+            guid => Err(guid),
         }
-    }
-
-    fn data_size(&self) -> usize {
-        self.length() as usize - offset_of!(Self, data)
     }
 }
 
 impl Debug for Protocol {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter
-            .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
-            .field("length", &self.length())
-            .field("guid", &self.guid())
-            .field("data", &self.data_bytes())
-            .finish()
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        self.read().fmt(formatter)
     }
 }
 
