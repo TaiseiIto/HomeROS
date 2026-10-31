@@ -12,6 +12,7 @@ mod sas_ex;
 mod sata;
 mod scsi;
 mod uart;
+mod uri;
 mod usb;
 mod vendor;
 mod vlan;
@@ -66,6 +67,7 @@ impl Protocol {
             SubType::NvmExpressNamespace => unsafe {
                 &*(self as *const Self as *const nvm_express_namespace::Protocol)
             },
+            SubType::Uri => unsafe { &*(self as *const Self as *const uri::Protocol) },
             _ => unimplemented!(),
         }
     }
