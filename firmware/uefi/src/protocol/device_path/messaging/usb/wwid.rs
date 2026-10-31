@@ -36,7 +36,7 @@ impl Protocol {
     }
 
     fn serial_number_size(&self) -> usize {
-        self.length as usize - offset_of!(Self, serial_number)
+        self.length() as usize - offset_of!(Self, serial_number)
     }
 }
 
