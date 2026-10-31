@@ -1,4 +1,7 @@
-use crate::{Guid, Handle, Status, Void, service::boot::memory::address::Physical, table};
+use {
+    crate::{Guid, Handle, Status, Void, service::boot::memory::address::Physical, table},
+    guid::guid,
+};
 
 /// # References
 /// * [DXE_SERVICES](https://uefi.org/specs/PI/1.10/V2_UEFI_System_Table.html#dxe-services)
@@ -24,6 +27,12 @@ pub struct Table {
     truct: Option<Trust>,
     process_firmware_volume: Option<ProcessFirmwareVolume>,
     set_memory_space_capabilities: Option<SetMemorySpaceCapabilities>,
+}
+
+impl Table {
+    /// # References
+    /// * [DXE_SERVICES_TABLE_GUID](https://uefi.org/specs/PI/1.10/V2_DXE_Appendix_B.html#dxe-services-table-guid)
+    pub const GUID: Guid = guid!("05ad34ba-6f02-4214-952e-4da0398e2bb9");
 }
 
 /// # References

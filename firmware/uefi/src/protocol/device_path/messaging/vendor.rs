@@ -6,12 +6,7 @@ use {
         SubType,
     },
     crate::Guid,
-    core::{
-        fmt::{self, Debug, Formatter},
-        marker::PhantomData,
-        mem::offset_of,
-        slice::from_raw_parts,
-    },
+    core::fmt::{self, Debug, Formatter},
 };
 
 /// # References

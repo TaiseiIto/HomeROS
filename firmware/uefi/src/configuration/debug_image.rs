@@ -1,6 +1,7 @@
 use {
-    crate::{Handle, protocol::image::Protocol},
+    crate::{Guid, Handle, protocol::image::Protocol},
     core::fmt::{Debug, Formatter, Result},
+    guid::guid,
 };
 
 /// # References
@@ -10,6 +11,10 @@ pub struct Table {
     update_status: UpdateStatusRaw,
     table_size: u32,
     info: *const Info,
+}
+
+impl Table {
+    pub const GUID: Guid = guid!("49152e77-1ada-4764-b7a2-7afefed95e8b");
 }
 
 impl Debug for Table {

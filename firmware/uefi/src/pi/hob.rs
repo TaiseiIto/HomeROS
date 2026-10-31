@@ -6,12 +6,20 @@ mod hand_off;
 mod memory;
 mod resource_descriptor;
 
-use core::fmt::{self, Debug, Formatter};
+use {
+    crate::Guid,
+    ::guid::guid,
+    core::fmt::{self, Debug, Formatter},
+};
 
 #[repr(transparent)]
 pub struct List(Header);
 
 impl List {
+    /// # References
+    /// * [HOB_LIST_GUID](https://uefi.org/specs/PI/1.10/V2_DXE_Appendix_B.html#hob-list-guid)
+    pub const GUID: Guid = guid!("7739f24c-93d7-11d4-9a3a-0090273fc14d");
+
     fn iter(&self) -> impl Iterator<Item = Result<&dyn Hob, &Type>> {
         HeaderIterator(&self.0).map(Header::hob)
     }

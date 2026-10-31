@@ -1,12 +1,15 @@
 use {
-    crate::service::boot::memory::Type,
+    crate::{Guid, service::boot::memory::Type},
     core::fmt::{Debug, Formatter, Result},
+    guid::guid,
 };
 
 #[repr(C)]
 pub struct Table;
 
 impl Table {
+    pub const GUID: Guid = guid!("4c19049f-4137-4dd3-9c10-8b97a83ffdfa");
+
     fn iter(&self) -> EntryIterator<'_> {
         EntryIterator(unsafe { &*(self as *const Self as *const Entry) })
     }
