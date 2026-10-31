@@ -1,3 +1,4 @@
+mod sas;
 mod uart_flow_control;
 
 use {
@@ -26,6 +27,7 @@ impl Protocol {
             uart_flow_control::Protocol::GUID => {
                 Ok(unsafe { &*(self as *const Self as *const uart_flow_control::Protocol) })
             }
+            sas::Protocol::GUID => Ok(unsafe { &*(self as *const Self as *const sas::Protocol) }),
             guid => Err(guid),
         }
     }
