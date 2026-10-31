@@ -1,7 +1,7 @@
 mod cd_rom;
 mod file_path;
+mod guid;
 mod hard_drive;
-mod media;
 mod piwg;
 mod ram_disk;
 mod relative_offset;
@@ -30,7 +30,7 @@ impl Protocol {
             SubType::CdRom => unsafe { &*(self as *const Self as *const cd_rom::Protocol) },
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
             SubType::FilePath => unsafe { &*(self as *const Self as *const file_path::Protocol) },
-            SubType::Media => unsafe { &*(self as *const Self as *const media::Protocol) },
+            SubType::Media => unsafe { &*(self as *const Self as *const guid::Protocol) },
             SubType::PiwgFile => unsafe { &*(self as *const Self as *const piwg::file::Protocol) },
             SubType::PiwgVolume => unsafe {
                 &*(self as *const Self as *const piwg::volume::Protocol)
