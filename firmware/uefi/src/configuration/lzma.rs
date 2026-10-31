@@ -7,3 +7,5 @@ pub struct Table;
 impl Table {
     pub const GUID: Guid = guid!("ee4e5898-3914-4259-9d6e-dc7bd79403cf");
 }
+
+impl super::Table for Table {}

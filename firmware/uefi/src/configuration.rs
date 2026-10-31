@@ -48,9 +48,3 @@ impl Debug for Pointer {
 }
 
 pub trait Table: Debug {}
-
-impl Table for debug_image::Table {}
-impl Table for dxe::Table {}
-impl Table for hob::List {}
-impl Table for lzma::Table {}
-impl Table for memory_type::Table {}

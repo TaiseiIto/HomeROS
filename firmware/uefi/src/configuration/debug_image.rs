@@ -28,6 +28,8 @@ impl Debug for Table {
     }
 }
 
+impl super::Table for Table {}
+
 #[io::register]
 struct UpdateStatus {
     update_in_progress: bool,

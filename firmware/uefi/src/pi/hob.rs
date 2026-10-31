@@ -7,7 +7,7 @@ mod memory;
 mod resource_descriptor;
 
 use {
-    crate::Guid,
+    crate::{Guid, configuration::Table},
     ::guid::guid,
     core::fmt::{self, Debug, Formatter},
 };
@@ -30,6 +30,8 @@ impl Debug for List {
         formatter.debug_list().entries(self.iter()).finish()
     }
 }
+
+impl Table for List {}
 
 struct HeaderIterator<'a>(&'a Header);
 

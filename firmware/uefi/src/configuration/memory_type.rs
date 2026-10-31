@@ -21,6 +21,8 @@ impl Debug for Table {
     }
 }
 
+impl super::Table for Table {}
+
 struct EntryIterator<'a>(&'a Entry);
 
 impl<'a> Iterator for EntryIterator<'a> {

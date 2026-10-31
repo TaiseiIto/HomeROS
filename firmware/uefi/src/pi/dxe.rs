@@ -1,5 +1,7 @@
 use {
-    crate::{Guid, Handle, Status, Void, service::boot::memory::address::Physical, table},
+    crate::{
+        Guid, Handle, Status, Void, configuration, service::boot::memory::address::Physical, table,
+    },
     guid::guid,
 };
 
@@ -34,6 +36,8 @@ impl Table {
     /// * [DXE_SERVICES_TABLE_GUID](https://uefi.org/specs/PI/1.10/V2_DXE_Appendix_B.html#dxe-services-table-guid)
     pub const GUID: Guid = guid!("05ad34ba-6f02-4214-952e-4da0398e2bb9");
 }
+
+impl configuration::Table for Table {}
 
 /// # References
 /// * [EFI_ADD_MEMORY_SPACE](https://uefi.org/specs/PI/1.10/V2_Services_DXE_Services.html#addmemoryspace)
