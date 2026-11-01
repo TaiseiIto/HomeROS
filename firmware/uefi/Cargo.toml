@@ -12,5 +12,8 @@ path = "../../tool/macro/io"
 [dependencies.packed]
 path = "../../tool/macro/packed"
 
+[dependencies.smbios]
+path = "../smbios"
+
 [dependencies.unit]
 path = "../../tool/unit"

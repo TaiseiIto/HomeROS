@@ -10,6 +10,7 @@ members = [
 	"file/executable/pe",
 	"firmware",
 	"firmware/sbi",
+	"firmware/smbios",
 	"firmware/tfa",
 	"firmware/uefi",
 	"firmware/uefi/guid",
