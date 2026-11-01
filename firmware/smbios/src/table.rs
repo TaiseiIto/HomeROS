@@ -1,47 +1,48 @@
-/// # References
-/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 6.1.2 Structure header format
-#[derive(Debug, packed::Accessor)]
-#[repr(C, packed)]
-pub struct Header {
-    typ: u8,
-    length: u8,
-    handle: u16,
-}
+use {
+    crate::Header,
+    alloc::{string::String, vec::Vec},
+    core::fmt::{Debug, Formatter, Result},
+};
 
-impl Header {
+#[repr(transparent)]
+pub struct Table(Header);
+
+impl Table {
     fn filter(&self) -> Option<&Self> {
-        (!self.is_end_of_table()).then_some(self)
+        self.0.filter().map(|_| self)
     }
 
-    /// # References
-    /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
-    fn is_end_of_table(&self) -> bool {
-        self.typ() == 127
+    fn next_table(&self) -> &Self {
+        unsafe { &*(self.0.next_header() as *const Header as *const Self) }
     }
 
-    fn next_header(&self) -> &Self {
-        unsafe { &*(self as *const Self).byte_add(self.size()) }
-    }
-
-    fn size(&self) -> usize {
-        self.length() as usize
+    fn strings(&self) -> Vec<String> {
+        self.0.strings().collect()
     }
 }
 
-pub struct List<'a>(&'a Header);
+impl Debug for Table {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter
+            .debug_struct("Table")
+            .field("header", &self.0)
+            .field("strings", &self.strings())
+            .finish()
+    }
+}
 
-impl<'a> From<&'a Header> for List<'a> {
-    fn from(header: &'a Header) -> Self {
-        Self(header)
+pub struct List<'a>(&'a Table);
+
+impl<'a> From<&'a Table> for List<'a> {
+    fn from(table: &'a Table) -> Self {
+        Self(table)
     }
 }
 
 impl<'a> Iterator for List<'a> {
-    type Item = &'a Header;
+    type Item = &'a Table;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.0.filter().inspect(|item| {
-            self.0 = item.next_header();
-        })
+        self.0.filter().inspect(|_| self.0 = self.0.next_table())
     }
 }

@@ -7,11 +7,16 @@
 
 extern crate alloc;
 
+mod header;
+mod strings;
 mod table;
 
 use {
     alloc::{string::String, vec::Vec},
     core::fmt::{Debug, Formatter, Result},
+    header::Header,
+    strings::Strings,
+    table::Table,
 };
 
 /// # References
@@ -69,7 +74,7 @@ impl Debug for EntryPoint32 {
             .field("table_address", &self.table_address())
             .field("number_of_structures", &self.number_of_structures())
             .field("bcd_revision", &self.bcd_revision())
-            .field("headers", &self.headers())
+            .field("tables", &self.tables())
             .finish()
     }
 }
@@ -117,7 +122,7 @@ impl Debug for EntryPoint64 {
             .field("reserved", &self.reserved())
             .field("max_size", &self.max_size())
             .field("table_address", &self.table_address())
-            .field("headers", &self.headers())
+            .field("tables", &self.tables())
             .finish()
     }
 }
@@ -125,8 +130,8 @@ impl Debug for EntryPoint64 {
 trait EntryPoint {
     fn first_header(&self) -> usize;
 
-    fn headers(&self) -> Vec<&table::Header> {
-        let list: table::List = unsafe { &*(self.first_header() as *const table::Header) }.into();
+    fn tables(&self) -> Vec<&Table> {
+        let list: table::List = unsafe { &*(self.first_header() as *const Table) }.into();
         list.collect()
     }
 }
