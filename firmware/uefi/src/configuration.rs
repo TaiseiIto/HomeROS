@@ -8,7 +8,6 @@ use {
         pi::{dxe, hob},
     },
     core::fmt::{self, Debug, Formatter},
-    guid::guid,
 };
 
 /// # References
@@ -22,10 +21,6 @@ pub struct Pointer {
 }
 
 impl Pointer {
-    /// # References
-    /// * [Finding the RSDP on UEFI Enabled Systems](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#finding-the-rsdp-on-uefi-enabled-systems)
-    const RSDP: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
-
     pub fn table(&self) -> Result<&dyn Table, &Guid> {
         match self.guid {
             debug_image::Table::GUID => Ok(unsafe { &*(self.table as *const debug_image::Table) }),
@@ -33,7 +28,7 @@ impl Pointer {
             hob::List::GUID => Ok(unsafe { &*(self.table as *const hob::List) }),
             lzma::Table::GUID => Ok(unsafe { &*(self.table as *const lzma::Table) }),
             memory_type::Table::GUID => Ok(unsafe { &*(self.table as *const memory_type::Table) }),
-            Self::RSDP => {
+            acpi::root_system_description::Pointer::GUID => {
                 Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
             }
             _ => Err(&self.guid),
