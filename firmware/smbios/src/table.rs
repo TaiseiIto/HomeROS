@@ -10,7 +10,7 @@ pub struct Header {
 
 impl Header {
     fn filter(&self) -> Option<&Self> {
-        self.is_end_of_table().then_some(self)
+        (!self.is_end_of_table()).then_some(self)
     }
 
     /// # References
