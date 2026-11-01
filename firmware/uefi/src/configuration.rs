@@ -1,6 +1,6 @@
 mod debug_image;
 mod lzma;
-mod memory_type;
+mod memory;
 
 use {
     crate::{
@@ -27,7 +27,7 @@ impl Pointer {
             dxe::Table::GUID => Ok(unsafe { &*(self.table as *const dxe::Table) }),
             hob::List::GUID => Ok(unsafe { &*(self.table as *const hob::List) }),
             lzma::Table::GUID => Ok(unsafe { &*(self.table as *const lzma::Table) }),
-            memory_type::Table::GUID => Ok(unsafe { &*(self.table as *const memory_type::Table) }),
+            memory::typ::Table::GUID => Ok(unsafe { &*(self.table as *const memory::typ::Table) }),
             acpi::root_system_description::Pointer::GUID => {
                 Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
             }
