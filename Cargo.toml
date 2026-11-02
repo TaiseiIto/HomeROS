@@ -16,6 +16,8 @@ members = [
 	"firmware/uefi/guid",
 	"memory",
 	"memory/allocator",
+	"standard/uuid",
+	"standard/uuid_from_str",
 	"tool/macro/endian",
 	"tool/macro/io",
 	"tool/macro/packed",
