@@ -37,6 +37,16 @@ impl Table {
             .and_then(|index| self.strings().get(index).cloned())
     }
 
+    fn get_sku_number(&self) -> Option<String> {
+        self.sku_number_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn get_family(&self) -> Option<String> {
+        self.family_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
     fn manufacturer_index(&self) -> Option<usize> {
         (self.manufacturer() as usize).checked_sub(1)
     }
@@ -47,6 +57,14 @@ impl Table {
 
     fn version_index(&self) -> Option<usize> {
         (self.version() as usize).checked_sub(1)
+    }
+
+    fn sku_number_index(&self) -> Option<usize> {
+        (self.sku_number() as usize).checked_sub(1)
+    }
+
+    fn family_index(&self) -> Option<usize> {
+        (self.family() as usize).checked_sub(1)
     }
 }
 
@@ -61,8 +79,8 @@ impl Debug for Table {
             .field("serial_number", &self.serial_number())
             .field("uuid", &self.uuid())
             .field("wake_up_type", &self.wake_up_type())
-            .field("sku_number", &self.sku_number())
-            .field("family", &self.family())
+            .field("sku_number", &self.get_sku_number())
+            .field("family", &self.get_family())
             .finish()
     }
 }
