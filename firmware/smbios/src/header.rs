@@ -1,8 +1,12 @@
-use crate::Strings;
+use {
+    crate::Strings,
+    alloc::{string::String, vec::Vec},
+    core::fmt::{Debug, Formatter, Result},
+};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 6.1.2 Structure header format
-#[derive(Debug, packed::Accessor)]
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Header {
     typ: u8,
@@ -31,5 +35,34 @@ impl Header {
 
     fn size(&self) -> usize {
         self.length() as usize
+    }
+}
+
+impl Debug for Header {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        let strings: Vec<String> = self.strings().collect();
+        formatter
+            .debug_struct("Header")
+            .field("typ", &self.typ())
+            .field("length", &self.length())
+            .field("handle", &self.handle())
+            .field("strings", &strings)
+            .finish()
+    }
+}
+
+pub struct List<'a>(&'a Header);
+
+impl<'a> From<&'a Header> for List<'a> {
+    fn from(header: &'a Header) -> Self {
+        Self(header)
+    }
+}
+
+impl<'a> Iterator for List<'a> {
+    type Item = &'a Header;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.filter().inspect(|_| self.0 = self.0.next_header())
     }
 }
