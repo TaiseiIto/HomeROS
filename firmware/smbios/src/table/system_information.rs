@@ -9,6 +9,14 @@ use {
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
+    manufacturer: u8,
+    product_name: u8,
+    version: u8,
+    serial_number: u8,
+    uuid: u128,
+    wake_up_type: u8,
+    sku_number: u8,
+    family: u8,
 }
 
 impl Debug for Table {
@@ -16,6 +24,14 @@ impl Debug for Table {
         formatter
             .debug_struct("Table")
             .field("header", &self.header)
+            .field("manufacturer", &self.manufacturer())
+            .field("product_name", &self.product_name())
+            .field("version", &self.version())
+            .field("serial_number", &self.serial_number())
+            .field("uuid", &self.uuid())
+            .field("wake_up_type", &self.wake_up_type())
+            .field("sku_number", &self.sku_number())
+            .field("family", &self.family())
             .finish()
     }
 }
