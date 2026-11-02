@@ -1,4 +1,4 @@
-use {crate::Guid, guid::guid};
+use crate::{Guid, guid};
 
 #[derive(Debug)]
 #[repr(C)]

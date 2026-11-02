@@ -1,7 +1,6 @@
 use {
-    crate::{Guid, Handle, protocol::image::Protocol},
+    crate::{Guid, Handle, guid, protocol::image::Protocol},
     core::fmt::{Debug, Formatter, Result},
-    guid::guid,
 };
 
 /// # References

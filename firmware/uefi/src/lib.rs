@@ -12,35 +12,11 @@ pub mod service;
 pub mod system;
 mod table;
 
-use core::fmt::{self, Debug, Formatter};
+use uuid_from_str::uuid as guid;
 
 /// # References
 /// * [EFI_GUID](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html#efi-boot-services-installprotocolinterface)
-#[derive(Clone, Copy, Eq, PartialEq)]
-#[repr(C)]
-pub struct Guid {
-    data1: u32,
-    data2: u16,
-    data3: u16,
-    data4: [u8; 8],
-}
-
-impl Debug for Guid {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        formatter.write_fmt(format_args!(
-            "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
-            self.data1,
-            self.data2,
-            self.data3,
-            self.data4[..2]
-                .iter()
-                .fold(0u16, |data, byte| (data << u8::BITS) + (*byte as u16)),
-            self.data4[2..]
-                .iter()
-                .fold(0u64, |data, byte| (data << u8::BITS) + (*byte as u64)),
-        ))
-    }
-}
+type Guid = uuid::Uuid;
 
 /// # References
 /// * [EFI_STATUS](https://uefi.org/specs/UEFI/2.11/02_Overview.html#data-types)

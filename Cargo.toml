@@ -13,7 +13,6 @@ members = [
 	"firmware/smbios",
 	"firmware/tfa",
 	"firmware/uefi",
-	"firmware/uefi/guid",
 	"memory",
 	"memory/allocator",
 	"standard/uuid",

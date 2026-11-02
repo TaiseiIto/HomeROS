@@ -3,8 +3,7 @@ use {
         super::{Node, Type},
         SubType,
     },
-    crate::Guid,
-    guid::guid,
+    crate::{Guid, guid},
 };
 
 /// # References

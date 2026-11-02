@@ -7,8 +7,7 @@ mod memory;
 mod resource_descriptor;
 
 use {
-    crate::{Guid, configuration::Table},
-    ::guid::guid,
+    crate::{Guid, configuration::Table, guid},
     core::fmt::{self, Debug, Formatter},
 };
 

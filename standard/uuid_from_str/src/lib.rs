@@ -8,10 +8,10 @@ use {
 };
 
 #[proc_macro]
-pub fn guid(guid: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let guid: String = parse_macro_input!(guid as LitStr).value();
+pub fn uuid(uuid: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let uuid: String = parse_macro_input!(uuid as LitStr).value();
     let automaton: Automaton = r"^(?<data1>[\da-f]{8})-(?<data2>[\da-f]{4})-(?<data3>[\da-f]{4})-(?<data4prefix>[\da-f]{4})-(?<data4suffix>[\da-f]{12})$".parse().unwrap();
-    let matches: Vec<Match> = automaton.input(&guid);
+    let matches: Vec<Match> = automaton.input(&uuid);
     let mat: Match = matches.into_iter().next().unwrap();
     let captures: BTreeMap<String, Vec<Capture>> = mat.captures();
     let data1: u32 =
@@ -43,13 +43,5 @@ pub fn guid(guid: proc_macro::TokenStream) -> proc_macro::TokenStream {
         .collect();
     let data4suffix: [u8; 6] = data4suffix.try_into().unwrap();
     let data4: Vec<u8> = data4prefix.into_iter().chain(data4suffix).collect();
-    quote! {
-        uuid::Uuid {
-            data1: #data1,
-            data2: #data2,
-            data3: #data3,
-            data4: [ #(#data4),* ],
-        }
-    }
-    .into()
+    quote! { uuid::Uuid::new(#data1, #data2, #data3, [#(#data4),*]) }.into()
 }

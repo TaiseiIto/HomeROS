@@ -3,8 +3,11 @@ name = "uefi"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies.guid]
-path = "guid"
+[dependencies.uuid]
+path = "../../standard/uuid"
+
+[dependencies.uuid_from_str]
+path = "../../standard/uuid_from_str"
 
 [dependencies.io]
 path = "../../tool/macro/io"

@@ -49,16 +49,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "guid"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "regex",
- "syn",
-]
-
-[[package]]
 name = "io"
 version = "0.1.0"
 dependencies = [
@@ -179,11 +169,12 @@ dependencies = [
 name = "uefi"
 version = "0.1.0"
 dependencies = [
- "guid",
  "io",
  "packed",
  "smbios",
  "unit",
+ "uuid",
+ "uuid_from_str",
 ]
 
 [[package]]
@@ -195,6 +186,20 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 [[package]]
 name = "unit"
 version = "0.1.0"
+
+[[package]]
+name = "uuid"
+version = "0.1.0"
+
+[[package]]
+name = "uuid_from_str"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "regex",
+ "syn",
+]
 
 [[package]]
 name = "xtask"

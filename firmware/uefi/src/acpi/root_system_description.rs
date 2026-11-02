@@ -1,6 +1,6 @@
 use {
     super::Header,
-    crate::{Guid, configuration},
+    crate::{Guid, configuration, guid},
     alloc::vec::Vec,
     core::{
         fmt::{self, Debug, Formatter},
@@ -8,7 +8,6 @@ use {
         num::Wrapping,
         slice::from_raw_parts,
     },
-    guid::guid,
 };
 
 /// # References

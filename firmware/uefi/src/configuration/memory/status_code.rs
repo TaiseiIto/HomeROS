@@ -1,4 +1,7 @@
-use {super::super::Table, crate::Guid, guid::guid};
+use {
+    super::super::Table,
+    crate::{Guid, guid},
+};
 
 #[derive(Debug)]
 #[repr(C)]

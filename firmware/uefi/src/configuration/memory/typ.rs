@@ -1,7 +1,6 @@
 use {
-    crate::{Guid, service::boot::memory::Type},
+    crate::{Guid, guid, service::boot::memory::Type},
     core::fmt::{Debug, Formatter, Result},
-    guid::guid,
 };
 
 #[repr(C)]

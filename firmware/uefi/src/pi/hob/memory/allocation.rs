@@ -1,10 +1,9 @@
 use {
     crate::{
-        Guid,
+        Guid, guid,
         service::boot::memory::{self, address::Physical},
     },
     core::fmt::{Debug, Formatter, Result},
-    guid::guid,
 };
 
 /// # References

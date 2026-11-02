@@ -4,11 +4,10 @@ mod memory;
 
 use {
     crate::{
-        Guid, Void, acpi,
+        Guid, Void, acpi, guid,
         pi::{dxe, hob},
     },
     core::fmt::{self, Debug, Formatter},
-    guid::guid,
 };
 
 /// # References

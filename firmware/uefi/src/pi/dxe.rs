@@ -1,8 +1,6 @@
-use {
-    crate::{
-        Guid, Handle, Status, Void, configuration, service::boot::memory::address::Physical, table,
-    },
-    guid::guid,
+use crate::{
+    Guid, Handle, Status, Void, configuration, guid, service::boot::memory::address::Physical,
+    table,
 };
 
 /// # References
