@@ -2,10 +2,17 @@ pub mod system_information;
 
 use {
     crate::{Header, header},
+    alloc::{string::String, vec::Vec},
     core::fmt::Debug,
 };
 
-pub trait Table: Debug {}
+pub trait Table: Debug {
+    fn get_header(&self) -> &Header;
+
+    fn strings(&self) -> Vec<String> {
+        self.get_header().strings().collect()
+    }
+}
 
 pub struct List<'a>(header::List<'a>);
 

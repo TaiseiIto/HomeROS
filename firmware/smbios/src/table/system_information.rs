@@ -1,5 +1,6 @@
 use {
-    crate::Header,
+    crate::{Header, Table as Trait},
+    alloc::string::String,
     core::fmt::{Debug, Formatter, Result},
     uuid::Uuid,
 };
@@ -20,14 +21,28 @@ pub struct Table {
     family: u8,
 }
 
+impl Table {
+    fn get_manufacturer(&self) -> Option<String> {
+        self.strings().get(self.manufacturer() as usize).cloned()
+    }
+
+    fn get_product_name(&self) -> Option<String> {
+        self.strings().get(self.product_name() as usize).cloned()
+    }
+
+    fn get_version(&self) -> Option<String> {
+        self.strings().get(self.version() as usize).cloned()
+    }
+}
+
 impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
             .field("header", &self.header)
-            .field("manufacturer", &self.manufacturer())
-            .field("product_name", &self.product_name())
-            .field("version", &self.version())
+            .field("manufacturer", &self.get_manufacturer())
+            .field("product_name", &self.get_product_name())
+            .field("version", &self.get_version())
             .field("serial_number", &self.serial_number())
             .field("uuid", &self.uuid())
             .field("wake_up_type", &self.wake_up_type())
@@ -37,4 +52,8 @@ impl Debug for Table {
     }
 }
 
-impl crate::Table for Table {}
+impl Trait for Table {
+    fn get_header(&self) -> &Header {
+        &self.header
+    }
+}
