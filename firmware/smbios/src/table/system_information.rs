@@ -1,6 +1,7 @@
 use {
     crate::Header,
     core::fmt::{Debug, Formatter, Result},
+    uuid::Uuid,
 };
 
 /// # References
@@ -13,7 +14,7 @@ pub struct Table {
     product_name: u8,
     version: u8,
     serial_number: u8,
-    uuid: u128,
+    uuid: Uuid,
     wake_up_type: u8,
     sku_number: u8,
     family: u8,
