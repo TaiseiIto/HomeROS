@@ -1,7 +1,7 @@
 use {
-    crate::Strings,
+    crate::{Strings, Table, table::system_information},
     alloc::{string::String, vec::Vec},
-    core::fmt::{Debug, Formatter, Result},
+    core::fmt::{self, Debug, Formatter},
 };
 
 /// # References
@@ -27,6 +27,13 @@ impl Header {
         unsafe { &*(self as *const Self as *const u8).byte_add(self.size()) }.into()
     }
 
+    pub fn table(&self) -> Result<&dyn Table, u8> {
+        match self.typ() {
+            1 => Ok(unsafe { &*(self as *const Self as *const system_information::Table) }),
+            typ => Err(typ),
+        }
+    }
+
     /// # References
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     fn is_end_of_table(&self) -> bool {
@@ -39,7 +46,7 @@ impl Header {
 }
 
 impl Debug for Header {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         let strings: Vec<String> = self.strings().collect();
         formatter
             .debug_struct("Header")

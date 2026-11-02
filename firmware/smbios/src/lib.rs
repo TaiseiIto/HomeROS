@@ -9,12 +9,14 @@ extern crate alloc;
 
 mod header;
 mod strings;
+mod table;
 
 use {
     alloc::{string::String, vec::Vec},
-    core::fmt::{Debug, Formatter, Result},
+    core::fmt::{self, Debug, Formatter},
     header::Header,
     strings::Strings,
+    table::Table,
 };
 
 /// # References
@@ -55,7 +57,7 @@ impl EntryPoint for EntryPoint32 {
 }
 
 impl Debug for EntryPoint32 {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("EntryPoint32")
             .field("anchor", &self.anchor_string())
@@ -72,7 +74,7 @@ impl Debug for EntryPoint32 {
             .field("table_address", &self.table_address())
             .field("number_of_structures", &self.number_of_structures())
             .field("bcd_revision", &self.bcd_revision())
-            .field("headers", &self.headers())
+            .field("tables", &self.tables())
             .finish()
     }
 }
@@ -107,7 +109,7 @@ impl EntryPoint for EntryPoint64 {
 }
 
 impl Debug for EntryPoint64 {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("EntryPoint64")
             .field("anchor", &self.anchor_string())
@@ -120,7 +122,7 @@ impl Debug for EntryPoint64 {
             .field("reserved", &self.reserved())
             .field("max_size", &self.max_size())
             .field("table_address", &self.table_address())
-            .field("headers", &self.headers())
+            .field("tables", &self.tables())
             .finish()
     }
 }
@@ -128,8 +130,9 @@ impl Debug for EntryPoint64 {
 trait EntryPoint {
     fn first_header(&self) -> usize;
 
-    fn headers(&self) -> Vec<&Header> {
+    fn tables(&self) -> Vec<Result<&dyn Table, u8>> {
         let list: header::List = unsafe { &*(self.first_header() as *const Header) }.into();
+        let list: table::List = list.into();
         list.collect()
     }
 }
