@@ -3,19 +3,24 @@ use {
     quote::quote,
     syn::{
         Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Path, PathSegment, Type,
-        TypePath,
+        TypePath, Visibility,
     },
 };
 
 pub struct Structure {
-    elements: Vec<Element>,
+    vis: Visibility,
     ident: Ident,
+    elements: Vec<Element>,
 }
 
 impl Structure {
     fn implement(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let reads: Vec<TokenStream> = self.elements.iter().map(Element::read).collect();
+        let Self {
+            vis,
+            ident,
+            elements,
+        } = self;
+        let reads: Vec<TokenStream> = elements.iter().map(|element| element.read(vis)).collect();
         quote! {
             impl #ident {
                 #(#reads)*
@@ -28,7 +33,7 @@ impl From<DeriveInput> for Structure {
     fn from(structure: DeriveInput) -> Self {
         if let DeriveInput {
             attrs: _,
-            vis: _,
+            vis,
             ident,
             generics: _,
             data:
@@ -44,7 +49,11 @@ impl From<DeriveInput> for Structure {
         } = structure
         {
             let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
-            Self { elements, ident }
+            Self {
+                vis,
+                ident,
+                elements,
+            }
         } else {
             panic!();
         }
@@ -66,10 +75,10 @@ struct Element {
 }
 
 impl Element {
-    fn read(&self) -> TokenStream {
+    fn read(&self, vis: &Visibility) -> TokenStream {
         let Self { ident, ty } = self;
         quote! {
-            fn #ident(&self) -> #ty {
+            #vis fn #ident(&self) -> #ty {
                 unsafe {
                     core::ptr::addr_of!(self.#ident).read_unaligned()
                 }

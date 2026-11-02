@@ -120,6 +120,7 @@ name = "smbios"
 version = "0.1.0"
 dependencies = [
  "packed",
+ "uuid",
 ]
 
 [[package]]

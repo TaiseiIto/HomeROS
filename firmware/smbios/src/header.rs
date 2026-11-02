@@ -27,6 +27,8 @@ impl Header {
         unsafe { &*(self as *const Self as *const u8).byte_add(self.size()) }.into()
     }
 
+    /// # TODO
+    /// * Implement all table types.
     pub fn table(&self) -> Result<&dyn Table, u8> {
         match self.typ() {
             1 => Ok(unsafe { &*(self as *const Self as *const system_information::Table) }),
