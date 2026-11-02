@@ -23,15 +23,30 @@ pub struct Table {
 
 impl Table {
     fn get_manufacturer(&self) -> Option<String> {
-        self.strings().get(self.manufacturer() as usize).cloned()
+        self.manufacturer_index()
+            .and_then(|index| self.strings().get(index).cloned())
     }
 
     fn get_product_name(&self) -> Option<String> {
-        self.strings().get(self.product_name() as usize).cloned()
+        self.product_name_index()
+            .and_then(|index| self.strings().get(index).cloned())
     }
 
     fn get_version(&self) -> Option<String> {
-        self.strings().get(self.version() as usize).cloned()
+        self.version_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn manufacturer_index(&self) -> Option<usize> {
+        (self.manufacturer() as usize).checked_sub(1)
+    }
+
+    fn product_name_index(&self) -> Option<usize> {
+        (self.product_name() as usize).checked_sub(1)
+    }
+
+    fn version_index(&self) -> Option<usize> {
+        (self.version() as usize).checked_sub(1)
     }
 }
 
