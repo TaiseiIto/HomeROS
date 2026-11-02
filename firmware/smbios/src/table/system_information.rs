@@ -16,7 +16,7 @@ pub struct Table {
     version: u8,
     serial_number: u8,
     uuid: Uuid,
-    wake_up_type: u8,
+    wake_up_type: WakeUp,
     sku_number: u8,
     family: u8,
 }
@@ -89,4 +89,20 @@ impl Trait for Table {
     fn get_header(&self) -> &Header {
         &self.header
     }
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.2.2 System - Wake-up Type
+#[derive(Debug)]
+#[repr(u8)]
+enum WakeUp {
+    Reserved = 0x00,
+    Other = 0x01,
+    Unknown = 0x02,
+    ApmTimer = 0x03,
+    ModemRing = 0x04,
+    LanRemote = 0x05,
+    PowerSwitch = 0x06,
+    PciPme = 0x07,
+    AcPowerRestored = 0x08,
 }
