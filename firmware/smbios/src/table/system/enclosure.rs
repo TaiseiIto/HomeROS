@@ -15,7 +15,7 @@ use {
 pub struct Table {
     header: Header,
     manufacturer: u8,
-    typ: Type,
+    typ: u8,
     version: u8,
     serial_number: u8,
     asset_tag_number: u8,
@@ -32,6 +32,10 @@ pub struct Table {
 }
 
 impl Table {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
     fn get_manufacturer(&self) -> Option<String> {
         self.manufacturer_index()
             .and_then(|index| self.strings().get(index).cloned())
@@ -102,7 +106,7 @@ impl Debug for Table {
             .field("length", &self.header.length())
             .field("handle", &self.header.handle())
             .field("manufacturer", &self.get_manufacturer())
-            .field("typ", &self.typ())
+            .field("type", &self.get_type())
             .field("version", &self.get_version())
             .field("serial_number", &self.get_serial_number())
             .field("asset_tag_number", &self.get_asset_tag_number())
@@ -131,44 +135,88 @@ impl Trait for Table {}
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.1 System Enclosure or Chassis Type
 #[derive(Debug)]
-#[repr(u8)]
 enum Type {
-    Other = 0x01,
-    Unknown = 0x02,
-    Desktop = 0x03,
-    LowProfileDesktop = 0x04,
-    PizzaBox = 0x05,
-    MiniTower = 0x06,
-    Tower = 0x07,
-    Portable = 0x08,
-    Laptop = 0x09,
-    Notebook = 0x0a,
-    HandHeld = 0x0b,
-    DockingStation = 0x0c,
-    AllInOne = 0x0d,
-    SubNotebook = 0x0e,
-    SpaceSaving = 0x0f,
-    LunchBox = 0x10,
-    MainServerChassis = 0x11,
-    ExpansionChassis = 0x12,
-    SubChassis = 0x13,
-    BusExpansionChassis = 0x14,
-    PeripheralChassis = 0x15,
-    RaidChassis = 0x16,
-    RackMountChassis = 0x17,
-    SealedCasePc = 0x18,
-    MultiSystemChassis = 0x19,
-    CompactPci = 0x1a,
-    AdvancedTca = 0x1b,
-    Blade = 0x1c,
-    BladeEnclosure = 0x1d,
-    Tablet = 0x1e,
-    Convertible = 0x1f,
-    Detachable = 0x20,
-    IotGateway = 0x21,
-    EmbeddedPc = 0x22,
-    MiniPc = 0x23,
-    StickPc = 0x24,
+    Other,
+    Unknown,
+    Desktop,
+    LowProfileDesktop,
+    PizzaBox,
+    MiniTower,
+    Tower,
+    Portable,
+    Laptop,
+    Notebook,
+    HandHeld,
+    DockingStation,
+    AllInOne,
+    SubNotebook,
+    SpaceSaving,
+    LunchBox,
+    MainServerChassis,
+    ExpansionChassis,
+    SubChassis,
+    BusExpansionChassis,
+    PeripheralChassis,
+    RaidChassis,
+    RackMountChassis,
+    SealedCasePc,
+    MultiSystemChassis,
+    CompactPci,
+    AdvancedTca,
+    Blade,
+    BladeEnclosure,
+    Tablet,
+    Convertible,
+    Detachable,
+    IotGateway,
+    EmbeddedPc,
+    MiniPc,
+    StickPc,
+    Unimplemented(u8),
+}
+
+impl From<u8> for Type {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0x01 => Self::Other,
+            0x02 => Self::Unknown,
+            0x03 => Self::Desktop,
+            0x04 => Self::LowProfileDesktop,
+            0x05 => Self::PizzaBox,
+            0x06 => Self::MiniTower,
+            0x07 => Self::Tower,
+            0x08 => Self::Portable,
+            0x09 => Self::Laptop,
+            0x0a => Self::Notebook,
+            0x0b => Self::HandHeld,
+            0x0c => Self::DockingStation,
+            0x0d => Self::AllInOne,
+            0x0e => Self::SubNotebook,
+            0x0f => Self::SpaceSaving,
+            0x10 => Self::LunchBox,
+            0x11 => Self::MainServerChassis,
+            0x12 => Self::ExpansionChassis,
+            0x13 => Self::SubChassis,
+            0x14 => Self::BusExpansionChassis,
+            0x15 => Self::PeripheralChassis,
+            0x16 => Self::RaidChassis,
+            0x17 => Self::RackMountChassis,
+            0x18 => Self::SealedCasePc,
+            0x19 => Self::MultiSystemChassis,
+            0x1a => Self::CompactPci,
+            0x1b => Self::AdvancedTca,
+            0x1c => Self::Blade,
+            0x1d => Self::BladeEnclosure,
+            0x1e => Self::Tablet,
+            0x1f => Self::Convertible,
+            0x20 => Self::Detachable,
+            0x21 => Self::IotGateway,
+            0x22 => Self::EmbeddedPc,
+            0x23 => Self::MiniPc,
+            0x24 => Self::StickPc,
+            typ => Self::Unimplemented(typ),
+        }
+    }
 }
 
 /// # References
