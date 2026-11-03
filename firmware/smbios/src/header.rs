@@ -9,14 +9,16 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Header {
-    typ: u8,
+    typ: Type,
     length: u8,
     handle: u16,
 }
 
 impl Header {
+    /// # References
+    /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     pub fn filter(&self) -> Option<&Self> {
-        (!self.is_end_of_table()).then_some(self)
+        (!matches!(self.typ(), Type::EndOfTable)).then_some(self)
     }
 
     pub fn next_header(&self) -> &Self {
@@ -29,18 +31,16 @@ impl Header {
 
     /// # TODO
     /// * Implement all table types.
-    pub fn table(&self) -> Result<&dyn Table, u8> {
+    pub fn table(&self) -> Result<&dyn Table, Type> {
         match self.typ() {
-            1 => Ok(unsafe { &*(self as *const Self as *const system::information::Table) }),
-            3 => Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) }),
+            Type::SystemInformation => {
+                Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
+            }
+            Type::SystemEnclosure => {
+                Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
+            }
             typ => Err(typ),
         }
-    }
-
-    /// # References
-    /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
-    fn is_end_of_table(&self) -> bool {
-        self.typ() == 127
     }
 
     fn size(&self) -> usize {
@@ -59,6 +59,14 @@ impl Debug for Header {
             .field("strings", &strings)
             .finish()
     }
+}
+
+#[derive(Debug)]
+#[repr(u8)]
+pub enum Type {
+    SystemInformation = 1,
+    SystemEnclosure = 3,
+    EndOfTable = 127,
 }
 
 pub struct List<'a>(&'a Header);

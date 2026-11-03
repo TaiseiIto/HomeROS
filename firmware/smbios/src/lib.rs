@@ -14,7 +14,7 @@ mod table;
 use {
     alloc::{string::String, vec::Vec},
     core::fmt::{self, Debug, Formatter},
-    header::Header,
+    header::{Header, Type},
     strings::Strings,
     table::Table,
 };
@@ -130,7 +130,7 @@ impl Debug for EntryPoint64 {
 trait EntryPoint {
     fn first_header(&self) -> usize;
 
-    fn tables(&self) -> Vec<Result<&dyn Table, u8>> {
+    fn tables(&self) -> Vec<Result<&dyn Table, Type>> {
         let list: header::List = unsafe { &*(self.first_header() as *const Header) }.into();
         let list: table::List = list.into();
         list.collect()
