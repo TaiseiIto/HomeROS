@@ -41,9 +41,17 @@ impl Table {
             .and_then(|index| self.strings().get(index).cloned())
     }
 
+    fn manufacturer_index(&self) -> Option<usize> {
+        (self.manufacturer() as usize).checked_sub(1)
+    }
+
     fn get_version(&self) -> Option<String> {
         self.version_index()
             .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn version_index(&self) -> Option<usize> {
+        (self.version() as usize).checked_sub(1)
     }
 
     fn get_serial_number(&self) -> Option<String> {
@@ -51,30 +59,38 @@ impl Table {
             .and_then(|index| self.strings().get(index).cloned())
     }
 
+    fn serial_number_index(&self) -> Option<usize> {
+        (self.serial_number() as usize).checked_sub(1)
+    }
+
     fn get_asset_tag_number(&self) -> Option<String> {
         self.asset_tag_number_index()
             .and_then(|index| self.strings().get(index).cloned())
     }
 
+    fn asset_tag_number_index(&self) -> Option<usize> {
+        (self.asset_tag_number() as usize).checked_sub(1)
+    }
+
+    fn get_boot_up_state(&self) -> State {
+        self.boot_up_state().into()
+    }
+
+    fn get_power_supply_state(&self) -> State {
+        self.power_supply_state().into()
+    }
+
+    fn get_thermal_state(&self) -> State {
+        self.thermal_state().into()
+    }
+
+    fn get_security_status(&self) -> Status {
+        self.security_status().into()
+    }
+
     fn get_sku_number(&self) -> Option<String> {
         self.sku_number_index()
             .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn manufacturer_index(&self) -> Option<usize> {
-        (self.manufacturer() as usize).checked_sub(1)
-    }
-
-    fn version_index(&self) -> Option<usize> {
-        (self.version() as usize).checked_sub(1)
-    }
-
-    fn serial_number_index(&self) -> Option<usize> {
-        (self.serial_number() as usize).checked_sub(1)
-    }
-
-    fn asset_tag_number_index(&self) -> Option<usize> {
-        (self.asset_tag_number() as usize).checked_sub(1)
     }
 
     fn sku_number_index(&self) -> Option<usize> {
@@ -110,10 +126,10 @@ impl Debug for Table {
             .field("version", &self.get_version())
             .field("serial_number", &self.get_serial_number())
             .field("asset_tag_number", &self.get_asset_tag_number())
-            .field("boot_up_state", &self.boot_up_state())
-            .field("power_supply_state", &self.power_supply_state())
-            .field("thermal_state", &self.thermal_state())
-            .field("security_status", &self.security_status())
+            .field("boot_up_state", &self.get_boot_up_state())
+            .field("power_supply_state", &self.get_power_supply_state())
+            .field("thermal_state", &self.get_thermal_state())
+            .field("security_status", &self.get_security_status())
             .field("oem_defined", &self.oem_defined())
             .field("height", &self.height())
             .field("number_of_power_cords", &self.number_of_power_cords())
@@ -222,14 +238,28 @@ impl From<u8> for Type {
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.2 System Enclosure or Chassis States
 #[derive(Debug)]
-#[repr(u8)]
 enum State {
-    Other = 0x01,
-    Unknown = 0x02,
-    Safe = 0x03,
-    Warning = 0x04,
-    Critical = 0x05,
-    NonRecoverable = 0x06,
+    Other,
+    Unknown,
+    Safe,
+    Warning,
+    Critical,
+    NonRecoverable,
+    Unimplemented(u8),
+}
+
+impl From<u8> for State {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0x01 => Self::Other,
+            0x02 => Self::Unknown,
+            0x03 => Self::Safe,
+            0x04 => Self::Warning,
+            0x05 => Self::Critical,
+            0x06 => Self::NonRecoverable,
+            typ => Self::Unimplemented(typ),
+        }
+    }
 }
 
 /// # References
@@ -237,11 +267,25 @@ enum State {
 #[derive(Debug)]
 #[repr(u8)]
 enum Status {
-    Other = 0x01,
-    Unknown = 0x02,
-    None = 0x03,
-    ExternalInterfaceLockedOut = 0x04,
-    ExternalInterfaceEnabled = 0x05,
+    Other,
+    Unknown,
+    None,
+    ExternalInterfaceLockedOut,
+    ExternalInterfaceEnabled,
+    Unimplemented(u8),
+}
+
+impl From<u8> for Status {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0x01 => Self::Other,
+            0x02 => Self::Unknown,
+            0x03 => Self::None,
+            0x04 => Self::ExternalInterfaceLockedOut,
+            0x05 => Self::ExternalInterfaceEnabled,
+            typ => Self::Unimplemented(typ),
+        }
+    }
 }
 
 #[derive(packed::Accessor, Debug)]
