@@ -9,16 +9,14 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Header {
-    typ: Type,
+    typ: u8,
     length: u8,
     handle: u16,
 }
 
 impl Header {
-    /// # References
-    /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     pub fn filter(&self) -> Option<&Self> {
-        (!matches!(self.typ(), Type::EndOfTable)).then_some(self)
+        (!matches!(self.get_type(), Type::EndOfTable)).then_some(self)
     }
 
     pub fn next_header(&self) -> &Self {
@@ -32,7 +30,7 @@ impl Header {
     /// # TODO
     /// * Implement all table types.
     pub fn table(&self) -> Result<&dyn Table, Type> {
-        match self.typ() {
+        match self.get_type() {
             Type::SystemInformation => {
                 Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
             }
@@ -46,6 +44,10 @@ impl Header {
     fn size(&self) -> usize {
         self.length() as usize
     }
+
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
 }
 
 impl Debug for Header {
@@ -53,7 +55,7 @@ impl Debug for Header {
         let strings: Vec<String> = self.strings().collect();
         formatter
             .debug_struct("Header")
-            .field("typ", &self.typ())
+            .field("typ", &self.get_type())
             .field("length", &self.length())
             .field("handle", &self.handle())
             .field("strings", &strings)
@@ -62,11 +64,24 @@ impl Debug for Header {
 }
 
 #[derive(Debug)]
-#[repr(u8)]
 pub enum Type {
-    SystemInformation = 1,
-    SystemEnclosure = 3,
-    EndOfTable = 127,
+    SystemInformation,
+    SystemEnclosure,
+    /// # References
+    /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
+    EndOfTable,
+    Unknown(u8),
+}
+
+impl From<u8> for Type {
+    fn from(typ: u8) -> Self {
+        match typ {
+            1 => Self::SystemInformation,
+            3 => Self::SystemEnclosure,
+            127 => Self::EndOfTable,
+            typ => Self::Unknown(typ),
+        }
+    }
 }
 
 pub struct List<'a>(&'a Header);
