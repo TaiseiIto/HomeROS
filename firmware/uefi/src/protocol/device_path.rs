@@ -19,9 +19,7 @@ impl Protocol {
     fn get_type(&self) -> Type {
         self.ty().into()
     }
-}
 
-impl Protocol {
     fn read(&self) -> &dyn Node {
         match self.get_type() {
             Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
