@@ -18,12 +18,17 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_sub_type(&self) -> SubType {
+        self.ty().into()
+    }
+
     fn read(&self) -> &dyn Node {
-        match self.sub_type() {
+        match self.get_sub_type() {
             SubType::Acpi => unsafe { &*(self as *const Self as *const general::Protocol) },
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
             SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
+            SubType::Unknown(_) => panic!(),
         }
     }
 }
@@ -39,10 +44,22 @@ impl Node for Protocol {}
 /// # References
 /// * [ACPI Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#acpi-device-path)
 #[derive(Clone, Copy, Debug)]
-#[repr(u8)]
 enum SubType {
-    Acpi = 1,
-    Expanded = 2,
-    Adr = 3,
-    Nvdimm = 4,
+    Acpi,
+    Expanded,
+    Adr,
+    Nvdimm,
+    Unknown(u8),
+}
+
+impl From<u8> for SubType {
+    fn from(sub_type: u8) -> Self {
+        match sub_type {
+            1 => Self::Acpi,
+            2 => Self::Expanded,
+            3 => Self::Adr,
+            4 => Self::Nvdimm,
+            sub_type => Self::Unknown(sub_type),
+        }
+    }
 }

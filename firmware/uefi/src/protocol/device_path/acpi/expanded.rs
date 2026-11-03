@@ -1,5 +1,5 @@
 use {
-    super::{super::Node, SubType},
+    super::super::Node,
     alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
@@ -15,7 +15,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     hid: u32,
     uid: u32,
