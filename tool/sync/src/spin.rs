@@ -4,6 +4,7 @@ use {
         cell::UnsafeCell,
         marker::{Send, Sync},
         ops::{Deref, DerefMut, Drop},
+        panic::PanicInfo,
         sync::atomic::{
             AtomicBool,
             Ordering::{Acquire, Release},
@@ -58,6 +59,10 @@ impl<T> Lock<T> {
 
     pub fn unlock(&self) {
         self.locked.store(false, Release);
+    }
+
+    pub fn panic<'a>(&'a self, panic: &'a PanicInfo) -> Guard<'a, T> {
+        Guard(self)
     }
 }
 

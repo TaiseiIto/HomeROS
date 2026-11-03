@@ -35,6 +35,17 @@ macro_rules! dbg {
 }
 
 #[macro_export]
+macro_rules! panic {
+    ($panic:expr, $($arg:tt)*) => ($crate::GLOBAL.panic($panic).get_mut().unwrap().write_format(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! panicln {
+    ($panic:expr, $fmt:expr) => ($crate::panic!($panic, concat!($fmt, "\n")));
+    ($panic:expr, $fmt:expr, $($arg:tt)*) => ($crate::panic!($panic, concat!($fmt, "\n"), $($arg)*));
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::GLOBAL.lock().get_mut().unwrap().write_format(format_args!($($arg)*)));
 }
