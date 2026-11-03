@@ -15,14 +15,14 @@ use {
 pub struct Table {
     header: Header,
     manufacturer: u8,
-    typ: u8,
+    typ: Type,
     version: u8,
     serial_number: u8,
     asset_tag_number: u8,
-    boot_up_state: u8,
-    power_supply_state: u8,
-    thermal_state: u8,
-    security_status: u8,
+    boot_up_state: State,
+    power_supply_state: State,
+    thermal_state: State,
+    security_status: Status,
     oem_defined: u32,
     height: u8,
     number_of_power_cords: u8,
@@ -127,6 +127,74 @@ impl Debug for Table {
 }
 
 impl Trait for Table {}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.1 System Enclosure or Chassis Type
+#[derive(Debug)]
+#[repr(u8)]
+enum Type {
+    Other = 0x01,
+    Unknown = 0x02,
+    Desktop = 0x03,
+    LowProfileDesktop = 0x04,
+    PizzaBox = 0x05,
+    MiniTower = 0x06,
+    Tower = 0x07,
+    Portable = 0x08,
+    Laptop = 0x09,
+    Notebook = 0x0a,
+    HandHeld = 0x0b,
+    DockingStation = 0x0c,
+    AllInOne = 0x0d,
+    SubNotebook = 0x0e,
+    SpaceSaving = 0x0f,
+    LunchBox = 0x10,
+    MainServerChassis = 0x11,
+    ExpansionChassis = 0x12,
+    SubChassis = 0x13,
+    BusExpansionChassis = 0x14,
+    PeripheralChassis = 0x15,
+    RaidChassis = 0x16,
+    RackMountChassis = 0x17,
+    SealedCasePc = 0x18,
+    MultiSystemChassis = 0x19,
+    CompactPci = 0x1a,
+    AdvancedTca = 0x1b,
+    Blade = 0x1c,
+    BladeEnclosure = 0x1d,
+    Tablet = 0x1e,
+    Convertible = 0x1f,
+    Detachable = 0x20,
+    IotGateway = 0x21,
+    EmbeddedPc = 0x22,
+    MiniPc = 0x23,
+    StickPc = 0x24,
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.2 System Enclosure or Chassis States
+#[derive(Debug)]
+#[repr(u8)]
+enum State {
+    Other = 0x01,
+    Unknown = 0x02,
+    Safe = 0x03,
+    Warning = 0x04,
+    Critical = 0x05,
+    NonRecoverable = 0x06,
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.3 System Enclosure or Chassis Status
+#[derive(Debug)]
+#[repr(u8)]
+enum Status {
+    Other = 0x01,
+    Unknown = 0x02,
+    None = 0x03,
+    ExternalInterfaceLockedOut = 0x04,
+    ExternalInterfaceEnabled = 0x05,
+}
 
 #[derive(packed::Accessor, Debug)]
 #[repr(C, packed)]
