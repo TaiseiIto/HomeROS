@@ -1,5 +1,5 @@
 use {
-    super::{super::Node, SubType},
+    super::super::Node,
     alloc::string::String,
     core::fmt::{Debug, Formatter, Result},
 };
@@ -10,7 +10,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     ssid: [u8; 32],
 }

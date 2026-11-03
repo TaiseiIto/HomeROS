@@ -1,7 +1,7 @@
 pub mod class;
 pub mod wwid;
 
-use super::{super::Node, SubType};
+use super::super::Node;
 
 /// # References
 /// * [USB Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#usb-device-paths)
@@ -9,7 +9,7 @@ use super::{super::Node, SubType};
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     parent_port_number: u8,
     interface: u8,

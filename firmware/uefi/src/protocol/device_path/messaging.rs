@@ -37,12 +37,16 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
 }
 
 impl Protocol {
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn read(&self) -> &dyn Node {
-        match self.sub_type() {
+        match self.get_sub_type() {
             SubType::Atapi => unsafe { &*(self as *const Self as *const atapi::Protocol) },
             SubType::Scsi => unsafe { &*(self as *const Self as *const scsi::Protocol) },
             SubType::Fibre => unsafe { &*(self as *const Self as *const fibre::Protocol) },
@@ -91,6 +95,7 @@ impl Protocol {
             SubType::NvmeofNamespace => unsafe {
                 &*(self as *const Self as *const nvmeof_namespace::Protocol)
             },
+            SubType::Unknown(_) => panic!(),
         }
     }
 }
@@ -106,38 +111,78 @@ impl Node for Protocol {}
 /// # References
 /// * [Messaging Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#messaging-device-path)
 #[derive(Clone, Copy, Debug)]
-#[repr(u8)]
 enum SubType {
-    Atapi = 1,
-    Scsi = 2,
-    Fibre = 3,
-    FibreEx = 21,
-    Device1394 = 4,
-    Usb = 5,
-    Sata = 18,
-    UsbWwid = 16,
-    DeviceLogicalUnit = 17,
-    UsbClass = 15,
-    I2O = 6,
-    MacAddress = 11,
-    Ipv4 = 12,
-    Ipv6 = 13,
-    Vlan = 20,
-    InfiniBand = 9,
-    Uart = 14,
-    Vendor = 10,
-    SasEx = 22,
-    Iscsi = 19,
-    NvmExpressNamespace = 23,
-    Uri = 24,
-    Ufs = 25,
-    Sd = 26,
-    Bluetooth = 27,
-    Wifi = 28,
-    Emmc = 29,
-    BluetoothLe = 30,
-    Dns = 31,
-    Nvdimm = 32,
-    RestService = 33,
-    NvmeofNamespace = 34,
+    Atapi,
+    Scsi,
+    Fibre,
+    FibreEx,
+    Device1394,
+    Usb,
+    Sata,
+    UsbWwid,
+    DeviceLogicalUnit,
+    UsbClass,
+    I2O,
+    MacAddress,
+    Ipv4,
+    Ipv6,
+    Vlan,
+    InfiniBand,
+    Uart,
+    Vendor,
+    SasEx,
+    Iscsi,
+    NvmExpressNamespace,
+    Uri,
+    Ufs,
+    Sd,
+    Bluetooth,
+    Wifi,
+    Emmc,
+    BluetoothLe,
+    Dns,
+    Nvdimm,
+    RestService,
+    NvmeofNamespace,
+    Unknown(u8),
+}
+
+impl From<u8> for SubType {
+    fn from(sub_type: u8) -> Self {
+        match sub_type {
+            1 => Self::Atapi,
+            2 => Self::Scsi,
+            3 => Self::Fibre,
+            21 => Self::FibreEx,
+            4 => Self::Device1394,
+            5 => Self::Usb,
+            18 => Self::Sata,
+            16 => Self::UsbWwid,
+            17 => Self::DeviceLogicalUnit,
+            15 => Self::UsbClass,
+            6 => Self::I2O,
+            11 => Self::MacAddress,
+            12 => Self::Ipv4,
+            13 => Self::Ipv6,
+            20 => Self::Vlan,
+            9 => Self::InfiniBand,
+            14 => Self::Uart,
+            10 => Self::Vendor,
+            22 => Self::SasEx,
+            19 => Self::Iscsi,
+            23 => Self::NvmExpressNamespace,
+            24 => Self::Uri,
+            25 => Self::Ufs,
+            26 => Self::Sd,
+            27 => Self::Bluetooth,
+            28 => Self::Wifi,
+            29 => Self::Emmc,
+            30 => Self::BluetoothLe,
+            31 => Self::Dns,
+            32 => Self::Nvdimm,
+            33 => Self::RestService,
+            34 => Self::NvmeofNamespace,
+            sub_type => Self::Unknown(sub_type),
+        }
+    }
 }

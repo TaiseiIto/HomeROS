@@ -1,4 +1,4 @@
-use super::{super::Node, SubType};
+use super::super::Node;
 
 /// # References
 /// * [UFS (Universal Flash Storage) device messaging devicepath node](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#ufs-universal-flash-storage-device-messaging-devicepath-node)
@@ -6,7 +6,7 @@ use super::{super::Node, SubType};
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     target_id: u8,
     lun: u8,

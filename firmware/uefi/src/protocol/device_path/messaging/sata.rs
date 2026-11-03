@@ -1,4 +1,4 @@
-use super::{super::Node, SubType};
+use super::super::Node;
 
 /// # References
 /// * [SATA Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#sata-device-path)
@@ -6,7 +6,7 @@ use super::{super::Node, SubType};
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     hba_port_number: u16,
     port_multiplier_port_number: u16,

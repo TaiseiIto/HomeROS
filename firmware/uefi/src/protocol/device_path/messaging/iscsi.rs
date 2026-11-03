@@ -1,5 +1,5 @@
 use {
-    super::{super::Node, SubType},
+    super::super::Node,
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
@@ -14,7 +14,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     protocol: u16,
     options: u16,

@@ -1,4 +1,4 @@
-use super::super::{super::Node, SubType};
+use super::super::super::Node;
 
 /// # References
 /// * [Fibre Channel Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#fibre-channel-device-path)
@@ -6,7 +6,7 @@ use super::super::{super::Node, SubType};
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     reserved: u32,
     world_wide_name: u64,

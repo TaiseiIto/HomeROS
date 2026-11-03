@@ -2,7 +2,7 @@ mod sas;
 mod uart_flow_control;
 
 use {
-    super::{super::Node, SubType},
+    super::super::Node,
     crate::Guid,
     core::fmt::{self, Debug, Formatter},
 };
@@ -13,7 +13,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     guid: Guid,
 }

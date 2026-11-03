@@ -1,8 +1,5 @@
 use {
-    super::{
-        super::{super::network::pxe::ip, Node},
-        SubType,
-    },
+    super::{super::super::network::pxe::ip, Node},
     alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
@@ -18,7 +15,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     is_ipv6: u8,
     servers: PhantomData<ip::Address>,

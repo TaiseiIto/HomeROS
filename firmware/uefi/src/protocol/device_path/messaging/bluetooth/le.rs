@@ -1,4 +1,4 @@
-use super::super::{super::Node, SubType};
+use super::super::super::Node;
 
 /// # References
 /// * [EFI BluetoothLE Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#efi-bluetoothle-device-path)
@@ -6,7 +6,7 @@ use super::super::{super::Node, SubType};
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     address: [u8; 6],
     address_type: u8,
