@@ -52,6 +52,11 @@ impl Table {
             .and_then(|index| self.strings().get(index).cloned())
     }
 
+    fn get_sku_number(&self) -> Option<String> {
+        self.sku_number_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
     fn manufacturer_index(&self) -> Option<usize> {
         (self.manufacturer() as usize).checked_sub(1)
     }
@@ -66,6 +71,10 @@ impl Table {
 
     fn asset_tag_number_index(&self) -> Option<usize> {
         (self.asset_tag_number() as usize).checked_sub(1)
+    }
+
+    fn sku_number_index(&self) -> Option<usize> {
+        (self.footer().sku_number as usize).checked_sub(1)
     }
 
     fn get_contained_elements(&self) -> &[u8] {
@@ -110,7 +119,7 @@ impl Debug for Table {
                 &self.contained_element_record_length(),
             )
             .field("contained_elements", &self.get_contained_elements())
-            .field("sku_number", &self.footer().sku_number)
+            .field("sku_number", &self.get_sku_number())
             .field("rack_type", &self.footer().rack_type)
             .field("rack_height", &self.footer().rack_height)
             .finish()
