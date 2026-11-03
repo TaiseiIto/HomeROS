@@ -39,6 +39,13 @@ impl Table {
             )
         }
     }
+
+    fn footer(&self) -> &Footer {
+        unsafe {
+            &*(&self.contained_elements as *const PhantomData<u8> as *const Footer)
+                .byte_add(self.get_contained_elements().len())
+        }
+    }
 }
 
 impl Debug for Table {
@@ -64,8 +71,17 @@ impl Debug for Table {
                 &self.contained_element_record_length(),
             )
             .field("contained_elements", &self.get_contained_elements())
+            .field("footer", self.footer())
             .finish()
     }
 }
 
 impl Trait for Table {}
+
+#[derive(packed::Accessor, Debug)]
+#[repr(C, packed)]
+struct Footer {
+    sku_number: u8,
+    rack_type: u8,
+    rack_height: u8,
+}
