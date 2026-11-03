@@ -1,6 +1,10 @@
 use {
     crate::{Header, Table as Trait},
-    core::fmt::{Debug, Formatter, Result},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        marker::PhantomData,
+        slice::from_raw_parts,
+    },
 };
 
 /// # References
@@ -23,6 +27,18 @@ pub struct Table {
     number_of_power_cords: u8,
     contained_element_count: u8,
     contained_element_record_length: u8,
+    contained_elements: PhantomData<u8>,
+}
+
+impl Table {
+    fn get_contained_elements(&self) -> &[u8] {
+        unsafe {
+            from_raw_parts(
+                &self.contained_elements as *const PhantomData<u8> as *const u8,
+                (self.contained_element_count() * self.contained_element_record_length()) as usize,
+            )
+        }
+    }
 }
 
 impl Debug for Table {
@@ -47,6 +63,7 @@ impl Debug for Table {
                 "contained_element_record_length",
                 &self.contained_element_record_length(),
             )
+            .field("contained_elements", &self.get_contained_elements())
             .finish()
     }
 }
