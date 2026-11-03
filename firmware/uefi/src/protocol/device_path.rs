@@ -12,12 +12,18 @@ use core::fmt::{Debug, Formatter, Result};
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
+}
+
+impl Protocol {
+    fn get_type(&self) -> Type {
+        self.ty().into()
+    }
 }
 
 impl Protocol {
     fn read(&self) -> &dyn Node {
-        match self.ty() {
+        match self.get_type() {
             Type::Hardware => unsafe { &*(self as *const Self as *const hardware::Protocol) },
             Type::Acpi => unsafe { &*(self as *const Self as *const acpi::Protocol) },
             Type::Messaging => unsafe { &*(self as *const Self as *const messaging::Protocol) },
@@ -28,6 +34,7 @@ impl Protocol {
             Type::BiosBootSpecification => unsafe {
                 &*(self as *const Self as *const bios_boot_specification::Protocol)
             },
+            Type::Unknown(_) => panic!(),
         }
     }
 }
@@ -41,14 +48,28 @@ impl Debug for Protocol {
 /// # References
 /// * [Type](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#generic-device-path-structures)
 #[derive(Clone, Copy, Debug)]
-#[repr(u8)]
 enum Type {
-    Hardware = 0x01,
-    Acpi = 0x02,
-    Messaging = 0x03,
-    Media = 0x04,
-    BiosBootSpecification = 0x05,
-    EndOfHardware = 0x7f,
+    Hardware,
+    Acpi,
+    Messaging,
+    Media,
+    BiosBootSpecification,
+    EndOfHardware,
+    Unknown(u8),
+}
+
+impl From<u8> for Type {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0x01 => Self::Hardware,
+            0x02 => Self::Acpi,
+            0x03 => Self::Messaging,
+            0x04 => Self::Media,
+            0x05 => Self::BiosBootSpecification,
+            0x7f => Self::EndOfHardware,
+            typ => Self::Unknown(typ),
+        }
+    }
 }
 
 trait Node: Debug {}
