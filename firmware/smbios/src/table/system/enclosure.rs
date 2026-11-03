@@ -52,7 +52,9 @@ impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
-            .field("header", &self.header)
+            .field("typ", &self.header.typ())
+            .field("length", &self.header.length())
+            .field("handle", &self.header.handle())
             .field("manufacturer", &self.manufacturer())
             .field("typ", &self.typ())
             .field("version", &self.version())
@@ -71,7 +73,9 @@ impl Debug for Table {
                 &self.contained_element_record_length(),
             )
             .field("contained_elements", &self.get_contained_elements())
-            .field("footer", self.footer())
+            .field("sku_number", &self.footer().sku_number)
+            .field("rack_type", &self.footer().rack_type)
+            .field("rack_height", &self.footer().rack_height)
             .finish()
     }
 }
