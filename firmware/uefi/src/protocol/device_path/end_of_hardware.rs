@@ -4,7 +4,7 @@ use super::Node;
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
 }
 
@@ -13,8 +13,18 @@ impl Node for Protocol {}
 /// # References
 /// * [Generic Device Path Structures](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#generic-device-path-structures)
 #[derive(Clone, Copy, Debug)]
-#[repr(u8)]
 enum SubType {
-    Entire = 0xff,
-    Instance = 0x01,
+    Entire,
+    Instance,
+    Unknown(u8),
+}
+
+impl From<u8> for SubType {
+    fn from(sub_type: u8) -> Self {
+        match sub_type {
+            0xff => Self::Entire,
+            0x01 => Self::Instance,
+            sub_type => Self::Unknown(sub_type),
+        }
+    }
 }
