@@ -265,7 +265,6 @@ impl From<u8> for State {
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.3 System Enclosure or Chassis Status
 #[derive(Debug)]
-#[repr(u8)]
 enum Status {
     Other,
     Unknown,
