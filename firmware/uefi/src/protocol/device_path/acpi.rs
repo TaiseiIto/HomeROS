@@ -14,12 +14,12 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
 }
 
 impl Protocol {
     fn get_sub_type(&self) -> SubType {
-        self.ty().into()
+        self.sub_type().into()
     }
 
     fn read(&self) -> &dyn Node {
