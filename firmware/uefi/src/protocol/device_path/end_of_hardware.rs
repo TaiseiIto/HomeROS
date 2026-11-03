@@ -1,11 +1,35 @@
-use super::Node;
+use {
+    super::{Node, Type},
+    core::fmt::{Debug, Formatter, Result},
+};
 
-#[derive(Debug, packed::Accessor)]
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
+}
+
+impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+}
+
+impl Debug for Protocol {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter
+            .debug_struct("Protocol")
+            .field("typ", &self.get_type())
+            .field("sub_type", &self.get_sub_type())
+            .field("length", &self.length())
+            .finish()
+    }
 }
 
 impl Node for Protocol {}

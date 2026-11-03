@@ -61,7 +61,7 @@ impl<T> Lock<T> {
         self.locked.store(false, Release);
     }
 
-    pub fn panic<'a>(&'a self, panic: &'a PanicInfo) -> Guard<'a, T> {
+    pub fn panic<'a>(&'a self, _: &'a PanicInfo) -> Guard<'a, T> {
         Guard(self)
     }
 }
