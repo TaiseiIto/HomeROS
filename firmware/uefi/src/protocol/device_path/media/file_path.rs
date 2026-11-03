@@ -1,5 +1,5 @@
 use {
-    super::{super::Node, SubType},
+    super::super::Node,
     crate::Char16,
     alloc::string::String,
     core::{
@@ -16,7 +16,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     name: PhantomData<Char16>,
 }

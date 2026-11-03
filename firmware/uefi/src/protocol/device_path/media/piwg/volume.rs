@@ -1,7 +1,4 @@
-use {
-    super::super::{super::Node, SubType},
-    crate::Guid,
-};
+use {super::super::super::Node, crate::Guid};
 
 /// # References
 /// * [PIWG Firmware Volume](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#piwg-firmware-volume)
@@ -10,7 +7,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     name: Guid,
 }

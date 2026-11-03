@@ -18,12 +18,16 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
 }
 
 impl Protocol {
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn read(&self) -> &dyn Node {
-        match self.sub_type() {
+        match self.get_sub_type() {
             SubType::HardDrive => unsafe { &*(self as *const Self as *const hard_drive::Protocol) },
             SubType::CdRom => unsafe { &*(self as *const Self as *const cd_rom::Protocol) },
             SubType::Vendor => unsafe { &*(self as *const Self as *const vendor::Protocol) },
@@ -37,6 +41,7 @@ impl Protocol {
                 &*(self as *const Self as *const relative_offset::Protocol)
             },
             SubType::RamDisk => unsafe { &*(self as *const Self as *const ram_disk::Protocol) },
+            SubType::Unknown(_) => panic!(),
         }
     }
 }
@@ -52,15 +57,32 @@ impl Node for Protocol {}
 /// # References
 /// * [Media Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-device-path)
 #[derive(Clone, Copy, Debug)]
-#[repr(u8)]
 enum SubType {
-    HardDrive = 0x01,
-    CdRom = 0x02,
-    Vendor = 0x03,
-    FilePath = 0x04,
-    Media = 0x05,
-    PiwgFile = 0x06,
-    PiwgVolume = 0x07,
-    RelativeOffset = 0x08,
-    RamDisk = 0x09,
+    HardDrive,
+    CdRom,
+    Vendor,
+    FilePath,
+    Media,
+    PiwgFile,
+    PiwgVolume,
+    RelativeOffset,
+    RamDisk,
+    Unknown(u8),
+}
+
+impl From<u8> for SubType {
+    fn from(sub_type: u8) -> Self {
+        match sub_type {
+            0x01 => Self::HardDrive,
+            0x02 => Self::CdRom,
+            0x03 => Self::Vendor,
+            0x04 => Self::FilePath,
+            0x05 => Self::Media,
+            0x06 => Self::PiwgFile,
+            0x07 => Self::PiwgVolume,
+            0x08 => Self::RelativeOffset,
+            0x09 => Self::RamDisk,
+            sub_type => Self::Unknown(sub_type),
+        }
+    }
 }

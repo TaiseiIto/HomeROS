@@ -1,7 +1,4 @@
-use {
-    super::{super::Node, SubType},
-    crate::Guid,
-};
+use {super::super::Node, crate::Guid};
 
 /// # References
 /// * [Media Protocol Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#media-protocol-device-path)
@@ -9,7 +6,7 @@ use {
 #[repr(C, packed)]
 pub struct Protocol {
     ty: u8,
-    sub_type: SubType,
+    sub_type: u8,
     length: u16,
     guid: Guid,
 }
