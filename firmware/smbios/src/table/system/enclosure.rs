@@ -98,7 +98,7 @@ impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
-            .field("typ", &self.header.typ())
+            .field("type", &self.header.get_type())
             .field("length", &self.header.length())
             .field("handle", &self.header.handle())
             .field("manufacturer", &self.get_manufacturer())

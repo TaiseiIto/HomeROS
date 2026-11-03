@@ -41,12 +41,12 @@ impl Header {
         }
     }
 
-    fn size(&self) -> usize {
-        self.length() as usize
+    pub fn get_type(&self) -> Type {
+        self.typ().into()
     }
 
-    fn get_type(&self) -> Type {
-        self.typ().into()
+    fn size(&self) -> usize {
+        self.length() as usize
     }
 }
 
