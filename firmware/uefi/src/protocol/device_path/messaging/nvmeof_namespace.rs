@@ -1,5 +1,8 @@
 use {
-    super::super::Node,
+    super::{
+        super::{Node, Type},
+        SubType,
+    },
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
@@ -13,7 +16,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
     nidt: u8,
@@ -22,6 +25,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn subsystem_nqn_str(&self) -> &str {
         str::from_utf8(self.subsystem_nqn_bytes()).unwrap()
     }
@@ -44,8 +55,8 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
+            .field("typ", &self.get_type())
+            .field("sub_type", &self.get_sub_type())
             .field("length", &self.length())
             .field("nidt", &self.nidt())
             .field("nid", &self.nid())

@@ -36,7 +36,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
 }
 

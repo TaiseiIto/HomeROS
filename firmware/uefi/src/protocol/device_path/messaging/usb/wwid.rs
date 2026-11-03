@@ -1,5 +1,8 @@
 use {
-    super::super::super::Node,
+    super::super::{
+        super::{Node, Type},
+        SubType,
+    },
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
@@ -13,7 +16,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
     interface_number: u16,
@@ -23,6 +26,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn serial_number_bytes(&self) -> &[u8] {
         unsafe {
             from_raw_parts(
@@ -41,8 +52,8 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
+            .field("typ", &self.get_type())
+            .field("sub_type", &self.get_sub_type())
             .field("length", &self.length())
             .field("interface_number", &self.interface_number())
             .field("device_vendor_id", &self.device_vendor_id())

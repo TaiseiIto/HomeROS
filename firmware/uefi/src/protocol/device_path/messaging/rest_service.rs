@@ -1,5 +1,8 @@
 use {
-    super::super::Node,
+    super::{
+        super::{Node, Type},
+        SubType,
+    },
     crate::Guid,
     core::{
         fmt::{Debug, Formatter, Result},
@@ -14,7 +17,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
     rest_service: u8,
@@ -23,6 +26,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn vendor_data(&self) -> Option<&[u8]> {
         self.vendor_specific_bytes()
             .split_at_checked(size_of::<Guid>())
@@ -53,8 +64,8 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
+            .field("typ", &self.get_type())
+            .field("get_sub_type", &self.get_sub_type())
             .field("length", &self.length())
             .field("rest_service", &self.rest_service())
             .field("access_mode", &self.access_mode())

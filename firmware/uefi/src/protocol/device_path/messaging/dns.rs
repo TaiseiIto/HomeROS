@@ -1,5 +1,8 @@
 use {
-    super::{super::super::network::pxe::ip, Node},
+    super::{
+        super::{super::network::pxe::ip, Node, Type},
+        SubType,
+    },
     alloc::vec::Vec,
     core::{
         fmt::{Debug, Formatter, Result},
@@ -14,7 +17,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
     is_ipv6: u8,
@@ -22,6 +25,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn server_addresses(&self) -> Vec<ip::HeterogeneousAddress> {
         self.servers_bytes()
             .chunks(size_of::<ip::Address>())
@@ -55,8 +66,8 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
+            .field("typ", &self.get_type())
+            .field("sub_type", &self.get_sub_type())
             .field("length", &self.length())
             .field("is_ipv6", &self.is_ipv6())
             .field("servers", &self.server_addresses())

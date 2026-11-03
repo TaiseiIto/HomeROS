@@ -1,5 +1,8 @@
 use {
-    super::super::Node,
+    super::{
+        super::{Node, Type},
+        SubType,
+    },
     crate::Guid,
     core::{
         fmt::{Debug, Formatter, Result},
@@ -14,7 +17,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: u8,
+    typ: u8,
     sub_type: u8,
     length: u16,
     guid: Guid,
@@ -22,6 +25,14 @@ pub struct Protocol {
 }
 
 impl Protocol {
+    fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
+    fn get_sub_type(&self) -> SubType {
+        self.sub_type().into()
+    }
+
     fn data_bytes(&self) -> &[u8] {
         unsafe {
             from_raw_parts(
@@ -40,8 +51,8 @@ impl Debug for Protocol {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Protocol")
-            .field("ty", &self.ty())
-            .field("sub_type", &self.sub_type())
+            .field("typ", &self.get_type())
+            .field("sub_type", &self.get_sub_type())
             .field("length", &self.length())
             .field("guid", &self.guid())
             .field("data", &self.data_bytes())
