@@ -1,5 +1,6 @@
 use {
     crate::{Header, Table as Trait},
+    alloc::string::String,
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
@@ -31,6 +32,42 @@ pub struct Table {
 }
 
 impl Table {
+    fn get_manufacturer(&self) -> Option<String> {
+        self.manufacturer_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn get_version(&self) -> Option<String> {
+        self.version_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn get_serial_number(&self) -> Option<String> {
+        self.serial_number_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn get_asset_tag_number(&self) -> Option<String> {
+        self.asset_tag_number_index()
+            .and_then(|index| self.strings().get(index).cloned())
+    }
+
+    fn manufacturer_index(&self) -> Option<usize> {
+        (self.manufacturer() as usize).checked_sub(1)
+    }
+
+    fn version_index(&self) -> Option<usize> {
+        (self.version() as usize).checked_sub(1)
+    }
+
+    fn serial_number_index(&self) -> Option<usize> {
+        (self.serial_number() as usize).checked_sub(1)
+    }
+
+    fn asset_tag_number_index(&self) -> Option<usize> {
+        (self.asset_tag_number() as usize).checked_sub(1)
+    }
+
     fn get_contained_elements(&self) -> &[u8] {
         unsafe {
             from_raw_parts(
@@ -55,11 +92,11 @@ impl Debug for Table {
             .field("typ", &self.header.typ())
             .field("length", &self.header.length())
             .field("handle", &self.header.handle())
-            .field("manufacturer", &self.manufacturer())
+            .field("manufacturer", &self.get_manufacturer())
             .field("typ", &self.typ())
-            .field("version", &self.version())
-            .field("serial_number", &self.serial_number())
-            .field("asset_tag_number", &self.asset_tag_number())
+            .field("version", &self.get_version())
+            .field("serial_number", &self.get_serial_number())
+            .field("asset_tag_number", &self.get_asset_tag_number())
             .field("boot_up_state", &self.boot_up_state())
             .field("power_supply_state", &self.power_supply_state())
             .field("thermal_state", &self.thermal_state())
