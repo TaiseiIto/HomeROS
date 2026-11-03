@@ -1,8 +1,5 @@
 use {
-    super::super::{
-        super::{Node, Type},
-        SubType,
-    },
+    super::super::{super::Node, SubType},
     crate::{Guid, guid},
 };
 
@@ -11,7 +8,7 @@ use {
 #[derive(packed::Accessor, Debug)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
     guid: Guid,

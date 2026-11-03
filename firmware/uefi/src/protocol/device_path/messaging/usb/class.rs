@@ -1,14 +1,11 @@
-use super::super::{
-    super::{Node, Type},
-    SubType,
-};
+use super::super::{super::Node, SubType};
 
 /// # References
 /// * [Device Logical Unit](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#device-logical-unit)
 #[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
     vendor_id: u16,

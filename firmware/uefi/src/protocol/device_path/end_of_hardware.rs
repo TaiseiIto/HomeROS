@@ -1,9 +1,9 @@
-use super::{Node, Type};
+use super::Node;
 
 #[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
 }

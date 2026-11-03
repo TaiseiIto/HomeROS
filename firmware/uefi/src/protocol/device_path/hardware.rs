@@ -6,7 +6,7 @@ mod pci;
 mod vendor;
 
 use {
-    super::{Node, Type},
+    super::Node,
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -15,7 +15,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
 }
 

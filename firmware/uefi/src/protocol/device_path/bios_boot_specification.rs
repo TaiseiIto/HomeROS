@@ -1,5 +1,5 @@
 use {
-    super::{Node, Type},
+    super::Node,
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
@@ -13,7 +13,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
     device_type: u16,

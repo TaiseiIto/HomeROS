@@ -1,6 +1,6 @@
 use {
     super::{
-        super::{super::network::pxe::ip, Node, Type},
+        super::{super::network::pxe::ip, Node},
         SubType,
     },
     alloc::vec::Vec,
@@ -17,7 +17,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
     is_ipv6: u8,

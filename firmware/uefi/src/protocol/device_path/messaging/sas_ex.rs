@@ -1,14 +1,11 @@
-use super::{
-    super::{Node, Type},
-    SubType,
-};
+use super::{super::Node, SubType};
 
 /// # References
 /// * [Serial Attached SCSI (SAS) Extended Device Path](https://uefi.org/specs/UEFI/2.11/10_Protocols_Device_Path_Protocol.html#serial-attached-scsi-sas-extended-device-path)
 #[derive(Debug, packed::Accessor)]
 #[repr(C, packed)]
 pub struct Protocol {
-    ty: Type,
+    ty: u8,
     sub_type: SubType,
     length: u16,
     address: u64,
