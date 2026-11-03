@@ -1,0 +1,54 @@
+use {
+    crate::{Header, Table as Trait},
+    core::fmt::{Debug, Formatter, Result},
+};
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
+#[derive(packed::Accessor)]
+#[repr(C, packed)]
+pub struct Table {
+    header: Header,
+    manufacturer: u8,
+    typ: u8,
+    version: u8,
+    serial_number: u8,
+    asset_tag_number: u8,
+    boot_up_state: u8,
+    power_supply_state: u8,
+    thermal_state: u8,
+    security_status: u8,
+    oem_defined: u32,
+    height: u8,
+    number_of_power_cords: u8,
+    contained_element_count: u8,
+    contained_element_record_length: u8,
+}
+
+impl Debug for Table {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter
+            .debug_struct("Table")
+            .field("header", &self.header)
+            .field("manufacturer", &self.manufacturer())
+            .field("typ", &self.typ())
+            .field("version", &self.version())
+            .field("serial_number", &self.serial_number())
+            .field("asset_tag_number", &self.asset_tag_number())
+            .field("boot_up_state", &self.boot_up_state())
+            .field("power_supply_state", &self.power_supply_state())
+            .field("thermal_state", &self.thermal_state())
+            .field("security_status", &self.security_status())
+            .field("oem_defined", &self.oem_defined())
+            .field("height", &self.height())
+            .field("number_of_power_cords", &self.number_of_power_cords())
+            .field("contained_element_count", &self.contained_element_count())
+            .field(
+                "contained_element_record_length",
+                &self.contained_element_record_length(),
+            )
+            .finish()
+    }
+}
+
+impl Trait for Table {}

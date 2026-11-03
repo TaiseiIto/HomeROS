@@ -1,5 +1,5 @@
 use {
-    crate::{Strings, Table, table::system_information},
+    crate::{Strings, Table, table::system},
     alloc::{string::String, vec::Vec},
     core::fmt::{self, Debug, Formatter},
 };
@@ -31,7 +31,8 @@ impl Header {
     /// * Implement all table types.
     pub fn table(&self) -> Result<&dyn Table, u8> {
         match self.typ() {
-            1 => Ok(unsafe { &*(self as *const Self as *const system_information::Table) }),
+            1 => Ok(unsafe { &*(self as *const Self as *const system::information::Table) }),
+            3 => Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) }),
             typ => Err(typ),
         }
     }

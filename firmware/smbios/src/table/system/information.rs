@@ -85,11 +85,7 @@ impl Debug for Table {
     }
 }
 
-impl Trait for Table {
-    fn get_header(&self) -> &Header {
-        &self.header
-    }
-}
+impl Trait for Table {}
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.2.2 System - Wake-up Type

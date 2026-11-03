@@ -1,4 +1,4 @@
-pub mod system_information;
+pub mod system;
 
 use {
     crate::{Header, header},
@@ -7,7 +7,9 @@ use {
 };
 
 pub trait Table: Debug {
-    fn get_header(&self) -> &Header;
+    fn get_header(&self) -> &Header {
+        unsafe { &*(self as *const Self as *const Header) }
+    }
 
     fn strings(&self) -> Vec<String> {
         self.get_header().strings().collect()
