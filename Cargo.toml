@@ -11,6 +11,7 @@ members = [
 	"firmware",
 	"firmware/sbi",
 	"firmware/smbios",
+	"firmware/smbios/table",
 	"firmware/tfa",
 	"firmware/uefi",
 	"memory",

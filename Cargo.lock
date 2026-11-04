@@ -120,6 +120,7 @@ name = "smbios"
 version = "0.1.0"
 dependencies = [
  "packed",
+ "table",
  "uuid",
 ]
 
@@ -139,6 +140,15 @@ name = "sync"
 version = "0.1.0"
 dependencies = [
  "arch",
+]
+
+[[package]]
+name = "table"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

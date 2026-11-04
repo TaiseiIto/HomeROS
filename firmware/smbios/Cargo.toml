@@ -6,5 +6,8 @@ edition = "2024"
 [dependencies.packed]
 path = "../../tool/macro/packed"
 
+[dependencies.table]
+path = "table"
+
 [dependencies.uuid]
 path = "../../standard/uuid"
