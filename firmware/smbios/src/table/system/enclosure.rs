@@ -1,13 +1,4 @@
-use {
-    crate::{Header, Table as Trait},
-    alloc::string::String,
-    core::{
-        fmt::{Debug, Formatter, Result},
-        marker::PhantomData,
-        mem::offset_of,
-        slice::from_raw_parts,
-    },
-};
+use crate::{Header, Table as Trait};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
@@ -35,35 +26,6 @@ pub struct Table {
     number_of_power_cords: u8,
     contained_element_count: u8,
     contained_element_record_length: u8,
-}
-
-impl Debug for Table {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter
-            .debug_struct("Table")
-            .field("header", &self.get_header())
-            .field("manufacturer", &self.get_manufacturer())
-            .field("type", &self.get_typ())
-            .field("version", &self.get_version())
-            .field("serial_number", &self.get_serial_number())
-            .field("asset_tag_number", &self.get_asset_tag_number())
-            .field("boot_up_state", &self.get_boot_up_state())
-            .field("power_supply_state", &self.get_power_supply_state())
-            .field("thermal_state", &self.get_thermal_state())
-            .field("security_status", &self.get_security_status())
-            .field("oem_defined", &self.get_oem_defined())
-            .field("height", &self.get_height())
-            .field("number_of_power_cords", &self.get_number_of_power_cords())
-            .field(
-                "contained_element_count",
-                &self.get_contained_element_count(),
-            )
-            .field(
-                "contained_element_record_length",
-                &self.get_contained_element_record_length(),
-            )
-            .finish()
-    }
 }
 
 impl Trait for Table {}

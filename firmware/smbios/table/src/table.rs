@@ -14,6 +14,25 @@ pub struct Structure {
 }
 
 impl Structure {
+    fn debug(&self) -> TokenStream {
+        let Self {
+            vis,
+            ident,
+            elements,
+        } = self;
+        quote! {
+            impl ::core::fmt::Debug for #ident {
+                fn fmt(&self, formatter: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+                    let mut debug_struct: ::core::fmt::DebugStruct = formatter.debug_struct(::core::stringify!(#ident));
+                    debug_struct.field("typ", &self.get_header().get_type());
+                    debug_struct.field("length", &self.get_header().size());
+                    debug_struct.field("handle", &self.get_header().handle());
+                    debug_struct.finish()
+                }
+            }
+        }
+    }
+
     fn implement(&self) -> TokenStream {
         let Self {
             vis,
@@ -62,8 +81,10 @@ impl From<DeriveInput> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
+        let debug: TokenStream = structure.debug();
         let implement: TokenStream = structure.implement();
         quote! {
+            #debug
             #implement
         }
     }

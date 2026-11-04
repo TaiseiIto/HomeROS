@@ -1,7 +1,5 @@
 use {
     crate::{Header, Table as Trait},
-    alloc::string::String,
-    core::fmt::{Debug, Formatter, Result},
     uuid::Uuid,
 };
 
@@ -25,23 +23,6 @@ pub struct Table {
     sku_number: u8,
     #[string]
     family: u8,
-}
-
-impl Debug for Table {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter
-            .debug_struct("Table")
-            .field("header", &self.get_header())
-            .field("manufacturer", &self.get_manufacturer())
-            .field("product_name", &self.get_product_name())
-            .field("version", &self.get_version())
-            .field("serial_number", &self.get_serial_number())
-            .field("uuid", &self.get_uuid())
-            .field("wake_up_type", &self.get_wake_up_type())
-            .field("sku_number", &self.get_sku_number())
-            .field("family", &self.get_family())
-            .finish()
-    }
 }
 
 impl Trait for Table {}

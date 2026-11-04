@@ -1,7 +1,4 @@
-use {
-    crate::{Header, Table as Trait},
-    core::fmt::{Debug, Formatter, Result},
-};
+use crate::{Header, Table as Trait};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.5 Processor Information (Type 4)
@@ -44,43 +41,6 @@ pub struct Table {
     thread_enabled: u16,
     #[string]
     socket_type: u8,
-}
-
-impl Debug for Table {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
-        formatter
-            .debug_struct("Table")
-            .field("header", &self.get_header())
-            .field("socket_designation", &self.get_socket_designation())
-            .field("typ", &self.get_typ())
-            .field("family", &self.get_family())
-            .field("manufacturer", &self.get_manufacturer())
-            .field("id", &self.get_id())
-            .field("version", &self.get_version())
-            .field("voltage", &self.get_voltage())
-            .field("external_clock", &self.get_external_clock())
-            .field("max_speed", &self.get_max_speed())
-            .field("current_speed", &self.get_current_speed())
-            .field("status", &self.get_status())
-            .field("upgrade", &self.get_upgrade())
-            .field("l1_cache_handle", &self.get_l1_cache_handle())
-            .field("l2_cache_handle", &self.get_l2_cache_handle())
-            .field("l3_cache_handle", &self.get_l3_cache_handle())
-            .field("serial_number", &self.get_serial_number())
-            .field("asset_tag", &self.get_asset_tag())
-            .field("part_number", &self.get_part_number())
-            .field("core_count", &self.get_core_count())
-            .field("core_enabled", &self.get_core_enabled())
-            .field("thread_count", &self.get_thread_count())
-            .field("characteristics", &self.get_characteristics())
-            .field("family2", &self.get_family2())
-            .field("core_count2", &self.get_core_count2())
-            .field("core_enabled2", &self.get_core_enabled2())
-            .field("thread_count2", &self.get_thread_count2())
-            .field("thread_enabled", &self.get_thread_enabled())
-            .field("socket_type", &self.get_socket_type())
-            .finish()
-    }
 }
 
 impl Trait for Table {}
