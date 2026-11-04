@@ -2,7 +2,7 @@ pub mod processor_information;
 pub mod system;
 
 use {
-    crate::{Header, Type, header},
+    crate::{Header, header},
     alloc::{string::String, vec::Vec},
     core::fmt::Debug,
 };

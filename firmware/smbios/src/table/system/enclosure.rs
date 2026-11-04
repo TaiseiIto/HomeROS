@@ -188,7 +188,6 @@ enum Type {
     EmbeddedPc,
     MiniPc,
     StickPc,
-    Unimplemented(u8),
 }
 
 impl From<u8> for Type {
@@ -230,7 +229,7 @@ impl From<u8> for Type {
             0x22 => Self::EmbeddedPc,
             0x23 => Self::MiniPc,
             0x24 => Self::StickPc,
-            typ => Self::Unimplemented(typ),
+            typ => panic!("Unknown type {:#x?}", typ),
         }
     }
 }
