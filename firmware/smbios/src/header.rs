@@ -22,6 +22,10 @@ impl Header {
         (!matches!(self.get_type(), Type::EndOfTable)).then_some(self)
     }
 
+    pub fn get_type(&self) -> Type {
+        self.typ().into()
+    }
+
     pub fn next_header(&self) -> &Self {
         unsafe { &*(self as *const Self).byte_add(self.size() + self.strings().size()) }
     }
@@ -32,26 +36,23 @@ impl Header {
 
     /// # TODO
     /// * Implement all table types.
-    pub fn table(&self) -> Result<&dyn Table, Type> {
+    pub fn table(&self) -> Option<&dyn Table> {
         match self.get_type() {
             Type::SystemInformation => {
-                Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
+                Some(unsafe { &*(self as *const Self as *const system::information::Table) })
             }
             Type::SystemEnclosure => {
-                Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
+                Some(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
             }
             Type::ProcessorInformation => {
-                Ok(unsafe { &*(self as *const Self as *const processor_information::Table) })
+                Some(unsafe { &*(self as *const Self as *const processor_information::Table) })
             }
-            typ => Err(typ),
+            Type::EndOfTable => None,
+            Type::Unknown(typ) => panic!("Unknown type {:#x?}", typ),
         }
     }
 
-    pub fn get_type(&self) -> Type {
-        self.typ().into()
-    }
-
-    fn size(&self) -> usize {
+    pub fn size(&self) -> usize {
         self.length() as usize
     }
 }

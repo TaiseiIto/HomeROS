@@ -26,9 +26,9 @@ impl<'a> From<header::List<'a>> for List<'a> {
 }
 
 impl<'a> Iterator for List<'a> {
-    type Item = Result<&'a dyn Table, Type>;
+    type Item = &'a dyn Table;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.0.next().map(Header::table)
+        self.0.next().and_then(Header::table)
     }
 }

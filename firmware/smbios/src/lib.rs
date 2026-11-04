@@ -130,7 +130,7 @@ impl Debug for EntryPoint64 {
 trait EntryPoint {
     fn first_header(&self) -> usize;
 
-    fn tables(&self) -> Vec<Result<&dyn Table, Type>> {
+    fn tables(&self) -> Vec<&dyn Table> {
         let list: header::List = unsafe { &*(self.first_header() as *const Header) }.into();
         let list: table::List = list.into();
         list.collect()

@@ -32,10 +32,6 @@ pub struct Table {
 }
 
 impl Table {
-    fn get_type(&self) -> Type {
-        self.typ().into()
-    }
-
     fn get_manufacturer(&self) -> Option<String> {
         self.manufacturer_index()
             .and_then(|index| self.strings().get(index).cloned())
@@ -43,6 +39,10 @@ impl Table {
 
     fn manufacturer_index(&self) -> Option<usize> {
         (self.manufacturer() as usize).checked_sub(1)
+    }
+
+    fn get_type(&self) -> Type {
+        self.typ().into()
     }
 
     fn get_version(&self) -> Option<String> {
