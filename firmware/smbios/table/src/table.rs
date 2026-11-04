@@ -14,14 +14,26 @@ pub struct Structure {
 }
 
 impl Structure {
+    fn header_ident(&self) -> Ident {
+        self.elements
+            .iter()
+            .find_map(|element| element.is_header.then_some(element.ident.clone()))
+            .unwrap()
+    }
+
     fn implement(&self) -> TokenStream {
         let Self {
             vis,
             ident,
             elements,
         } = self;
+        let gets: Vec<TokenStream> = elements
+            .iter()
+            .filter_map(|element| element.get(self.header_ident()))
+            .collect();
         quote! {
             impl #ident {
+                #(#gets)*
             }
         }
     }
@@ -71,6 +83,24 @@ struct Element {
     ident: Ident,
     ty: Type,
     is_header: bool,
+}
+
+impl Element {
+    fn get(&self, header_ident: Ident) -> Option<TokenStream> {
+        let Self {
+            ident,
+            ty,
+            is_header,
+        } = self;
+        (!is_header).then(|| {
+            let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
+            quote! {
+                fn #get_ident(&self) -> Option<#ty> {
+                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size()).then(|| self.#ident())
+                }
+            }
+        })
+    }
 }
 
 impl From<Field> for Element {
