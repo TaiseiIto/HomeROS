@@ -14,23 +14,13 @@ pub struct Structure {
 }
 
 impl Structure {
-    fn header_ident(&self) -> Ident {
-        self.elements
-            .iter()
-            .find_map(|element| element.is_header.then_some(element.ident.clone()))
-            .unwrap()
-    }
-
     fn implement(&self) -> TokenStream {
         let Self {
             vis,
             ident,
             elements,
         } = self;
-        let gets: Vec<TokenStream> = elements
-            .iter()
-            .filter_map(|element| element.get(self.header_ident()))
-            .collect();
+        let gets: Vec<TokenStream> = elements.iter().skip(1).map(Element::get).collect();
         quote! {
             impl #ident {
                 #(#gets)*
@@ -82,37 +72,33 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Ident,
     ty: Type,
-    is_header: bool,
     is_string: bool,
 }
 
 impl Element {
-    fn get(&self, header_ident: Ident) -> Option<TokenStream> {
+    fn get(&self) -> TokenStream {
         let Self {
             ident,
             ty,
-            is_header,
             is_string,
         } = self;
-        (!is_header).then(|| {
-            let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
-            if *is_string {
-                quote! {
-                    fn #get_ident(&self) -> Option<::alloc::string::String> {
-                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size())
-                            .then(|| self.#ident() as usize)
-                            .and_then(|#ident| #ident.checked_sub(1))
-                            .and_then(|#ident| self.strings().get(#ident).cloned())
-                    }
-                }
-            } else {
-                quote! {
-                    fn #get_ident(&self) -> Option<#ty> {
-                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size()).then(|| self.#ident())
-                    }
+        let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
+        if *is_string {
+            quote! {
+                fn #get_ident(&self) -> Option<::alloc::string::String> {
+                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size())
+                        .then(|| self.#ident() as usize)
+                        .and_then(|#ident| #ident.checked_sub(1))
+                        .and_then(|#ident| self.strings().get(#ident).cloned())
                 }
             }
-        })
+        } else {
+            quote! {
+                fn #get_ident(&self) -> Option<#ty> {
+                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident())
+                }
+            }
+        }
     }
 }
 
@@ -128,9 +114,9 @@ impl From<Field> for Element {
             default: _,
         } = field
         {
-            let (is_header, is_string): (bool, bool) = attrs.iter().fold(
-                (false, false),
-                |(is_header, is_string),
+            let is_string: bool = attrs.iter().fold(
+                false,
+                |is_string,
                  Attribute {
                      pound_token: _,
                      style: _,
@@ -139,19 +125,17 @@ impl From<Field> for Element {
                  }| match meta {
                     Meta::Path(path) => match path.get_ident() {
                         Some(path) => match path.to_string().as_str() {
-                            "header" => (true, is_string),
-                            "string" => (is_header, true),
-                            _ => (is_header, is_string),
+                            "string" => true,
+                            _ => is_string,
                         },
-                        None => (is_header, is_string),
+                        None => is_string,
                     },
-                    _ => (is_header, is_string),
+                    _ => is_string,
                 },
             );
             Self {
                 ident,
                 ty,
-                is_header,
                 is_string,
             }
         } else {
