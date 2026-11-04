@@ -50,7 +50,7 @@ impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
-            .field("header", &self.header())
+            .field("header", &self.get_header())
             .field("socket_designation", &self.get_socket_designation())
             .field("typ", &self.get_typ())
             .field("family", &self.get_family())
