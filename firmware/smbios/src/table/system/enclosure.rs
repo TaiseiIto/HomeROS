@@ -4,6 +4,7 @@ use {
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
+        mem::offset_of,
         slice::from_raw_parts,
     },
 };
@@ -33,16 +34,15 @@ pub struct Table {
 
 impl Table {
     fn get_manufacturer(&self) -> Option<String> {
-        self.manufacturer_index()
+        (offset_of!(Self, manufacturer) + size_of_val(&self.manufacturer()) <= self.header().size())
+            .then(|| self.manufacturer() as usize)
+            .and_then(|manufacturer| manufacturer.checked_sub(1))
             .and_then(|index| self.strings().get(index).cloned())
     }
 
-    fn manufacturer_index(&self) -> Option<usize> {
-        (self.manufacturer() as usize).checked_sub(1)
-    }
-
-    fn get_type(&self) -> Type {
-        self.typ().into()
+    fn get_type(&self) -> Option<Type> {
+        (offset_of!(Self, typ) + size_of_val(&self.typ()) <= self.header().size())
+            .then(|| self.typ().into())
     }
 
     fn get_version(&self) -> Option<String> {
