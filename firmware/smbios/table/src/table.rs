@@ -83,6 +83,7 @@ struct Element {
     ident: Ident,
     ty: Type,
     is_header: bool,
+    is_string: bool,
 }
 
 impl Element {
@@ -91,6 +92,7 @@ impl Element {
             ident,
             ty,
             is_header,
+            is_string: _,
         } = self;
         (!is_header).then(|| {
             let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
@@ -115,26 +117,31 @@ impl From<Field> for Element {
             default: _,
         } = field
         {
-            let is_header: bool = attrs.iter().fold(
-                false,
-                |is_header,
+            let (is_header, is_string): (bool, bool) = attrs.iter().fold(
+                (false, false),
+                |(is_header, is_string),
                  Attribute {
                      pound_token: _,
                      style: _,
                      bracket_token: _,
                      meta,
-                 }| {
-                    is_header
-                        || match meta {
-                            Meta::Path(path) => path.is_ident("header"),
-                            _ => false,
-                        }
+                 }| match meta {
+                    Meta::Path(path) => match path.get_ident() {
+                        Some(path) => match path.to_string().as_str() {
+                            "header" => (true, is_string),
+                            "string" => (is_header, true),
+                            _ => (is_header, is_string),
+                        },
+                        None => (is_header, is_string),
+                    },
+                    _ => (is_header, is_string),
                 },
             );
             Self {
                 ident,
                 ty,
                 is_header,
+                is_string,
             }
         } else {
             panic!();

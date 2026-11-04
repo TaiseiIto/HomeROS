@@ -10,11 +10,14 @@ use {
 pub struct Table {
     #[header]
     header: Header,
+    #[string]
     socket_designation: u8,
     typ: u8,
     family: u8,
+    #[string]
     manufacturer: u8,
     id: u64,
+    #[string]
     version: u8,
     voltage: u8,
     external_clock: u16,
@@ -25,8 +28,11 @@ pub struct Table {
     l1_cache_handle: u16,
     l2_cache_handle: u16,
     l3_cache_handle: u16,
+    #[string]
     serial_number: u8,
+    #[string]
     asset_tag: u8,
+    #[string]
     part_number: u8,
     core_count: u8,
     core_enabled: u8,
@@ -37,6 +43,7 @@ pub struct Table {
     core_enabled2: u16,
     thread_count2: u16,
     thread_enabled: u16,
+    #[string]
     socket_type: u8,
 }
 
