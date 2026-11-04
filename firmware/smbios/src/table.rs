@@ -2,7 +2,7 @@ pub mod processor_information;
 pub mod system;
 
 use {
-    crate::{Header, header},
+    crate::{Header, Type, header},
     alloc::{string::String, vec::Vec},
     core::fmt::Debug,
 };
@@ -26,9 +26,9 @@ impl<'a> From<header::List<'a>> for List<'a> {
 }
 
 impl<'a> Iterator for List<'a> {
-    type Item = &'a dyn Table;
+    type Item = Result<&'a dyn Table, Type>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.0.next().and_then(Header::table)
+        self.0.next().map(Header::table)
     }
 }

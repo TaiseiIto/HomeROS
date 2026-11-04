@@ -36,19 +36,18 @@ impl Header {
 
     /// # TODO
     /// * Implement all table types.
-    pub fn table(&self) -> Option<&dyn Table> {
+    pub fn table(&self) -> Result<&dyn Table, Type> {
         match self.get_type() {
             Type::SystemInformation => {
-                Some(unsafe { &*(self as *const Self as *const system::information::Table) })
+                Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
             }
             Type::SystemEnclosure => {
-                Some(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
+                Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
             }
             Type::ProcessorInformation => {
-                Some(unsafe { &*(self as *const Self as *const processor_information::Table) })
+                Ok(unsafe { &*(self as *const Self as *const processor_information::Table) })
             }
-            Type::EndOfTable => None,
-            Type::Unknown(typ) => panic!("Unknown type {:#x?}", typ),
+            typ => Err(typ),
         }
     }
 
