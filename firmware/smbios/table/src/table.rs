@@ -1,7 +1,10 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Type, Visibility},
+    syn::{
+        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Path,
+        Type, Visibility,
+    },
 };
 
 pub struct Structure {
@@ -67,12 +70,13 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Ident,
     ty: Type,
+    is_header: bool,
 }
 
 impl From<Field> for Element {
     fn from(field: Field) -> Self {
         if let Field {
-            attrs: _,
+            attrs,
             vis: _,
             modifiers: _,
             ident: Some(ident),
@@ -81,7 +85,27 @@ impl From<Field> for Element {
             default: _,
         } = field
         {
-            Self { ident, ty }
+            let is_header: bool = attrs.iter().fold(
+                false,
+                |is_header,
+                 Attribute {
+                     pound_token: _,
+                     style: _,
+                     bracket_token: _,
+                     meta,
+                 }| {
+                    is_header
+                        || match meta {
+                            Meta::Path(path) => path.is_ident("header"),
+                            _ => false,
+                        }
+                },
+            );
+            Self {
+                ident,
+                ty,
+                is_header,
+            }
         } else {
             panic!();
         }

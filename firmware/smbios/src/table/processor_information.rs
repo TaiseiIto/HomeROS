@@ -8,6 +8,7 @@ use {
 #[derive(packed::Accessor, table::Table)]
 #[repr(C, packed)]
 pub struct Table {
+    #[header]
     header: Header,
     socket_designation: u8,
     typ: u8,
