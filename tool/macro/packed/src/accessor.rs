@@ -1,10 +1,7 @@
 use {
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{
-        Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Path, PathSegment, Type,
-        TypePath, Visibility,
-    },
+    syn::{Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Type, Visibility},
 };
 
 pub struct Structure {
