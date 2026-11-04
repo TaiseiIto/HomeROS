@@ -8,7 +8,7 @@ use {
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
         mem::{offset_of, size_of},
-        slice::{from_raw_parts, from_raw_parts_mut},
+        slice::from_raw_parts,
     },
 };
 
