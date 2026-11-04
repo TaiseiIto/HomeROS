@@ -20,13 +20,15 @@ impl Structure {
             ident,
             elements,
         } = self;
+        let debugs: Vec<TokenStream> = elements.iter().skip(1).map(Element::debug).collect();
         quote! {
             impl ::core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-                    let mut debug_struct: ::core::fmt::DebugStruct = formatter.debug_struct(::core::stringify!(#ident));
+                    let mut debug_struct: ::core::fmt::DebugStruct = formatter.debug_struct(stringify!(#ident));
                     debug_struct.field("typ", &self.get_header().get_type());
                     debug_struct.field("length", &self.get_header().size());
                     debug_struct.field("handle", &self.get_header().handle());
+                    #(#debugs)*
                     debug_struct.finish()
                 }
             }
@@ -97,13 +99,23 @@ struct Element {
 }
 
 impl Element {
+    fn debug(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        let get_ident: Ident = self.get_ident();
+        quote! {
+            if let Some(#ident) = self.#get_ident() {
+                debug_struct.field(stringify!(#ident), &#ident);
+            }
+        }
+    }
+
     fn get(&self) -> TokenStream {
         let Self {
             ident,
             ty,
             is_string,
         } = self;
-        let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
+        let get_ident: Ident = self.get_ident();
         if *is_string {
             quote! {
                 fn #get_ident(&self) -> Option<::alloc::string::String> {
@@ -120,6 +132,10 @@ impl Element {
                 }
             }
         }
+    }
+
+    fn get_ident(&self) -> Ident {
+        Ident::new(&format!("get_{}", self.ident), self.ident.span())
     }
 }
 
