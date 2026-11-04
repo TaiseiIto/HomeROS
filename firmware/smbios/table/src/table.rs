@@ -92,13 +92,24 @@ impl Element {
             ident,
             ty,
             is_header,
-            is_string: _,
+            is_string,
         } = self;
         (!is_header).then(|| {
             let get_ident: Ident = Ident::new(&format!("get_{}", ident), ident.span());
-            quote! {
-                fn #get_ident(&self) -> Option<#ty> {
-                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size()).then(|| self.#ident())
+            if *is_string {
+                quote! {
+                    fn #get_ident(&self) -> Option<::alloc::string::String> {
+                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size())
+                            .then(|| self.#ident() as usize)
+                            .and_then(|#ident| #ident.checked_sub(1))
+                            .and_then(|#ident| self.strings().get(#ident).cloned())
+                    }
+                }
+            } else {
+                quote! {
+                    fn #get_ident(&self) -> Option<#ty> {
+                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.#header_ident().size()).then(|| self.#ident())
+                    }
                 }
             }
         })
