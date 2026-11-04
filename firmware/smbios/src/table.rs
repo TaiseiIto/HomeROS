@@ -1,3 +1,4 @@
+pub mod processor_information;
 pub mod system;
 
 use {

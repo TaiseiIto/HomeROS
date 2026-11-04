@@ -1,5 +1,8 @@
 use {
-    crate::{Strings, Table, table::system},
+    crate::{
+        Strings, Table,
+        table::{processor_information, system},
+    },
     alloc::{string::String, vec::Vec},
     core::fmt::{self, Debug, Formatter},
 };
@@ -37,6 +40,9 @@ impl Header {
             Type::SystemEnclosure => {
                 Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
             }
+            Type::ProcessorInformation => {
+                Ok(unsafe { &*(self as *const Self as *const processor_information::Table) })
+            }
             typ => Err(typ),
         }
     }
@@ -67,6 +73,7 @@ impl Debug for Header {
 pub enum Type {
     SystemInformation,
     SystemEnclosure,
+    ProcessorInformation,
     /// # References
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     EndOfTable,
@@ -78,6 +85,7 @@ impl From<u8> for Type {
         match typ {
             1 => Self::SystemInformation,
             3 => Self::SystemEnclosure,
+            4 => Self::ProcessorInformation,
             127 => Self::EndOfTable,
             typ => Self::Unknown(typ),
         }
