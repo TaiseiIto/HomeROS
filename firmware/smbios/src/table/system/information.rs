@@ -31,7 +31,7 @@ impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
-            .field("type", &self.get_header())
+            .field("header", &self.get_header())
             .field("manufacturer", &self.get_manufacturer())
             .field("product_name", &self.get_product_name())
             .field("version", &self.get_version())

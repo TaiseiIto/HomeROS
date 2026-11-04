@@ -11,14 +11,20 @@ use {
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
-#[derive(packed::Accessor)]
+/// # TODO
+/// * Print all elements.
+#[derive(packed::Accessor, table::Table)]
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
+    #[string]
     manufacturer: u8,
     typ: u8,
+    #[string]
     version: u8,
+    #[string]
     serial_number: u8,
+    #[string]
     asset_tag_number: u8,
     boot_up_state: u8,
     power_supply_state: u8,
@@ -29,100 +35,15 @@ pub struct Table {
     number_of_power_cords: u8,
     contained_element_count: u8,
     contained_element_record_length: u8,
-    contained_elements: PhantomData<u8>,
-}
-
-impl Table {
-    fn get_manufacturer(&self) -> Option<String> {
-        (offset_of!(Self, manufacturer) + size_of_val(&self.manufacturer()) <= self.header().size())
-            .then(|| self.manufacturer() as usize)
-            .and_then(|manufacturer| manufacturer.checked_sub(1))
-            .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn get_type(&self) -> Option<Type> {
-        (offset_of!(Self, typ) + size_of_val(&self.typ()) <= self.header().size())
-            .then(|| self.typ().into())
-    }
-
-    fn get_version(&self) -> Option<String> {
-        self.version_index()
-            .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn version_index(&self) -> Option<usize> {
-        (self.version() as usize).checked_sub(1)
-    }
-
-    fn get_serial_number(&self) -> Option<String> {
-        self.serial_number_index()
-            .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn serial_number_index(&self) -> Option<usize> {
-        (self.serial_number() as usize).checked_sub(1)
-    }
-
-    fn get_asset_tag_number(&self) -> Option<String> {
-        self.asset_tag_number_index()
-            .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn asset_tag_number_index(&self) -> Option<usize> {
-        (self.asset_tag_number() as usize).checked_sub(1)
-    }
-
-    fn get_boot_up_state(&self) -> State {
-        self.boot_up_state().into()
-    }
-
-    fn get_power_supply_state(&self) -> State {
-        self.power_supply_state().into()
-    }
-
-    fn get_thermal_state(&self) -> State {
-        self.thermal_state().into()
-    }
-
-    fn get_security_status(&self) -> Status {
-        self.security_status().into()
-    }
-
-    fn get_sku_number(&self) -> Option<String> {
-        self.sku_number_index()
-            .and_then(|index| self.strings().get(index).cloned())
-    }
-
-    fn sku_number_index(&self) -> Option<usize> {
-        (self.footer().sku_number as usize).checked_sub(1)
-    }
-
-    fn get_contained_elements(&self) -> &[u8] {
-        unsafe {
-            from_raw_parts(
-                &self.contained_elements as *const PhantomData<u8> as *const u8,
-                (self.contained_element_count() * self.contained_element_record_length()) as usize,
-            )
-        }
-    }
-
-    fn footer(&self) -> &Footer {
-        unsafe {
-            &*(&self.contained_elements as *const PhantomData<u8> as *const Footer)
-                .byte_add(self.get_contained_elements().len())
-        }
-    }
 }
 
 impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
-            .field("type", &self.header.get_type())
-            .field("length", &self.header.length())
-            .field("handle", &self.header.handle())
+            .field("header", &self.get_header())
             .field("manufacturer", &self.get_manufacturer())
-            .field("type", &self.get_type())
+            .field("type", &self.get_typ())
             .field("version", &self.get_version())
             .field("serial_number", &self.get_serial_number())
             .field("asset_tag_number", &self.get_asset_tag_number())
@@ -130,18 +51,17 @@ impl Debug for Table {
             .field("power_supply_state", &self.get_power_supply_state())
             .field("thermal_state", &self.get_thermal_state())
             .field("security_status", &self.get_security_status())
-            .field("oem_defined", &self.oem_defined())
-            .field("height", &self.height())
-            .field("number_of_power_cords", &self.number_of_power_cords())
-            .field("contained_element_count", &self.contained_element_count())
+            .field("oem_defined", &self.get_oem_defined())
+            .field("height", &self.get_height())
+            .field("number_of_power_cords", &self.get_number_of_power_cords())
+            .field(
+                "contained_element_count",
+                &self.get_contained_element_count(),
+            )
             .field(
                 "contained_element_record_length",
-                &self.contained_element_record_length(),
+                &self.get_contained_element_record_length(),
             )
-            .field("contained_elements", &self.get_contained_elements())
-            .field("sku_number", &self.get_sku_number())
-            .field("rack_type", &self.footer().rack_type)
-            .field("rack_height", &self.footer().rack_height)
             .finish()
     }
 }
@@ -282,12 +202,4 @@ impl From<u8> for Status {
             status => panic!("Unknown status {:#x?}", status),
         }
     }
-}
-
-#[derive(packed::Accessor, Debug)]
-#[repr(C, packed)]
-struct Footer {
-    sku_number: u8,
-    rack_type: u8,
-    rack_height: u8,
 }
