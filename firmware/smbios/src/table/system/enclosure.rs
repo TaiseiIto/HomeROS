@@ -245,19 +245,18 @@ enum State {
     Warning,
     Critical,
     NonRecoverable,
-    Unimplemented(u8),
 }
 
 impl From<u8> for State {
-    fn from(typ: u8) -> Self {
-        match typ {
+    fn from(state: u8) -> Self {
+        match state {
             0x01 => Self::Other,
             0x02 => Self::Unknown,
             0x03 => Self::Safe,
             0x04 => Self::Warning,
             0x05 => Self::Critical,
             0x06 => Self::NonRecoverable,
-            typ => Self::Unimplemented(typ),
+            state => panic!("Unknown state {:#x?}", state),
         }
     }
 }
@@ -271,18 +270,17 @@ enum Status {
     None,
     ExternalInterfaceLockedOut,
     ExternalInterfaceEnabled,
-    Unimplemented(u8),
 }
 
 impl From<u8> for Status {
-    fn from(typ: u8) -> Self {
-        match typ {
+    fn from(status: u8) -> Self {
+        match status {
             0x01 => Self::Other,
             0x02 => Self::Unknown,
             0x03 => Self::None,
             0x04 => Self::ExternalInterfaceLockedOut,
             0x05 => Self::ExternalInterfaceEnabled,
-            typ => Self::Unimplemented(typ),
+            status => panic!("Unknown status {:#x?}", status),
         }
     }
 }

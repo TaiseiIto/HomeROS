@@ -41,7 +41,7 @@ impl Protocol {
                 &*(self as *const Self as *const relative_offset::Protocol)
             },
             SubType::RamDisk => unsafe { &*(self as *const Self as *const ram_disk::Protocol) },
-            SubType::Unknown(_) => panic!(),
+            SubType::Unknown(typ) => panic!("Unknown type {:#x?}", typ),
         }
     }
 }

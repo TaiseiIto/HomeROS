@@ -28,7 +28,7 @@ impl Protocol {
             SubType::Expanded => unsafe { &*(self as *const Self as *const expanded::Protocol) },
             SubType::Adr => unsafe { &*(self as *const Self as *const adr::Protocol) },
             SubType::Nvdimm => unsafe { &*(self as *const Self as *const nvdimm::Protocol) },
-            SubType::Unknown(_) => panic!(),
+            SubType::Unknown(sub_type) => panic!("Unknown type {:#x?}", sub_type),
         }
     }
 }

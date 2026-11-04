@@ -40,7 +40,6 @@ impl Node for Protocol {}
 enum SubType {
     Entire,
     Instance,
-    Unknown(u8),
 }
 
 impl From<u8> for SubType {
@@ -48,7 +47,7 @@ impl From<u8> for SubType {
         match sub_type {
             0xff => Self::Entire,
             0x01 => Self::Instance,
-            sub_type => Self::Unknown(sub_type),
+            sub_type => panic!("Unknown type {:#x?}", sub_type),
         }
     }
 }

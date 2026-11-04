@@ -95,7 +95,7 @@ impl Protocol {
             SubType::NvmeofNamespace => unsafe {
                 &*(self as *const Self as *const nvmeof_namespace::Protocol)
             },
-            SubType::Unknown(_) => panic!(),
+            SubType::Unknown(typ) => panic!("Unknown type {:#x?}", typ),
         }
     }
 }

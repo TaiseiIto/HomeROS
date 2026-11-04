@@ -121,7 +121,7 @@ impl From<u8> for WakeUp {
             0x06 => Self::PowerSwitch,
             0x07 => Self::PciPme,
             0x08 => Self::AcPowerRestored,
-            wake_up => Self::Unimplemented(wake_up),
+            wake_up => panic!("Unknown wake up {:#x?}", wake_up),
         }
     }
 }

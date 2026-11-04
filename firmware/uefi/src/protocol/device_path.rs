@@ -32,7 +32,7 @@ impl Protocol {
             Type::BiosBootSpecification => unsafe {
                 &*(self as *const Self as *const bios_boot_specification::Protocol)
             },
-            Type::Unknown(_) => panic!(),
+            Type::Unknown(typ) => panic!("Unknown type {:#x?}", typ),
         }
     }
 }

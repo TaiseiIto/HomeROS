@@ -69,14 +69,13 @@ impl Node for Protocol {}
 #[derive(Debug)]
 enum SubType {
     Version101,
-    Unknown(u8),
 }
 
 impl From<u8> for SubType {
     fn from(sub_type: u8) -> Self {
         match sub_type {
             0x01 => Self::Version101,
-            sub_type => Self::Unknown(sub_type),
+            sub_type => panic!("Unknown type {:#x?}", sub_type),
         }
     }
 }
