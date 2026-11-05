@@ -8,18 +8,13 @@ use {
 };
 
 pub struct Structure {
-    vis: Visibility,
     ident: Ident,
     elements: Vec<Element>,
 }
 
 impl Structure {
     fn debug(&self) -> TokenStream {
-        let Self {
-            vis: _,
-            ident,
-            elements,
-        } = self;
+        let Self { ident, elements } = self;
         let debugs: Vec<TokenStream> = elements.iter().skip(1).map(Element::debug).collect();
         quote! {
             impl ::core::fmt::Debug for #ident {
@@ -45,11 +40,7 @@ impl Structure {
     }
 
     fn implement(&self) -> TokenStream {
-        let Self {
-            vis: _,
-            ident,
-            elements,
-        } = self;
+        let Self { ident, elements } = self;
         let get_header: TokenStream = self.get_header();
         let strings: TokenStream = self.strings();
         let gets: Vec<TokenStream> = elements.iter().skip(1).map(Element::get).collect();
@@ -82,7 +73,7 @@ impl From<DeriveInput> for Structure {
     fn from(structure: DeriveInput) -> Self {
         if let DeriveInput {
             attrs: _,
-            vis,
+            vis: _,
             ident,
             generics: _,
             data:
@@ -98,11 +89,7 @@ impl From<DeriveInput> for Structure {
         } = structure
         {
             let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
-            Self {
-                vis,
-                ident,
-                elements,
-            }
+            Self { ident, elements }
         } else {
             panic!();
         }
