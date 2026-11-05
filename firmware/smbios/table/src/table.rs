@@ -3,7 +3,6 @@ use {
     quote::quote,
     syn::{
         Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Type,
-        Visibility,
     },
 };
 
