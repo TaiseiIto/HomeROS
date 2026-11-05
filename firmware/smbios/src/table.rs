@@ -5,7 +5,6 @@ pub mod system;
 
 use {
     crate::{Header, Type, header},
-    alloc::{string::String, vec::Vec},
     core::fmt::Debug,
 };
 

@@ -2,8 +2,8 @@ use {
     proc_macro2::TokenStream,
     quote::quote,
     syn::{
-        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Path,
-        Type, Visibility,
+        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Type,
+        Visibility,
     },
 };
 
@@ -16,7 +16,7 @@ pub struct Structure {
 impl Structure {
     fn debug(&self) -> TokenStream {
         let Self {
-            vis,
+            vis: _,
             ident,
             elements,
         } = self;
@@ -46,7 +46,7 @@ impl Structure {
 
     fn implement(&self) -> TokenStream {
         let Self {
-            vis,
+            vis: _,
             ident,
             elements,
         } = self;
