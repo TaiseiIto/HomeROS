@@ -35,16 +35,37 @@ impl Structure {
         }
     }
 
+    fn get_header(&self) -> TokenStream {
+        let header: &Ident = &self.elements.first().unwrap().ident;
+        quote! {
+            fn get_header(&self) -> &Header {
+                &self.#header
+            }
+        }
+    }
+
     fn implement(&self) -> TokenStream {
         let Self {
             vis,
             ident,
             elements,
         } = self;
+        let get_header: TokenStream = self.get_header();
+        let strings: TokenStream = self.strings();
         let gets: Vec<TokenStream> = elements.iter().skip(1).map(Element::get).collect();
         quote! {
             impl #ident {
+                #get_header
+                #strings
                 #(#gets)*
+            }
+        }
+    }
+
+    fn strings(&self) -> TokenStream {
+        quote! {
+            fn strings(&self) -> ::alloc::vec::Vec<::alloc::string::String> {
+                self.get_header().strings().collect()
             }
         }
     }

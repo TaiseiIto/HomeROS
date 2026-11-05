@@ -7,15 +7,7 @@ use {
     core::fmt::Debug,
 };
 
-pub trait Table: Debug {
-    fn get_header(&self) -> &Header {
-        unsafe { &*(self as *const Self as *const Header) }
-    }
-
-    fn strings(&self) -> Vec<String> {
-        self.get_header().strings().collect()
-    }
-}
+pub trait Table: Debug {}
 
 pub struct List<'a>(header::List<'a>);
 
