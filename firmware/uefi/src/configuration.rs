@@ -31,7 +31,8 @@ impl Pointer {
 
     pub fn table(&self) -> Result<&dyn Table, &Guid> {
         match self.guid {
-            acpi::root_system_description::Pointer::GUID => {
+            acpi::root_system_description::Pointer::VERSION1
+            | acpi::root_system_description::Pointer::VERSION2 => {
                 Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
             }
             debug_image::Table::GUID => Ok(unsafe { &*(self.table as *const debug_image::Table) }),

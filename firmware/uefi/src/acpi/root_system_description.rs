@@ -30,7 +30,8 @@ pub struct Pointer {
 impl Pointer {
     /// # References
     /// * [Finding the RSDP on UEFI Enabled Systems](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#finding-the-rsdp-on-uefi-enabled-systems)
-    pub const GUID: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
+    pub const VERSION1: Guid = guid!("eb9d2d30-2d88-11d3-9a16-0090273fc14d");
+    pub const VERSION2: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
 
     pub fn is_correct(&self) -> bool {
         let pointer: *const Self = self as *const Self;
