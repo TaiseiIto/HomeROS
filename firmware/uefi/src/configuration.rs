@@ -39,6 +39,9 @@ impl Pointer {
             dxe::Table::GUID => Ok(unsafe { &*(self.table as *const dxe::Table) }),
             hob::List::GUID => Ok(unsafe { &*(self.table as *const hob::List) }),
             lzma::Table::GUID => Ok(unsafe { &*(self.table as *const lzma::Table) }),
+            memory::attributes::Table::GUID => {
+                Ok(unsafe { &*(self.table as *const memory::attributes::Table) })
+            }
             memory::status_code::Record::GUID => {
                 Ok(unsafe { &*(self.table as *const memory::status_code::Record) })
             }
