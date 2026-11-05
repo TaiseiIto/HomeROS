@@ -1,7 +1,7 @@
 use {
     crate::{
         Strings, Table,
-        table::{processor_information, system},
+        table::{platform_firmware_information, processor_information, system},
     },
     alloc::{string::String, vec::Vec},
     core::fmt::{self, Debug, Formatter},
@@ -38,6 +38,9 @@ impl Header {
     /// * Implement all table types.
     pub fn table(&self) -> Result<&dyn Table, Type> {
         match self.get_type() {
+            Type::PlatformFirmwareInformation => Ok(unsafe {
+                &*(self as *const Self as *const platform_firmware_information::Table)
+            }),
             Type::SystemInformation => {
                 Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
             }
@@ -71,6 +74,7 @@ impl Debug for Header {
 
 #[derive(Debug)]
 pub enum Type {
+    PlatformFirmwareInformation,
     SystemInformation,
     SystemEnclosure,
     ProcessorInformation,
@@ -83,6 +87,7 @@ pub enum Type {
 impl From<u8> for Type {
     fn from(typ: u8) -> Self {
         match typ {
+            0 => Self::PlatformFirmwareInformation,
             1 => Self::SystemInformation,
             3 => Self::SystemEnclosure,
             4 => Self::ProcessorInformation,
