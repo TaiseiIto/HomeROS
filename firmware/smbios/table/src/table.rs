@@ -69,6 +69,13 @@ impl Structure {
             }
         }
     }
+
+    fn table(&self) -> TokenStream {
+        let ident: &Ident = &self.ident;
+        quote! {
+            impl crate::Table for #ident {}
+        }
+    }
 }
 
 impl From<DeriveInput> for Structure {
@@ -106,9 +113,11 @@ impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
         let debug: TokenStream = structure.debug();
         let implement: TokenStream = structure.implement();
+        let table: TokenStream = structure.table();
         quote! {
             #debug
             #implement
+            #table
         }
     }
 }

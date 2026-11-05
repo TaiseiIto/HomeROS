@@ -1,7 +1,4 @@
-use {
-    crate::{Header, Table as Trait},
-    uuid::Uuid,
-};
+use {crate::Header, uuid::Uuid};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.2 System Information (Type 1)
@@ -24,8 +21,6 @@ pub struct Table {
     #[string]
     family: u8,
 }
-
-impl Trait for Table {}
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.2.2 System - Wake-up Type

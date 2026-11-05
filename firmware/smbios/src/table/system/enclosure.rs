@@ -1,4 +1,4 @@
-use crate::{Header, Table as Trait};
+use crate::Header;
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
@@ -27,8 +27,6 @@ pub struct Table {
     contained_element_count: u8,
     contained_element_record_length: u8,
 }
-
-impl Trait for Table {}
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.1 System Enclosure or Chassis Type
