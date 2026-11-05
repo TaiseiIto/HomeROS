@@ -1,7 +1,9 @@
 use {
     crate::{
         Strings, Table,
-        table::{platform_firmware_information, processor_information, system},
+        table::{
+            physical_memory_array, platform_firmware_information, processor_information, system,
+        },
     },
     alloc::{string::String, vec::Vec},
     core::fmt::{self, Debug, Formatter},
@@ -50,6 +52,9 @@ impl Header {
             Type::ProcessorInformation => {
                 Ok(unsafe { &*(self as *const Self as *const processor_information::Table) })
             }
+            Type::PhysicalMemoryArray => {
+                Ok(unsafe { &*(self as *const Self as *const physical_memory_array::Table) })
+            }
             typ => Err(typ),
         }
     }
@@ -78,6 +83,7 @@ pub enum Type {
     SystemInformation,
     SystemEnclosure,
     ProcessorInformation,
+    PhysicalMemoryArray,
     /// # References
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     EndOfTable,
@@ -91,6 +97,7 @@ impl From<u8> for Type {
             1 => Self::SystemInformation,
             3 => Self::SystemEnclosure,
             4 => Self::ProcessorInformation,
+            16 => Self::PhysicalMemoryArray,
             127 => Self::EndOfTable,
             typ => Self::Unknown(typ),
         }

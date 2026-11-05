@@ -1,3 +1,4 @@
+pub mod physical_memory_array;
 pub mod platform_firmware_information;
 pub mod processor_information;
 pub mod system;
