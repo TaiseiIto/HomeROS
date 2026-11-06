@@ -2,8 +2,8 @@ use {
     proc_macro2::TokenStream,
     quote::quote,
     syn::{
-        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Path, PathSegment, Type,
-        TypeArray, TypePath, Visibility,
+        Expr, ExprLit, Field, Fields, FieldsNamed, Ident, ItemStruct, Lit, Type, TypeArray,
+        TypePath, Visibility,
     },
 };
 
@@ -916,29 +916,16 @@ impl Element {
             Type::Path(TypePath {
                 attrs: _,
                 qself: _,
-                path:
-                    Path {
-                        leading_colon: _,
-                        segments,
-                    },
-            }) => {
-                let mut segments = segments.iter();
-                let segment: &PathSegment = segments.next().unwrap();
-                assert!(segments.next().is_none());
-                let PathSegment {
-                    ident,
-                    arguments: _,
-                } = segment;
-                match ident.to_string().as_str() {
-                    "bool" => 1,
-                    "u8" => 8,
-                    "u16" => 16,
-                    "u32" => 32,
-                    "u64" => 64,
-                    "u128" => 128,
-                    _ => panic!(),
-                }
-            }
+                path,
+            }) => match path.get_ident().unwrap().to_string().as_str() {
+                "bool" => 1,
+                "u8" => 8,
+                "u16" => 16,
+                "u32" => 32,
+                "u64" => 64,
+                "u128" => 128,
+                _ => panic!(),
+            },
             _ => panic!(),
         }
     }
