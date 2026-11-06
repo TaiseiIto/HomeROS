@@ -2,6 +2,8 @@ use crate::Header;
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.1 Platform Firmware Information (Type 0)
+/// # TODO
+/// * Print bit fields.
 #[derive(packed::Accessor, table::Table)]
 #[repr(C, packed)]
 pub struct Table {

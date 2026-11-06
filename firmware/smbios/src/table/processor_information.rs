@@ -2,12 +2,16 @@ use crate::Header;
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.5 Processor Information (Type 4)
+/// # TODO
+/// * Print enum.
+/// * Print bit field.
 #[derive(packed::Accessor, table::Table)]
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
     #[string]
     socket_designation: u8,
+    #[debug_type(Type)]
     typ: u8,
     family: u8,
     #[string]
@@ -41,4 +45,30 @@ pub struct Table {
     thread_enabled: u16,
     #[string]
     socket_type: u8,
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.5.1 Processor Information - Processor Type
+#[derive(Debug)]
+enum Type {
+    Other,
+    Unknown,
+    Central,
+    Math,
+    Dsp,
+    Video,
+}
+
+impl From<u8> for Type {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0x01 => Self::Other,
+            0x02 => Self::Unknown,
+            0x03 => Self::Central,
+            0x04 => Self::Math,
+            0x05 => Self::Dsp,
+            0x06 => Self::Video,
+            _ => panic!(),
+        }
+    }
 }
