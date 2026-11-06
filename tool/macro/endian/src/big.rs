@@ -86,24 +86,18 @@ impl Element {
         self.type_ident().map(|_| self.function_ident("read"))
     }
 
-    fn type_ident(&self) -> Option<Ident> {
+    fn type_ident(&self) -> Option<&Ident> {
         if let Type::Path(TypePath {
             attrs: _,
             qself: _,
-            path: Path {
-                leading_colon: _,
-                segments,
-            },
+            path,
         }) = &self.ty
         {
-            let mut segments = segments.iter();
-            let segment: &PathSegment = segments.next().unwrap();
-            assert!(segments.next().is_none());
-            let ident: Ident = segment.ident.clone();
-            match ident.to_string().as_str() {
-                "u8" | "u16" | "u32" | "u64" | "u128" => Some(ident),
-                _ => None,
-            }
+            path.get_ident()
+                .and_then(|ident| match ident.to_string().as_str() {
+                    "u8" | "u16" | "u32" | "u64" | "u128" => Some(ident),
+                    _ => None,
+                })
         } else {
             None
         }
