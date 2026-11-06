@@ -203,10 +203,17 @@ impl Element {
                 }
             }
         } else {
-            quote! {
-                fn #get_ident(&self) -> Option<#ty> {
-                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident())
-                }
+            match debug_type {
+                Some(debug_type) => quote! {
+                    fn #get_ident(&self) -> Option<#debug_type> {
+                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident().into())
+                    }
+                },
+                None => quote! {
+                    fn #get_ident(&self) -> Option<#ty> {
+                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident())
+                    }
+                },
             }
         }
     }
