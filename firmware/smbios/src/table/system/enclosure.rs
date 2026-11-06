@@ -1,4 +1,4 @@
-use crate::Header;
+use {crate::Header, core::marker::PhantomData};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
@@ -26,6 +26,7 @@ pub struct Table {
     number_of_power_cords: u8,
     contained_element_count: u8,
     contained_element_record_length: u8,
+    contained_elements: PhantomData<u8>,
 }
 
 /// # References

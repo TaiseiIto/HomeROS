@@ -2,7 +2,8 @@ use {
     proc_macro2::TokenStream,
     quote::quote,
     syn::{
-        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Type,
+        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Path,
+        PathSegment, Type, TypePath,
     },
 };
 
@@ -87,7 +88,10 @@ impl From<DeriveInput> for Structure {
                 }),
         } = structure
         {
-            let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
+            let elements: Vec<Element> = named
+                .into_iter()
+                .filter_map(|element| element.try_into().ok())
+                .collect();
             Self { ident, elements }
         } else {
             panic!();
@@ -155,8 +159,10 @@ impl Element {
     }
 }
 
-impl From<Field> for Element {
-    fn from(field: Field) -> Self {
+impl TryFrom<Field> for Element {
+    type Error = ();
+
+    fn try_from(field: Field) -> Result<Self, Self::Error> {
         if let Field {
             attrs,
             vis: _,
@@ -167,29 +173,52 @@ impl From<Field> for Element {
             default: _,
         } = field
         {
-            let is_string: bool = attrs.iter().fold(
-                false,
-                |is_string,
-                 Attribute {
-                     pound_token: _,
-                     style: _,
-                     bracket_token: _,
-                     meta,
-                 }| match meta {
-                    Meta::Path(path) => match path.get_ident() {
-                        Some(path) => match path.to_string().as_str() {
-                            "string" => true,
-                            _ => is_string,
-                        },
-                        None => is_string,
+            let is_phantom_data: bool = if let Type::Path(TypePath {
+                attrs: _,
+                qself: _,
+                path:
+                    Path {
+                        leading_colon: _,
+                        ref segments,
                     },
-                    _ => is_string,
-                },
-            );
-            Self {
-                ident,
-                ty,
-                is_string,
+            }) = ty
+            {
+                segments.first().is_some_and(
+                    |PathSegment {
+                         ident,
+                         arguments: _,
+                     }| ident.to_string().as_str() == "PhantomData",
+                )
+            } else {
+                false
+            };
+            if is_phantom_data {
+                Err(())
+            } else {
+                let is_string: bool = attrs.iter().fold(
+                    false,
+                    |is_string,
+                     Attribute {
+                         pound_token: _,
+                         style: _,
+                         bracket_token: _,
+                         meta,
+                     }| match meta {
+                        Meta::Path(path) => match path.get_ident() {
+                            Some(path) => match path.to_string().as_str() {
+                                "string" => true,
+                                _ => is_string,
+                            },
+                            None => is_string,
+                        },
+                        _ => is_string,
+                    },
+                );
+                Ok(Self {
+                    ident,
+                    ty,
+                    is_string,
+                })
             }
         } else {
             panic!();
