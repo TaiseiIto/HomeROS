@@ -8,6 +8,7 @@ use {
 /// # TODO
 /// * Print all elements.
 #[derive(packed::Accessor, table::Table)]
+#[print(get_contained_elements)]
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
@@ -39,12 +40,14 @@ impl Table {
             self.get_contained_element_record_length()? as usize;
         let contained_element_size: usize =
             contained_element_count * contained_element_record_length;
-        (offset_of!(Self, contained_elements) < self.header.size()).then(|| unsafe {
-            from_raw_parts(
-                &self.contained_elements as *const PhantomData<u8> as *const u8,
-                contained_element_size,
-            )
-        })
+        (offset_of!(Self, contained_elements) + contained_element_size <= self.header.size()).then(
+            || unsafe {
+                from_raw_parts(
+                    &self.contained_elements as *const PhantomData<u8> as *const u8,
+                    contained_element_size,
+                )
+            },
+        )
     }
 }
 

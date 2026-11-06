@@ -2,19 +2,24 @@ use {
     proc_macro2::TokenStream,
     quote::quote,
     syn::{
-        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta, Path,
-        PathSegment, Type, TypePath,
+        Attribute, Data, DataStruct, DeriveInput, Field, Fields, FieldsNamed, Ident, Meta,
+        MetaList, Path, PathSegment, Type, TypePath, punctuated::Punctuated, token::Comma,
     },
 };
 
 pub struct Structure {
     ident: Ident,
     elements: Vec<Element>,
+    prints: Vec<Ident>,
 }
 
 impl Structure {
     fn debug(&self) -> TokenStream {
-        let Self { ident, elements } = self;
+        let Self {
+            ident,
+            elements,
+            prints,
+        } = self;
         let debugs: Vec<TokenStream> = elements.iter().skip(1).map(Element::debug).collect();
         quote! {
             impl ::core::fmt::Debug for #ident {
@@ -40,7 +45,11 @@ impl Structure {
     }
 
     fn implement(&self) -> TokenStream {
-        let Self { ident, elements } = self;
+        let Self {
+            ident,
+            elements,
+            prints: _,
+        } = self;
         let get_header: TokenStream = self.get_header();
         let strings: TokenStream = self.strings();
         let gets: Vec<TokenStream> = elements.iter().skip(1).map(Element::get).collect();
@@ -72,7 +81,7 @@ impl Structure {
 impl From<DeriveInput> for Structure {
     fn from(structure: DeriveInput) -> Self {
         if let DeriveInput {
-            attrs: _,
+            attrs,
             vis: _,
             ident,
             generics: _,
@@ -92,7 +101,42 @@ impl From<DeriveInput> for Structure {
                 .into_iter()
                 .filter_map(|element| element.try_into().ok())
                 .collect();
-            Self { ident, elements }
+            let prints: Vec<Ident> = attrs
+                .iter()
+                .fold(None, |prints, attribute| {
+                    if let Attribute {
+                        pound_token: _,
+                        style: _,
+                        bracket_token: _,
+                        meta:
+                            Meta::List(
+                                meta_list @ MetaList {
+                                    path,
+                                    delimiter,
+                                    tokens,
+                                },
+                            ),
+                    } = attribute
+                    {
+                        match path.get_ident().unwrap().to_string().as_str() {
+                            "print" => {
+                                let prints: Punctuated<Ident, Comma> = meta_list
+                                    .parse_args_with(Punctuated::parse_terminated)
+                                    .unwrap();
+                                Some(prints.iter().cloned().collect())
+                            }
+                            _ => prints,
+                        }
+                    } else {
+                        prints
+                    }
+                })
+                .unwrap_or_default();
+            Self {
+                ident,
+                elements,
+                prints,
+            }
         } else {
             panic!();
         }
