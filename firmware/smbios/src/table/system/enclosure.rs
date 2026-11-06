@@ -22,9 +22,13 @@ pub struct Table {
     serial_number: u8,
     #[string]
     asset_tag_number: u8,
+    #[debug_type(State)]
     boot_up_state: u8,
+    #[debug_type(State)]
     power_supply_state: u8,
+    #[debug_type(State)]
     thermal_state: u8,
+    #[debug_type(Status)]
     security_status: u8,
     oem_defined: u32,
     height: u8,

@@ -171,6 +171,7 @@ struct Element {
     ident: Ident,
     ty: Type,
     is_string: bool,
+    debug_type: Option<Type>,
 }
 
 impl Element {
@@ -189,6 +190,7 @@ impl Element {
             ident,
             ty,
             is_string,
+            debug_type,
         } = self;
         let get_ident: Ident = self.get_ident();
         if *is_string {
@@ -250,29 +252,42 @@ impl TryFrom<Field> for Element {
             if is_phantom_data {
                 Err(())
             } else {
-                let is_string: bool = attrs.iter().fold(
-                    false,
-                    |is_string,
+                let (is_string, debug_type): (bool, Option<Type>) = attrs.iter().fold(
+                    (false, None),
+                    |(is_string, debug_type),
                      Attribute {
                          pound_token: _,
                          style: _,
                          bracket_token: _,
                          meta,
                      }| match meta {
+                        Meta::List(
+                            meta_list @ MetaList {
+                                path,
+                                delimiter: _,
+                                tokens: _,
+                            },
+                        ) => match path.get_ident().unwrap().to_string().as_str() {
+                            "debug_type" => {
+                                (is_string, Some(meta_list.parse_args::<Type>().unwrap()))
+                            }
+                            _ => (is_string, debug_type),
+                        },
                         Meta::Path(path) => match path.get_ident() {
                             Some(path) => match path.to_string().as_str() {
-                                "string" => true,
-                                _ => is_string,
+                                "string" => (true, debug_type),
+                                _ => (is_string, debug_type),
                             },
-                            None => is_string,
+                            None => (is_string, debug_type),
                         },
-                        _ => is_string,
+                        _ => (is_string, debug_type),
                     },
                 );
                 Ok(Self {
                     ident,
                     ty,
                     is_string,
+                    debug_type,
                 })
             }
         } else {
