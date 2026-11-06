@@ -15,7 +15,8 @@ pub struct Table {
     #[string]
     serial_number: u8,
     uuid: Uuid,
-    wake_up_type: u8,
+    #[debug_type(WakeUp)]
+    wake_up: u8,
     #[string]
     sku_number: u8,
     #[string]
