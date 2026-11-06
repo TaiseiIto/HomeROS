@@ -123,8 +123,8 @@ impl From<DeriveInput> for Structure {
                             Meta::List(
                                 meta_list @ MetaList {
                                     path,
-                                    delimiter,
-                                    tokens,
+                                    delimiter: _,
+                                    tokens: _,
                                 },
                             ),
                     } = attribute

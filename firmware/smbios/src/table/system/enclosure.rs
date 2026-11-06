@@ -9,7 +9,7 @@ use {
 /// # TODO
 /// * Print all elements.
 #[derive(packed::Accessor, table::Table)]
-#[print(get_contained_elements, get_sku_number)]
+#[print(get_contained_elements, get_sku_number, get_rack_type, get_rack_height)]
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
@@ -66,6 +66,16 @@ impl Table {
             .then_some(self.get_footer()?.sku_number() as usize)
             .and_then(|sku_number| sku_number.checked_sub(1))
             .and_then(|sku_number| self.strings().get(sku_number).cloned())
+    }
+
+    fn get_rack_type(&self) -> Option<u8> {
+        (self.get_footer_offset()? + offset_of!(Footer, rack_type) <= self.get_header().size())
+            .then_some(self.get_footer()?.rack_type())
+    }
+
+    fn get_rack_height(&self) -> Option<u8> {
+        (self.get_footer_offset()? + offset_of!(Footer, rack_height) <= self.get_header().size())
+            .then_some(self.get_footer()?.rack_height())
     }
 }
 
