@@ -193,27 +193,39 @@ impl Element {
             debug_type,
         } = self;
         let get_ident: Ident = self.get_ident();
-        if *is_string {
-            quote! {
-                fn #get_ident(&self) -> Option<::alloc::string::String> {
-                    (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size())
-                        .then(|| self.#ident() as usize)
-                        .and_then(|#ident| #ident.checked_sub(1))
-                        .and_then(|#ident| self.strings().get(#ident).cloned())
-                }
-            }
+        let (return_type, process): (TokenStream, TokenStream) = if *is_string {
+            (
+                quote! {
+                    ::alloc::string::String
+                },
+                quote! {
+                    .then(|| self.#ident() as usize)
+                    .and_then(|#ident| #ident.checked_sub(1))
+                    .and_then(|#ident| self.strings().get(#ident).cloned())
+                },
+            )
+        } else if let Some(debug_type) = debug_type {
+            (
+                quote! {
+                    #debug_type
+                },
+                quote! {
+                    .then(|| self.#ident().into())
+                },
+            )
         } else {
-            match debug_type {
-                Some(debug_type) => quote! {
-                    fn #get_ident(&self) -> Option<#debug_type> {
-                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident().into())
-                    }
+            (
+                quote! {
+                    #ty
                 },
-                None => quote! {
-                    fn #get_ident(&self) -> Option<#ty> {
-                        (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size()).then(|| self.#ident())
-                    }
+                quote! {
+                    .then(|| self.#ident())
                 },
+            )
+        };
+        quote! {
+            fn #get_ident(&self) -> Option<#return_type> {
+                (::core::mem::offset_of!(Self, #ident) + ::core::mem::size_of_val(&self.#ident()) <= self.get_header().size())#process
             }
         }
     }
