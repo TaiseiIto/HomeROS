@@ -1,5 +1,6 @@
 use {
     crate::Header,
+    alloc::string::String,
     core::{marker::PhantomData, mem::offset_of, slice::from_raw_parts},
 };
 
@@ -8,7 +9,7 @@ use {
 /// # TODO
 /// * Print all elements.
 #[derive(packed::Accessor, table::Table)]
-#[print(get_contained_elements)]
+#[print(get_contained_elements, get_sku_number)]
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
@@ -40,15 +41,40 @@ impl Table {
             self.get_contained_element_record_length()? as usize;
         let contained_element_size: usize =
             contained_element_count * contained_element_record_length;
-        (offset_of!(Self, contained_elements) + contained_element_size <= self.header.size()).then(
-            || unsafe {
+        (offset_of!(Self, contained_elements) + contained_element_size <= self.get_header().size())
+            .then(|| unsafe {
                 from_raw_parts(
                     &self.contained_elements as *const PhantomData<u8> as *const u8,
                     contained_element_size,
                 )
-            },
-        )
+            })
     }
+
+    fn get_footer(&self) -> Option<&Footer> {
+        Some(unsafe {
+            &*((&self.contained_elements as *const PhantomData<u8>)
+                .byte_add(self.get_contained_elements()?.len()) as *const Footer)
+        })
+    }
+
+    fn get_footer_offset(&self) -> Option<usize> {
+        Some(offset_of!(Self, contained_elements) + self.get_contained_elements()?.len())
+    }
+
+    fn get_sku_number(&self) -> Option<String> {
+        (self.get_footer_offset()? + offset_of!(Footer, sku_number) <= self.get_header().size())
+            .then_some(self.get_footer()?.sku_number() as usize)
+            .and_then(|sku_number| sku_number.checked_sub(1))
+            .and_then(|sku_number| self.strings().get(sku_number).cloned())
+    }
+}
+
+#[derive(packed::Accessor)]
+#[repr(C, packed)]
+struct Footer {
+    sku_number: u8,
+    rack_type: u8,
+    rack_height: u8,
 }
 
 /// # References
