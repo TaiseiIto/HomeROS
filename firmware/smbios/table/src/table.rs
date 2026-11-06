@@ -20,7 +20,17 @@ impl Structure {
             elements,
             prints,
         } = self;
-        let debugs: Vec<TokenStream> = elements.iter().skip(1).map(Element::debug).collect();
+        let elements: Vec<TokenStream> = elements.iter().skip(1).map(Element::debug).collect();
+        let prints: Vec<TokenStream> = prints
+            .iter()
+            .map(|print| {
+                quote! {
+                    if let Some(#print) = self.#print() {
+                        debug_struct.field(stringify!(#print), &#print);
+                    }
+                }
+            })
+            .collect();
         quote! {
             impl ::core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
@@ -28,7 +38,8 @@ impl Structure {
                     debug_struct.field("typ", &self.get_header().get_type());
                     debug_struct.field("length", &self.get_header().size());
                     debug_struct.field("handle", &self.get_header().handle());
-                    #(#debugs)*
+                    #(#elements)*
+                    #(#prints)*
                     debug_struct.finish()
                 }
             }
