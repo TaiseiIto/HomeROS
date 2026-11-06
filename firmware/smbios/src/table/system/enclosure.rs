@@ -1,4 +1,7 @@
-use {crate::Header, core::marker::PhantomData};
+use {
+    crate::Header,
+    core::{marker::PhantomData, mem::offset_of, slice::from_raw_parts},
+};
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
@@ -27,6 +30,22 @@ pub struct Table {
     contained_element_count: u8,
     contained_element_record_length: u8,
     contained_elements: PhantomData<u8>,
+}
+
+impl Table {
+    fn get_contained_elements(&self) -> Option<&[u8]> {
+        let contained_element_count: usize = self.get_contained_element_count()? as usize;
+        let contained_element_record_length: usize =
+            self.get_contained_element_record_length()? as usize;
+        let contained_element_size: usize =
+            contained_element_count * contained_element_record_length;
+        (offset_of!(Self, contained_elements) < self.header.size()).then(|| unsafe {
+            from_raw_parts(
+                &self.contained_elements as *const PhantomData<u8> as *const u8,
+                contained_element_size,
+            )
+        })
+    }
 }
 
 /// # References
