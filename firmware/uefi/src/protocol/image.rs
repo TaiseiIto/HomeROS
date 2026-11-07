@@ -24,7 +24,7 @@ pub struct Protocol {
     image_size: u64,
     image_code: Type,
     image_data: Type,
-    unload: Unload,
+    unload: Option<Unload>,
 }
 
 impl Debug for Protocol {
