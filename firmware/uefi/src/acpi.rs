@@ -1,4 +1,5 @@
 mod fixed_acpi_description;
+mod multiple_apic_description;
 pub mod root_system_description;
 
 use core::{
@@ -41,6 +42,7 @@ impl Header {
     pub fn table(&self) -> Result<&dyn Table, &str> {
         let header: *const Self = self as *const Self;
         match self.signature() {
+            "APIC" => Ok(unsafe { &*(header as *const multiple_apic_description::Table) }),
             "RSDT" => Ok(unsafe { &*(header as *const root_system_description::Table) }),
             "FACP" => Ok(unsafe { &*(header as *const fixed_acpi_description::Table) }),
             signature => Err(signature),
