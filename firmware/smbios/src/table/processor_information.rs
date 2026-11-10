@@ -40,7 +40,8 @@ pub struct Table {
     core_count: u8,
     core_enabled: u8,
     thread_count: u8,
-    characteristics: u16,
+    #[debug_type(Characteristics)]
+    characteristics: CharacteristicsRaw,
     #[debug_type(Family)]
     family2: u16,
     core_count2: u16,
@@ -782,4 +783,21 @@ impl From<u8> for Upgrade {
             _ => panic!(),
         }
     }
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.5.9 Processor Characteristics
+#[io::register]
+struct Characteristics {
+    __: bool,
+    unknown: bool,
+    bit64_capable: bool,
+    multi_core: bool,
+    hardware_thread: bool,
+    execute_protection: bool,
+    enhanced_virtualization: bool,
+    power_performance_control: bool,
+    bit128_capable: bool,
+    arm64_soc_id: bool,
+    __: [bool; 6],
 }
