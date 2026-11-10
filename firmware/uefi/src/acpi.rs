@@ -39,13 +39,13 @@ impl Header {
             == 0
     }
 
-    pub fn table(&self) -> Result<&dyn Table, &str> {
+    pub fn table(&self) -> &dyn Table {
         let header: *const Self = self as *const Self;
         match self.signature() {
-            "APIC" => Ok(unsafe { &*(header as *const multiple_apic_description::Table) }),
-            "RSDT" => Ok(unsafe { &*(header as *const root_system_description::Table) }),
-            "FACP" => Ok(unsafe { &*(header as *const fixed_acpi_description::Table) }),
-            signature => Err(signature),
+            "APIC" => unsafe { &*(header as *const multiple_apic_description::Table) },
+            "RSDT" => unsafe { &*(header as *const root_system_description::Table) },
+            "FACP" => unsafe { &*(header as *const fixed_acpi_description::Table) },
+            signature => panic!("Unknown type {:#x?}", signature),
         }
     }
 

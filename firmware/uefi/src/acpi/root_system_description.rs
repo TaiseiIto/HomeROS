@@ -98,7 +98,7 @@ pub struct Table {
 }
 
 impl Table {
-    fn entries(&self) -> Vec<Result<&dyn super::Table, &str>> {
+    fn entries(&self) -> Vec<&dyn super::Table> {
         self.header
             .body()
             .iter()
