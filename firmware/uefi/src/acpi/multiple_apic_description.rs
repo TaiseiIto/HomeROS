@@ -10,7 +10,13 @@ use {
 pub struct Table {
     header: Header,
     local_interrupt_controller_address: u32,
-    flags: u32,
+    flags: FlagsRaw,
+}
+
+impl Table {
+    fn get_flags(&self) -> Flags {
+        self.flags().into()
+    }
 }
 
 impl Debug for Table {
@@ -22,9 +28,15 @@ impl Debug for Table {
                 "local_interrupt_controller_address",
                 &self.local_interrupt_controller_address(),
             )
-            .field("flags", &self.flags())
+            .field("flags", &self.get_flags())
             .finish()
     }
 }
 
 impl super::Table for Table {}
+
+#[io::register]
+struct Flags {
+    pcat_compat: bool,
+    __: [bool; 31],
+}
