@@ -250,8 +250,6 @@ impl From<u8> for Status {
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.4 System Enclosure or Chassis - ContainedElements
-/// # TODO
-/// * Print type
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 struct ContainedElement {
