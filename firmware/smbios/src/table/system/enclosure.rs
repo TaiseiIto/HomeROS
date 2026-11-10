@@ -2,7 +2,12 @@ use {
     crate::Header,
     alloc::string::String,
     alloc::vec::Vec,
-    core::{marker::PhantomData, mem::offset_of, slice::from_raw_parts},
+    core::{
+        fmt::{Debug, Formatter, Result},
+        marker::PhantomData,
+        mem::offset_of,
+        slice::from_raw_parts,
+    },
 };
 
 /// # References
@@ -246,10 +251,27 @@ impl From<u8> for Status {
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.4 System Enclosure or Chassis - ContainedElements
 /// # TODO
 /// * Print type
-#[derive(Debug)]
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 struct ContainedElement {
-    typ: u8,
+    typ: ContainedElementTypeRaw,
     minimum: u8,
     maximum: u8,
+}
+
+impl Debug for ContainedElement {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
+        formatter
+            .debug_struct("ContainedElement")
+            .field("typ", &self.typ())
+            .field("minimum", &self.minimum())
+            .field("maximum", &self.maximum())
+            .finish()
+    }
+}
+
+#[io::register]
+struct ContainedElementType {
+    typ: [bool; 7],
+    select: bool,
 }
