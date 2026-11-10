@@ -15,6 +15,7 @@ pub struct Table {
     header: Header,
     #[string]
     manufacturer: u8,
+    #[debug_type(Type)]
     typ: u8,
     #[string]
     version: u8,
