@@ -52,6 +52,7 @@ impl Table {
                     contained_element_size,
                 )
             })
+            .filter(|bytes| !bytes.is_empty())
     }
 
     fn get_contained_elements(&self) -> Option<Vec<&ContainedElement>> {
