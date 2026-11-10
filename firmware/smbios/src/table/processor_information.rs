@@ -20,7 +20,8 @@ pub struct Table {
     id: u64,
     #[string]
     version: u8,
-    voltage: u8,
+    #[debug_type(Voltage)]
+    voltage: VoltageRaw,
     external_clock: u16,
     max_speed: u16,
     current_speed: u16,
@@ -581,4 +582,13 @@ impl From<u16> for Family {
             _ => panic!(),
         }
     }
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.5.4 Processor Information - Voltage
+#[io::register]
+struct Voltage {
+    capability: [bool; 4],
+    __: [bool; 3],
+    legacy: bool,
 }
