@@ -2,7 +2,8 @@ use {
     crate::{
         Strings, Table,
         table::{
-            physical_memory_array, platform_firmware_information, processor_information, system,
+            baseboard_information, physical_memory_array, platform_firmware_information,
+            processor_information, system,
         },
     },
     alloc::{string::String, vec::Vec},
@@ -46,6 +47,9 @@ impl Header {
             Type::SystemInformation => {
                 Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
             }
+            Type::BaseboardInformation => {
+                Ok(unsafe { &*(self as *const Self as *const baseboard_information::Table) })
+            }
             Type::SystemEnclosure => {
                 Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
             }
@@ -81,13 +85,13 @@ impl Debug for Header {
 pub enum Type {
     PlatformFirmwareInformation,
     SystemInformation,
+    BaseboardInformation,
     SystemEnclosure,
     ProcessorInformation,
     PhysicalMemoryArray,
     /// # References
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.49 End-of-Table (Type 127)
     EndOfTable,
-    Unknown(u8),
 }
 
 impl From<u8> for Type {
@@ -95,11 +99,12 @@ impl From<u8> for Type {
         match typ {
             0 => Self::PlatformFirmwareInformation,
             1 => Self::SystemInformation,
+            2 => Self::BaseboardInformation,
             3 => Self::SystemEnclosure,
             4 => Self::ProcessorInformation,
             16 => Self::PhysicalMemoryArray,
             127 => Self::EndOfTable,
-            typ => Self::Unknown(typ),
+            _ => panic!(),
         }
     }
 }
