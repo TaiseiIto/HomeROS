@@ -1,13 +1,12 @@
 use {
     crate::Header,
     alloc::string::String,
+    alloc::vec::Vec,
     core::{marker::PhantomData, mem::offset_of, slice::from_raw_parts},
 };
 
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4 System Enclosure or Chassis (Type 3)
-/// # TODO
-/// * Print all elements.
 #[derive(packed::Accessor, table::Table)]
 #[print(get_contained_elements, get_sku_number, get_rack_type, get_rack_height)]
 #[repr(C, packed)]
@@ -40,7 +39,7 @@ pub struct Table {
 }
 
 impl Table {
-    fn get_contained_elements(&self) -> Option<&[u8]> {
+    fn get_contained_elements_bytes(&self) -> Option<&[u8]> {
         let contained_element_count: usize = self.get_contained_element_count()? as usize;
         let contained_element_record_length: usize =
             self.get_contained_element_record_length()? as usize;
@@ -55,15 +54,29 @@ impl Table {
             })
     }
 
+    fn get_contained_elements(&self) -> Option<Vec<&ContainedElement>> {
+        self.get_contained_elements_bytes()
+            .map(|contained_elements| {
+                contained_elements
+                    .chunks(self.get_contained_element_record_length().unwrap() as usize)
+                    .map(|contained_element| {
+                        let contained_element: &u8 = contained_element.first().unwrap();
+                        unsafe { &*(contained_element as *const u8 as *const ContainedElement) }
+                    })
+                    .collect()
+            })
+    }
+
     fn get_footer(&self) -> Option<&Footer> {
         Some(unsafe {
             &*((&self.contained_elements as *const PhantomData<u8>)
-                .byte_add(self.get_contained_elements()?.len()) as *const Footer)
+                .byte_add(self.get_contained_elements_bytes()?.len())
+                as *const Footer)
         })
     }
 
     fn get_footer_offset(&self) -> Option<usize> {
-        Some(offset_of!(Self, contained_elements) + self.get_contained_elements()?.len())
+        Some(offset_of!(Self, contained_elements) + self.get_contained_elements_bytes()?.len())
     }
 
     fn get_sku_number(&self) -> Option<String> {
@@ -226,4 +239,16 @@ impl From<u8> for Status {
             status => panic!("Unknown status {:#x?}", status),
         }
     }
+}
+
+/// # References
+/// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.4.4 System Enclosure or Chassis - ContainedElements
+/// # TODO
+/// * Print type
+#[derive(Debug)]
+#[repr(C, packed)]
+struct ContainedElement {
+    typ: u8,
+    minimum: u8,
+    maximum: u8,
 }
