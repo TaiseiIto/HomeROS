@@ -1,5 +1,6 @@
 use {
-    crate::Header,
+    super::super::baseboard_information,
+    crate::{Header, header},
     alloc::string::String,
     alloc::vec::Vec,
     core::{
@@ -259,11 +260,17 @@ struct ContainedElement {
     maximum: u8,
 }
 
+impl ContainedElement {
+    fn get_type(&self) -> HeaderTypeOrBoardType {
+        unsafe { self.typ.read_memory() }.into()
+    }
+}
+
 impl Debug for ContainedElement {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("ContainedElement")
-            .field("typ", &self.typ())
+            .field("typ", &self.get_type())
             .field("minimum", &self.minimum())
             .field("maximum", &self.maximum())
             .finish()
@@ -274,4 +281,20 @@ impl Debug for ContainedElement {
 struct ContainedElementType {
     typ: [bool; 7],
     select: bool,
+}
+
+#[derive(Debug)]
+enum HeaderTypeOrBoardType {
+    Header(header::Type),
+    Board(baseboard_information::Type),
+}
+
+impl From<ContainedElementType> for HeaderTypeOrBoardType {
+    fn from(contained_element_type: ContainedElementType) -> Self {
+        if contained_element_type.read_select_bit() {
+            Self::Header(contained_element_type.read_typ_shift().into())
+        } else {
+            Self::Board(contained_element_type.read_typ_shift().into())
+        }
+    }
 }

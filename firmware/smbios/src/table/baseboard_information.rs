@@ -42,7 +42,7 @@ struct Flags {
 /// # References
 /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 7.3.2 Baseboard - Board Type
 #[derive(Debug)]
-enum Type {
+pub enum Type {
     Unknown,
     Other,
     ServerBlade,
