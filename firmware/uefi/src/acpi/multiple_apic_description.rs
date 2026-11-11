@@ -25,13 +25,13 @@ impl Table {
         self.flags().into()
     }
 
-    fn get_headers(&self) -> Vec<&Header> {
-        let headers: Headers = self.get_interrupt_controller_structure_bytes().into();
-        headers.collect()
-    }
-
     fn get_interrupt_controller_structure_bytes(&self) -> &[u8] {
         &self.header.bytes()[offset_of!(Self, interrupt_controller_structure)..]
+    }
+
+    fn get_structures(&self) -> Vec<&dyn Structure> {
+        let headers: Headers = self.get_interrupt_controller_structure_bytes().into();
+        headers.map(Header::as_structure).collect()
     }
 }
 
@@ -45,7 +45,7 @@ impl Debug for Table {
                 &self.local_interrupt_controller_address(),
             )
             .field("flags", &self.get_flags())
-            .field("interrupt_controller_structures", &self.get_headers())
+            .field("interrupt_controller_structures", &self.get_structures())
             .finish()
     }
 }
@@ -66,6 +66,12 @@ struct Header {
 }
 
 impl Header {
+    fn as_structure(&self) -> &dyn Structure {
+        match self.get_type() {
+            typ => panic!("Unimplemented type {:#x?}", typ),
+        }
+    }
+
     fn get_type(&self) -> Type {
         self.typ().into()
     }
@@ -160,3 +166,5 @@ impl<'a> Iterator for Headers<'a> {
             })
     }
 }
+
+trait Structure: Debug {}
