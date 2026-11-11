@@ -13,12 +13,16 @@ pub struct Table {
     base_address: generic_address::Structure,
     number: u8,
     minimum_clock_tick: u16,
-    page_protection: u8,
+    page_protection_and_oem_attribute: PageProtectionAndOemAttributeRaw,
 }
 
 impl Table {
     fn get_block_id(&self) -> BlockId {
         self.block_id().into()
+    }
+
+    fn get_page_protection_and_oem_attribute(&self) -> PageProtectionAndOemAttribute {
+        self.page_protection_and_oem_attribute().into()
     }
 }
 
@@ -31,7 +35,10 @@ impl Debug for Table {
             .field("base_address", &self.base_address())
             .field("number", &self.number())
             .field("minimum_clock_tick", &self.minimum_clock_tick())
-            .field("page_protection", &self.page_protection())
+            .field(
+                "page_protection_and_oem_attribute",
+                &self.get_page_protection_and_oem_attribute(),
+            )
             .finish()
     }
 }
@@ -46,4 +53,10 @@ struct BlockId {
     __: bool,
     legacy_replacement_irp_routing_capable: bool,
     pci_vendor_id: u16,
+}
+
+#[io::register]
+struct PageProtectionAndOemAttribute {
+    page_protection: [bool; 4],
+    oem_attribute: [bool; 4],
 }

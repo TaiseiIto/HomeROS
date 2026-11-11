@@ -67,9 +67,7 @@ struct Header {
 
 impl Header {
     fn as_structure(&self) -> &dyn Structure {
-        match self.get_type() {
-            typ => panic!("Unimplemented type {:#x?}", typ),
-        }
+        unimplemented!("type {:#x?}", self.get_type());
     }
 
     fn get_type(&self) -> Type {
