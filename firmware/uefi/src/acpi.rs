@@ -3,6 +3,7 @@ pub mod generic_address;
 mod hpet;
 mod multiple_apic_description;
 pub mod root_system_description;
+mod windows_emulated_devices;
 
 use core::{
     fmt::{self, Debug, Formatter},
@@ -48,6 +49,7 @@ impl Header {
             "FACP" => unsafe { &*(header as *const fixed_acpi_description::Table) },
             "HPET" => unsafe { &*(header as *const hpet::Table) },
             "RSDT" => unsafe { &*(header as *const root_system_description::Table) },
+            "WAET" => unsafe { &*(header as *const windows_emulated_devices::Table) },
             signature => panic!("Unknown type {:#x?}", signature),
         }
     }
