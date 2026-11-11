@@ -1,4 +1,7 @@
-use core::fmt::{Debug, Formatter, Result};
+use {
+    super::generic_address,
+    core::fmt::{Debug, Formatter, Result},
+};
 
 /// # References
 /// * [IA-PC HPET (High Precision Event Timer) Specification](https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf) 3.2.4 The ACPI 2.0 HPET Description Table (HPET)
@@ -7,7 +10,7 @@ use core::fmt::{Debug, Formatter, Result};
 pub struct Table {
     header: super::Header,
     block_id: BlockIdRaw,
-    base_address: [u8; 12],
+    base_address: generic_address::Structure,
     number: u8,
     minimum_clock_tick: u16,
     page_protection: u8,

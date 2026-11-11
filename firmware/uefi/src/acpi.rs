@@ -1,4 +1,5 @@
 mod fixed_acpi_description;
+pub mod generic_address;
 mod hpet;
 mod multiple_apic_description;
 pub mod root_system_description;
