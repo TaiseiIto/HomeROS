@@ -159,7 +159,7 @@ impl<'a> Iterator for Headers<'a> {
             .and_then(|header| {
                 self.0
                     .split_at_checked(header.get_length())
-                    .map(|(structure, remaining)| {
+                    .map(|(_, remaining)| {
                         self.0 = remaining;
                         header
                     })

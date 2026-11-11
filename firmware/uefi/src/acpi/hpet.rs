@@ -6,11 +6,17 @@ use core::fmt::{Debug, Formatter, Result};
 #[repr(C, packed)]
 pub struct Table {
     header: super::Header,
-    event_timer_block_id: u32,
+    block_id: BlockIdRaw,
     base_address: [u8; 12],
     number: u8,
     minimum_clock_tick: u16,
     page_protection: u8,
+}
+
+impl Table {
+    fn get_block_id(&self) -> BlockId {
+        self.block_id().into()
+    }
 }
 
 impl Debug for Table {
@@ -18,7 +24,7 @@ impl Debug for Table {
         formatter
             .debug_struct("Table")
             .field("header", &self.header)
-            .field("event_timer_block_id", &self.event_timer_block_id())
+            .field("block_id", &self.get_block_id())
             .field("base_address", &self.base_address())
             .field("number", &self.number())
             .field("minimum_clock_tick", &self.minimum_clock_tick())
@@ -28,3 +34,13 @@ impl Debug for Table {
 }
 
 impl super::Table for Table {}
+
+#[io::register]
+struct BlockId {
+    hardware_rev_id: u8,
+    number_of_comparators: [bool; 5],
+    count_size_cap: bool,
+    __: bool,
+    legacy_replacement_irp_routing_capable: bool,
+    pci_vendor_id: u16,
+}
