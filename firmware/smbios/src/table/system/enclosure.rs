@@ -260,7 +260,8 @@ struct ContainedElement {
 
 impl ContainedElement {
     fn get_type(&self) -> HeaderTypeOrBoardType {
-        unsafe { self.typ.read_memory() }.into()
+        let typ: ContainedElementType = self.typ().into();
+        typ.into()
     }
 }
 
