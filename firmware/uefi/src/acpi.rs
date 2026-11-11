@@ -1,4 +1,5 @@
 mod fixed_acpi_description;
+mod hpet;
 mod multiple_apic_description;
 pub mod root_system_description;
 
@@ -43,8 +44,9 @@ impl Header {
         let header: *const Self = self as *const Self;
         match self.signature() {
             "APIC" => unsafe { &*(header as *const multiple_apic_description::Table) },
-            "RSDT" => unsafe { &*(header as *const root_system_description::Table) },
             "FACP" => unsafe { &*(header as *const fixed_acpi_description::Table) },
+            "HPET" => unsafe { &*(header as *const hpet::Table) },
+            "RSDT" => unsafe { &*(header as *const root_system_description::Table) },
             signature => panic!("Unknown type {:#x?}", signature),
         }
     }
