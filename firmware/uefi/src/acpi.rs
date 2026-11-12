@@ -1,3 +1,4 @@
+mod boot_graphics_resource;
 mod fixed_acpi_description;
 pub mod generic_address;
 mod hpet;
@@ -46,6 +47,7 @@ impl Header {
         let header: *const Self = self as *const Self;
         match self.signature() {
             "APIC" => unsafe { &*(header as *const multiple_apic_description::Table) },
+            "BGRT" => unsafe { &*(header as *const boot_graphics_resource::Table) },
             "FACP" => unsafe { &*(header as *const fixed_acpi_description::Table) },
             "HPET" => unsafe { &*(header as *const hpet::Table) },
             "RSDT" => unsafe { &*(header as *const root_system_description::Table) },

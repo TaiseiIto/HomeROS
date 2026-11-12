@@ -1,5 +1,5 @@
 use {
-    super::generic_address,
+    super::{Header, generic_address},
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -8,7 +8,7 @@ use {
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Table {
-    header: super::Header,
+    header: Header,
     block_id: BlockIdRaw,
     base_address: generic_address::Structure,
     number: u8,
