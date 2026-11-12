@@ -5,6 +5,8 @@ use {
 
 /// # References
 /// * [I/O APIC Structure](https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html#io-apic-structure)
+/// # TODO
+/// * Print IO APIC.
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Structure {
