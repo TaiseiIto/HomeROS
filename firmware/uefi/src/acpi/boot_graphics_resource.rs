@@ -10,11 +10,17 @@ use {
 pub struct Table {
     header: Header,
     version: u16,
-    status: u8,
+    status: Status,
     image_type: u8,
     image_address: u64,
     image_offset_x: u32,
     image_offset_y: u32,
+}
+
+impl Table {
+    fn get_image_type(&self) -> Type {
+        self.image_type().into()
+    }
 }
 
 impl Debug for Table {
@@ -24,7 +30,7 @@ impl Debug for Table {
             .field("header", &self.header)
             .field("version", &self.version())
             .field("status", &self.status())
-            .field("image_type", &self.image_type())
+            .field("image_type", &self.get_image_type())
             .field("image_address", &self.image_address())
             .field("image_offset_x", &self.image_offset_x())
             .field("image_offset_y", &self.image_offset_y())
@@ -33,3 +39,25 @@ impl Debug for Table {
 }
 
 impl super::Table for Table {}
+
+#[io::register]
+struct Status {
+    displayed: bool,
+    orientation_offset: [bool; 2],
+    __: [bool; 5],
+}
+
+#[derive(Debug)]
+enum Type {
+    Bitmap,
+    Reserved(u8),
+}
+
+impl From<u8> for Type {
+    fn from(typ: u8) -> Self {
+        match typ {
+            0 => Self::Bitmap,
+            typ => Self::Reserved(typ),
+        }
+    }
+}
