@@ -49,6 +49,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "hpet"
+version = "0.1.0"
+dependencies = [
+ "io",
+]
+
+[[package]]
 name = "io"
 version = "0.1.0"
 dependencies = [
@@ -181,6 +188,7 @@ dependencies = [
 name = "uefi"
 version = "0.1.0"
 dependencies = [
+ "hpet",
  "io",
  "packed",
  "smbios",

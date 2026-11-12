@@ -13,6 +13,11 @@ pub struct Structure {
 }
 
 impl Structure {
+    pub fn system_memory_space<T>(&self) -> Option<&T> {
+        matches!(self.get_space_id(), SpaceId::SystemMemorySpace)
+            .then_some(unsafe { &*(self.address as *const T) })
+    }
+
     fn get_space_id(&self) -> SpaceId {
         self.space_id().into()
     }

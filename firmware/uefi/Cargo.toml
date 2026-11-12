@@ -9,6 +9,9 @@ path = "../../standard/uuid"
 [dependencies.uuid_from_str]
 path = "../../standard/uuid_from_str"
 
+[dependencies.hpet]
+path = "../../device/timer/hpet"
+
 [dependencies.io]
 path = "../../tool/macro/io"
 

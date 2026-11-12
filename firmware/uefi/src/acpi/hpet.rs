@@ -24,6 +24,10 @@ impl Table {
     fn get_page_protection_and_oem_attribute(&self) -> PageProtectionAndOemAttribute {
         self.page_protection_and_oem_attribute().into()
     }
+
+    fn registers(&self) -> &hpet::Registers {
+        self.base_address.system_memory_space().unwrap()
+    }
 }
 
 impl Debug for Table {
@@ -39,6 +43,7 @@ impl Debug for Table {
                 "page_protection_and_oem_attribute",
                 &self.get_page_protection_and_oem_attribute(),
             )
+            .field("registers", &self.registers())
             .finish()
     }
 }

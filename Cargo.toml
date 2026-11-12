@@ -5,6 +5,7 @@ opt-level = "s"
 members = [
 	"arch",
 	"boot",
+	"device/timer/hpet",
 	"device/tree",
 	"device/uart",
 	"file/executable/pe",
