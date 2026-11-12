@@ -3,8 +3,8 @@ use {
     quote::quote,
     std::iter,
     syn::{
-        Field, Fields, FieldsNamed, Ident, ItemStruct, Path, PathSegment, Type, TypePath,
-        Visibility, punctuated::Punctuated, token::PathSep,
+        Attribute, Field, Fields, FieldsNamed, Ident, ItemStruct, Meta, Path, PathSegment, Type,
+        TypePath, Visibility, punctuated::Punctuated, token::PathSep,
     },
 };
 
@@ -268,6 +268,7 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Option<Ident>,
     index: usize,
+    is_register: bool,
     span: Span,
     ty: Type,
 }
@@ -325,6 +326,7 @@ impl Element {
         let Self {
             ident,
             index,
+            is_register: _,
             span,
             ty: _,
         } = self;
@@ -335,7 +337,7 @@ impl Element {
 
     fn new(index: usize, field: Field) -> Self {
         if let Field {
-            attrs: _,
+            attrs,
             vis: _,
             modifiers: _,
             ident: Some(ident),
@@ -346,9 +348,26 @@ impl Element {
         {
             let span: Span = ident.span();
             let ident: Option<Ident> = (ident != "__").then_some(ident);
+            let is_register: bool = attrs.iter().fold(
+                true,
+                |is_register,
+                 Attribute {
+                     pound_token: _,
+                     style: _,
+                     bracket_token: _,
+                     meta,
+                 }| match meta {
+                    Meta::Path(path) => match path.get_ident().unwrap().to_string().as_str() {
+                        "unregister" => false,
+                        _ => is_register,
+                    },
+                    _ => is_register,
+                },
+            );
             Self {
                 ident,
                 index,
+                is_register,
                 span,
                 ty,
             }
@@ -480,12 +499,14 @@ impl Element {
         let Self {
             ident,
             index: _,
+            is_register,
             span: _,
             ty,
         } = self;
-        match (ident, ty) {
+        match (ident, is_register, ty) {
             (
                 Some(_),
+                true,
                 Type::Path(TypePath {
                     attrs,
                     qself,
