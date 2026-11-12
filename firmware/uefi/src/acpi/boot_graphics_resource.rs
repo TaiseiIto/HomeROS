@@ -10,7 +10,7 @@ use {
 pub struct Table {
     header: Header,
     version: u16,
-    status: Status,
+    status: StatusRaw,
     image_type: u8,
     image_address: u64,
     image_offset_x: u32,
@@ -21,6 +21,10 @@ impl Table {
     fn get_image_type(&self) -> Type {
         self.image_type().into()
     }
+
+    fn get_status(&self) -> Status {
+        self.status().into()
+    }
 }
 
 impl Debug for Table {
@@ -29,7 +33,7 @@ impl Debug for Table {
             .debug_struct("Table")
             .field("header", &self.header)
             .field("version", &self.version())
-            .field("status", &self.status())
+            .field("status", &self.get_status())
             .field("image_type", &self.get_image_type())
             .field("image_address", &self.image_address())
             .field("image_offset_x", &self.image_offset_x())

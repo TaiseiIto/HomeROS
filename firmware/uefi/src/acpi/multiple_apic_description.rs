@@ -1,3 +1,5 @@
+mod processor_local_apic;
+
 use {
     alloc::vec::Vec,
     core::{
@@ -67,7 +69,12 @@ struct Header {
 
 impl Header {
     fn as_structure(&self) -> &dyn Structure {
-        unimplemented!("type {:#x?}", self.get_type());
+        match self.get_type() {
+            Type::ProcessorLocalApic => unsafe {
+                &*(self as *const Self as *const processor_local_apic::Structure)
+            },
+            typ => unimplemented!("type {:#x?}", typ),
+        }
     }
 
     fn get_type(&self) -> Type {
