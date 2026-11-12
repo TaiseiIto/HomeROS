@@ -1,3 +1,4 @@
+mod interrupt_source_override;
 mod io_apic;
 mod processor_local_apic;
 
@@ -73,6 +74,9 @@ impl Header {
         match self.get_type() {
             Type::ProcessorLocalApic => unsafe {
                 &*(self as *const Self as *const processor_local_apic::Structure)
+            },
+            Type::InterruptSourceOverride => unsafe {
+                &*(self as *const Self as *const interrupt_source_override::Structure)
             },
             Type::IoApic => unsafe { &*(self as *const Self as *const io_apic::Structure) },
             typ => unimplemented!("type {:#x?}", typ),
