@@ -1,3 +1,4 @@
+mod io_apic;
 mod processor_local_apic;
 
 use {
@@ -73,6 +74,7 @@ impl Header {
             Type::ProcessorLocalApic => unsafe {
                 &*(self as *const Self as *const processor_local_apic::Structure)
             },
+            Type::IoApic => unsafe { &*(self as *const Self as *const io_apic::Structure) },
             typ => unimplemented!("type {:#x?}", typ),
         }
     }
