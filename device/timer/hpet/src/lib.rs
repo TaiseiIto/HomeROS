@@ -8,7 +8,7 @@ use core::slice::from_raw_parts;
 /// # References
 /// * [IA-PC HPET (High Precision Event Timer) Specification](https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf) 2.3.1 Register Overview
 /// # TODO
-/// * Print all registers.
+/// * Print `self.timers()`.
 #[io::registers]
 #[debug_function(timers)]
 pub struct Registers {
