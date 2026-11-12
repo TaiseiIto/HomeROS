@@ -9,4 +9,7 @@ mod general;
 #[io::registers]
 pub struct Registers {
     general_capabilities: general::capabilities::Register,
+    __: u64,
+    general_configuration: general::configuration::Register,
+    __: u64,
 }
