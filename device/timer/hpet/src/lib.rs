@@ -10,6 +10,7 @@ use core::slice::from_raw_parts;
 /// # TODO
 /// * Print all registers.
 #[io::registers]
+#[debug_function(timers)]
 pub struct Registers {
     general_capabilities_and_id: general::capabilities_and_id::Register,
     __: u64,
