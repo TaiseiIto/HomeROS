@@ -14,4 +14,6 @@ pub struct Registers {
     __: u64,
     general_interrupt_status: general::interrupt_status::Register,
     __: u64,
+    #[unregister]
+    main_counter_register: u64,
 }
