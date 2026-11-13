@@ -3,8 +3,10 @@ use {
     quote::quote,
     std::iter,
     syn::{
-        Attribute, Field, Fields, FieldsNamed, Ident, ItemStruct, Meta, Path, PathSegment, Type,
-        TypePath, Visibility, punctuated::Punctuated, token::PathSep,
+        Attribute, Field, Fields, FieldsNamed, Ident, ItemStruct, Meta, MetaList, Path,
+        PathSegment, Type, TypePath, Visibility,
+        punctuated::Punctuated,
+        token::{Comma, PathSep},
     },
 };
 
@@ -12,6 +14,7 @@ pub struct Structure {
     vis: Visibility,
     ident: Ident,
     elements: Vec<Element>,
+    debug_functions: Vec<Ident>,
 }
 
 impl Structure {
@@ -71,15 +74,33 @@ impl Structure {
     }
 
     fn debug(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
+        let Self {
+            vis: _,
+            ident,
+            elements,
+            debug_functions,
+        } = self;
         let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = self.elements.iter().filter_map(Element::debug).collect();
+        let elements: Vec<TokenStream> = elements.iter().filter_map(Element::debug).collect();
+        let functions: Vec<TokenStream> = debug_functions
+            .iter()
+            .map(|function| {
+                let function_string: String = function.to_string();
+                quote! {
+                    field(#function_string, &self.#function())
+                }
+            })
+            .collect();
+        let functions: Option<TokenStream> = (!functions.is_empty()).then_some(quote! {
+            .#(#functions).*
+        });
         quote! {
             impl ::core::fmt::Debug for #ident {
                 fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                     formatter
                         .debug_struct(#ident_string)
                         .#(#elements).*
+                        #functions
                         .finish()
                 }
             }
@@ -180,6 +201,7 @@ impl Structure {
             vis,
             ident,
             elements,
+            debug_functions: _,
         } = self;
         let elements: Vec<TokenStream> = elements.iter().map(Element::true_declaration).collect();
         quote! {
@@ -215,7 +237,7 @@ impl Structure {
 impl From<ItemStruct> for Structure {
     fn from(item_struct: ItemStruct) -> Self {
         if let ItemStruct {
-            attrs: _,
+            attrs,
             vis,
             struct_token: _,
             ident,
@@ -233,10 +255,37 @@ impl From<ItemStruct> for Structure {
                 .enumerate()
                 .map(|(index, field)| Element::new(index, field))
                 .collect();
+            let debug_functions: Vec<Ident> = attrs.iter().fold(
+                Vec::default(),
+                |mut debug_functions,
+                 Attribute {
+                     pound_token: _,
+                     style: _,
+                     bracket_token: _,
+                     meta,
+                 }| {
+                    if let Meta::List(
+                        meta_list @ MetaList {
+                            path,
+                            delimiter: _,
+                            tokens: _,
+                        },
+                    ) = meta
+                        && path.is_ident("debug_functions")
+                    {
+                        let new_debug_functions: Punctuated<Ident, Comma> = meta_list
+                            .parse_args_with(Punctuated::parse_terminated)
+                            .unwrap();
+                        debug_functions.append(&mut new_debug_functions.iter().cloned().collect());
+                    }
+                    debug_functions
+                },
+            );
             Self {
                 vis,
                 ident,
                 elements,
+                debug_functions,
             }
         } else {
             panic!();
