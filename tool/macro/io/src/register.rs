@@ -166,6 +166,18 @@ impl Structure {
         }
     }
 
+    fn pretty_default(&self) -> TokenStream {
+        let pretty_type: Ident = self.pretty_type();
+        let true_type: Ident = self.true_type();
+        quote! {
+            impl Default for #pretty_type {
+                fn default() -> Self {
+                    #true_type::default().into()
+                }
+            }
+        }
+    }
+
     fn pretty_implement(&self) -> TokenStream {
         let pretty_type: Ident = self.pretty_type();
         let pretty_bit_reads: Vec<TokenStream> = self.pretty_bit_reads();
@@ -241,7 +253,7 @@ impl Structure {
         let pretty_type: Ident = self.pretty_type();
         let elements: Vec<TokenStream> = self.elements.iter().map(Element::pretty).collect();
         quote! {
-            #[derive(Clone, Default)]
+            #[derive(Clone)]
             #vis struct #pretty_type {
                 #(#elements),*
             }
@@ -435,6 +447,7 @@ impl From<Structure> for TokenStream {
         let pretty_implement: TokenStream = structure.pretty_implement();
         let pretty_declaration: TokenStream = structure.pretty_declaration();
         let pretty_debug: TokenStream = structure.pretty_debug();
+        let pretty_default: TokenStream = structure.pretty_default();
         let unprettify: TokenStream = structure.unprettify();
         quote! {
             #true_declaration
@@ -444,6 +457,7 @@ impl From<Structure> for TokenStream {
             #pretty_declaration
             #pretty_implement
             #pretty_debug
+            #pretty_default
             #unprettify
         }
     }
