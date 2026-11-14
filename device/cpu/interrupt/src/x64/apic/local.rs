@@ -1,4 +1,5 @@
 mod id;
+mod priority;
 mod version;
 
 /// # References
@@ -7,7 +8,9 @@ mod version;
 /// * Print all registers.
 #[io::registers]
 pub struct Registers {
-    __: [u128; 2],
+    __: [u8; 0x20],
     id: id::Register,
     version: version::Register,
+    __: [u8; 0x40],
+    task_priority: priority::task::Register,
 }
