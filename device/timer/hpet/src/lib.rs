@@ -1,6 +1,7 @@
 #![no_std]
 
 mod general;
+mod main_counter;
 mod timer;
 
 use core::slice::from_raw_parts;
@@ -16,8 +17,7 @@ pub struct Registers {
     __: u64,
     general_interrupt_status: general::interrupt_status::Register,
     __: [u8; 0xef - 0x28 + 1],
-    #[unregister]
-    main_counter_register: u64,
+    main_counter: main_counter::Register,
     __: u64,
 }
 
