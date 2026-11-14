@@ -1,5 +1,5 @@
 /// # References
-/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.6.2.4 Lowest Priority Delivery Mode
+/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.6.2.4 Lowest Priority Delivery Mode, Figure 13-15. Arbitration Priority Register (APR)
 #[io::register]
 pub struct Register {
     sub_class: [bool; 4],

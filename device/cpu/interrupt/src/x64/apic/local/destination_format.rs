@@ -1,5 +1,5 @@
 /// # References
-/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.6.2.2 Logical Destination Mode
+/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.6.2.2 Logical Destination Mode, Figure 13-14. Destination Format Register (DFR)
 #[io::register]
 pub struct Register {
     __: [bool; 28],
