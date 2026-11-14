@@ -1,3 +1,4 @@
+mod eoi;
 mod id;
 mod priority;
 mod version;
@@ -15,4 +16,5 @@ pub struct Registers {
     task_priority: priority::task::Register,
     arbitration_priority: priority::arbitration::Register,
     processor_priority: priority::processor::Register,
+    eoi: eoi::Register,
 }
