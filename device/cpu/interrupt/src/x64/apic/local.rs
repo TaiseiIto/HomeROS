@@ -14,4 +14,5 @@ pub struct Registers {
     __: [u8; 0x40],
     task_priority: priority::task::Register,
     arbitration_priority: priority::arbitration::Register,
+    processor_priority: priority::processor::Register,
 }

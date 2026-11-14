@@ -4,5 +4,5 @@
 pub struct Register {
     sub_class: [bool; 4],
     class: [bool; 4],
-    __: [u8; 3],
+    __: [u8; 7],
 }
