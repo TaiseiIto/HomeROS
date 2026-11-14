@@ -1,6 +1,7 @@
 mod eoi;
 mod id;
 mod priority;
+mod remote_read;
 mod version;
 
 /// # References
@@ -17,4 +18,5 @@ pub struct Registers {
     arbitration_priority: priority::arbitration::Register,
     processor_priority: priority::processor::Register,
     eoi: eoi::Register,
+    remote_read: remote_read::Register,
 }
