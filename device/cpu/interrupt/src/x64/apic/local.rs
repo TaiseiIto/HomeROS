@@ -1,3 +1,4 @@
+mod destination_format;
 mod eoi;
 mod id;
 mod logical_destination;
@@ -21,4 +22,5 @@ pub struct Registers {
     eoi: eoi::Register,
     remote_read: remote_read::Register,
     logical_destination: logical_destination::Register,
+    destination_format: destination_format::Register,
 }

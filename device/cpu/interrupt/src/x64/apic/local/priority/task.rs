@@ -1,8 +1,8 @@
 /// # References
-/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.8.6 Task Priority in IA-32e Mode
+/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.8.6 Task Priority in IA-32e Mode, Figure 13-18. Task-Priority Register (TPR)
 #[io::register]
 pub struct Register {
-    zero: [bool; 4],
-    cr8: [bool; 4],
+    sub_class: [bool; 4],
+    class: [bool; 4],
     __: [u8; 7],
 }
