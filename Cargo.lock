@@ -13,19 +13,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "arch"
-version = "0.1.0"
-
-[[package]]
 name = "boot"
 version = "0.1.0"
 dependencies = [
  "allocator",
- "arch",
+ "cpu",
  "firmware",
  "tree",
  "uart",
 ]
+
+[[package]]
+name = "cpu"
+version = "0.1.0"
 
 [[package]]
 name = "endian"
@@ -147,7 +147,7 @@ dependencies = [
 name = "sync"
 version = "0.1.0"
 dependencies = [
- "arch",
+ "cpu",
 ]
 
 [[package]]
@@ -178,7 +178,7 @@ dependencies = [
 name = "uart"
 version = "0.1.0"
 dependencies = [
- "arch",
+ "cpu",
  "io",
  "sync",
  "tree",

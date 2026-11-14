@@ -4,11 +4,11 @@ mod ns16550a;
 mod pl011;
 
 use {
-    arch::pause,
     core::{
         cell::OnceCell,
         fmt::{Arguments, Result, Write},
     },
+    cpu::pause,
     sync::spin::Lock,
 };
 

@@ -1,5 +1,4 @@
 use {
-    arch::pause,
     core::{
         cell::UnsafeCell,
         marker::{Send, Sync},
@@ -10,6 +9,7 @@ use {
             Ordering::{Acquire, Release},
         },
     },
+    cpu::pause,
 };
 
 pub struct Guard<'a, T>(&'a Lock<T>);

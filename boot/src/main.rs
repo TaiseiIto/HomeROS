@@ -6,7 +6,7 @@ extern crate alloc;
 #[cfg(all(debug_assertions, firmware = "uefi"))]
 mod debug;
 
-use {arch::wait_for_interrupt, core::panic::PanicInfo};
+use {core::panic::PanicInfo, cpu::wait_for_interrupt};
 
 #[cfg(all(debug_assertions, firmware = "uefi"))]
 use debug::wait;

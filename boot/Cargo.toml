@@ -7,8 +7,8 @@ build = "../firmware/build.rs"
 [dependencies.allocator]
 path = "../memory/allocator"
 
-[dependencies.arch]
-path = "../arch"
+[dependencies.cpu]
+path = "../device/cpu"
 
 [dependencies.firmware]
 path = "../firmware"

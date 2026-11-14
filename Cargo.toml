@@ -3,8 +3,8 @@ opt-level = "s"
 
 [workspace]
 members = [
-	"arch",
 	"boot",
+	"device/cpu",
 	"device/timer/hpet",
 	"device/tree",
 	"device/uart",
