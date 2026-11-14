@@ -1,5 +1,7 @@
 /// # References
 /// * [IA-PC HPET (High Precision Event Timer) Specification](https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf) 2.3.5 General Configuration Register
+/// # TODO
+/// * Merge reserved bits.
 #[io::register]
 pub struct Register {
     enable_cnf: bool,
