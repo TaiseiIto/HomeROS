@@ -29,26 +29,26 @@ impl Pointer {
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 5.2.2 SMBIOS 3.0 (64-bit) Entry Point
     const SMBIOS64: Guid = guid!("f2fd1544-9794-4a2c-992e-e5bbcf20e394");
 
-    pub fn table(&self) -> Result<&dyn Table, &Guid> {
+    pub fn table(&self) -> &dyn Table {
         match self.guid {
             acpi::root_system_description::Pointer::VERSION1
-            | acpi::root_system_description::Pointer::VERSION2 => {
-                Ok(unsafe { &*(self.table as *const acpi::root_system_description::Pointer) })
-            }
-            debug_image::Table::GUID => Ok(unsafe { &*(self.table as *const debug_image::Table) }),
-            dxe::Table::GUID => Ok(unsafe { &*(self.table as *const dxe::Table) }),
-            hob::List::GUID => Ok(unsafe { &*(self.table as *const hob::List) }),
-            lzma::Table::GUID => Ok(unsafe { &*(self.table as *const lzma::Table) }),
-            memory::attributes::Table::GUID => {
-                Ok(unsafe { &*(self.table as *const memory::attributes::Table) })
-            }
-            memory::status_code::Record::GUID => {
-                Ok(unsafe { &*(self.table as *const memory::status_code::Record) })
-            }
-            memory::typ::Table::GUID => Ok(unsafe { &*(self.table as *const memory::typ::Table) }),
-            Self::SMBIOS32 => Ok(unsafe { &*(self.table as *const smbios::EntryPoint32) }),
-            Self::SMBIOS64 => Ok(unsafe { &*(self.table as *const smbios::EntryPoint64) }),
-            _ => Err(&self.guid),
+            | acpi::root_system_description::Pointer::VERSION2 => unsafe {
+                &*(self.table as *const acpi::root_system_description::Pointer)
+            },
+            debug_image::Table::GUID => unsafe { &*(self.table as *const debug_image::Table) },
+            dxe::Table::GUID => unsafe { &*(self.table as *const dxe::Table) },
+            hob::List::GUID => unsafe { &*(self.table as *const hob::List) },
+            lzma::Table::GUID => unsafe { &*(self.table as *const lzma::Table) },
+            memory::attributes::Table::GUID => unsafe {
+                &*(self.table as *const memory::attributes::Table)
+            },
+            memory::status_code::Record::GUID => unsafe {
+                &*(self.table as *const memory::status_code::Record)
+            },
+            memory::typ::Table::GUID => unsafe { &*(self.table as *const memory::typ::Table) },
+            Self::SMBIOS32 => unsafe { &*(self.table as *const smbios::EntryPoint32) },
+            Self::SMBIOS64 => unsafe { &*(self.table as *const smbios::EntryPoint64) },
+            guid => panic!("Unknown GUID {:#x?}", guid),
         }
     }
 }
