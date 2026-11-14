@@ -1,5 +1,6 @@
 mod eoi;
 mod id;
+mod logical_destination;
 mod priority;
 mod remote_read;
 mod version;
@@ -19,4 +20,5 @@ pub struct Registers {
     processor_priority: priority::processor::Register,
     eoi: eoi::Register,
     remote_read: remote_read::Register,
+    logical_destination: logical_destination::Register,
 }
