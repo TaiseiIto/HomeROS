@@ -317,7 +317,6 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Option<Ident>,
     index: usize,
-    is_register: bool,
     span: Span,
     ty: Type,
 }
@@ -350,16 +349,10 @@ impl Element {
             .zip(self.read_memory_ident())
             .map(|(ident, read_memory)| {
                 let ident_string: String = ident.to_string();
-                if self.is_register {
-                    quote! {
-                        field(#ident_string, &unsafe {
-                            self.#read_memory()
-                        })
-                    }
-                } else {
-                    quote! {
-                        field(#ident_string, &self.#ident)
-                    }
+                quote! {
+                    field(#ident_string, &unsafe {
+                        self.#read_memory()
+                    })
                 }
             })
     }
@@ -381,7 +374,6 @@ impl Element {
         let Self {
             ident,
             index,
-            is_register: _,
             span,
             ty: _,
         } = self;
@@ -392,7 +384,7 @@ impl Element {
 
     fn new(index: usize, field: Field) -> Self {
         if let Field {
-            attrs,
+            attrs: _,
             vis: _,
             modifiers: _,
             ident: Some(ident),
@@ -403,26 +395,9 @@ impl Element {
         {
             let span: Span = ident.span();
             let ident: Option<Ident> = (ident != "__").then_some(ident);
-            let is_register: bool = attrs.iter().fold(
-                true,
-                |is_register,
-                 Attribute {
-                     pound_token: _,
-                     style: _,
-                     bracket_token: _,
-                     meta,
-                 }| match meta {
-                    Meta::Path(path) => match path.get_ident().unwrap().to_string().as_str() {
-                        "unregister" => false,
-                        _ => is_register,
-                    },
-                    _ => is_register,
-                },
-            );
             Self {
                 ident,
                 index,
-                is_register,
                 span,
                 ty,
             }
@@ -495,18 +470,10 @@ impl Element {
         let ident: &Ident = self.ident.as_ref()?;
         let read_memory: Ident = self.read_memory_ident()?;
         let pretty_type: Type = self.pretty_type()?;
-        Some(if self.is_register {
-            quote! {
-                pub unsafe fn #read_memory(&self) -> #pretty_type {
-                    unsafe {
-                        self.#ident.read_memory()
-                    }
-                }
-            }
-        } else {
-            quote! {
-                pub fn #read_memory(&self) -> #pretty_type {
-                    self.#ident
+        Some(quote! {
+            pub unsafe fn #read_memory(&self) -> #pretty_type {
+                unsafe {
+                    self.#ident.read_memory()
                 }
             }
         })
@@ -522,60 +489,12 @@ impl Element {
             .map(|(read_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
                 let ty: Type = self.true_type();
-                if self.is_register {
-                    quote! {
-                        #[cfg(target_arch = "x86_64")]
-                        pub unsafe fn #read_port(port: u16) -> #pretty_type {
-                            let port: u16 = port + Self::#offset as u16;
-                            unsafe {
-                                #ty::read_port(port)
-                            }
-                        }
-                    }
-                } else {
-                    let read: TokenStream = match ty {
-                        Type::Path(TypePath {
-                            attrs: _,
-                            qself: _,
-                            ref path,
-                        }) => match path.get_ident().unwrap().to_string().as_str() {
-                            "u8" => quote! {
-                                unsafe {
-                                    ::core::arch::asm!("in al, dx", out("al") value, in("dx") port);
-                                }
-                            },
-                            "u16" => quote! {
-                                unsafe {
-                                    ::core::arch::asm!("in ax, dx", out("ax") value, in("dx") port);
-                                }
-                            },
-                            "u32" => quote! {
-                                unsafe {
-                                    ::core::arch::asm!("in eax, dx", out("eax") value, in("dx") port);
-                                }
-                            },
-                            "u64" | "u128" => quote! {
-                                for current_port in (port..)
-                                    .step_by(::core::mem::size_of::<u32>())
-                                    .take_while(|current_port| (*current_port as usize) < (port as usize) + ::core::mem::size_of::<#ty>()) {
-                                    let mut buffer: u32;
-                                    unsafe {
-                                        ::core::arch::asm!("in eax, dx", out("eax") buffer, in("dx") current_port);
-                                    }
-                                    value += (buffer as #ty) << (((current_port - port) as u32) * u8::BITS);
-                                }
-                            },
-                            _ => panic!(),
-                        },
-                        _ => panic!(),
-                    };
-                    quote! {
-                        #[cfg(target_arch = "x86_64")]
-                        pub unsafe fn #read_port(port: u16) -> #pretty_type {
-                            let port: u16 = port + Self::#offset as u16;
-                            let mut value: #ty = 0;
-                            #read
-                            value
+                quote! {
+                    #[cfg(target_arch = "x86_64")]
+                    pub unsafe fn #read_port(port: u16) -> #pretty_type {
+                        let port: u16 = port + Self::#offset as u16;
+                        unsafe {
+                            #ty::read_port(port)
                         }
                     }
                 }
@@ -610,14 +529,12 @@ impl Element {
         let Self {
             ident,
             index: _,
-            is_register,
             span: _,
             ty,
         } = self;
-        match (ident, is_register, ty) {
+        match (ident, ty) {
             (
                 Some(_),
-                true,
                 Type::Path(TypePath {
                     attrs,
                     qself,
@@ -649,7 +566,6 @@ impl Element {
     }
 
     fn write(&self, structure: &Structure) -> Option<TokenStream> {
-        self.is_register.then_some(())?;
         let write: Ident = self.write_ident()?;
         let pretty_type: Type = self.pretty_type()?;
         let write_memory: Ident = self.write_memory_ident()?;
@@ -675,7 +591,6 @@ impl Element {
     }
 
     fn write_memory(&self) -> Option<TokenStream> {
-        self.is_register.then_some(())?;
         let ident: &Ident = self.ident.as_ref()?;
         let write_memory: Ident = self.write_memory_ident()?;
         let pretty_type: Type = self.pretty_type()?;
@@ -693,7 +608,6 @@ impl Element {
     }
 
     fn write_port(&self) -> Option<TokenStream> {
-        self.is_register.then_some(())?;
         self.write_port_ident()
             .zip(self.pretty_type())
             .map(|(write_port, pretty_type)| {
