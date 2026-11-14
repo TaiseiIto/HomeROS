@@ -1,6 +1,7 @@
 mod destination_format;
 mod eoi;
 mod id;
+mod in_service;
 mod logical_destination;
 mod priority;
 mod remote_read;
@@ -33,5 +34,21 @@ pub struct Registers {
     destination_format: destination_format::Register,
     __: [u8; 0xc],
     spurious_interrupt_vector: spurious_interrupt_vector::Register,
+    __: [u8; 0xc],
+    in_service_bits_31_0: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_63_32: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_95_64: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_127_96: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_159_128: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_191_160: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_223_192: in_service::Register,
+    __: [u8; 0xc],
+    in_service_bits_255_224: in_service::Register,
     __: [u8; 0xc],
 }
