@@ -37,6 +37,13 @@ impl Table {
         let headers: Headers = self.get_interrupt_controller_structure_bytes().into();
         headers.map(Header::as_structure).collect()
     }
+
+    fn local_interrupt_controller(&self) -> &interrupt::apic::local::Registers {
+        unsafe {
+            &*(self.local_interrupt_controller_address() as usize
+                as *const interrupt::apic::local::Registers)
+        }
+    }
 }
 
 impl Debug for Table {
@@ -45,8 +52,8 @@ impl Debug for Table {
             .debug_struct("Table")
             .field("header", &self.header)
             .field(
-                "local_interrupt_controller_address",
-                &self.local_interrupt_controller_address(),
+                "local_interrupt_controller",
+                self.local_interrupt_controller(),
             )
             .field("flags", &self.get_flags())
             .field("interrupt_controller_structures", &self.get_structures())

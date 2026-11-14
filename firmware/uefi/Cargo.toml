@@ -3,14 +3,11 @@ name = "uefi"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies.uuid]
-path = "../../standard/uuid"
-
-[dependencies.uuid_from_str]
-path = "../../standard/uuid_from_str"
-
 [dependencies.hpet]
 path = "../../device/timer/hpet"
+
+[dependencies.interrupt]
+path = "../../device/cpu/interrupt"
 
 [dependencies.io]
 path = "../../tool/macro/io"
@@ -23,3 +20,10 @@ path = "../smbios"
 
 [dependencies.unit]
 path = "../../tool/unit"
+
+[dependencies.uuid]
+path = "../../standard/uuid"
+
+[dependencies.uuid_from_str]
+path = "../../standard/uuid_from_str"
+
