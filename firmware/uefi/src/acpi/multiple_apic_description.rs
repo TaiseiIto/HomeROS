@@ -13,8 +13,6 @@ use {
 
 /// # References
 /// * [Multiple APIC Description Table (MADT)](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#multiple-apic-description-table-madt)
-/// # TODO
-/// * Print interrupt controller structures.
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Table {
