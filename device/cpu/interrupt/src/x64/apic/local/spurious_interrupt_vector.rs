@@ -7,5 +7,5 @@ pub struct Register {
     focus_processor_checking: bool,
     __: [bool; 2],
     eoi_broadcast_suppression: bool,
-    __: [bool; 51],
+    __: [bool; 19],
 }

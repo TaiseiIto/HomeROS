@@ -4,5 +4,4 @@
 pub struct Register {
     __: [bool; 28],
     model: [bool; 4],
-    __: u32,
 }

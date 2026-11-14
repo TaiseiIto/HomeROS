@@ -4,5 +4,4 @@
 pub struct Register {
     __: [u8; 3],
     logical_apic_id: u8,
-    __: u32,
 }

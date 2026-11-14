@@ -1,4 +1,4 @@
 #[io::register]
 pub struct Register {
-    remote_read: u64,
+    remote_read: u32,
 }

@@ -3,5 +3,4 @@
 #[io::register]
 pub struct Register {
     eoi: u32,
-    __: u32,
 }
