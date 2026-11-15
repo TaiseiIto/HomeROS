@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies.io]
-path = "../../../tool/macro/io"
+path = "../../../../tool/macro/io"
