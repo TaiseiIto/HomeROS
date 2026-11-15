@@ -38,7 +38,7 @@ pub struct Registers {
     spurious_interrupt_vector: spurious_interrupt_vector::Register,
     __: [u8; 0xc],
     /// # TODO
-    /// * Implement register repetition.
+    /// * Implement index access methods by io::registers.
     #[repeat(fields = 2, times = 8)]
     in_service: in_service::Register,
     __: [u8; 0xc],
