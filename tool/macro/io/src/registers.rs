@@ -1,10 +1,14 @@
 use {
     proc_macro2::{Span, TokenStream},
     quote::quote,
-    std::iter,
+    std::{
+        cmp::Ordering::{Equal, Greater, Less},
+        iter,
+        ops::Range,
+    },
     syn::{
-        Attribute, Field, Fields, FieldsNamed, Ident, ItemStruct, Meta, MetaList, Path,
-        PathSegment, Type, TypePath, Visibility,
+        Attribute, Expr, ExprAssign, ExprLit, ExprPath, Field, Fields, FieldsNamed, Ident,
+        ItemStruct, Lit, Meta, MetaList, Path, PathSegment, Type, TypePath, Visibility,
         punctuated::Punctuated,
         token::{Comma, PathSep},
     },
@@ -13,7 +17,7 @@ use {
 pub struct Structure {
     vis: Visibility,
     ident: Ident,
-    elements: Vec<Element>,
+    element_repetitions: Vec<ElementRepetition>,
     debug_functions: Vec<Ident>,
 }
 
@@ -23,9 +27,9 @@ impl Structure {
         let ident: &Ident = &self.ident;
         let ident_string: String = ident.to_string();
         let elements: Vec<TokenStream> = self
-            .elements
+            .output_elements()
             .iter()
-            .filter_map(Element::accessor_debug)
+            .filter_map(OutputElement::accessor_debug)
             .collect();
         quote! {
             impl ::core::fmt::Debug for #accessor {
@@ -40,8 +44,12 @@ impl Structure {
     }
 
     fn accessor_declaration(&self) -> TokenStream {
-        let ident: &Ident = &self.ident;
-        let vis: &Visibility = &self.vis;
+        let Self {
+            vis,
+            ident,
+            element_repetitions: _,
+            debug_functions: _,
+        } = self;
         let accessor: Ident = self.accessor_ident();
         quote! {
             #vis enum #accessor {
@@ -77,11 +85,15 @@ impl Structure {
         let Self {
             vis: _,
             ident,
-            elements,
+            element_repetitions: _,
             debug_functions,
         } = self;
         let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = elements.iter().filter_map(Element::debug).collect();
+        let elements: Vec<TokenStream> = self
+            .output_elements()
+            .iter()
+            .filter_map(OutputElement::debug)
+            .collect();
         let functions: Vec<TokenStream> = debug_functions
             .iter()
             .map(|function| {
@@ -103,6 +115,26 @@ impl Structure {
                         #functions
                         .finish()
                 }
+            }
+        }
+    }
+
+    fn declaration(&self) -> TokenStream {
+        let Self {
+            vis,
+            ident,
+            element_repetitions: _,
+            debug_functions: _,
+        } = self;
+        let output_elements: Vec<TokenStream> = self
+            .output_elements()
+            .iter()
+            .map(OutputElement::declaration)
+            .collect();
+        quote! {
+            #[repr(C)]
+            #vis struct #ident {
+                #(#output_elements),*
             }
         }
     }
@@ -149,17 +181,17 @@ impl Structure {
     }
 
     fn offset_asserts(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .map(|element| element.offset_assert(self))
+            .map(|output_element| output_element.offset_assert(self))
             .collect()
     }
 
     fn offsets(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
             .zip(
-                self.elements
+                self.output_elements()
                     .iter()
                     .rev()
                     .skip(1)
@@ -167,94 +199,134 @@ impl Structure {
                     .chain(iter::once(None))
                     .rev(),
             )
-            .map(|(element, previous_element)| element.offset(previous_element))
+            .map(|(output_element, previous_output_element)| {
+                output_element.offset(previous_output_element)
+            })
             .collect()
     }
 
+    fn output_elements(&self) -> Vec<OutputElement> {
+        self.into()
+    }
+
     fn read_memories(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(Element::read_memory)
+            .filter_map(OutputElement::read_memory)
             .collect()
     }
 
     fn read_ports(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(Element::read_port)
+            .filter_map(OutputElement::read_port)
             .collect()
     }
 
     fn reads(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(|element| element.read(self))
+            .filter_map(|output_element| output_element.read(self))
             .collect()
     }
 
     fn sizes(&self) -> Vec<TokenStream> {
-        self.elements.iter().map(Element::size).collect()
-    }
-
-    fn true_declaration(&self) -> TokenStream {
-        let Self {
-            vis,
-            ident,
-            elements,
-            debug_functions: _,
-        } = self;
-        let elements: Vec<TokenStream> = elements.iter().map(Element::true_declaration).collect();
-        quote! {
-            #[repr(C)]
-            #vis struct #ident {
-                #(#elements),*
-            }
-        }
+        self.output_elements()
+            .iter()
+            .map(OutputElement::size)
+            .collect()
     }
 
     fn write_memories(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(Element::write_memory)
+            .filter_map(OutputElement::write_memory)
             .collect()
     }
 
     fn write_ports(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(Element::write_port)
+            .filter_map(OutputElement::write_port)
             .collect()
     }
 
     fn writes(&self) -> Vec<TokenStream> {
-        self.elements
+        self.output_elements()
             .iter()
-            .filter_map(|element| element.write(self))
+            .filter_map(|output_element| output_element.write(self))
             .collect()
     }
 }
 
 impl From<ItemStruct> for Structure {
-    fn from(item_struct: ItemStruct) -> Self {
-        if let ItemStruct {
+    fn from(
+        ItemStruct {
             attrs,
             vis,
             struct_token: _,
             ident,
             generics: _,
-            fields:
-                Fields::Named(FieldsNamed {
-                    brace_token: _,
-                    named,
-                }),
+            fields,
             semi_token: _,
-        } = item_struct
+        }: ItemStruct,
+    ) -> Self {
+        if let Fields::Named(FieldsNamed {
+            brace_token: _,
+            named,
+        }) = fields
         {
-            let elements: Vec<Element> = named
+            let (input_elements, repetitions): (Vec<InputElement>, Vec<Repetition>) =
+                named.into_iter().enumerate().map(Into::into).fold(
+                    (Vec::default(), Vec::default()),
+                    |(mut input_elements, mut repetitions),
+                     InputElementAndRepetition {
+                         input_element,
+                         repetition,
+                     }| {
+                        input_elements.push(input_element);
+                        if let Some(repetition) = repetition {
+                            repetitions.push(repetition);
+                        }
+                        (input_elements, repetitions)
+                    },
+                );
+            let element_repetitions: Vec<ElementRepetition> = input_elements
                 .into_iter()
                 .enumerate()
-                .map(|(index, field)| Element::new(index, field))
-                .collect();
+                .fold(
+                    (Vec::default(), Vec::default()),
+                    |(mut element_repetitions, mut input_elements): (
+                        Vec<ElementRepetition>,
+                        Vec<InputElement>,
+                    ),
+                     (index, input_element)| {
+                        if let Some(Repetition { fields, times }) = repetitions
+                            .iter()
+                            .find(|Repetition { fields, times: _ }| fields.contains(&index))
+                        {
+                            input_elements.push(input_element);
+                            match input_elements.len().cmp(&fields.len()) {
+                                Less => (element_repetitions, input_elements),
+                                Equal => {
+                                    element_repetitions.push(ElementRepetition {
+                                        input_elements,
+                                        times: Some(*times),
+                                    });
+                                    (element_repetitions, Vec::default())
+                                }
+                                Greater => panic!(),
+                            }
+                        } else {
+                            element_repetitions.push(ElementRepetition {
+                                input_elements: vec![input_element],
+                                times: None,
+                            });
+                            (element_repetitions, Vec::default())
+                        }
+                    },
+                )
+                .0;
             let debug_functions: Vec<Ident> = attrs.iter().fold(
                 Vec::default(),
                 |mut debug_functions,
@@ -284,7 +356,7 @@ impl From<ItemStruct> for Structure {
             Self {
                 vis,
                 ident,
-                elements,
+                element_repetitions,
                 debug_functions,
             }
         } else {
@@ -295,15 +367,15 @@ impl From<ItemStruct> for Structure {
 
 impl From<Structure> for TokenStream {
     fn from(structure: Structure) -> Self {
+        let declaration: TokenStream = structure.declaration();
+        let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
+        let implement: TokenStream = structure.implement();
+        let debug: TokenStream = structure.debug();
         let accessor_debug: TokenStream = structure.accessor_debug();
         let accessor_declaration: TokenStream = structure.accessor_declaration();
         let accessor_implement: TokenStream = structure.accessor_implement();
-        let debug: TokenStream = structure.debug();
-        let implement: TokenStream = structure.implement();
-        let offset_asserts: Vec<TokenStream> = structure.offset_asserts();
-        let true_declaration: TokenStream = structure.true_declaration();
         quote! {
-            #true_declaration
+            #declaration
             #(#offset_asserts)*
             #implement
             #debug
@@ -314,25 +386,73 @@ impl From<Structure> for TokenStream {
     }
 }
 
-struct Element {
-    ident: Option<Ident>,
-    index: usize,
-    ty: Type,
+struct ElementRepetition {
+    input_elements: Vec<InputElement>,
+    times: Option<usize>,
 }
 
-impl Element {
+struct InputElement {
+    ident: Option<Ident>,
+    ty: Type,
+    index: usize,
+}
+
+impl From<(Option<Ident>, Type, usize)> for InputElement {
+    fn from((ident, ty, index): (Option<Ident>, Type, usize)) -> Self {
+        Self {
+            ident: ident.filter(|ident| ident != "__"),
+            ty,
+            index,
+        }
+    }
+}
+
+struct InputElementAndRepetition {
+    input_element: InputElement,
+    repetition: Option<Repetition>,
+}
+
+impl From<(usize, Field)> for InputElementAndRepetition {
+    fn from(
+        (
+            index,
+            Field {
+                attrs,
+                vis: _,
+                modifiers: _,
+                ident,
+                colon_token: _,
+                ty,
+                default: _,
+            },
+        ): (usize, Field),
+    ) -> Self {
+        Self {
+            input_element: (ident, ty, index).into(),
+            repetition: attrs
+                .into_iter()
+                .find_map(|attr| (index, attr).try_into().ok()),
+        }
+    }
+}
+
+struct OutputElement {
+    ident: Option<Ident>,
+    ty: Type,
+    input_index: usize,
+    repeat_index: Option<usize>,
+}
+
+impl OutputElement {
     fn accessor_debug(&self) -> Option<TokenStream> {
-        self.ident
-            .as_ref()
-            .zip(self.read_ident())
-            .map(|(ident, read)| {
-                let ident_string: String = ident.to_string();
-                quote! {
-                    field(#ident_string, &unsafe {
-                        self.#read()
-                    })
-                }
+        let ident: Ident = self.ident();
+        let read: Ident = self.read_ident()?;
+        let ident_string: String = ident.to_string();
+        Some(quote! {
+            field(#ident_string, &unsafe {
+                self.#read()
             })
+        })
     }
 
     fn const_ident(&self, suffix: &str) -> Ident {
@@ -343,59 +463,58 @@ impl Element {
     }
 
     fn debug(&self) -> Option<TokenStream> {
-        self.ident
-            .as_ref()
-            .zip(self.read_memory_ident())
-            .map(|(ident, read_memory)| {
-                let ident_string: String = ident.to_string();
-                quote! {
-                    field(#ident_string, &unsafe {
-                        self.#read_memory()
-                    })
-                }
+        let ident: Ident = self.ident();
+        let read_memory: Ident = self.read_memory_ident()?;
+        let ident_string: String = ident.to_string();
+        Some(quote! {
+            field(#ident_string, &unsafe {
+                self.#read_memory()
             })
+        })
+    }
+
+    fn declaration(&self) -> TokenStream {
+        let ident: Ident = self.ident();
+        let ty: Type = self.ty();
+        quote! {
+            #ident: #ty
+        }
     }
 
     fn function_ident(&self, prefix: &str, suffix: Option<&str>) -> Option<Ident> {
-        self.ident.as_ref().map(|ident| {
-            let prefix: String = prefix.to_string();
-            let stem: String = ident.to_string();
-            let suffix: Option<String> = suffix.map(String::from);
-            let words: Vec<String> = [Some(prefix), Some(stem), suffix]
-                .into_iter()
-                .flatten()
-                .collect();
-            Ident::new(&words.join("_"), Span::call_site())
-        })
+        self.ident.as_ref()?;
+        let prefix: String = prefix.to_string();
+        let stem: String = self.ident().to_string();
+        let suffix: Option<String> = suffix.map(String::from);
+        let words: Vec<String> = [Some(prefix), Some(stem), suffix]
+            .into_iter()
+            .flatten()
+            .collect();
+        Some(Ident::new(&words.join("_"), Span::call_site()))
     }
 
     fn ident(&self) -> Ident {
         let Self {
             ident,
-            index,
             ty: _,
+            input_index,
+            repeat_index,
         } = self;
-        ident
-            .clone()
-            .unwrap_or(Ident::new(&format!("reserved{}", index), Span::call_site()))
-    }
-
-    fn new(index: usize, field: Field) -> Self {
-        if let Field {
-            attrs: _,
-            vis: _,
-            modifiers: _,
-            ident: Some(ident),
-            colon_token: _,
-            ty,
-            default: _,
-        } = field
-        {
-            let ident: Option<Ident> = (ident != "__").then_some(ident);
-            Self { ident, index, ty }
-        } else {
-            panic!();
-        }
+        let input_index: String = ident
+            .as_ref()
+            .map(|_| String::default())
+            .unwrap_or(format!("_{}", input_index));
+        let ident: String = ident
+            .as_ref()
+            .map(|ident| ident.to_string())
+            .unwrap_or("reserved".to_string());
+        let repeat_index: String = repeat_index
+            .map(|repeat_index| format!("_{}", repeat_index))
+            .unwrap_or_default();
+        Ident::new(
+            &format!("{}{}{}", ident, repeat_index, input_index),
+            Span::call_site(),
+        )
     }
 
     fn offset(&self, previous: Option<&Self>) -> TokenStream {
@@ -418,10 +537,10 @@ impl Element {
 
     fn offset_assert(&self, structure: &Structure) -> TokenStream {
         let structure: &Ident = &structure.ident;
-        let element: Ident = self.ident();
+        let output_element: Ident = self.ident();
         let offset: Ident = self.offset_ident();
         quote! {
-            const _: () = assert!(::core::mem::offset_of!(#structure, #element) == #structure::#offset);
+            const _: () = assert!(::core::mem::offset_of!(#structure, #output_element) == #structure::#offset);
         }
     }
 
@@ -459,7 +578,7 @@ impl Element {
     }
 
     fn read_memory(&self) -> Option<TokenStream> {
-        let ident: &Ident = self.ident.as_ref()?;
+        let ident: Ident = self.ident();
         let read_memory: Ident = self.read_memory_ident()?;
         let pretty_type: Type = self.pretty_type()?;
         Some(quote! {
@@ -480,7 +599,7 @@ impl Element {
             .zip(self.pretty_type())
             .map(|(read_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
-                let ty: Type = self.true_type();
+                let ty: Type = self.ty();
                 quote! {
                     #[cfg(target_arch = "x86_64")]
                     pub unsafe fn #read_port(port: u16) -> #pretty_type {
@@ -499,9 +618,9 @@ impl Element {
 
     fn size(&self) -> TokenStream {
         let size: Ident = self.size_ident();
-        let true_type: Type = self.true_type();
+        let ty: Type = self.ty();
         quote! {
-            const #size: usize = ::core::mem::size_of::<#true_type>();
+            const #size: usize = ::core::mem::size_of::<#ty>();
         }
     }
 
@@ -509,19 +628,12 @@ impl Element {
         self.const_ident("SIZE")
     }
 
-    fn true_declaration(&self) -> TokenStream {
-        let ident: Ident = self.ident();
-        let true_type: Type = self.true_type();
-        quote! {
-            #ident: #true_type
-        }
-    }
-
-    fn true_type(&self) -> Type {
+    fn ty(&self) -> Type {
         let Self {
             ident,
-            index: _,
             ty,
+            input_index: _,
+            repeat_index: _,
         } = self;
         match (ident, ty) {
             (
@@ -582,7 +694,7 @@ impl Element {
     }
 
     fn write_memory(&self) -> Option<TokenStream> {
-        let ident: &Ident = self.ident.as_ref()?;
+        let ident: Ident = self.ident();
         let write_memory: Ident = self.write_memory_ident()?;
         let pretty_type: Type = self.pretty_type()?;
         Some(quote! {
@@ -603,7 +715,7 @@ impl Element {
             .zip(self.pretty_type())
             .map(|(write_port, pretty_type)| {
                 let offset: Ident = self.offset_ident();
-                let ty: Type = self.true_type();
+                let ty: Type = self.ty();
                 quote! {
                     #[cfg(target_arch = "x86_64")]
                     pub unsafe fn #write_port(port: u16, value: #pretty_type) {
@@ -618,5 +730,135 @@ impl Element {
 
     fn write_port_ident(&self) -> Option<Ident> {
         self.function_ident("write", Some("port"))
+    }
+}
+
+impl From<&ElementRepetition> for Vec<OutputElement> {
+    fn from(
+        ElementRepetition {
+            input_elements,
+            times,
+        }: &ElementRepetition,
+    ) -> Self {
+        times
+            .map(|times| {
+                (0..times)
+                    .flat_map(|repeat_index| {
+                        input_elements
+                            .iter()
+                            .map(move |InputElement { ident, ty, index }| OutputElement {
+                                ident: ident.clone(),
+                                ty: ty.clone(),
+                                input_index: *index,
+                                repeat_index: Some(repeat_index),
+                            })
+                    })
+                    .collect()
+            })
+            .unwrap_or_else(|| {
+                input_elements
+                    .iter()
+                    .map(|InputElement { ident, ty, index }| OutputElement {
+                        ident: ident.clone(),
+                        ty: ty.clone(),
+                        input_index: *index,
+                        repeat_index: None,
+                    })
+                    .collect()
+            })
+    }
+}
+
+impl From<&Structure> for Vec<OutputElement> {
+    fn from(
+        Structure {
+            vis: _,
+            ident: _,
+            element_repetitions,
+            debug_functions: _,
+        }: &Structure,
+    ) -> Self {
+        element_repetitions
+            .iter()
+            .flat_map(Into::<Self>::into)
+            .collect()
+    }
+}
+
+struct Repetition {
+    fields: Range<usize>,
+    times: usize,
+}
+
+impl TryFrom<(usize, Attribute)> for Repetition {
+    type Error = ();
+
+    fn try_from(
+        (
+            offset,
+            Attribute {
+                pound_token: _,
+                style: _,
+                bracket_token: _,
+                meta,
+            },
+        ): (usize, Attribute),
+    ) -> Result<Self, Self::Error> {
+        if let Meta::List(
+            ref meta_list @ MetaList {
+                ref path,
+                delimiter: _,
+                tokens: _,
+            },
+        ) = meta
+            && path.is_ident("repeat")
+        {
+            if let (Some(fields), Some(times)) = meta_list
+                .parse_args_with(Punctuated::<ExprAssign, Comma>::parse_terminated)
+                .unwrap()
+                .into_iter()
+                .fold(
+                    (None, None),
+                    |(fields, times),
+                     ExprAssign {
+                         attrs: _,
+                         left,
+                         eq_token: _,
+                         right,
+                     }| {
+                        if let (
+                            Expr::Path(ExprPath {
+                                attrs: _,
+                                qself: _,
+                                path,
+                            }),
+                            Expr::Lit(ExprLit {
+                                attrs: _,
+                                lit: Lit::Int(value),
+                            }),
+                        ) = (Box::into_inner(left), Box::into_inner(right))
+                        {
+                            let value: usize = value.base10_parse().unwrap();
+                            match path.get_ident().unwrap().to_string().as_str() {
+                                "fields" => (Some(value), times),
+                                "times" => (fields, Some(value)),
+                                _ => panic!(),
+                            }
+                        } else {
+                            panic!();
+                        }
+                    },
+                )
+            {
+                Ok(Self {
+                    fields: offset..offset + fields,
+                    times,
+                })
+            } else {
+                panic!();
+            }
+        } else {
+            Err(())
+        }
     }
 }

@@ -1,3 +1,5 @@
+#![feature(box_into_inner)]
+
 mod overlap;
 mod register;
 mod registers;
