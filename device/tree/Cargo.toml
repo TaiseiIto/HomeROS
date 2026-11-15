@@ -7,7 +7,7 @@ edition = "2024"
 path = "../../tool/macro/endian"
 
 [dependencies.memory]
-path = "../../memory"
+path = "../../device/memory"
 
 [dependencies.regex]
 path = "../../tool/regex"

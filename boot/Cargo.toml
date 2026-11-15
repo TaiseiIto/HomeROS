@@ -5,7 +5,7 @@ edition = "2024"
 build = "../firmware/build.rs"
 
 [dependencies.allocator]
-path = "../memory/allocator"
+path = "../device/memory/allocator"
 
 [dependencies.cpu]
 path = "../device/cpu"
