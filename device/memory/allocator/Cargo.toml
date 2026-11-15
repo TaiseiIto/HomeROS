@@ -2,7 +2,7 @@
 name = "allocator"
 version = "0.1.0"
 edition = "2024"
-build = "../../../firmware/build.rs"
+build = "../../../standard/firmware/build.rs"
 
 [dependencies.sync]
 path = "../../../tool/sync"
@@ -14,4 +14,4 @@ path = "../../../tool/unit"
 path = ".."
 
 [target.'cfg(target_arch = "x86_64")'.dependencies.uefi]
-path = "../../../firmware/uefi"
+path = "../../../standard/firmware/uefi"

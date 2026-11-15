@@ -2,7 +2,7 @@
 name = "uart"
 version = "0.1.0"
 edition = "2024"
-build = "../../firmware/build.rs"
+build = "../../standard/firmware/build.rs"
 
 [dependencies.cpu]
 path = "../../device/cpu"

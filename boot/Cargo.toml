@@ -2,7 +2,7 @@
 name = "boot"
 version = "0.1.0"
 edition = "2024"
-build = "../firmware/build.rs"
+build = "../standard/firmware/build.rs"
 
 [dependencies.allocator]
 path = "../device/memory/allocator"
@@ -11,7 +11,7 @@ path = "../device/memory/allocator"
 path = "../device/cpu"
 
 [dependencies.firmware]
-path = "../firmware"
+path = "../standard/firmware"
 
 [dependencies.uart]
 path = "../device/uart"
