@@ -54,7 +54,7 @@ impl Structure {
 
     fn accessor_ident(&self) -> Ident {
         let ident: &Ident = &self.ident;
-        Ident::new(&format!("{}Accessor", ident), ident.span())
+        Ident::new(&format!("{}Accessor", ident), Span::call_site())
     }
 
     fn accessor_implement(&self) -> TokenStream {
@@ -317,7 +317,6 @@ impl From<Structure> for TokenStream {
 struct Element {
     ident: Option<Ident>,
     index: usize,
-    span: Span,
     ty: Type,
 }
 
@@ -339,7 +338,7 @@ impl Element {
     fn const_ident(&self, suffix: &str) -> Ident {
         Ident::new(
             &format!("{}_{}", self.ident().to_string().to_uppercase(), suffix),
-            self.span,
+            Span::call_site(),
         )
     }
 
@@ -366,7 +365,7 @@ impl Element {
                 .into_iter()
                 .flatten()
                 .collect();
-            Ident::new(&words.join("_"), ident.span())
+            Ident::new(&words.join("_"), Span::call_site())
         })
     }
 
@@ -374,12 +373,11 @@ impl Element {
         let Self {
             ident,
             index,
-            span,
             ty: _,
         } = self;
         ident
             .clone()
-            .unwrap_or(Ident::new(&format!("reserved{}", index), *span))
+            .unwrap_or(Ident::new(&format!("reserved{}", index), Span::call_site()))
     }
 
     fn new(index: usize, field: Field) -> Self {
@@ -393,14 +391,8 @@ impl Element {
             default: _,
         } = field
         {
-            let span: Span = ident.span();
             let ident: Option<Ident> = (ident != "__").then_some(ident);
-            Self {
-                ident,
-                index,
-                span,
-                ty,
-            }
+            Self { ident, index, ty }
         } else {
             panic!();
         }
@@ -529,7 +521,6 @@ impl Element {
         let Self {
             ident,
             index: _,
-            span: _,
             ty,
         } = self;
         match (ident, ty) {
@@ -548,7 +539,7 @@ impl Element {
                 let mut segments: Punctuated<PathSegment, PathSep> = segments.clone();
                 if let Some(last_segment) = segments.last_mut() {
                     let ident: &mut Ident = &mut last_segment.ident;
-                    *ident = Ident::new(&format!("{}Raw", ident), ident.span());
+                    *ident = Ident::new(&format!("{}Raw", ident), Span::call_site());
                 } else {
                     panic!();
                 }
