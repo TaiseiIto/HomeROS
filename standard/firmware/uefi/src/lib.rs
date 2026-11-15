@@ -1,6 +1,5 @@
 #![no_std]
-#![feature(iter_array_chunks)]
-#![feature(ascii_char)]
+#![feature(ascii_char, iter_array_chunks)]
 
 extern crate alloc;
 
