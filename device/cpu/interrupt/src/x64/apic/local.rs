@@ -2,10 +2,12 @@ mod destination_format;
 mod eoi;
 mod id;
 mod in_service;
+mod interrupt_request;
 mod logical_destination;
 mod priority;
 mod remote_read;
 mod spurious_interrupt_vector;
+mod trigger_mode;
 mod version;
 
 /// # References
@@ -50,5 +52,37 @@ pub struct Registers {
     in_service_bits_223_192: in_service::Register,
     __: [u8; 0xc],
     in_service_bits_255_224: in_service::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_31_0: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_63_32: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_95_64: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_127_96: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_159_128: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_191_160: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_223_192: trigger_mode::Register,
+    __: [u8; 0xc],
+    trigger_mode_bits_255_224: trigger_mode::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_31_0: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_63_32: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_95_64: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_127_96: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_159_128: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_191_160: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_223_192: interrupt_request::Register,
+    __: [u8; 0xc],
+    interrupt_request_bits_255_224: interrupt_request::Register,
     __: [u8; 0xc],
 }
