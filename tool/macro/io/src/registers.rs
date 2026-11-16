@@ -22,8 +22,6 @@ pub struct Structure {
 }
 
 impl Structure {
-    /// TODO
-    /// * Print repeated registers as a list.
     fn accessor_debug(&self) -> TokenStream {
         let Self {
             vis: _,
@@ -87,8 +85,6 @@ impl Structure {
         }
     }
 
-    /// TODO
-    /// * Print repeated registers as a list.
     fn debug(&self) -> TokenStream {
         let Self {
             vis: _,
