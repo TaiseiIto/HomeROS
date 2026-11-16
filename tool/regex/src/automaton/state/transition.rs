@@ -51,8 +51,7 @@ impl<'a> Line<'a> {
 }
 
 impl<'a> From<Tree<'a>> for Vec<Line<'a>> {
-    fn from(tree: Tree<'a>) -> Self {
-        let Tree { acceptance, next } = tree;
+    fn from(Tree { acceptance, next }: Tree<'a>) -> Self {
         if next.is_empty() {
             vec![Line(vec![acceptance])]
         } else {

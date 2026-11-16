@@ -133,8 +133,9 @@ impl Driver for RegistersAccessor {
         unsafe { self.read_line_status() }.read_empty_transmitter_bit()
     }
 
-    fn initialize(&mut self, setting: Setting) {
-        let Setting {
+    fn initialize(
+        &mut self,
+        Setting {
             baud_rate,
             enable_fifo,
             frequency_hz,
@@ -142,7 +143,8 @@ impl Driver for RegistersAccessor {
             send_break,
             stop_bits,
             word_bits,
-        } = setting;
+        }: Setting,
+    ) {
         let enable_received_data_available_interrupt: bool = false;
         let enable_transmitter_holding_register_empty_interrupt: bool = false;
         let enable_receiver_line_status_interrupt: bool = false;

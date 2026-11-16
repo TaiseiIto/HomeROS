@@ -27,23 +27,24 @@ impl Structure {
 }
 
 impl From<DeriveInput> for Structure {
-    fn from(structure: DeriveInput) -> Self {
-        if let DeriveInput {
+    fn from(
+        DeriveInput {
             attrs: _,
             vis,
             ident,
             generics: _,
-            data:
-                Data::Struct(DataStruct {
-                    struct_token: _,
-                    fields:
-                        Fields::Named(FieldsNamed {
-                            brace_token: _,
-                            named,
-                        }),
-                    semi_token: _,
+            data,
+        }: DeriveInput,
+    ) -> Self {
+        if let Data::Struct(DataStruct {
+            struct_token: _,
+            fields:
+                Fields::Named(FieldsNamed {
+                    brace_token: _,
+                    named,
                 }),
-        } = structure
+            semi_token: _,
+        }) = data
         {
             let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
             Self {
@@ -85,17 +86,18 @@ impl Element {
 }
 
 impl From<Field> for Element {
-    fn from(field: Field) -> Self {
-        if let Field {
+    fn from(
+        Field {
             attrs: _,
             vis: _,
             modifiers: _,
-            ident: Some(ident),
+            ident,
             colon_token: _,
             ty,
             default: _,
-        } = field
-        {
+        }: Field,
+    ) -> Self {
+        if let Some(ident) = ident {
             Self { ident, ty }
         } else {
             panic!();

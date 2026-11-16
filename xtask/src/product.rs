@@ -184,8 +184,10 @@ impl Binary {
     }
 
     fn new(arch: Arch, package: Package, version: Version) -> Self {
-        let tree: Tree = Tree { arch, version };
-        Self { package, tree }
+        Self {
+            package,
+            tree: Tree { arch, version },
+        }
     }
 
     fn target(&self) -> &str {

@@ -76,14 +76,15 @@ impl Symbol {
 }
 
 impl From<DeriveInput> for Symbol {
-    fn from(symbol: DeriveInput) -> Self {
-        let DeriveInput {
+    fn from(
+        DeriveInput {
             attrs,
             vis: _,
             ident,
             generics: _,
             data,
-        } = symbol;
+        }: DeriveInput,
+    ) -> Self {
         Self {
             name: ident.clone(),
             terminal: attrs.into_iter().find_map(|attribute| {
@@ -377,17 +378,18 @@ impl From<Type> for Component {
 }
 
 impl From<Variant> for Component {
-    fn from(variant: Variant) -> Self {
-        if let Variant {
+    fn from(
+        Variant {
             attrs: _,
             ident,
-            fields:
-                Fields::Unnamed(FieldsUnnamed {
-                    paren_token: _,
-                    unnamed,
-                }),
+            fields,
             discriminant: _,
-        } = variant
+        }: Variant,
+    ) -> Self {
+        if let Fields::Unnamed(FieldsUnnamed {
+            paren_token: _,
+            unnamed,
+        }) = fields
         {
             Self::Tuple {
                 name: Some(ident),

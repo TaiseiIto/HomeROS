@@ -182,8 +182,9 @@ impl Driver for RegistersAccessor {
         !unsafe { self.read_flag() }.read_busy_bit()
     }
 
-    fn initialize(&mut self, setting: Setting) {
-        let Setting {
+    fn initialize(
+        &mut self,
+        Setting {
             baud_rate,
             enable_fifo,
             frequency_hz,
@@ -191,7 +192,8 @@ impl Driver for RegistersAccessor {
             send_break,
             stop_bits,
             word_bits,
-        } = setting;
+        }: Setting,
+    ) {
         let uart_enable: bool = true;
         let sir_enable: bool = false;
         let sir_low_power_irda_mode: bool = false;

@@ -9,8 +9,7 @@ use {
 pub struct Capturer(Option<CapturerName>, Expression);
 
 impl From<Capturer> for Automaton {
-    fn from(capturer: Capturer) -> Self {
-        let Capturer(name, expression) = capturer;
+    fn from(Capturer(name, expression): Capturer) -> Self {
         Self::Capturer {
             body: Box::new(expression.into()),
             name: name.map_or(String::default(), |name| name.into()),
@@ -43,8 +42,11 @@ impl From<CapturerName> for String {
 pub struct Name(Vec<NameCharacter>);
 
 impl From<Name> for String {
-    fn from(name: Name) -> Self {
-        name.0.into_iter().map(Into::<char>::into).collect()
+    fn from(Name(name_characters): Name) -> Self {
+        name_characters
+            .into_iter()
+            .map(Into::<char>::into)
+            .collect()
     }
 }
 
@@ -82,8 +84,7 @@ impl From<Expression> for Automaton {
 }
 
 impl From<Expression> for Vec<Term> {
-    fn from(expression: Expression) -> Self {
-        let Expression(term, terms) = expression;
+    fn from(Expression(term, terms): Expression) -> Self {
         once(term)
             .chain(terms.into_iter().map(|(_, term)| term))
             .collect()
@@ -94,8 +95,7 @@ impl From<Expression> for Vec<Term> {
 pub struct Term(Vec<Power>);
 
 impl From<Term> for Automaton {
-    fn from(term: Term) -> Self {
-        let Term(mut powers) = term;
+    fn from(Term(mut powers): Term) -> Self {
         if powers.len() == 1 {
             powers.pop().unwrap().into()
         } else {
@@ -108,8 +108,7 @@ impl From<Term> for Automaton {
 pub struct Power(Base, Option<Exponent>);
 
 impl From<Power> for Automaton {
-    fn from(power: Power) -> Self {
-        let Power(base, exponent) = power;
+    fn from(Power(base, exponent): Power) -> Self {
         if let Some(exponent) = exponent {
             Self::Repetition {
                 body: Box::new(base.into()),
@@ -270,8 +269,7 @@ impl From<Byte> for char {
 }
 
 impl From<Byte> for u8 {
-    fn from(byte: Byte) -> Self {
-        let Byte([high_nibble, low_nibble]) = byte;
+    fn from(Byte([high_nibble, low_nibble]): Byte) -> Self {
         let high_nibble: u8 = high_nibble.into();
         let low_nibble: u8 = low_nibble.into();
         0x10 * high_nibble + low_nibble
@@ -415,8 +413,8 @@ impl From<NakedCharacter> for char {
 pub struct Set(Vec<Range>);
 
 impl From<Set> for Acceptor {
-    fn from(set: Set) -> Self {
-        set.0.into_iter().map(Into::<Self>::into).sum()
+    fn from(Set(ranges): Set) -> Self {
+        ranges.into_iter().map(Into::<Self>::into).sum()
     }
 }
 
@@ -424,8 +422,7 @@ impl From<Set> for Acceptor {
 pub struct Range(Element, Option<(Hyphen, Element)>);
 
 impl From<Range> for Acceptor {
-    fn from(range: Range) -> Self {
-        let Range(start, end) = range;
+    fn from(Range(start, end): Range) -> Self {
         if let Some((Hyphen, end)) = end {
             let start: u8 = start.into();
             let end: u8 = end.into();
@@ -682,9 +679,8 @@ impl From<Exponent> for automaton::RepetitionNumber {
 pub struct Number(Vec<Digit>);
 
 impl From<Number> for usize {
-    fn from(number: Number) -> Self {
-        number
-            .0
+    fn from(Number(digits): Number) -> Self {
+        digits
             .into_iter()
             .map(Into::into)
             .fold(0, |number, digit: usize| 10 * number + digit)

@@ -30,15 +30,17 @@ impl Acceptor {
 impl Add for Acceptor {
     type Output = Self;
 
-    fn add(self, other: Self) -> Self::Output {
+    fn add(
+        self,
+        Self {
+            acceptance: other_acceptance,
+            characters: other_characters,
+        }: Self,
+    ) -> Self::Output {
         let Self {
             acceptance: self_acceptance,
             characters: self_characters,
         } = self;
-        let Self {
-            acceptance: other_acceptance,
-            characters: other_characters,
-        } = other;
         match (self_acceptance, other_acceptance) {
             (Acceptance::Set, Acceptance::Set) => Self {
                 acceptance: Acceptance::Set,

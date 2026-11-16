@@ -90,23 +90,24 @@ impl Structure {
 }
 
 impl From<DeriveInput> for Structure {
-    fn from(structure: DeriveInput) -> Self {
-        if let DeriveInput {
+    fn from(
+        DeriveInput {
             attrs,
             vis: _,
             ident,
             generics: _,
-            data:
-                Data::Struct(DataStruct {
-                    struct_token: _,
-                    fields:
-                        Fields::Named(FieldsNamed {
-                            brace_token: _,
-                            named,
-                        }),
-                    semi_token: _,
+            data,
+        }: DeriveInput,
+    ) -> Self {
+        if let Data::Struct(DataStruct {
+            struct_token: _,
+            fields:
+                Fields::Named(FieldsNamed {
+                    brace_token: _,
+                    named,
                 }),
-        } = structure
+            semi_token: _,
+        }) = data
         {
             let elements: Vec<Element> = named
                 .into_iter()
@@ -238,17 +239,18 @@ impl Element {
 impl TryFrom<Field> for Element {
     type Error = ();
 
-    fn try_from(field: Field) -> Result<Self, Self::Error> {
-        if let Field {
+    fn try_from(
+        Field {
             attrs,
             vis: _,
             modifiers: _,
-            ident: Some(ident),
+            ident,
             colon_token: _,
             ty,
             default: _,
-        } = field
-        {
+        }: Field,
+    ) -> Result<Self, Self::Error> {
+        if let Some(ident) = ident {
             let is_phantom_data: bool = if let Type::Path(TypePath {
                 attrs: _,
                 qself: _,

@@ -51,8 +51,7 @@ impl TryFrom<isize> for Error {
 
 /// # References
 /// * [ECALL](https://docs.riscv.org/reference/sbi/v3.0/binary-encoding.html)
-fn ecall(fid: i32, eid: i32, arguments: [usize; 6]) -> Result<usize, Error> {
-    let [mut a0, mut a1, a2, a3, a4, a5]: [usize; 6] = arguments;
+fn ecall(fid: i32, eid: i32, [mut a0, mut a1, a2, a3, a4, a5]: [usize; 6]) -> Result<usize, Error> {
     unsafe {
         asm!(
             "ecall",

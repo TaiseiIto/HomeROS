@@ -407,20 +407,21 @@ impl Structure {
 }
 
 impl From<ItemStruct> for Structure {
-    fn from(item_struct: ItemStruct) -> Self {
-        if let ItemStruct {
+    fn from(
+        ItemStruct {
             attrs: _,
             vis,
             struct_token: _,
             ident,
             generics: _,
-            fields:
-                Fields::Named(FieldsNamed {
-                    brace_token: _,
-                    named,
-                }),
+            fields,
             semi_token: _,
-        } = item_struct
+        }: ItemStruct,
+    ) -> Self {
+        if let Fields::Named(FieldsNamed {
+            brace_token: _,
+            named,
+        }) = fields
         {
             let elements: Vec<Element> = named
                 .into_iter()
@@ -544,17 +545,19 @@ impl Element {
         self.const_ident("LENGTH")
     }
 
-    fn new(index: usize, field: Field) -> Self {
-        if let Field {
+    fn new(
+        index: usize,
+        Field {
             attrs: _,
             vis: _,
             modifiers: _,
-            ident: Some(ident),
+            ident,
             colon_token: _,
             ty,
             default: _,
-        } = field
-        {
+        }: Field,
+    ) -> Self {
+        if let Some(ident) = ident {
             let (ident, reserved): (Ident, bool) = if ident == "__" {
                 (
                     Ident::new(&format!("reserved{}", index), ident.span()),

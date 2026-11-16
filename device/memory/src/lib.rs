@@ -19,15 +19,17 @@ impl<T: UnsignedInt> Region<T> {
         self.0.clone()
     }
 
-    pub fn subtract(&self, other: &Self) -> impl Iterator<Item = Self> + use<T> {
+    pub fn subtract(
+        &self,
+        Self(Range {
+            start: other_start,
+            end: other_end,
+        }): &Self,
+    ) -> impl Iterator<Item = Self> + use<T> {
         let Self(Range {
             start: self_start,
             end: self_end,
         }) = self;
-        let Self(Range {
-            start: other_start,
-            end: other_end,
-        }) = other;
         let self_start: T = *self_start;
         let self_end: T = *self_end;
         let other_start: T = *other_start;
@@ -76,15 +78,17 @@ impl<T: UnsignedInt> Region<T> {
         Some(Region(start..end))
     }
 
-    fn try_merge(&self, other: &Self) -> Option<Self> {
+    fn try_merge(
+        &self,
+        other @ Self(Range {
+            start: other_start,
+            end: other_end,
+        }): &Self,
+    ) -> Option<Self> {
         let Self(Range {
             start: self_start,
             end: self_end,
         }) = self;
-        let Self(Range {
-            start: other_start,
-            end: other_end,
-        }) = other;
         if self_start < other_start {
             if self_end < other_start {
                 // self_start < self_end < other_start < other_end
@@ -212,8 +216,8 @@ impl<T: UnsignedInt> Regions<T> {
 impl<T: UnsignedInt> Add for Regions<T> {
     type Output = Self;
 
-    fn add(self, other: Self) -> Self::Output {
-        let mut output: Self = Self(self.0.into_iter().chain(other.0).collect());
+    fn add(self, Self(other): Self) -> Self::Output {
+        let mut output: Self = Self(self.0.into_iter().chain(other).collect());
         output.normalize();
         output
     }

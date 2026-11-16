@@ -324,8 +324,8 @@ impl Registers {
 }
 
 impl From<ItemUnion> for Registers {
-    fn from(item_union: ItemUnion) -> Self {
-        let ItemUnion {
+    fn from(
+        ItemUnion {
             attrs: _,
             vis,
             union_token: _,
@@ -336,7 +336,8 @@ impl From<ItemUnion> for Registers {
                     brace_token: _,
                     named,
                 },
-        } = item_union;
+        }: ItemUnion,
+    ) -> Self {
         let elements: Vec<Element> = named.into_iter().map(Into::into).collect();
         Self {
             elements,
@@ -512,17 +513,18 @@ impl Element {
 }
 
 impl From<Field> for Element {
-    fn from(field: Field) -> Self {
-        if let Field {
+    fn from(
+        Field {
             attrs: _,
             vis: _,
             modifiers: _,
-            ident: Some(ident),
+            ident,
             colon_token: _,
             ty,
             default: _,
-        } = field
-        {
+        }: Field,
+    ) -> Self {
+        if let Some(ident) = ident {
             Self { ident, ty }
         } else {
             panic!();

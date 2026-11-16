@@ -17,14 +17,14 @@ pub struct Arc<T> {
 }
 
 impl<T> Arc<T> {
-    pub fn downgrade(arc: &Self) -> Weak<T> {
-        arc.weak.clone()
+    pub fn downgrade(Self { weak }: &Self) -> Weak<T> {
+        weak.clone()
     }
 
-    pub fn get_mut(arc: &mut Self) -> Option<&mut T> {
-        (arc.weak.data().alloc_ref_count.load(Relaxed) == 1).then(|| {
+    pub fn get_mut(Self { weak }: &mut Self) -> Option<&mut T> {
+        (weak.data().alloc_ref_count.load(Relaxed) == 1).then(|| {
             fence(Acquire);
-            unsafe { arc.weak.ptr.as_mut() }
+            unsafe { weak.ptr.as_mut() }
                 .data
                 .get_mut()
                 .as_mut()

@@ -33,8 +33,12 @@ impl Roots {
 }
 
 impl From<Range<usize>> for Roots {
-    fn from(address: Range<usize>) -> Self {
-        let current_root_start: usize = address.start;
+    fn from(
+        address @ Range {
+            start: current_root_start,
+            end: _,
+        }: Range<usize>,
+    ) -> Self {
         Self {
             address,
             current_root_start,
@@ -93,8 +97,7 @@ impl Nodes {
 impl TryFrom<Range<usize>> for Nodes {
     type Error = ();
 
-    fn try_from(address: Range<usize>) -> Result<Self, Self::Error> {
-        let Range { start, end } = address;
+    fn try_from(Range { start, end }: Range<usize>) -> Result<Self, Self::Error> {
         let actual_size: usize = end - start;
         let nominal_size: usize = actual_size.next_power_of_two();
         let list_size: usize = min(nominal_size / 2, Self::MAX_SIZE);

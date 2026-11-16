@@ -30,11 +30,9 @@ impl Debug for Entry {
 }
 
 impl From<Entry> for Regions<u128> {
-    fn from(entry: Entry) -> Self {
-        let address: u128 = entry.address as u128;
-        let size: u128 = entry.size as u128;
-        let start: u128 = address;
-        let end: u128 = start + size;
+    fn from(Entry { address, size }: Entry) -> Self {
+        let start: u128 = address as u128;
+        let end: u128 = start + size as u128;
         (start..end).try_into().unwrap()
     }
 }
