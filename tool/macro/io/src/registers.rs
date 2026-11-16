@@ -400,16 +400,16 @@ struct ElementRepetition {
 
 impl ElementRepetition {
     fn accessor_debugs(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.input_elements
             .iter()
-            .filter_map(OutputElement::accessor_debug)
+            .filter_map(InputElement::accessor_debug)
             .collect()
     }
 
     fn debugs(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.input_elements
             .iter()
-            .filter_map(OutputElement::debug)
+            .filter_map(InputElement::debug)
             .collect()
     }
 
@@ -526,6 +526,26 @@ struct InputElement {
 }
 
 impl InputElement {
+    fn accessor_debug(&self) -> Option<TokenStream> {
+        let ident_string: String = self.ident.as_ref()?.to_string();
+        let read: Ident = self.read_ident()?;
+        Some(quote! {
+            field(#ident_string, &unsafe {
+                self.#read()
+            })
+        })
+    }
+
+    fn debug(&self) -> Option<TokenStream> {
+        let ident_string: String = self.ident.as_ref()?.to_string();
+        let read_memory: Ident = self.read_memory_ident()?;
+        Some(quote! {
+            field(#ident_string, &unsafe {
+                self.#read_memory()
+            })
+        })
+    }
+
     fn function_ident(&self, prefix: &str, suffix: Option<&str>) -> Option<Ident> {
         let prefix: String = prefix.to_string();
         let stem: String = self.ident.as_ref()?.to_string();
@@ -673,33 +693,11 @@ struct OutputElement {
 }
 
 impl OutputElement {
-    fn accessor_debug(&self) -> Option<TokenStream> {
-        let ident: Ident = self.ident();
-        let read: Ident = self.read_ident()?;
-        let ident_string: String = ident.to_string();
-        Some(quote! {
-            field(#ident_string, &unsafe {
-                self.#read()
-            })
-        })
-    }
-
     fn const_ident(&self, suffix: &str) -> Ident {
         Ident::new(
             &format!("{}_{}", self.ident().to_string().to_uppercase(), suffix),
             Span::call_site(),
         )
-    }
-
-    fn debug(&self) -> Option<TokenStream> {
-        let ident: Ident = self.ident();
-        let read_memory: Ident = self.read_memory_ident()?;
-        let ident_string: String = ident.to_string();
-        Some(quote! {
-            field(#ident_string, &unsafe {
-                self.#read_memory()
-            })
-        })
     }
 
     fn declaration(&self) -> TokenStream {
