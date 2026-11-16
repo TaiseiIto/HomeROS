@@ -224,9 +224,9 @@ impl Structure {
     }
 
     fn reads(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(|output_element| output_element.read(self))
+            .flat_map(|element_repetition| element_repetition.reads(self))
             .collect()
     }
 
@@ -450,6 +450,13 @@ impl ElementRepetition {
             })
             .unwrap_or_default();
         [read_registers, read_arrays].concat()
+    }
+
+    fn reads(&self, structure: &Structure) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(|output_element| output_element.read(structure))
+            .collect()
     }
 }
 
