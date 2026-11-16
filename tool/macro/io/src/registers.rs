@@ -397,10 +397,31 @@ impl ElementRepetition {
     }
 
     fn read_memories(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let read_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(OutputElement::read_memory)
-            .collect()
+            .collect();
+        let read_arrays: Vec<TokenStream> = self
+            .times
+            .map(|times| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| {
+                        input_element.read_memory(
+                            times,
+                            output_elements
+                                .iter()
+                                .filter(|output_element| {
+                                    input_element.ident == output_element.ident
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        [read_registers, read_arrays].concat()
     }
 
     fn read_ports(&self) -> Vec<TokenStream> {
@@ -415,6 +436,53 @@ struct InputElement {
     ident: Option<Ident>,
     ty: Type,
     index: usize,
+}
+
+impl InputElement {
+    fn function_ident(&self, prefix: &str, suffix: Option<&str>) -> Option<Ident> {
+        let prefix: String = prefix.to_string();
+        let stem: String = self.ident.as_ref()?.to_string();
+        let suffix: Option<String> = suffix.map(String::from);
+        let words: Vec<String> = [Some(prefix), Some(stem), suffix]
+            .into_iter()
+            .flatten()
+            .collect();
+        Some(Ident::new(&words.join("_"), Span::call_site()))
+    }
+
+    fn pretty_type(&self) -> Option<Type> {
+        self.ident.as_ref()?;
+        Some(self.ty.clone())
+    }
+
+    fn read_memory(
+        &self,
+        repeat_times: usize,
+        output_elements: Vec<&OutputElement>,
+    ) -> Option<TokenStream> {
+        let read_memory: Ident = self.read_memory_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let read_memories: Vec<TokenStream> = output_elements
+            .into_iter()
+            .map(|output_element| {
+                let read_memory: Ident = output_element.read_memory_ident().unwrap();
+                quote! {
+                    self.#read_memory()
+                }
+            })
+            .collect();
+        Some(quote! {
+            pub unsafe fn #read_memory(&self) -> [#pretty_type; #repeat_times] {
+                unsafe {
+                    [#(#read_memories),*]
+                }
+            }
+        })
+    }
+
+    fn read_memory_ident(&self) -> Option<Ident> {
+        self.function_ident("read", Some("memory"))
+    }
 }
 
 impl From<(Option<Ident>, Type, usize)> for InputElement {
@@ -569,7 +637,8 @@ impl OutputElement {
     }
 
     fn pretty_type(&self) -> Option<Type> {
-        self.ident.as_ref().map(|_| self.ty.clone())
+        self.ident.as_ref()?;
+        Some(self.ty.clone())
     }
 
     fn read(&self, structure: &Structure) -> Option<TokenStream> {
@@ -615,21 +684,19 @@ impl OutputElement {
     }
 
     fn read_port(&self) -> Option<TokenStream> {
-        self.read_port_ident()
-            .zip(self.pretty_type())
-            .map(|(read_port, pretty_type)| {
-                let offset: Ident = self.offset_ident();
-                let ty: Type = self.ty();
-                quote! {
-                    #[cfg(target_arch = "x86_64")]
-                    pub unsafe fn #read_port(port: u16) -> #pretty_type {
-                        let port: u16 = port + Self::#offset as u16;
-                        unsafe {
-                            #ty::read_port(port)
-                        }
-                    }
+        let read_port: Ident = self.read_port_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let offset: Ident = self.offset_ident();
+        let ty: Type = self.ty();
+        Some(quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn #read_port(port: u16) -> #pretty_type {
+                let port: u16 = port + Self::#offset as u16;
+                unsafe {
+                    #ty::read_port(port)
                 }
-            })
+            }
+        })
     }
 
     fn read_port_ident(&self) -> Option<Ident> {
