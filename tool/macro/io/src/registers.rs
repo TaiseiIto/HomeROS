@@ -456,13 +456,22 @@ impl ElementRepetition {
         [read_registers, read_arrays].concat()
     }
 
-    /// # TODO
-    /// * Implement index access on repeated registers.
     fn reads(&self, structure: &Structure) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let read_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(|output_element| output_element.read(structure))
-            .collect()
+            .collect();
+        let read_arrays: Vec<TokenStream> = self
+            .times
+            .map(|times| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| input_element.read(structure, times))
+                    .collect()
+            })
+            .unwrap_or_default();
+        [read_registers, read_arrays].concat()
     }
 
     /// # TODO
@@ -516,6 +525,31 @@ impl InputElement {
         Some(self.ty.clone())
     }
 
+    fn read(&self, structure: &Structure, repeat_times: usize) -> Option<TokenStream> {
+        let structure: &Ident = &structure.ident;
+        let pretty_type: Type = self.pretty_type()?;
+        let read: Ident = self.read_ident()?;
+        let read_memory: Ident = self.read_memory_ident()?;
+        let read_port: Ident = self.read_port_ident()?;
+        Some(quote! {
+            pub unsafe fn #read(&self) -> [#pretty_type; #repeat_times] {
+                match self {
+                    Self::Memory(memory) => unsafe {
+                        memory.#read_memory()
+                    },
+                    #[cfg(target_arch = "x86_64")]
+                    Self::Port(port) => unsafe {
+                        #structure::#read_port(*port)
+                    },
+                }
+            }
+        })
+    }
+
+    fn read_ident(&self) -> Option<Ident> {
+        self.function_ident("read", None)
+    }
+
     fn read_memory(
         &self,
         repeat_times: usize,
@@ -562,7 +596,7 @@ impl InputElement {
             })
             .collect();
         Some(quote! {
-            pub unsafe fn #read_port(&self, port: u16) -> [#pretty_type; #repeat_times] {
+            pub unsafe fn #read_port(port: u16) -> [#pretty_type; #repeat_times] {
                 unsafe {
                     [#(#read_memories),*]
                 }
