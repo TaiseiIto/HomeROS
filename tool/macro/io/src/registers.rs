@@ -25,13 +25,17 @@ impl Structure {
     /// TODO
     /// * Print repeated registers as a list.
     fn accessor_debug(&self) -> TokenStream {
+        let Self {
+            vis: _,
+            ident,
+            element_repetitions,
+            debug_functions: _,
+        } = self;
         let accessor: Ident = self.accessor_ident();
-        let ident: &Ident = &self.ident;
         let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = self
-            .output_elements()
+        let elements: Vec<TokenStream> = element_repetitions
             .iter()
-            .filter_map(OutputElement::accessor_debug)
+            .flat_map(ElementRepetition::accessor_debugs)
             .collect();
         quote! {
             impl ::core::fmt::Debug for #accessor {
@@ -89,14 +93,13 @@ impl Structure {
         let Self {
             vis: _,
             ident,
-            element_repetitions: _,
+            element_repetitions,
             debug_functions,
         } = self;
         let ident_string: String = ident.to_string();
-        let elements: Vec<TokenStream> = self
-            .output_elements()
+        let elements: Vec<TokenStream> = element_repetitions
             .iter()
-            .filter_map(OutputElement::debug)
+            .flat_map(ElementRepetition::debugs)
             .collect();
         let functions: Vec<TokenStream> = debug_functions
             .iter()
@@ -396,6 +399,20 @@ struct ElementRepetition {
 }
 
 impl ElementRepetition {
+    fn accessor_debugs(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::accessor_debug)
+            .collect()
+    }
+
+    fn debugs(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::debug)
+            .collect()
+    }
+
     fn output_elements(&self) -> Vec<OutputElement> {
         self.into()
     }
