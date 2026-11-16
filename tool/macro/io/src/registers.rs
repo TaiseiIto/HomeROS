@@ -425,10 +425,31 @@ impl ElementRepetition {
     }
 
     fn read_ports(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let read_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(OutputElement::read_port)
-            .collect()
+            .collect();
+        let read_arrays: Vec<TokenStream> = self
+            .times
+            .map(|times| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| {
+                        input_element.read_port(
+                            times,
+                            output_elements
+                                .iter()
+                                .filter(|output_element| {
+                                    input_element.ident == output_element.ident
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        [read_registers, read_arrays].concat()
     }
 }
 
@@ -482,6 +503,35 @@ impl InputElement {
 
     fn read_memory_ident(&self) -> Option<Ident> {
         self.function_ident("read", Some("memory"))
+    }
+
+    fn read_port(
+        &self,
+        repeat_times: usize,
+        output_elements: Vec<&OutputElement>,
+    ) -> Option<TokenStream> {
+        let read_port: Ident = self.read_port_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let read_memories: Vec<TokenStream> = output_elements
+            .into_iter()
+            .map(|output_element| {
+                let read_port: Ident = output_element.read_port_ident().unwrap();
+                quote! {
+                    Self::#read_port(port)
+                }
+            })
+            .collect();
+        Some(quote! {
+            pub unsafe fn #read_port(&self, port: u16) -> [#pretty_type; #repeat_times] {
+                unsafe {
+                    [#(#read_memories),*]
+                }
+            }
+        })
+    }
+
+    fn read_port_ident(&self) -> Option<Ident> {
+        self.function_ident("read", Some("port"))
     }
 }
 
