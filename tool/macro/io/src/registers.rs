@@ -588,21 +588,18 @@ impl OutputElement {
             input_index,
             repeat_index,
         } = self;
-        let input_index: String = ident
-            .as_ref()
-            .map(|_| String::default())
-            .unwrap_or(format!("_{}", input_index));
+        let input_index: Option<String> = ident.is_none().then_some(input_index.to_string());
         let ident: String = ident
             .as_ref()
             .map(|ident| ident.to_string())
             .unwrap_or("reserved".to_string());
-        let repeat_index: String = repeat_index
-            .map(|repeat_index| format!("_{}", repeat_index))
-            .unwrap_or_default();
-        Ident::new(
-            &format!("{}{}{}", ident, repeat_index, input_index),
-            Span::call_site(),
-        )
+        let repeat_index: Option<String> =
+            repeat_index.map(|repeat_index| repeat_index.to_string());
+        let words: Vec<String> = [Some(ident), repeat_index, input_index]
+            .into_iter()
+            .flatten()
+            .collect();
+        Ident::new(&words.join("_"), Span::call_site())
     }
 
     fn offset(&self, previous: Option<&Self>) -> TokenStream {
