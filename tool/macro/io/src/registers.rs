@@ -210,16 +210,16 @@ impl Structure {
     }
 
     fn read_memories(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(OutputElement::read_memory)
+            .flat_map(ElementRepetition::read_memories)
             .collect()
     }
 
     fn read_ports(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(OutputElement::read_port)
+            .flat_map(ElementRepetition::read_ports)
             .collect()
     }
 
@@ -389,6 +389,26 @@ impl From<Structure> for TokenStream {
 struct ElementRepetition {
     input_elements: Vec<InputElement>,
     times: Option<usize>,
+}
+
+impl ElementRepetition {
+    fn output_elements(&self) -> Vec<OutputElement> {
+        self.into()
+    }
+
+    fn read_memories(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::read_memory)
+            .collect()
+    }
+
+    fn read_ports(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::read_port)
+            .collect()
+    }
 }
 
 struct InputElement {
@@ -780,7 +800,7 @@ impl From<&Structure> for Vec<OutputElement> {
     ) -> Self {
         element_repetitions
             .iter()
-            .flat_map(Into::<Self>::into)
+            .flat_map(ElementRepetition::output_elements)
             .collect()
     }
 }
