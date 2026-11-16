@@ -22,6 +22,8 @@ pub struct Structure {
 }
 
 impl Structure {
+    /// TODO
+    /// * Print repeated registers as a list.
     fn accessor_debug(&self) -> TokenStream {
         let accessor: Ident = self.accessor_ident();
         let ident: &Ident = &self.ident;
@@ -81,6 +83,8 @@ impl Structure {
         }
     }
 
+    /// TODO
+    /// * Print repeated registers as a list.
     fn debug(&self) -> TokenStream {
         let Self {
             vis: _,
@@ -238,23 +242,23 @@ impl Structure {
     }
 
     fn write_memories(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(OutputElement::write_memory)
+            .flat_map(ElementRepetition::write_memories)
             .collect()
     }
 
     fn write_ports(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(OutputElement::write_port)
+            .flat_map(ElementRepetition::write_ports)
             .collect()
     }
 
     fn writes(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        self.element_repetitions
             .iter()
-            .filter_map(|output_element| output_element.write(self))
+            .flat_map(|element_repetition| element_repetition.writes(self))
             .collect()
     }
 }
@@ -452,10 +456,39 @@ impl ElementRepetition {
         [read_registers, read_arrays].concat()
     }
 
+    /// # TODO
+    /// * Implement index access on repeated registers.
     fn reads(&self, structure: &Structure) -> Vec<TokenStream> {
         self.output_elements()
             .iter()
             .filter_map(|output_element| output_element.read(structure))
+            .collect()
+    }
+
+    /// # TODO
+    /// * Implement index access on repeated registers.
+    fn write_memories(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::write_memory)
+            .collect()
+    }
+
+    /// # TODO
+    /// * Implement index access on repeated registers.
+    fn write_ports(&self) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(OutputElement::write_port)
+            .collect()
+    }
+
+    /// # TODO
+    /// * Implement index access on repeated registers.
+    fn writes(&self, structure: &Structure) -> Vec<TokenStream> {
+        self.output_elements()
+            .iter()
+            .filter_map(|output_element| output_element.write(structure))
             .collect()
     }
 }
