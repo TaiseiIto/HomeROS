@@ -3,6 +3,7 @@ mod eoi;
 mod error_status;
 mod id;
 mod in_service;
+mod initial_count;
 mod interrupt_command;
 mod interrupt_request;
 mod local_vector_table;
@@ -67,5 +68,7 @@ pub struct Registers {
     lint: local_vector_table::Register,
     __: [u8; 0xc],
     error: local_vector_table::Register,
+    __: [u8; 0xc],
+    initial_count: initial_count::Register,
     __: [u8; 0xc],
 }
