@@ -1,9 +1,11 @@
-mod count;
+mod current_count;
 mod destination_format;
+mod divide_configuration;
 mod eoi;
 mod error_status;
 mod id;
 mod in_service;
+mod initial_count;
 mod interrupt_command;
 mod interrupt_request;
 mod local_vector_table;
@@ -69,8 +71,10 @@ pub struct Registers {
     __: [u8; 0xc],
     error: local_vector_table::Register,
     __: [u8; 0xc],
-    initial_count: count::Register,
+    initial_count: initial_count::Register,
     __: [u8; 0xc],
-    current_count: count::Register,
+    current_count: current_count::Register,
     __: [u8; 0x4c],
+    divide_configuration: divide_configuration::Register,
+    __: [u8; 0xc],
 }
