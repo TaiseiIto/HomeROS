@@ -3,9 +3,10 @@ mod eoi;
 mod error_status;
 mod id;
 mod in_service;
+mod interrupt_command;
 mod interrupt_request;
+mod local_vector_table;
 mod logical_destination;
-mod lvt;
 mod priority;
 mod remote_read;
 mod spurious_interrupt_vector;
@@ -50,6 +51,10 @@ pub struct Registers {
     __: [u8; 0xc],
     error_status: error_status::Register,
     __: [u8; 0x5c],
-    lvt_cmci: lvt::Register,
+    local_vector_table_corrected_machine_check_interrupt: local_vector_table::Register,
+    __: [u8; 0xc],
+    interrupt_command_low: interrupt_command::Low,
+    __: [u8; 0xc],
+    interrupt_command_high: interrupt_command::High,
     __: [u8; 0xc],
 }
