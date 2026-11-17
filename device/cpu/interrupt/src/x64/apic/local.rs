@@ -18,8 +18,6 @@ mod version;
 
 /// # References
 /// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 3.13.4.1 The Local APIC Block Diagram, Table 13-1. Local APIC Register Address Map
-/// # TODO
-/// * Print all registers.
 #[io::registers]
 pub struct Registers {
     __: [u8; 0x20],
@@ -76,5 +74,5 @@ pub struct Registers {
     current_count: current_count::Register,
     __: [u8; 0x4c],
     divide_configuration: divide_configuration::Register,
-    __: [u8; 0xc],
+    __: [u8; 0x1c],
 }
