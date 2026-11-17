@@ -11,7 +11,7 @@ mod trigger_mode;
 mod version;
 
 /// # References
-/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 13.4.1 The Local APIC Block Diagram, Table 13-1. Local APIC Register Address Map
+/// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 3.13.4.1 The Local APIC Block Diagram, Table 13-1. Local APIC Register Address Map
 /// # TODO
 /// * Print all registers.
 #[io::registers]
@@ -37,8 +37,6 @@ pub struct Registers {
     __: [u8; 0xc],
     spurious_interrupt_vector: spurious_interrupt_vector::Register,
     __: [u8; 0xc],
-    /// # TODO
-    /// * Implement index access methods by io::registers.
     #[repeat(fields = 2, times = 8)]
     in_service: in_service::Register,
     __: [u8; 0xc],
