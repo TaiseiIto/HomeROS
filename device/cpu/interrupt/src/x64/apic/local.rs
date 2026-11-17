@@ -16,6 +16,8 @@ mod spurious_interrupt_vector;
 mod trigger_mode;
 mod version;
 
+use core::mem::size_of;
+
 /// # References
 /// * [Intel 64 and IA-32 Architectures Software Developer's Manual](https://cdrdv2.intel.com/v1/dl/getContent/671200) 3.13.4.1 The Local APIC Block Diagram, Table 13-1. Local APIC Register Address Map
 #[io::registers]
@@ -51,7 +53,7 @@ pub struct Registers {
     interrupt_request: interrupt_request::Register,
     __: [u8; 0xc],
     error_status: error_status::Register,
-    __: [u8; 0x5c],
+    __: [u8; 0x6c],
     corrected_machine_check_interrupt: local_vector_table::Register,
     __: [u8; 0xc],
     interrupt_command_low: interrupt_command::Low,
@@ -76,3 +78,5 @@ pub struct Registers {
     divide_configuration: divide_configuration::Register,
     __: [u8; 0x1c],
 }
+
+const _: () = assert!(size_of::<Registers>() == 0x400);
