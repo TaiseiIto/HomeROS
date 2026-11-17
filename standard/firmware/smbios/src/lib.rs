@@ -1,7 +1,5 @@
 //! # References
 //! * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf)
-//! # TODO
-//! * Implement SMBIOS tables.
 
 #![no_std]
 

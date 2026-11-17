@@ -90,8 +90,6 @@ impl configuration::Table for Pointer {}
 
 /// # References
 /// * [Root System Description TAble (RSDT)](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#root-system-description-table-rsdt)
-/// # TODO
-/// * Print entries
 #[repr(C, packed)]
 pub struct Table {
     header: Header,
