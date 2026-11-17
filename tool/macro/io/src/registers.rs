@@ -547,13 +547,22 @@ impl ElementRepetition {
         [write_registers, write_arrays].concat()
     }
 
-    /// # TODO
-    /// * Implement index access on repeated registers.
     fn writes(&self, structure: &Structure) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let write_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(|output_element| output_element.write(structure))
-            .collect()
+            .collect();
+        let write_arrays: Vec<TokenStream> = self
+            .times
+            .map(|_| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| input_element.write(structure))
+                    .collect()
+            })
+            .unwrap_or_default();
+        [write_registers, write_arrays].concat()
     }
 }
 
@@ -709,6 +718,31 @@ impl InputElement {
 
     fn read_port_ident(&self) -> Option<Ident> {
         self.function_ident("read", Some("port"))
+    }
+
+    fn write(&self, structure: &Structure) -> Option<TokenStream> {
+        let structure: &Ident = &structure.ident;
+        let pretty_type: Type = self.pretty_type()?;
+        let write: Ident = self.write_ident()?;
+        let write_memory: Ident = self.write_memory_ident()?;
+        let write_port: Ident = self.write_port_ident()?;
+        Some(quote! {
+            pub unsafe fn #write(&mut self, index: usize, value: #pretty_type) {
+                match self {
+                    Self::Memory(memory) => unsafe {
+                        memory.#write_memory(index, value)
+                    },
+                    #[cfg(target_arch = "x86_64")]
+                    Self::Port(port) => unsafe {
+                        #structure::#write_port(*port, index, value)
+                    },
+                }
+            }
+        })
+    }
+
+    fn write_ident(&self) -> Option<Ident> {
+        self.function_ident("write", None)
     }
 
     fn write_memory(&self, output_elements: Vec<&OutputElement>) -> Option<TokenStream> {
