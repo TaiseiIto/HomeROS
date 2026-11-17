@@ -520,13 +520,31 @@ impl ElementRepetition {
         [write_registers, write_arrays].concat()
     }
 
-    /// # TODO
-    /// * Implement index access on repeated registers.
     fn write_ports(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let write_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(OutputElement::write_port)
-            .collect()
+            .collect();
+        let write_arrays: Vec<TokenStream> = self
+            .times
+            .map(|_| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| {
+                        input_element.write_port(
+                            output_elements
+                                .iter()
+                                .filter(|output_element| {
+                                    input_element.ident == output_element.ident
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        [write_registers, write_arrays].concat()
     }
 
     /// # TODO
@@ -718,6 +736,34 @@ impl InputElement {
 
     fn write_memory_ident(&self) -> Option<Ident> {
         self.function_ident("write", Some("memory"))
+    }
+
+    fn write_port(&self, output_elements: Vec<&OutputElement>) -> Option<TokenStream> {
+        let write_port: Ident = self.write_port_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let write_ports: Vec<TokenStream> = output_elements
+            .into_iter()
+            .map(|output_element| {
+                let write_port: Ident = output_element.write_port_ident().unwrap();
+                let index: usize = output_element.repeat_index.unwrap();
+                quote! {
+                    #index => unsafe { Self::#write_port(port, value) }
+                }
+            })
+            .collect();
+        Some(quote! {
+            #[cfg(target_arch = "x86_64")]
+            pub unsafe fn #write_port(port: u16, index: usize, value: #pretty_type) {
+                match index {
+                    #(#write_ports),*
+                    _ => panic!(),
+                }
+            }
+        })
+    }
+
+    fn write_port_ident(&self) -> Option<Ident> {
+        self.function_ident("write", Some("port"))
     }
 }
 
