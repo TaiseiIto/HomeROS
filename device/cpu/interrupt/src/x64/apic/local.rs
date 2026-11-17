@@ -1,5 +1,6 @@
 mod destination_format;
 mod eoi;
+mod error_status;
 mod id;
 mod in_service;
 mod interrupt_request;
@@ -46,4 +47,5 @@ pub struct Registers {
     #[repeat(fields = 2, times = 8)]
     interrupt_request: interrupt_request::Register,
     __: [u8; 0xc],
+    error_status: error_status::Register,
 }
