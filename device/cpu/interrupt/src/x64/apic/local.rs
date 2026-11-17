@@ -5,6 +5,7 @@ mod id;
 mod in_service;
 mod interrupt_request;
 mod logical_destination;
+mod lvt;
 mod priority;
 mod remote_read;
 mod spurious_interrupt_vector;
@@ -48,4 +49,7 @@ pub struct Registers {
     interrupt_request: interrupt_request::Register,
     __: [u8; 0xc],
     error_status: error_status::Register,
+    __: [u8; 0x5c],
+    lvt_cmci: lvt::Register,
+    __: [u8; 0xc],
 }
