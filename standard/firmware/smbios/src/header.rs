@@ -39,27 +39,27 @@ impl Header {
 
     /// # TODO
     /// * Implement all table types.
-    pub fn table(&self) -> Result<&dyn Table, Type> {
+    pub fn table(&self) -> &dyn Table {
         match self.get_type() {
-            Type::PlatformFirmwareInformation => Ok(unsafe {
+            Type::PlatformFirmwareInformation => unsafe {
                 &*(self as *const Self as *const platform_firmware_information::Table)
-            }),
-            Type::SystemInformation => {
-                Ok(unsafe { &*(self as *const Self as *const system::information::Table) })
-            }
-            Type::BaseboardInformation => {
-                Ok(unsafe { &*(self as *const Self as *const baseboard_information::Table) })
-            }
-            Type::SystemEnclosure => {
-                Ok(unsafe { &*(self as *const Self as *const system::enclosure::Table) })
-            }
-            Type::ProcessorInformation => {
-                Ok(unsafe { &*(self as *const Self as *const processor_information::Table) })
-            }
-            Type::PhysicalMemoryArray => {
-                Ok(unsafe { &*(self as *const Self as *const physical_memory_array::Table) })
-            }
-            typ => Err(typ),
+            },
+            Type::SystemInformation => unsafe {
+                &*(self as *const Self as *const system::information::Table)
+            },
+            Type::BaseboardInformation => unsafe {
+                &*(self as *const Self as *const baseboard_information::Table)
+            },
+            Type::SystemEnclosure => unsafe {
+                &*(self as *const Self as *const system::enclosure::Table)
+            },
+            Type::ProcessorInformation => unsafe {
+                &*(self as *const Self as *const processor_information::Table)
+            },
+            Type::PhysicalMemoryArray => unsafe {
+                &*(self as *const Self as *const physical_memory_array::Table)
+            },
+            typ => panic!("Unknown type {:#x?}", typ),
         }
     }
 
