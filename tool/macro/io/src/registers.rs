@@ -493,13 +493,31 @@ impl ElementRepetition {
         [read_registers, read_arrays].concat()
     }
 
-    /// # TODO
-    /// * Implement index access on repeated registers.
     fn write_memories(&self) -> Vec<TokenStream> {
-        self.output_elements()
+        let output_elements: Vec<OutputElement> = self.output_elements();
+        let write_registers: Vec<TokenStream> = output_elements
             .iter()
             .filter_map(OutputElement::write_memory)
-            .collect()
+            .collect();
+        let write_arrays: Vec<TokenStream> = self
+            .times
+            .map(|_| {
+                self.input_elements
+                    .iter()
+                    .filter_map(|input_element| {
+                        input_element.write_memory(
+                            output_elements
+                                .iter()
+                                .filter(|output_element| {
+                                    input_element.ident == output_element.ident
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        [write_registers, write_arrays].concat()
     }
 
     /// # TODO
@@ -673,6 +691,33 @@ impl InputElement {
 
     fn read_port_ident(&self) -> Option<Ident> {
         self.function_ident("read", Some("port"))
+    }
+
+    fn write_memory(&self, output_elements: Vec<&OutputElement>) -> Option<TokenStream> {
+        let write_memory: Ident = self.write_memory_ident()?;
+        let pretty_type: Type = self.pretty_type()?;
+        let write_memories: Vec<TokenStream> = output_elements
+            .into_iter()
+            .map(|output_element| {
+                let write_memory: Ident = output_element.write_memory_ident().unwrap();
+                let index: usize = output_element.repeat_index.unwrap();
+                quote! {
+                    #index => unsafe { self.#write_memory(value) }
+                }
+            })
+            .collect();
+        Some(quote! {
+            pub unsafe fn #write_memory(&mut self, index: usize, value: #pretty_type) {
+                match index {
+                    #(#write_memories),*
+                    _ => panic!(),
+                }
+            }
+        })
+    }
+
+    fn write_memory_ident(&self) -> Option<Ident> {
+        self.function_ident("write", Some("memory"))
     }
 }
 
