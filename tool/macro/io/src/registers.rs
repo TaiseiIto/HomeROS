@@ -396,16 +396,24 @@ struct ElementRepetition {
 
 impl ElementRepetition {
     fn accessor_debugs(&self) -> Vec<TokenStream> {
-        self.input_elements
+        let Self {
+            input_elements,
+            times,
+        } = self;
+        input_elements
             .iter()
-            .filter_map(InputElement::accessor_debug)
+            .filter_map(|input_element| input_element.accessor_debug(*times))
             .collect()
     }
 
     fn debugs(&self) -> Vec<TokenStream> {
-        self.input_elements
+        let Self {
+            input_elements,
+            times,
+        } = self;
+        input_elements
             .iter()
-            .filter_map(InputElement::debug)
+            .filter_map(|input_element| input_element.debug(*times))
             .collect()
     }
 
@@ -421,12 +429,11 @@ impl ElementRepetition {
             .collect();
         let read_arrays: Vec<TokenStream> = self
             .times
-            .map(|times| {
+            .map(|_| {
                 self.input_elements
                     .iter()
                     .filter_map(|input_element| {
                         input_element.read_memory(
-                            times,
                             output_elements
                                 .iter()
                                 .filter(|output_element| {
@@ -449,12 +456,11 @@ impl ElementRepetition {
             .collect();
         let read_arrays: Vec<TokenStream> = self
             .times
-            .map(|times| {
+            .map(|_| {
                 self.input_elements
                     .iter()
                     .filter_map(|input_element| {
                         input_element.read_port(
-                            times,
                             output_elements
                                 .iter()
                                 .filter(|output_element| {
@@ -477,10 +483,10 @@ impl ElementRepetition {
             .collect();
         let read_arrays: Vec<TokenStream> = self
             .times
-            .map(|times| {
+            .map(|_| {
                 self.input_elements
                     .iter()
-                    .filter_map(|input_element| input_element.read(structure, times))
+                    .filter_map(|input_element| input_element.read(structure))
                     .collect()
             })
             .unwrap_or_default();
@@ -522,22 +528,54 @@ struct InputElement {
 }
 
 impl InputElement {
-    fn accessor_debug(&self) -> Option<TokenStream> {
+    fn accessor_debug(&self, times: Option<usize>) -> Option<TokenStream> {
         let ident_string: String = self.ident.as_ref()?.to_string();
-        let read: Ident = self.read_ident()?;
+        let read_ident: Ident = self.read_ident()?;
+        let read: TokenStream = if let Some(times) = times {
+            let reads: Vec<TokenStream> = (0..times)
+                .map(|index| {
+                    quote! {
+                        self.#read_ident(#index)
+                    }
+                })
+                .collect();
+            quote! {
+                [#(#reads),*]
+            }
+        } else {
+            quote! {
+                self.#read_ident()
+            }
+        };
         Some(quote! {
             field(#ident_string, &unsafe {
-                self.#read()
+                #read
             })
         })
     }
 
-    fn debug(&self) -> Option<TokenStream> {
+    fn debug(&self, times: Option<usize>) -> Option<TokenStream> {
         let ident_string: String = self.ident.as_ref()?.to_string();
-        let read_memory: Ident = self.read_memory_ident()?;
+        let read_ident: Ident = self.read_memory_ident()?;
+        let read: TokenStream = if let Some(times) = times {
+            let reads: Vec<TokenStream> = (0..times)
+                .map(|index| {
+                    quote! {
+                        self.#read_ident(#index)
+                    }
+                })
+                .collect();
+            quote! {
+                [#(#reads),*]
+            }
+        } else {
+            quote! {
+                self.#read_ident()
+            }
+        };
         Some(quote! {
             field(#ident_string, &unsafe {
-                self.#read_memory()
+                #read
             })
         })
     }
@@ -558,21 +596,21 @@ impl InputElement {
         Some(self.ty.clone())
     }
 
-    fn read(&self, structure: &Structure, repeat_times: usize) -> Option<TokenStream> {
+    fn read(&self, structure: &Structure) -> Option<TokenStream> {
         let structure: &Ident = &structure.ident;
         let pretty_type: Type = self.pretty_type()?;
         let read: Ident = self.read_ident()?;
         let read_memory: Ident = self.read_memory_ident()?;
         let read_port: Ident = self.read_port_ident()?;
         Some(quote! {
-            pub unsafe fn #read(&self) -> [#pretty_type; #repeat_times] {
+            pub unsafe fn #read(&self, index: usize) -> #pretty_type {
                 match self {
                     Self::Memory(memory) => unsafe {
-                        memory.#read_memory()
+                        memory.#read_memory(index)
                     },
                     #[cfg(target_arch = "x86_64")]
                     Self::Port(port) => unsafe {
-                        #structure::#read_port(*port)
+                        #structure::#read_port(*port, index)
                     },
                 }
             }
@@ -583,26 +621,24 @@ impl InputElement {
         self.function_ident("read", None)
     }
 
-    fn read_memory(
-        &self,
-        repeat_times: usize,
-        output_elements: Vec<&OutputElement>,
-    ) -> Option<TokenStream> {
+    fn read_memory(&self, output_elements: Vec<&OutputElement>) -> Option<TokenStream> {
         let read_memory: Ident = self.read_memory_ident()?;
         let pretty_type: Type = self.pretty_type()?;
         let read_memories: Vec<TokenStream> = output_elements
             .into_iter()
             .map(|output_element| {
                 let read_memory: Ident = output_element.read_memory_ident().unwrap();
+                let index: usize = output_element.repeat_index.unwrap();
                 quote! {
-                    self.#read_memory()
+                    #index => unsafe { self.#read_memory() }
                 }
             })
             .collect();
         Some(quote! {
-            pub unsafe fn #read_memory(&self) -> [#pretty_type; #repeat_times] {
-                unsafe {
-                    [#(#read_memories),*]
+            pub unsafe fn #read_memory(&self, index: usize) -> #pretty_type {
+                match index {
+                    #(#read_memories),*
+                    _ => panic!(),
                 }
             }
         })
@@ -612,26 +648,24 @@ impl InputElement {
         self.function_ident("read", Some("memory"))
     }
 
-    fn read_port(
-        &self,
-        repeat_times: usize,
-        output_elements: Vec<&OutputElement>,
-    ) -> Option<TokenStream> {
+    fn read_port(&self, output_elements: Vec<&OutputElement>) -> Option<TokenStream> {
         let read_port: Ident = self.read_port_ident()?;
         let pretty_type: Type = self.pretty_type()?;
-        let read_memories: Vec<TokenStream> = output_elements
+        let read_ports: Vec<TokenStream> = output_elements
             .into_iter()
             .map(|output_element| {
                 let read_port: Ident = output_element.read_port_ident().unwrap();
+                let index: usize = output_element.repeat_index.unwrap();
                 quote! {
-                    Self::#read_port(port)
+                    #index => unsafe { Self::#read_port(port) }
                 }
             })
             .collect();
         Some(quote! {
-            pub unsafe fn #read_port(port: u16) -> [#pretty_type; #repeat_times] {
-                unsafe {
-                    [#(#read_memories),*]
+            pub unsafe fn #read_port(port: u16, index: usize) -> #pretty_type {
+                match index {
+                    #(#read_ports),*
+                    _ => panic!(),
                 }
             }
         })
