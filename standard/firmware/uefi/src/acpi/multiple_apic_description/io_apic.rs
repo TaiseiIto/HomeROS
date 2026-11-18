@@ -5,8 +5,6 @@ use {
 
 /// # References
 /// * [I/O APIC Structure](https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html#io-apic-structure)
-/// # TODO
-/// * Print IO APIC.
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Structure {
@@ -17,6 +15,15 @@ pub struct Structure {
     global_system_interrupt_base: u32,
 }
 
+impl Structure {
+    fn global_system_interrupt(&self) -> &interrupt::apic::io::Registers {
+        unsafe {
+            &*(self.global_system_interrupt_base() as usize
+                as *const interrupt::apic::io::Registers)
+        }
+    }
+}
+
 impl Debug for Structure {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
@@ -24,10 +31,7 @@ impl Debug for Structure {
             .field("header", &self.header)
             .field("id", &self.id())
             .field("address", &self.address())
-            .field(
-                "global_system_interrupt_base",
-                &self.global_system_interrupt_base(),
-            )
+            .field("global_system_interrupt", &self.global_system_interrupt())
             .finish()
     }
 }
