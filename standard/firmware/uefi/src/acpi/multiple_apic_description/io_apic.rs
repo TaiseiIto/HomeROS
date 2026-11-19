@@ -16,11 +16,8 @@ pub struct Structure {
 }
 
 impl Structure {
-    fn global_system_interrupt(&self) -> &interrupt::apic::io::Registers {
-        unsafe {
-            &*(self.global_system_interrupt_base() as usize
-                as *const interrupt::apic::io::Registers)
-        }
+    fn registers(&self) -> &interrupt::apic::io::Registers {
+        unsafe { &*(self.address() as usize as *const interrupt::apic::io::Registers) }
     }
 }
 
@@ -31,7 +28,10 @@ impl Debug for Structure {
             .field("header", &self.header)
             .field("id", &self.id())
             .field("address", &self.address())
-            .field("global_system_interrupt", &self.global_system_interrupt())
+            .field(
+                "global_system_interrupt_base",
+                &self.global_system_interrupt_base(),
+            )
             .field("identification", &interrupt::apic::io::identification())
             .finish()
     }
@@ -39,6 +39,6 @@ impl Debug for Structure {
 
 impl super::Structure for Structure {
     fn initialize(&mut self) {
-        interrupt::apic::io::initialize(self.global_system_interrupt_base() as usize)
+        interrupt::apic::io::initialize(self.address() as usize)
     }
 }
