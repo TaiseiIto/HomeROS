@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies.io]
 path = "../../../tool/macro/io"
 
+[dependencies.sync]
+path = "../../../tool/sync"
