@@ -37,5 +37,7 @@ impl Debug for Structure {
 }
 
 impl super::Structure for Structure {
-    fn initialize(&mut self) {}
+    fn initialize(&mut self) {
+        interrupt::apic::io::initialize(self.global_system_interrupt_base() as usize)
+    }
 }
