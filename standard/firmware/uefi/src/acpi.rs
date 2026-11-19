@@ -10,7 +10,7 @@ use core::{
     fmt::{self, Debug, Formatter},
     mem::size_of,
     num::Wrapping,
-    slice::from_raw_parts,
+    slice::{from_raw_parts, from_raw_parts_mut},
 };
 
 /// # References
@@ -73,6 +73,12 @@ impl Header {
         let bytes: *const Self = self as *const Self;
         let bytes: *const u8 = bytes as *const u8;
         unsafe { from_raw_parts(bytes, self.length()) }
+    }
+
+    fn bytes_mut(&mut self) -> &mut [u8] {
+        let bytes: *mut Self = self as *mut Self;
+        let bytes: *mut u8 = bytes as *mut u8;
+        unsafe { from_raw_parts_mut(bytes, self.length()) }
     }
 
     fn creator_id(&self) -> &str {

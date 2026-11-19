@@ -31,9 +31,18 @@ impl Table {
         &self.header.bytes()[offset_of!(Self, interrupt_controller_structure)..]
     }
 
+    fn get_interrupt_controller_structure_bytes_mut(&mut self) -> &mut [u8] {
+        &mut self.header.bytes_mut()[offset_of!(Self, interrupt_controller_structure)..]
+    }
+
     fn get_structures(&self) -> Vec<&dyn Structure> {
         let headers: Headers = self.get_interrupt_controller_structure_bytes().into();
         headers.map(Header::as_structure).collect()
+    }
+
+    fn get_structures_mut(&mut self) -> Vec<&mut dyn Structure> {
+        let headers: HeadersMut = self.get_interrupt_controller_structure_bytes_mut().into();
+        headers.map(Header::as_structure_mut).collect()
     }
 
     fn local_interrupt_controller(&self) -> &interrupt::apic::local::Registers {
@@ -60,7 +69,11 @@ impl Debug for Table {
 }
 
 impl super::Table for Table {
-    fn initialize(&mut self) {}
+    fn initialize(&mut self) {
+        for structure in self.get_structures_mut().into_iter() {
+            structure.initialize()
+        }
+    }
 }
 
 #[io::register]
@@ -86,6 +99,19 @@ impl Header {
                 &*(self as *const Self as *const interrupt_source_override::Structure)
             },
             Type::IoApic => unsafe { &*(self as *const Self as *const io_apic::Structure) },
+            typ => unimplemented!("type {:#x?}", typ),
+        }
+    }
+
+    fn as_structure_mut(&mut self) -> &mut dyn Structure {
+        match self.get_type() {
+            Type::ProcessorLocalApic => unsafe {
+                &mut *(self as *mut Self as *mut processor_local_apic::Structure)
+            },
+            Type::InterruptSourceOverride => unsafe {
+                &mut *(self as *mut Self as *mut interrupt_source_override::Structure)
+            },
+            Type::IoApic => unsafe { &mut *(self as *mut Self as *mut io_apic::Structure) },
             typ => unimplemented!("type {:#x?}", typ),
         }
     }
@@ -171,7 +197,7 @@ impl<'a> Iterator for Headers<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.0
-            .split_at_checked(size_of::<Self::Item>())
+            .split_at_checked(size_of::<Header>())
             .and_then(|(header, _)| header.first())
             .map(|header| unsafe { &*(header as *const u8 as *const Header) })
             .and_then(|header| {
@@ -185,4 +211,32 @@ impl<'a> Iterator for Headers<'a> {
     }
 }
 
-trait Structure: Debug {}
+struct HeadersMut<'a>(&'a mut [u8]);
+
+impl HeadersMut<'_> {
+    fn next_header_size(&self) -> Option<usize> {
+        self.0
+            .split_at_checked(size_of::<Header>())
+            .and_then(|(header, _)| header.first())
+            .map(|header| unsafe { &*(header as *const u8 as *const Header) })
+            .map(Header::get_length)
+    }
+}
+
+impl<'a> From<&'a mut [u8]> for HeadersMut<'a> {
+    fn from(interrupt_controller_structure: &'a mut [u8]) -> Self {
+        Self(interrupt_controller_structure)
+    }
+}
+
+impl<'a> Iterator for HeadersMut<'a> {
+    type Item = &'a mut Header;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!();
+    }
+}
+
+trait Structure: Debug {
+    fn initialize(&mut self);
+}

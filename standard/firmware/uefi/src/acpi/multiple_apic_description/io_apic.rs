@@ -36,4 +36,6 @@ impl Debug for Structure {
     }
 }
 
-impl super::Structure for Structure {}
+impl super::Structure for Structure {
+    fn initialize(&mut self) {}
+}
