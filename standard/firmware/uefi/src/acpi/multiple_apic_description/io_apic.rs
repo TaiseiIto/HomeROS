@@ -32,6 +32,7 @@ impl Debug for Structure {
             .field("id", &self.id())
             .field("address", &self.address())
             .field("global_system_interrupt", &self.global_system_interrupt())
+            .field("identification", &interrupt::apic::io::identification())
             .finish()
     }
 }
