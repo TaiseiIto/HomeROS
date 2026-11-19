@@ -122,8 +122,24 @@ impl Table {
             .collect()
     }
 
+    fn entries_mut(&mut self) -> Vec<&mut dyn super::Table> {
+        self.header
+            .body()
+            .iter()
+            .copied()
+            .array_chunks()
+            .map(|entry| {
+                let header: usize = u32::from_le_bytes(entry) as usize;
+                let header: *mut Header = header as *mut Header;
+                unsafe { &mut *header }.table_mut()
+            })
+            .collect()
+    }
+
     fn initialize(&mut self) {
-        unimplemented!();
+        for table in self.entries_mut().into_iter() {
+            table.initialize();
+        }
     }
 }
 
@@ -137,4 +153,6 @@ impl Debug for Table {
     }
 }
 
-impl super::Table for Table {}
+impl super::Table for Table {
+    fn initialize(&mut self) {}
+}

@@ -56,6 +56,19 @@ impl Header {
         }
     }
 
+    pub fn table_mut(&mut self) -> &mut dyn Table {
+        let header: *mut Self = self as *mut Self;
+        match self.signature() {
+            "APIC" => unsafe { &mut *(header as *mut multiple_apic_description::Table) },
+            "BGRT" => unsafe { &mut *(header as *mut boot_graphics_resource::Table) },
+            "FACP" => unsafe { &mut *(header as *mut fixed_acpi_description::Table) },
+            "HPET" => unsafe { &mut *(header as *mut hpet::Table) },
+            "RSDT" => unsafe { &mut *(header as *mut root_system_description::Table) },
+            "WAET" => unsafe { &mut *(header as *mut windows_emulated_devices::Table) },
+            signature => panic!("Unknown type {:#x?}", signature),
+        }
+    }
+
     fn bytes(&self) -> &[u8] {
         let bytes: *const Self = self as *const Self;
         let bytes: *const u8 = bytes as *const u8;
@@ -98,4 +111,6 @@ impl Debug for Header {
     }
 }
 
-pub trait Table: Debug {}
+pub trait Table: Debug {
+    fn initialize(&mut self);
+}

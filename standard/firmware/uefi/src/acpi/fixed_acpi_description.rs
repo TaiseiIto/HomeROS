@@ -132,4 +132,6 @@ impl Debug for Table {
     }
 }
 
-impl super::Table for Table {}
+impl super::Table for Table {
+    fn initialize(&mut self) {}
+}
