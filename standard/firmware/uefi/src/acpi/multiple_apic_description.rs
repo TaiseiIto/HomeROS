@@ -186,6 +186,16 @@ impl From<u8> for Type {
 
 struct Headers<'a>(&'a [u8]);
 
+impl Headers<'_> {
+    fn next_header_size(&self) -> Option<usize> {
+        self.0
+            .split_at_checked(size_of::<Header>())
+            .and_then(|(header, _)| header.first())
+            .map(|header| unsafe { &*(header as *const u8 as *const Header) })
+            .map(Header::get_length)
+    }
+}
+
 impl<'a> From<&'a [u8]> for Headers<'a> {
     fn from(interrupt_controller_structure: &'a [u8]) -> Self {
         Self(interrupt_controller_structure)
@@ -196,18 +206,11 @@ impl<'a> Iterator for Headers<'a> {
     type Item = &'a Header;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.0
-            .split_at_checked(size_of::<Header>())
-            .and_then(|(header, _)| header.first())
-            .map(|header| unsafe { &*(header as *const u8 as *const Header) })
-            .and_then(|header| {
-                self.0
-                    .split_at_checked(header.get_length())
-                    .map(|(_, remaining)| {
-                        self.0 = remaining;
-                        header
-                    })
-            })
+        let next_header_size: usize = self.next_header_size()?;
+        let (header, remaining): (&[u8], &[u8]) = self.0.split_at_checked(next_header_size)?;
+        let header: &u8 = header.first()?;
+        self.0 = remaining;
+        Some(unsafe { &*(header as *const u8 as *const Header) })
     }
 }
 
