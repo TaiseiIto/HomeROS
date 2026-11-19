@@ -33,6 +33,10 @@ impl Pointer {
     pub const VERSION1: Guid = guid!("eb9d2d30-2d88-11d3-9a16-0090273fc14d");
     pub const VERSION2: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
 
+    pub fn initialize(&mut self) {
+        self.rsdt_mut().initialize();
+    }
+
     pub fn is_correct(&self) -> bool {
         let pointer: *const Self = self as *const Self;
         let pointer: *const u8 = pointer as *const u8;
@@ -60,6 +64,14 @@ impl Pointer {
         let rsdt: usize = u32::from_le_bytes(self.rsdt) as usize;
         let rsdt: *const Table = rsdt as *const Table;
         let rsdt: &Table = unsafe { &*rsdt };
+        assert!(rsdt.header.is_correct());
+        rsdt
+    }
+
+    fn rsdt_mut(&mut self) -> &mut Table {
+        let rsdt: usize = u32::from_le_bytes(self.rsdt) as usize;
+        let rsdt: *mut Table = rsdt as *mut Table;
+        let rsdt: &mut Table = unsafe { &mut *rsdt };
         assert!(rsdt.header.is_correct());
         rsdt
     }
@@ -108,6 +120,10 @@ impl Table {
                 unsafe { &*header }.table()
             })
             .collect()
+    }
+
+    fn initialize(&mut self) {
+        unimplemented!();
     }
 }
 

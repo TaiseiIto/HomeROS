@@ -17,7 +17,7 @@ use {
 #[repr(C)]
 pub struct Pointer {
     guid: Guid,
-    table: *const Void,
+    table: *mut Void,
 }
 
 impl Pointer {
@@ -30,7 +30,14 @@ impl Pointer {
     const SMBIOS64: Guid = guid!("f2fd1544-9794-4a2c-992e-e5bbcf20e394");
 
     pub fn initialize(&mut self) {
-        unimplemented!();
+        match self.guid {
+            acpi::root_system_description::Pointer::VERSION1
+            | acpi::root_system_description::Pointer::VERSION2 => {
+                unsafe { &mut *(self.table as *mut acpi::root_system_description::Pointer) }
+                    .initialize()
+            }
+            _ => {}
+        }
     }
 
     pub fn table(&self) -> &dyn Table {
