@@ -107,6 +107,7 @@ fn main(global: firmware::Global) -> ! {
         #[cfg(start_with_assembly)]
         firmware::GLOBAL.lock().get().unwrap().boot_loader_head(),
     );
+    firmware::GLOBAL.lock().get_mut().unwrap().initialize();
     uart::dbg!(firmware::GLOBAL.lock().get_mut().unwrap());
     unimplemented!();
 }

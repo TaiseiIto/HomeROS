@@ -84,6 +84,11 @@ impl Global {
             .exit_boot_services(self.image_handle as Handle)
     }
 
+    pub fn initialize(&mut self) {
+        #[cfg(firmware = "uefi")]
+        self.system_table.initialize();
+    }
+
     /// # Safety
     /// This function dereferences raw pointers.
     /// Caller must pass valid pointers.

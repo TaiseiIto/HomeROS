@@ -35,6 +35,10 @@ impl Table {
         unsafe { &mut *self.boot_services }.exit_boot_services(image)
     }
 
+    pub fn initialize(&mut self) {
+        unimplemented!();
+    }
+
     pub fn write(&self, string: &str) {
         unsafe { &*self.con_out }.write_string(string);
     }
