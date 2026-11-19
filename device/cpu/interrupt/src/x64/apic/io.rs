@@ -19,13 +19,14 @@ pub struct Registers {
     __: [u8; 0xc],
 }
 
+const _: () = assert!(size_of::<Registers>() == 0x50);
+
 impl Registers {
-    fn read(&mut self, index: u8) -> u32 {
+    pub fn identification(&mut self) -> identification::Register {
         unsafe {
-            self.write_index_memory(index::Register::default().update_index_u8(index));
-            self.read_data_memory().read_data_shift()
+            self.write_index_memory(index::Register::default().update_index_u8(0));
+            (&*(&self.data as *const data::RegisterRaw as *const identification::RegisterRaw))
+                .read_memory()
         }
     }
 }
-
-const _: () = assert!(size_of::<Registers>() == 0x50);
