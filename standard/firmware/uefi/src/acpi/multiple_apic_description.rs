@@ -7,7 +7,7 @@ use {
     core::{
         fmt::{Debug, Formatter, Result},
         marker::PhantomData,
-        mem::{offset_of, size_of},
+        mem::{offset_of, size_of, take},
     },
 };
 
@@ -233,7 +233,13 @@ impl<'a> Iterator for HeadersMut<'a> {
     type Item = &'a mut Header;
 
     fn next(&mut self) -> Option<Self::Item> {
-        unimplemented!();
+        let next_header_size: usize = self.next_header_size()?;
+        let (header, tail): (&mut [u8], &mut [u8]) = take(&mut self.0)
+            .split_at_mut_checked(next_header_size)
+            .unwrap();
+        self.0 = tail;
+        let header: &mut u8 = header.first_mut().unwrap();
+        Some(unsafe { &mut *(header as *mut u8 as *mut Header) })
     }
 }
 
