@@ -29,6 +29,10 @@ impl Pointer {
     /// * [SMBIOS Specification](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.10.0.pdf) 5.2.2 SMBIOS 3.0 (64-bit) Entry Point
     const SMBIOS64: Guid = guid!("f2fd1544-9794-4a2c-992e-e5bbcf20e394");
 
+    pub fn initialize(&mut self) {
+        unimplemented!();
+    }
+
     pub fn table(&self) -> &dyn Table {
         match self.guid {
             acpi::root_system_description::Pointer::VERSION1

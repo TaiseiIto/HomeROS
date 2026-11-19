@@ -7,7 +7,7 @@ use {
     },
     core::{
         fmt::{Debug, Formatter, Result},
-        slice::from_raw_parts,
+        slice::{from_raw_parts, from_raw_parts_mut},
     },
 };
 
@@ -27,7 +27,7 @@ pub struct Table {
     runtime_services: *const runtime::Table,
     boot_services: *mut boot::Table,
     number_of_table_entries: usize,
-    configuration_table: *const configuration::Pointer,
+    configuration_table: *mut configuration::Pointer,
 }
 
 impl Table {
@@ -36,7 +36,9 @@ impl Table {
     }
 
     pub fn initialize(&mut self) {
-        unimplemented!();
+        for configuration_table in self.configuration_tables_mut().iter_mut() {
+            configuration_table.initialize();
+        }
     }
 
     pub fn write(&self, string: &str) {
@@ -45,6 +47,10 @@ impl Table {
 
     fn configuration_tables(&self) -> &[configuration::Pointer] {
         unsafe { from_raw_parts(self.configuration_table, self.number_of_table_entries) }
+    }
+
+    fn configuration_tables_mut(&mut self) -> &mut [configuration::Pointer] {
+        unsafe { from_raw_parts_mut(self.configuration_table, self.number_of_table_entries) }
     }
 }
 
