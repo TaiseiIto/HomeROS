@@ -1,5 +1,6 @@
 mod interrupt_source_override;
 mod io_apic;
+mod local_apic_nmi;
 mod processor_local_apic;
 
 use {
@@ -99,6 +100,9 @@ impl Header {
                 &*(self as *const Self as *const interrupt_source_override::Structure)
             },
             Type::IoApic => unsafe { &*(self as *const Self as *const io_apic::Structure) },
+            Type::LocalApicNmi => unsafe {
+                &*(self as *const Self as *const local_apic_nmi::Structure)
+            },
             typ => unimplemented!("type {:#x?}", typ),
         }
     }
@@ -112,6 +116,9 @@ impl Header {
                 &mut *(self as *mut Self as *mut interrupt_source_override::Structure)
             },
             Type::IoApic => unsafe { &mut *(self as *mut Self as *mut io_apic::Structure) },
+            Type::LocalApicNmi => unsafe {
+                &mut *(self as *mut Self as *mut local_apic_nmi::Structure)
+            },
             typ => unimplemented!("type {:#x?}", typ),
         }
     }

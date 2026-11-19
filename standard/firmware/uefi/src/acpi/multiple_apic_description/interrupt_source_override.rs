@@ -39,7 +39,7 @@ impl super::Structure for Structure {
 }
 
 #[io::register]
-struct Flags {
+pub struct Flags {
     polarity: [bool; 2],
     trigger_mode: [bool; 2],
     __: [bool; 12],
