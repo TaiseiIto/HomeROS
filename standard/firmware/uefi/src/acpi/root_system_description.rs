@@ -1,5 +1,5 @@
 use {
-    super::Header,
+    super::{Header, extended_system_description},
     crate::{Guid, configuration, guid},
     alloc::vec::Vec,
     core::{
@@ -12,17 +12,16 @@ use {
 
 /// # References
 /// * [Root System Description Pointer (RSDP) Structure](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html#rsdp-structure)
-/// # TODO
-/// * Print XSDT
+#[derive(packed::Accessor)]
 #[repr(C, packed)]
 pub struct Pointer {
     signature: [u8; 8],
     checksum: u8,
     oemid: [u8; 6],
     revision: u8,
-    rsdt: [u8; 4],
-    length: [u8; 4],
-    xsdt: [u8; 8],
+    rsdt: u32,
+    length: u32,
+    xsdt: u64,
     extended_checksum: u8,
     __: [u8; 3],
 }
@@ -34,7 +33,7 @@ impl Pointer {
     pub const VERSION2: Guid = guid!("8868e871-e4f1-11d3-bc22-0080c73c8881");
 
     pub fn initialize(&mut self) {
-        self.rsdt_mut().initialize();
+        self.get_rsdt_mut().initialize();
     }
 
     pub fn is_correct(&self) -> bool {
@@ -47,41 +46,56 @@ impl Pointer {
             .sum::<Wrapping<u8>>()
             .0
             == 0
-            && unsafe { from_raw_parts(pointer, self.length()) }
-                .iter()
-                .copied()
-                .map(Wrapping)
-                .sum::<Wrapping<u8>>()
-                .0
-                == 0
+            && self
+                .get_length()
+                .map(|length| {
+                    unsafe { from_raw_parts(pointer, length) }
+                        .iter()
+                        .copied()
+                        .map(Wrapping)
+                        .sum::<Wrapping<u8>>()
+                        .0
+                        == 0
+                })
+                .unwrap_or(true)
     }
 
-    fn length(&self) -> usize {
-        u32::from_le_bytes(self.length) as usize
+    fn get_length(&self) -> Option<usize> {
+        self.is_extended().then(|| self.length() as usize)
     }
 
-    fn rsdt(&self) -> &Table {
-        let rsdt: usize = u32::from_le_bytes(self.rsdt) as usize;
+    fn get_rsdt(&self) -> &Table {
+        let rsdt: usize = self.rsdt() as usize;
         let rsdt: *const Table = rsdt as *const Table;
         let rsdt: &Table = unsafe { &*rsdt };
         assert!(rsdt.header.is_correct());
         rsdt
     }
 
-    fn rsdt_mut(&mut self) -> &mut Table {
-        let rsdt: usize = u32::from_le_bytes(self.rsdt) as usize;
+    fn get_rsdt_mut(&mut self) -> &mut Table {
+        let rsdt: usize = self.rsdt() as usize;
         let rsdt: *mut Table = rsdt as *mut Table;
         let rsdt: &mut Table = unsafe { &mut *rsdt };
         assert!(rsdt.header.is_correct());
         rsdt
     }
 
-    fn signature(&self) -> &str {
+    fn get_signature(&self) -> &str {
         str::from_utf8(&self.signature).unwrap()
     }
 
-    fn oemid(&self) -> &str {
+    fn get_oemid(&self) -> &str {
         str::from_utf8(&self.oemid).unwrap()
+    }
+
+    fn get_xsdt(&self) -> Option<&extended_system_description::Table> {
+        self.is_extended().then(|| unsafe {
+            &*(self.xsdt() as usize as *const extended_system_description::Table)
+        })
+    }
+
+    fn is_extended(&self) -> bool {
+        2 <= self.revision()
     }
 }
 
@@ -89,11 +103,12 @@ impl Debug for Pointer {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("Pointer")
-            .field("signature", &self.signature())
-            .field("oemid", &self.oemid())
-            .field("revision", &self.revision)
-            .field("rsdt", &self.rsdt())
-            .field("xsdt", &self.xsdt)
+            .field("signature", &self.get_signature())
+            .field("oemid", &self.get_oemid())
+            .field("revision", &self.revision())
+            .field("rsdt", &self.get_rsdt())
+            .field("length", &self.get_length())
+            .field("xsdt", &self.get_xsdt())
             .finish()
     }
 }

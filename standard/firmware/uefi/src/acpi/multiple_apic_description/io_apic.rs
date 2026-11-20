@@ -32,7 +32,7 @@ impl Debug for Structure {
                 "global_system_interrupt_base",
                 &self.global_system_interrupt_base(),
             )
-            .field("identification", &interrupt::apic::io::identification())
+            .field("indirect", &interrupt::apic::io::indirect::Registers::get())
             .finish()
     }
 }

@@ -1,4 +1,5 @@
 mod boot_graphics_resource;
+mod extended_system_description;
 mod fixed_acpi_description;
 pub mod generic_address;
 mod hpet;
