@@ -13,7 +13,8 @@ pub fn initialize(address: usize) {
     GLOBAL
         .0
         .lock()
-        .set(unsafe { &mut *(address as *mut Registers) });
+        .set(unsafe { &mut *(address as *mut Registers) })
+        .unwrap();
 }
 
 static GLOBAL: Global = Global::new();
