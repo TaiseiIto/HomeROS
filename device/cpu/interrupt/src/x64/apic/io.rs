@@ -6,15 +6,15 @@ pub mod indirect;
 use {
     alloc::vec::Vec,
     core::{cell::OnceCell, mem::size_of},
-    sync::spin::Lock,
+    sync::spin::{Guard, Lock},
 };
 
 pub fn initialize(address: usize) {
-    GLOBAL
-        .0
-        .lock()
-        .set(unsafe { &mut *(address as *mut Registers) })
-        .unwrap();
+    let mut lock: Guard<OnceCell<&'static mut Registers>> = GLOBAL.0.lock();
+    lock.get().is_none().then(|| {
+        lock.set(unsafe { &mut *(address as *mut Registers) })
+            .unwrap()
+    });
 }
 
 static GLOBAL: Global = Global::new();
