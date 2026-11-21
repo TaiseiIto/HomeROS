@@ -46,7 +46,7 @@ pub struct Table {
     century: u8,
     iapc_boot_arch: u16,
     reserved1: u8,
-    flags: u32,
+    flags: FlagsRaw,
     reset_reg: [u8; 12],
     reset_value: u8,
     arm_boot_arch: u16,
@@ -69,6 +69,10 @@ pub struct Table {
 impl Table {
     fn get_firmware_ctrl(&self) -> &firmware_control::Structure {
         unsafe { &*(self.firmware_ctrl() as usize as *const &firmware_control::Structure) }
+    }
+
+    fn get_flags(&self) -> Flags {
+        self.flags().into()
     }
 }
 
@@ -114,7 +118,7 @@ impl Debug for Table {
             .field("century", &self.century())
             .field("iapc_boot_arch", &self.iapc_boot_arch())
             .field("reserved1", &self.reserved1())
-            .field("flags", &self.flags())
+            .field("flags", &self.get_flags())
             .field("reset_reg", &self.reset_reg())
             .field("reset_value", &self.reset_value())
             .field("arm_boot_arch", &self.arm_boot_arch())
@@ -141,4 +145,33 @@ impl Debug for Table {
 
 impl super::Table for Table {
     fn initialize(&mut self) {}
+}
+
+/// References
+/// * [Fixed ACPI Description Table Fixed Feature Flags](https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/05_ACPI_Software_Programming_Model/ACPI_Software_Programming_Model.html?highlight=hardware_reduced_acpi#fixed-acpi-description-table-fixed-feature-flags)
+#[io::register]
+struct Flags {
+    wbinvd: bool,
+    wbinvd_flush: bool,
+    proc_c1: bool,
+    p_lvl2_up: bool,
+    pwr_button: bool,
+    slp_button: bool,
+    fix_rtc: bool,
+    rtc_s4: bool,
+    tmr_val_ext: bool,
+    dck_cap: bool,
+    reset_reg_sup: bool,
+    sealed_case: bool,
+    headless: bool,
+    cpu_sw_slp: bool,
+    pci_exp_wak: bool,
+    use_platform_clock: bool,
+    s4_rtc_sts_valid: bool,
+    remote_power_on_capable: bool,
+    force_apic_cluster_model: bool,
+    force_acpi_physical_destination_mode: bool,
+    hw_reduced_acpi: bool,
+    low_power_s0_idle_capable: bool,
+    __: [bool; 10],
 }
