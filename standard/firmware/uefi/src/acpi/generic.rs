@@ -4,7 +4,7 @@ use core::fmt::{Debug, Formatter, Result};
 /// * [Generic Address Structure](https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html#generic-address-structure-gas)
 #[derive(packed::Accessor)]
 #[repr(C, packed)]
-pub struct Structure {
+pub struct Address {
     space_id: u8,
     bit_width: u8,
     bit_offset: u8,
@@ -12,7 +12,7 @@ pub struct Structure {
     address: u64,
 }
 
-impl Structure {
+impl Address {
     pub fn system_memory_space<T>(&self) -> Option<&T> {
         matches!(self.get_space_id(), SpaceId::SystemMemorySpace)
             .then_some(unsafe { &*(self.address as *const T) })
@@ -23,10 +23,10 @@ impl Structure {
     }
 }
 
-impl Debug for Structure {
+impl Debug for Address {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
-            .debug_struct("Structure")
+            .debug_struct("Address")
             .field("space_id", &self.get_space_id())
             .field("bit_width", &self.bit_width())
             .field("bit_offset", &self.bit_offset())

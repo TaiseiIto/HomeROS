@@ -1,7 +1,7 @@
 mod boot_graphics_resource;
 mod extended_system_description;
 mod fixed_acpi_description;
-pub mod generic_address;
+pub mod generic;
 mod hpet;
 mod multiple_apic_description;
 pub mod root_system_description;
@@ -108,6 +108,7 @@ impl Debug for Header {
         formatter
             .debug_struct("Header")
             .field("signature", &self.signature())
+            .field("length", &self.length())
             .field("revision", &self.revision)
             .field("oem_id", &self.oem_id())
             .field("oem_table_id", &self.oem_table_id())

@@ -1,5 +1,5 @@
 use {
-    super::{Header, generic_address},
+    super::{Header, generic},
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -10,7 +10,7 @@ use {
 pub struct Table {
     header: Header,
     block_id: BlockIdRaw,
-    base_address: generic_address::Structure,
+    base_address: generic::Address,
     number: u8,
     minimum_clock_tick: u16,
     page_protection_and_oem_attribute: PageProtectionAndOemAttributeRaw,

@@ -1,5 +1,5 @@
 use {
-    super::{Header, generic_address},
+    super::{Header, generic},
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -53,16 +53,16 @@ pub struct Table {
     fadt_minor_vision: u8,
     x_firmware_ctrl: u64,
     x_dsdt: u64,
-    x_pm1a_evt_blk: generic_address::Structure,
-    x_pm1b_evt_blk: generic_address::Structure,
-    x_pm1a_cnt_blk: generic_address::Structure,
-    x_pm1b_cnt_blk: generic_address::Structure,
-    x_pm2_cnt_blk: generic_address::Structure,
-    x_pm2_tmr_blk: generic_address::Structure,
-    x_gpe0_blk: generic_address::Structure,
-    x_gpe1_blk: generic_address::Structure,
-    sleep_control_reg: generic_address::Structure,
-    sleep_status_reg: generic_address::Structure,
+    x_pm1a_evt_blk: generic::Address,
+    x_pm1b_evt_blk: generic::Address,
+    x_pm1a_cnt_blk: generic::Address,
+    x_pm1b_cnt_blk: generic::Address,
+    x_pm2_cnt_blk: generic::Address,
+    x_pm2_tmr_blk: generic::Address,
+    x_gpe0_blk: generic::Address,
+    x_gpe1_blk: generic::Address,
+    sleep_control_reg: generic::Address,
+    sleep_status_reg: generic::Address,
     hypervisor_vendor_identity: u64,
 }
 
