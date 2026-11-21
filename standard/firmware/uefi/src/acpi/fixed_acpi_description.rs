@@ -67,8 +67,16 @@ pub struct Table {
 }
 
 impl Table {
-    fn get_firmware_ctrl(&self) -> &firmware_control::Structure {
-        unsafe { &*(self.firmware_ctrl() as usize as *const &firmware_control::Structure) }
+    fn get_firmware_ctrl(&self) -> Option<&firmware_control::Structure> {
+        match (
+            self.firmware_ctrl() as usize,
+            self.x_firmware_ctrl() as usize,
+        ) {
+            (0, 0) => None,
+            (firmware_ctrl, 0) => Some(firmware_ctrl as usize),
+            (_, x_firmware_ctrl) => Some(x_firmware_ctrl as usize),
+        }
+        .map(|firmware_ctrl| unsafe { &*(firmware_ctrl as *const firmware_control::Structure) })
     }
 
     fn get_flags(&self) -> Flags {
@@ -81,7 +89,7 @@ impl Debug for Table {
         formatter
             .debug_struct("Table")
             .field("header", &self.header())
-            .field("firmware_ctrl", self.get_firmware_ctrl())
+            .field("firmware_ctrl", &self.get_firmware_ctrl())
             .field("dsdt", &self.dsdt())
             .field("reserved0", &self.reserved0())
             .field("preferred_pm_profile", &self.preferred_pm_profile())
@@ -123,7 +131,6 @@ impl Debug for Table {
             .field("reset_value", &self.reset_value())
             .field("arm_boot_arch", &self.arm_boot_arch())
             .field("fadt_minor_vision", &self.fadt_minor_vision())
-            .field("x_firmware_ctrl", &self.x_firmware_ctrl())
             .field("x_dsdt", &self.x_dsdt())
             .field("x_pm1a_evt_blk", &self.x_pm1a_evt_blk())
             .field("x_pm1b_evt_blk", &self.x_pm1b_evt_blk())
