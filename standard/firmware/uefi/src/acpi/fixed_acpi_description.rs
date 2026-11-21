@@ -1,5 +1,5 @@
 use {
-    super::{Header, generic},
+    super::{Header, firmware_control, generic},
     core::fmt::{Debug, Formatter, Result},
 };
 
@@ -66,12 +66,18 @@ pub struct Table {
     hypervisor_vendor_identity: u64,
 }
 
+impl Table {
+    fn get_firmware_ctrl(&self) -> &firmware_control::Structure {
+        unsafe { &*(self.firmware_ctrl() as usize as *const &firmware_control::Structure) }
+    }
+}
+
 impl Debug for Table {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result {
         formatter
             .debug_struct("Table")
             .field("header", &self.header())
-            .field("firmware_ctrl", &self.firmware_ctrl())
+            .field("firmware_ctrl", self.get_firmware_ctrl())
             .field("dsdt", &self.dsdt())
             .field("reserved0", &self.reserved0())
             .field("preferred_pm_profile", &self.preferred_pm_profile())
